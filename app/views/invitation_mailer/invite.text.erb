@@ -1,0 +1,9 @@
+You're invited!
+
+<%= @inviter.email_address %> has invited you to join <%= @company.name %> on Director as a <%= @invitation.role %>.
+
+Accept the invitation: <%= @accept_url %>
+
+This invitation expires on <%= @invitation.expires_at.strftime("%B %d, %Y") %>.
+
+If you didn't expect this invitation, you can safely ignore this email.

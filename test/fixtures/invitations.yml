@@ -1,0 +1,27 @@
+pending_invite:
+  company: acme
+  inviter: one
+  email_address: invitee@example.com
+  role: 0  # member
+  token: pending_token_abc123
+  status: 0  # pending
+  expires_at: <%= 29.days.from_now.iso8601 %>
+
+expired_invite:
+  company: acme
+  inviter: one
+  email_address: expired@example.com
+  role: 0  # member
+  token: expired_token_xyz789
+  status: 0  # pending
+  expires_at: <%= 1.day.ago.iso8601 %>
+
+accepted_invite:
+  company: acme
+  inviter: one
+  email_address: two@example.com
+  role: 0  # member
+  token: accepted_token_def456
+  status: 1  # accepted
+  accepted_at: <%= 5.days.ago.iso8601 %>
+  expires_at: <%= 25.days.from_now.iso8601 %>

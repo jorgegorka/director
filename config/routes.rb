@@ -14,6 +14,12 @@ Rails.application.routes.draw do
     resource :switch, only: [ :create ], module: :companies, controller: "switches"
   end
 
+  # Invitations (scoped to active company via Current.company)
+  resources :invitations, only: [ :index, :new, :create ]
+
+  # Invitation acceptance (public, token-based)
+  resources :invitation_acceptances, only: [ :show, :update ], param: :token
+
   # Health check - used by load balancers and uptime monitors
   get "up" => "rails/health#show", as: :rails_health_check
 
