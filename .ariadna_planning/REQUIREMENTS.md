@@ -1,7 +1,7 @@
 # Requirements: Director
 
 **Defined:** 2026-03-26
-**Core Value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously — knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
+**Core Value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
 
 ## v1 Requirements
 
@@ -9,71 +9,71 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Authentication
 
-- [ ] **AUTH-01**: User can sign up with email and password — *enables account creation*
-- [ ] **AUTH-02**: User can log in and session persists across browser refresh — *removes friction from daily use*
-- [ ] **AUTH-03**: User can reset password via email link — *self-service recovery*
-- [ ] **AUTH-04**: User can update email and password from account settings — *basic account management*
+- [ ] **AUTH-01**: User can sign up with email and password -- *enables account creation*
+- [ ] **AUTH-02**: User can log in and session persists across browser refresh -- *removes friction from daily use*
+- [ ] **AUTH-03**: User can reset password via email link -- *self-service recovery*
+- [ ] **AUTH-04**: User can update email and password from account settings -- *basic account management*
 
 ### Accounts & Multi-tenancy
 
-- [ ] **ACCT-01**: User can create companies (each is an isolated tenant) — *core multi-company model*
-- [ ] **ACCT-02**: User can invite team members to a company via email — *enables collaboration*
-- [ ] **ACCT-03**: Company has role-based access: owner, admin, member — *governance over who can do what*
+- [ ] **ACCT-01**: User can create companies (each is an isolated tenant) -- *core multi-company model*
+- [ ] **ACCT-02**: User can invite team members to a company via email -- *enables collaboration*
+- [ ] **ACCT-03**: Company has role-based access: owner, admin, member -- *governance over who can do what*
 
 ### Org Chart & Roles
 
-- [ ] **ORG-01**: User can create and edit roles with title, description, and job spec — *defines positions in the AI company*
-- [ ] **ORG-02**: User can assign agents to roles — *hiring agents into positions*
-- [ ] **ORG-03**: Roles have hierarchical reporting lines (parent/child) — *delegation chains and escalation paths*
-- [ ] **ORG-04**: Company org chart renders as a visual tree — *see the company structure at a glance*
+- [ ] **ORG-01**: User can create and edit roles with title, description, and job spec -- *defines positions in the AI company*
+- [ ] **ORG-02**: User can assign agents to roles -- *hiring agents into positions*
+- [ ] **ORG-03**: Roles have hierarchical reporting lines (parent/child) -- *delegation chains and escalation paths*
+- [ ] **ORG-04**: Company org chart renders as a visual tree -- *see the company structure at a glance*
 
 ### Agent Connection (BYOA)
 
-- [ ] **AGNT-01**: User can register agents via HTTP API endpoints — *connect cloud-hosted agents*
-- [ ] **AGNT-02**: User can register agents via bash command execution — *connect local agents*
-- [ ] **AGNT-03**: System monitors agent status (online/offline/error) — *know which agents are alive*
-- [ ] **AGNT-04**: Agents declare capabilities/skills on registration — *match agents to appropriate tasks*
+- [ ] **AGNT-01**: User can register agents via HTTP API endpoints -- *connect cloud-hosted agents*
+- [ ] **AGNT-02**: User can register agents via bash command execution -- *connect local agents*
+- [ ] **AGNT-03**: System monitors agent status (online/offline/error) -- *know which agents are alive*
+- [ ] **AGNT-04**: Agents declare capabilities/skills on registration -- *match agents to appropriate tasks*
 
 ### Task & Ticket System
 
-- [ ] **TASK-01**: User can create tasks and assign them to agents — *the basic unit of work*
-- [ ] **TASK-02**: Tasks have threaded conversation history — *agents discuss and report progress*
-- [ ] **TASK-03**: Agents can delegate tasks down the org chart or escalate up — *work flows through hierarchy*
-- [ ] **TASK-04**: All task actions logged with immutable audit trail — *full history of what happened and why*
+- [ ] **TASK-01**: User can create tasks and assign them to agents -- *the basic unit of work*
+- [ ] **TASK-02**: Tasks have threaded conversation history -- *agents discuss and report progress*
+- [ ] **TASK-03**: Agents can delegate tasks down the org chart or escalate up -- *work flows through hierarchy*
+- [ ] **TASK-04**: All task actions logged with immutable audit trail -- *full history of what happened and why*
 
 ### Goal Alignment
 
-- [ ] **GOAL-01**: Company has a mission/top-level goal — *the north star all work traces to*
-- [ ] **GOAL-02**: Goals form a hierarchy: mission > objectives > tasks — *every task carries full goal ancestry*
-- [ ] **GOAL-03**: Dashboard shows goal progress rolling up from tasks — *see how work maps to objectives*
+- [ ] **GOAL-01**: Company has a mission/top-level goal -- *the north star all work traces to*
+- [ ] **GOAL-02**: Goals form a hierarchy: mission > objectives > tasks -- *every task carries full goal ancestry*
+- [ ] **GOAL-03**: Dashboard shows goal progress rolling up from tasks -- *see how work maps to objectives*
 
 ### Heartbeat & Triggers
 
-- [ ] **BEAT-01**: Agents have configurable heartbeat schedule — *periodic wake to check for work*
-- [ ] **BEAT-02**: Agents wake on events: task assigned, @mentioned — *immediate response to new work*
-- [ ] **BEAT-03**: Heartbeat history logged with actions taken — *see when agents woke and what they did*
-- [ ] **BEAT-04**: Per-agent configurable wake conditions — *different agents respond to different triggers*
+- [ ] **BEAT-01**: Agents have configurable heartbeat schedule -- *periodic wake to check for work*
+- [ ] **BEAT-02**: Agents wake on events: task assigned, @mentioned -- *immediate response to new work*
+- [ ] **BEAT-03**: Heartbeat history logged with actions taken -- *see when agents woke and what they did*
+- [ ] **BEAT-04**: Per-agent configurable wake conditions -- *different agents respond to different triggers*
 
 ### Budget & Cost Control
 
-- [ ] **BUDG-01**: User can set monthly budget per agent — *spending limits for each agent*
-- [ ] **BUDG-02**: Budget enforcement is atomic: agent stops when exhausted — *prevents runaway spend*
-- [ ] **BUDG-03**: Cost tracked per task and per session — *see what each piece of work cost*
-- [ ] **BUDG-04**: Budget alerts notify before limit is reached — *proactive cost management*
+- [ ] **BUDG-01**: User can set monthly budget per agent -- *spending limits for each agent*
+- [ ] **BUDG-02**: Budget enforcement is atomic: agent stops when exhausted -- *prevents runaway spend*
+- [ ] **BUDG-03**: Cost tracked per task and per session -- *see what each piece of work cost*
+- [ ] **BUDG-04**: Budget alerts notify before limit is reached -- *proactive cost management*
 
 ### Governance
 
-- [ ] **GOVR-01**: Approval gates pause agent before high-impact actions — *humans control critical decisions*
-- [ ] **GOVR-02**: User can pause, resume, or terminate any agent — *kill switch for agents*
-- [ ] **GOVR-03**: All actions recorded in immutable audit log — *accountability for every decision*
-- [ ] **GOVR-04**: Configuration changes are versioned with rollback — *undo bad changes*
+- [ ] **GOVR-01**: Approval gates pause agent before high-impact actions -- *humans control critical decisions*
+- [ ] **GOVR-02**: User can pause, resume, or terminate any agent -- *kill switch for agents*
+- [ ] **GOVR-03**: All actions recorded in immutable audit log -- *accountability for every decision*
+- [ ] **GOVR-04**: Configuration changes are versioned with rollback -- *undo bad changes*
 
 ### Dashboard & UI
 
-- [ ] **DASH-01**: Company overview dashboard (agents, tasks, budgets at a glance) — *bird's-eye view*
-- [ ] **DASH-02**: Task board view (kanban or list) — *manage all work in one place*
-- [ ] **DASH-03**: Agent activity feed with conversation threads — *see what agents are saying and doing*
-- [ ] **DASH-04**: Real-time updates via Turbo Streams — *live agent status and task changes*
+- [ ] **DASH-01**: Company overview dashboard (agents, tasks, budgets at a glance) -- *bird's-eye view*
+- [ ] **DASH-02**: Task board view (kanban or list) -- *manage all work in one place*
+- [ ] **DASH-03**: Agent activity feed with conversation threads -- *see what agents are saying and doing*
+- [ ] **DASH-04**: Real-time updates via Turbo Streams -- *live agent status and task changes*
 
 ## v2 Requirements
 
@@ -120,13 +120,50 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (Populated during roadmap creation) | | |
+| AUTH-01 | Phase 1: Authentication | Pending |
+| AUTH-02 | Phase 1: Authentication | Pending |
+| AUTH-03 | Phase 1: Authentication | Pending |
+| AUTH-04 | Phase 1: Authentication | Pending |
+| ACCT-01 | Phase 2: Accounts & Multi-tenancy | Pending |
+| ACCT-02 | Phase 2: Accounts & Multi-tenancy | Pending |
+| ACCT-03 | Phase 2: Accounts & Multi-tenancy | Pending |
+| ORG-01 | Phase 3: Org Chart & Roles | Pending |
+| ORG-02 | Phase 3: Org Chart & Roles | Pending |
+| ORG-03 | Phase 3: Org Chart & Roles | Pending |
+| ORG-04 | Phase 3: Org Chart & Roles | Pending |
+| AGNT-01 | Phase 4: Agent Connection | Pending |
+| AGNT-02 | Phase 4: Agent Connection | Pending |
+| AGNT-03 | Phase 4: Agent Connection | Pending |
+| AGNT-04 | Phase 4: Agent Connection | Pending |
+| TASK-01 | Phase 5: Tasks & Conversations | Pending |
+| TASK-02 | Phase 5: Tasks & Conversations | Pending |
+| TASK-03 | Phase 5: Tasks & Conversations | Pending |
+| TASK-04 | Phase 5: Tasks & Conversations | Pending |
+| GOAL-01 | Phase 6: Goals & Alignment | Pending |
+| GOAL-02 | Phase 6: Goals & Alignment | Pending |
+| GOAL-03 | Phase 6: Goals & Alignment | Pending |
+| BEAT-01 | Phase 7: Heartbeats & Triggers | Pending |
+| BEAT-02 | Phase 7: Heartbeats & Triggers | Pending |
+| BEAT-03 | Phase 7: Heartbeats & Triggers | Pending |
+| BEAT-04 | Phase 7: Heartbeats & Triggers | Pending |
+| BUDG-01 | Phase 8: Budget & Cost Control | Pending |
+| BUDG-02 | Phase 8: Budget & Cost Control | Pending |
+| BUDG-03 | Phase 8: Budget & Cost Control | Pending |
+| BUDG-04 | Phase 8: Budget & Cost Control | Pending |
+| GOVR-01 | Phase 9: Governance & Audit | Pending |
+| GOVR-02 | Phase 9: Governance & Audit | Pending |
+| GOVR-03 | Phase 9: Governance & Audit | Pending |
+| GOVR-04 | Phase 9: Governance & Audit | Pending |
+| DASH-01 | Phase 10: Dashboard & Real-time UI | Pending |
+| DASH-02 | Phase 10: Dashboard & Real-time UI | Pending |
+| DASH-03 | Phase 10: Dashboard & Real-time UI | Pending |
+| DASH-04 | Phase 10: Dashboard & Real-time UI | Pending |
 
 **Coverage:**
-- v1 requirements: 39 total
-- Mapped to phases: 0
-- Unmapped: 39
+- v1 requirements: 38 total
+- Mapped to phases: 38
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-26*
-*Last updated: 2026-03-26 after initial definition*
+*Last updated: 2026-03-26 after roadmap creation -- traceability complete*
