@@ -795,6 +795,145 @@
     font-size: var(--font-size-sm);
     font-weight: 500;
   }
+
+  /* --- Team page --- */
+  .team-page {
+    max-inline-size: 48rem;
+    margin-inline: auto;
+    padding-block: var(--space-8);
+    padding-inline: var(--space-4);
+  }
+
+  .team-page__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-block-end: var(--space-6);
+  }
+
+  .team-page__header h1 {
+    margin: 0;
+  }
+
+  .team-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-block-end: var(--space-6);
+  }
+
+  .team-member {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-block: var(--space-3);
+    padding-inline: var(--space-4);
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+  }
+
+  .team-member--pending {
+    opacity: 0.7;
+  }
+
+  .team-member__email {
+    font-size: var(--font-size-base);
+    color: var(--text-base);
+  }
+
+  .team-member__role {
+    font-size: var(--font-size-sm);
+  }
+
+  /* --- Badges --- */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding-block: 2px;
+    padding-inline: var(--space-2);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs, 0.75rem);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .badge--owner {
+    background-color: oklch(96% 0.06 285);
+    color: oklch(35% 0.18 285);
+    border: 1px solid oklch(85% 0.1 285);
+  }
+
+  .badge--admin {
+    background-color: var(--color-brand-50);
+    color: var(--color-brand-600);
+    border: 1px solid oklch(from var(--color-brand-400) l c h / 0.5);
+  }
+
+  .badge--member {
+    background-color: var(--color-neutral-100);
+    color: var(--color-neutral-700);
+    border: 1px solid var(--color-neutral-200);
+  }
+
+  .badge--pending {
+    background-color: var(--color-warning-bg);
+    color: var(--color-warning-fg);
+    border: 1px solid oklch(from var(--color-warning-fg) l c h / 0.2);
+  }
+
+  /* --- Home nav --- */
+  .home-nav {
+    display: flex;
+    gap: var(--space-4);
+    padding-block: var(--space-4);
+    padding-inline: var(--space-6);
+    border-block-end: 1px solid var(--border);
+    margin-block-end: var(--space-6);
+  }
+
+  .home-nav__link {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--text-subtle);
+    text-decoration: none;
+    padding-block: var(--space-1);
+    padding-inline: var(--space-2);
+    border-radius: var(--radius-sm);
+    transition: color var(--transition-fast), background-color var(--transition-fast);
+
+    &:hover {
+      color: var(--text-base);
+      background-color: var(--color-neutral-100);
+    }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .badge--owner {
+      background-color: oklch(20% 0.06 285);
+      color: oklch(80% 0.15 285);
+      border-color: oklch(35% 0.12 285);
+    }
+
+    .badge--admin {
+      background-color: oklch(18% 0.06 265);
+      color: var(--color-brand-400);
+      border-color: oklch(30% 0.12 265);
+    }
+
+    .badge--member {
+      background-color: var(--color-neutral-100);
+      color: var(--color-neutral-300);
+      border-color: var(--color-neutral-200);
+    }
+
+    .badge--pending {
+      background-color: oklch(18% 0.05 85);
+      color: oklch(75% 0.12 85);
+      border-color: oklch(30% 0.08 85);
+    }
+  }
 }
 
 /* ============================================================

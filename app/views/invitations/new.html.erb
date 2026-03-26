@@ -1,0 +1,31 @@
+<% content_for(:title, "Invite Team Member") %>
+
+<section class="form-card">
+  <h1>Invite to <%= Current.company.name %></h1>
+  <p class="form-card__subtitle">Send an invitation link via email.</p>
+
+  <%= form_with(model: @invitation, class: "form") do |f| %>
+    <% if @invitation.errors.any? %>
+      <div class="form__errors" role="alert">
+        <% @invitation.errors.full_messages.each do |message| %>
+          <p><%= message %></p>
+        <% end %>
+      </div>
+    <% end %>
+
+    <div class="form__field">
+      <%= f.label :email_address, "Email address" %>
+      <%= f.email_field :email_address, autofocus: true, required: true, placeholder: "colleague@example.com" %>
+    </div>
+
+    <div class="form__field">
+      <%= f.label :role, "Role" %>
+      <%= f.select :role, invitation_role_options, {}, required: true, class: "form__select" %>
+    </div>
+
+    <div class="form__actions">
+      <%= f.submit "Send invitation", class: "btn btn--primary" %>
+      <%= link_to "Cancel", invitations_path, class: "btn btn--ghost" %>
+    </div>
+  <% end %>
+</section>

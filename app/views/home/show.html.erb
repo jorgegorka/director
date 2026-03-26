@@ -1,5 +1,12 @@
 <section class="home-hero">
   <h1><%= @company.name %></h1>
   <p class="home-tagline">Your AI company command center.</p>
-  <p class="home-placeholder">Org chart, agents, and tasks coming soon.</p>
+</section>
+
+<nav class="home-nav">
+  <%= link_to "Team", invitations_path, class: "home-nav__link" %>
+</nav>
+
+<section class="home-placeholder">
+  <p>Org chart, agents, and tasks coming soon.</p>
 </section>

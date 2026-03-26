@@ -1,0 +1,30 @@
+<% content_for(:title, "Team — #{Current.company.name}") %>
+
+<section class="team-page">
+  <div class="team-page__header">
+    <h1>Team</h1>
+    <%= link_to "Invite Member", new_invitation_path, class: "btn btn--primary btn--sm" %>
+  </div>
+
+  <h2>Members</h2>
+  <div class="team-list">
+    <% @memberships.each do |membership| %>
+      <div class="team-member">
+        <span class="team-member__email"><%= membership.user.email_address %></span>
+        <span class="team-member__role badge badge--<%= membership.role %>"><%= membership.role.capitalize %></span>
+      </div>
+    <% end %>
+  </div>
+
+  <% if @invitations.any? %>
+    <h2>Pending Invitations</h2>
+    <div class="team-list">
+      <% @invitations.each do |invitation| %>
+        <div class="team-member team-member--pending">
+          <span class="team-member__email"><%= invitation.email_address %></span>
+          <span class="team-member__role badge badge--pending"><%= invitation.role.capitalize %> (invited)</span>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</section>
