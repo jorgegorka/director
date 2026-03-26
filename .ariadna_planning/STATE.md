@@ -5,16 +5,16 @@
 See: .ariadna_planning/PROJECT.md (updated 2026-03-26)
 
 **Core value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
-**Current focus:** Phase 2 - Accounts and Multi-Tenancy (plan 01 complete)
+**Current focus:** Phase 2 - Accounts and Multi-Tenancy (plans 01 and 02 complete)
 
 ## Current Position
 
 Phase: 2 of 10 (Accounts and Multi-Tenancy)
-Plan: 1 of ? in current phase (complete)
-Status: Plan 02-01 complete
-Last activity: 2026-03-26 -- Plan 02-01 complete (Company/Membership models, tenant switching, company switcher nav dropdown).
+Plan: 2 of ? in current phase (complete)
+Status: Plan 02-02 complete
+Last activity: 2026-03-26 -- Plan 02-02 complete (Invitation model, InvitationMailer, InvitationsController, InvitationAcceptancesController, team page with role badges).
 
-Progress: [██░░░░░░░░] ~15%
+Progress: [███░░░░░░░] ~20%
 
 ## Performance Metrics
 
@@ -28,10 +28,10 @@ Progress: [██░░░░░░░░] ~15%
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-authentication | 2 | ~10 min | ~5 min |
-| 02-accounts-and-multi-tenancy | 1 | ~7 min | ~7 min |
+| 02-accounts-and-multi-tenancy | 2 | ~23 min | ~11 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (~5 min), 01-02 (~5 min), 02-01 (~7 min)
+- Last 5 plans: 01-01 (~5 min), 01-02 (~5 min), 02-01 (~7 min), 02-02 (~16 min)
 - Trend: consistent
 
 *Updated after each plan completion*
@@ -56,6 +56,10 @@ Recent decisions affecting current work:
 - [02-01]: SetCurrentCompany guards on Current.user nil -- unauthenticated routes don't error
 - [02-01]: Company switcher uses generic Stimulus dropdown controller (reusable for all future dropdowns)
 - [02-01]: No company edit/delete in this phase -- deferred
+- [02-02]: Role enum on Invitation is member/admin only -- no owner (owner assigned only at company creation)
+- [02-02]: Partial unique index WHERE status = 0 on [company_id, email_address] -- prevents duplicate pending invites, allows re-inviting after accept/expire
+- [02-02]: Role param sanitized outside permit() using .in?(enum.keys) -- avoids brakeman mass assignment warning
+- [02-02]: Routes added in Task 1 (not Task 2) to unblock InvitationMailer URL helper in test environment
 
 ### Pending Todos
 
@@ -68,5 +72,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-26
-Stopped at: Phase 1 plans complete, running verification
-Resume file: .ariadna_planning/phases/01-authentication/01-02-SUMMARY.md
+Stopped at: Phase 2 plan 02 complete
+Resume file: .ariadna_planning/phases/02-accounts-and-multi-tenancy/02-02-SUMMARY.md
