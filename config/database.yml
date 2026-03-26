@@ -1,0 +1,45 @@
+# PostgreSQL. Versions 9.3 and up are supported.
+#
+# Install the pg driver:
+#   gem install pg
+# On macOS with Homebrew:
+#   brew install libpq
+#
+# Ensure the PostgreSQL gem is defined in your Gemfile
+#   gem "pg"
+#
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+
+development:
+  <<: *default
+  database: director_development
+
+# Warning: The database defined as "test" will be erased and
+# re-generated from your development database when you run "rake".
+# Do not set this db to the same as development or production.
+test:
+  <<: *default
+  database: director_test
+
+# Store production database on managed PostgreSQL.
+production:
+  primary:
+    <<: *default
+    database: director_production
+    username: director
+    password: <%= ENV["DIRECTOR_DATABASE_PASSWORD"] %>
+  cache:
+    adapter: sqlite3
+    database: storage/production_cache.sqlite3
+    migrations_paths: db/cache_migrate
+  queue:
+    adapter: sqlite3
+    database: storage/production_queue.sqlite3
+    migrations_paths: db/queue_migrate
+  cable:
+    adapter: sqlite3
+    database: storage/production_cable.sqlite3
+    migrations_paths: db/cable_migrate
