@@ -15,7 +15,7 @@ Director transforms the chaos of managing multiple AI agents into a structured b
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Authentication** - Users can create accounts, log in, and manage credentials
+- [x] **Phase 1: Authentication** - Users can create accounts, log in, and manage credentials
 - [ ] **Phase 2: Accounts & Multi-tenancy** - Users can create isolated companies with team access
 - [ ] **Phase 3: Org Chart & Roles** - Users can define company structure with hierarchical roles
 - [ ] **Phase 4: Agent Connection** - Users can register and monitor AI agents via HTTP or bash
@@ -38,11 +38,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. User can log out and log back in, with session persisting across browser refresh
   3. User can request a password reset email and use the link to set a new password
   4. User can change their email and password from an account settings page
-**Plans**: TBD
+**Plans**: 2/2 complete
 
 Plans:
-- [ ] 01-01: TBD
-- [ ] 01-02: TBD
+- [x] 01-01: Authentication foundation (PostgreSQL, auth generator, registration, home page)
+- [x] 01-02: Account settings and controller tests
 
 ### Phase 2: Accounts & Multi-tenancy
 **Goal**: Users can create and manage isolated companies, each functioning as an independent tenant
@@ -199,7 +199,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Authentication | 0/TBD | Not started | - |
+| 1. Authentication | 2/2 | Complete | 2026-03-26 |
 | 2. Accounts & Multi-tenancy | 0/TBD | Not started | - |
 | 3. Org Chart & Roles | 0/TBD | Not started | - |
 | 4. Agent Connection | 0/TBD | Not started | - |
