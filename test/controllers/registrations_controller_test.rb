@@ -17,9 +17,10 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
         }
       }
     end
+    # New users are redirected to root, which then redirects to company creation
     assert_redirected_to root_url
     follow_redirect!
-    assert_response :success
+    assert_redirected_to new_company_url
   end
 
   test "should not create user with invalid email" do
@@ -70,8 +71,8 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
         password_confirmation: "password123"
       }
     }
-    # After redirect, user should be logged in (session cookie set)
+    # After redirect to root, new user is redirected to company creation (no companies yet)
     follow_redirect!
-    assert_response :success
+    assert_redirected_to new_company_url
   end
 end

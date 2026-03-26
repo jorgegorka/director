@@ -1,0 +1,29 @@
+<div class="company-switcher" data-controller="dropdown">
+  <button class="company-switcher__trigger" data-action="click->dropdown#toggle" data-dropdown-target="trigger" type="button">
+    <span class="company-switcher__name"><%= current_company&.name || "No Company" %></span>
+    <span class="company-switcher__arrow" aria-hidden="true">&#9662;</span>
+  </button>
+
+  <div class="company-switcher__menu" data-dropdown-target="menu" hidden>
+    <% Current.user.companies.each do |company| %>
+      <div class="company-switcher__item">
+        <% if company == current_company %>
+          <span class="company-switcher__current">
+            <span class="company-switcher__check" aria-hidden="true">&#10003;</span>
+            <%= company.name %>
+          </span>
+        <% else %>
+          <%= button_to company_switch_path(company), method: :post, class: "company-switcher__link" do %>
+            <span class="company-switcher__check company-switcher__check--hidden" aria-hidden="true">&#10003;</span>
+            <%= company.name %>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+
+    <div class="company-switcher__divider"></div>
+    <%= link_to new_company_path, class: "company-switcher__link company-switcher__new" do %>
+      <span aria-hidden="true">+</span> New Company
+    <% end %>
+  </div>
+</div>

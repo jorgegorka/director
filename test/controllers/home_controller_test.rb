@@ -10,17 +10,19 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_session_url
   end
 
-  test "should show home page for authenticated user" do
+  test "should show home page with active company for authenticated user" do
     sign_in_as(@user)
     get root_url
     assert_response :success
-    assert_select "header"
+    # User :one auto-selects first company (acme) via SetCurrentCompany concern
+    assert_select "h1", "Acme AI Corp"
   end
 
-  test "should show user email on home page" do
-    sign_in_as(@user)
+  test "should redirect to new company page when user has no companies" do
+    # Create a user with no memberships
+    user_without_company = User.create!(email_address: "lonely@example.com", password: "password", password_confirmation: "password")
+    sign_in_as(user_without_company)
     get root_url
-    assert_response :success
-    assert_select ".home-hero"
+    assert_redirected_to new_company_url
   end
 end

@@ -1,0 +1,33 @@
+<% content_for(:title, "Your Companies") %>
+
+<section class="companies-list">
+  <div class="companies-list__header">
+    <h1>Your Companies</h1>
+    <%= link_to "New Company", new_company_path, class: "btn btn--primary btn--sm" %>
+  </div>
+
+  <% if @companies.any? %>
+    <div class="companies-list__grid">
+      <% @companies.each do |company| %>
+        <div class="company-card <%= 'company-card--active' if company == current_company %>">
+          <h2 class="company-card__name"><%= company.name %></h2>
+          <p class="company-card__role">
+            <%= company.memberships.find_by(user: Current.user)&.role&.capitalize %>
+          </p>
+          <div class="company-card__actions">
+            <% if company == current_company %>
+              <span class="company-card__badge">Active</span>
+            <% else %>
+              <%= button_to "Switch", company_switch_path(company), class: "btn btn--ghost btn--sm" %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="companies-list__empty">
+      <p>You don't have any companies yet.</p>
+      <%= link_to "Create your first company", new_company_path, class: "btn btn--primary" %>
+    </div>
+  <% end %>
+</section>

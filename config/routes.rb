@@ -9,6 +9,11 @@ Rails.application.routes.draw do
   # Account settings
   resource :settings, only: [ :show, :update ]
 
+  # Companies
+  resources :companies, only: [ :index, :new, :create ] do
+    resource :switch, only: [ :create ], module: :companies, controller: "switches"
+  end
+
   # Authenticated landing page
   root "home#show"
 

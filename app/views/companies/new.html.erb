@@ -1,0 +1,25 @@
+<% content_for(:title, "New Company") %>
+
+<section class="form-card">
+  <h1>Create a Company</h1>
+  <p class="form-card__subtitle">Each company is an isolated workspace for your AI agents.</p>
+
+  <%= form_with(model: @company, class: "form") do |f| %>
+    <% if @company.errors.any? %>
+      <div class="form__errors" role="alert">
+        <% @company.errors.full_messages.each do |message| %>
+          <p><%= message %></p>
+        <% end %>
+      </div>
+    <% end %>
+
+    <div class="form__field">
+      <%= f.label :name, "Company name" %>
+      <%= f.text_field :name, autofocus: true, required: true, placeholder: "e.g. Acme AI Corp" %>
+    </div>
+
+    <div class="form__actions">
+      <%= f.submit "Create company", class: "btn btn--primary" %>
+    </div>
+  <% end %>
+</section>
