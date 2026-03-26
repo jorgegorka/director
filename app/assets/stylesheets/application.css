@@ -1,0 +1,414 @@
+/*
+ * This is a manifest file that'll be compiled into application.css.
+ *
+ * With Propshaft, assets are served efficiently without preprocessing steps. You can still include
+ * application-wide styles in this file, but keep in mind that CSS precedence will follow the standard
+ * cascading order, meaning styles declared later in the document or manifest will override earlier ones,
+ * depending on specificity.
+ *
+ * Consider organizing styles into separate files for maintainability.
+ */
+
+/* ============================================================
+   CSS LAYERS - establishes cascade order
+   ============================================================ */
+@layer reset, tokens, base, layout, components, utilities;
+
+/* ============================================================
+   DESIGN TOKENS (CSS custom properties)
+   ============================================================ */
+@layer tokens {
+  :root {
+    /* Colors - OKLCH for perceptual uniformity */
+    --color-neutral-0:   oklch(100% 0 0);
+    --color-neutral-50:  oklch(97% 0 0);
+    --color-neutral-100: oklch(94% 0 0);
+    --color-neutral-200: oklch(88% 0 0);
+    --color-neutral-300: oklch(80% 0 0);
+    --color-neutral-500: oklch(60% 0 0);
+    --color-neutral-700: oklch(40% 0 0);
+    --color-neutral-900: oklch(20% 0 0);
+
+    --color-brand-500:   oklch(55% 0.22 260);
+    --color-brand-600:   oklch(48% 0.22 260);
+    --color-brand-50:    oklch(96% 0.04 260);
+
+    --color-success-bg:  oklch(96% 0.05 145);
+    --color-success-fg:  oklch(38% 0.12 145);
+    --color-error-bg:    oklch(96% 0.05 25);
+    --color-error-fg:    oklch(40% 0.15 25);
+
+    /* Semantic colors */
+    --bg-body:     var(--color-neutral-50);
+    --bg-surface:  var(--color-neutral-0);
+    --border:      var(--color-neutral-200);
+    --text-base:   var(--color-neutral-900);
+    --text-muted:  var(--color-neutral-500);
+    --text-subtle: var(--color-neutral-700);
+
+    /* Typography */
+    --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    --font-size-sm:   0.875rem;
+    --font-size-base: 1rem;
+    --font-size-lg:   1.125rem;
+    --font-size-xl:   1.25rem;
+    --font-size-2xl:  1.5rem;
+    --font-size-3xl:  1.875rem;
+    --line-height-base: 1.5;
+
+    /* Spacing */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.25rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
+    --space-12: 3rem;
+    --space-16: 4rem;
+
+    /* Radii */
+    --radius-sm: 0.25rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px oklch(0% 0 0 / 0.05);
+    --shadow-md: 0 4px 6px oklch(0% 0 0 / 0.07), 0 1px 3px oklch(0% 0 0 / 0.06);
+
+    /* Layout */
+    --content-max-width: 80rem;
+    --auth-form-width:   28rem;
+    --header-height:     3.5rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-neutral-0:   oklch(13% 0 0);
+      --color-neutral-50:  oklch(15% 0 0);
+      --color-neutral-100: oklch(20% 0 0);
+      --color-neutral-200: oklch(28% 0 0);
+      --color-neutral-300: oklch(38% 0 0);
+      --color-neutral-500: oklch(58% 0 0);
+      --color-neutral-700: oklch(75% 0 0);
+      --color-neutral-900: oklch(95% 0 0);
+
+      --color-brand-500:   oklch(65% 0.20 260);
+      --color-brand-600:   oklch(58% 0.20 260);
+      --color-brand-50:    oklch(22% 0.05 260);
+
+      --color-success-bg:  oklch(22% 0.05 145);
+      --color-success-fg:  oklch(75% 0.14 145);
+      --color-error-bg:    oklch(22% 0.05 25);
+      --color-error-fg:    oklch(75% 0.15 25);
+    }
+  }
+}
+
+/* ============================================================
+   RESET
+   ============================================================ */
+@layer reset {
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  img, svg { display: block; max-inline-size: 100%; }
+
+  button, input, select, textarea {
+    font: inherit;
+  }
+}
+
+/* ============================================================
+   BASE
+   ============================================================ */
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-base);
+    color: var(--text-base);
+    background-color: var(--bg-body);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    line-height: 1.25;
+    font-weight: 600;
+    color: var(--text-base);
+  }
+
+  h1 { font-size: var(--font-size-3xl); }
+  h2 { font-size: var(--font-size-2xl); }
+  h3 { font-size: var(--font-size-xl); }
+
+  a {
+    color: var(--color-brand-500);
+    text-decoration: none;
+
+    &:hover { text-decoration: underline; }
+  }
+
+  ul { list-style: none; }
+}
+
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+@layer layout {
+  .app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-inline: var(--space-6);
+    block-size: var(--header-height);
+    background-color: var(--bg-surface);
+    border-block-end: 1px solid var(--border);
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 10;
+
+    &__brand {
+      display: flex;
+      align-items: center;
+    }
+
+    &__logo {
+      font-size: var(--font-size-lg);
+      font-weight: 700;
+      color: var(--text-base);
+      letter-spacing: -0.02em;
+      text-decoration: none;
+
+      &:hover { text-decoration: none; }
+    }
+
+    &__nav {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    &__user {
+      font-size: var(--font-size-sm);
+      color: var(--text-muted);
+    }
+  }
+
+  .app-main {
+    margin-inline: auto;
+    max-inline-size: var(--content-max-width);
+    padding-block: var(--space-8);
+    padding-inline: var(--space-6);
+  }
+}
+
+/* ============================================================
+   COMPONENTS
+   ============================================================ */
+@layer components {
+  /* --- Buttons --- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding-block: var(--space-2);
+    padding-inline: var(--space-4);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    line-height: 1.25;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: background-color 0.1s, border-color 0.1s, color 0.1s;
+    text-decoration: none;
+
+    &:focus-visible {
+      outline: 2px solid var(--color-brand-500);
+      outline-offset: 2px;
+    }
+
+    &--primary {
+      background-color: var(--color-brand-500);
+      color: oklch(100% 0 0);
+      border-color: var(--color-brand-500);
+
+      &:hover {
+        background-color: var(--color-brand-600);
+        border-color: var(--color-brand-600);
+        text-decoration: none;
+      }
+    }
+
+    &--ghost {
+      background-color: transparent;
+      color: var(--text-subtle);
+      border-color: var(--border);
+
+      &:hover {
+        background-color: var(--color-neutral-100);
+        text-decoration: none;
+      }
+    }
+
+    &--sm {
+      padding-block: var(--space-1);
+      padding-inline: var(--space-3);
+      font-size: var(--font-size-sm);
+    }
+
+    &--full {
+      inline-size: 100%;
+    }
+  }
+
+  /* --- Flash Messages --- */
+  .flash {
+    padding-block: var(--space-3);
+    padding-inline: var(--space-6);
+    font-size: var(--font-size-sm);
+    border-block-end: 1px solid transparent;
+
+    &--notice {
+      background-color: var(--color-success-bg);
+      color: var(--color-success-fg);
+      border-color: oklch(from var(--color-success-fg) l c h / 0.2);
+    }
+
+    &--alert {
+      background-color: var(--color-error-bg);
+      color: var(--color-error-fg);
+      border-color: oklch(from var(--color-error-fg) l c h / 0.2);
+    }
+  }
+
+  /* --- Forms --- */
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    margin-block-end: var(--space-4);
+
+    label {
+      font-size: var(--font-size-sm);
+      font-weight: 500;
+      color: var(--text-subtle);
+    }
+
+    input[type="email"],
+    input[type="password"],
+    input[type="text"] {
+      padding-block: var(--space-2);
+      padding-inline: var(--space-3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background-color: var(--bg-surface);
+      color: var(--text-base);
+      inline-size: 100%;
+      transition: border-color 0.1s, box-shadow 0.1s;
+
+      &::placeholder { color: var(--text-muted); }
+
+      &:focus {
+        outline: none;
+        border-color: var(--color-brand-500);
+        box-shadow: 0 0 0 3px oklch(from var(--color-brand-500) l c h / 0.15);
+      }
+
+      &[aria-invalid="true"],
+      &.field-with-errors & {
+        border-color: var(--color-error-fg);
+      }
+    }
+  }
+
+  /* Rails wraps fields with errors in a div.field_with_errors */
+  .field_with_errors {
+    display: contents;
+
+    input {
+      border-color: var(--color-error-fg);
+
+      &:focus {
+        box-shadow: 0 0 0 3px oklch(from var(--color-error-fg) l c h / 0.15);
+      }
+    }
+  }
+
+  /* --- Authentication card (login, signup, password reset pages) --- */
+  .auth-card {
+    margin-inline: auto;
+    margin-block-start: var(--space-12);
+    max-inline-size: var(--auth-form-width);
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-8);
+    box-shadow: var(--shadow-md);
+
+    h1 {
+      font-size: var(--font-size-2xl);
+      margin-block-end: var(--space-6);
+    }
+
+    .flash {
+      border-radius: var(--radius-md);
+      border: 1px solid transparent;
+      padding: var(--space-3);
+      margin-block-end: var(--space-4);
+
+      &--alert {
+        background-color: var(--color-error-bg);
+        color: var(--color-error-fg);
+        border-color: oklch(from var(--color-error-fg) l c h / 0.2);
+      }
+
+      &--notice {
+        background-color: var(--color-success-bg);
+        color: var(--color-success-fg);
+        border-color: oklch(from var(--color-success-fg) l c h / 0.2);
+      }
+    }
+  }
+
+  .error-list {
+    padding-inline-start: var(--space-4);
+    list-style: disc;
+
+    li {
+      margin-block-end: var(--space-1);
+    }
+  }
+
+  .auth-footer {
+    margin-block-start: var(--space-4);
+    text-align: center;
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+  }
+
+  /* --- Home page --- */
+  .home-hero {
+    padding-block: var(--space-16);
+    text-align: center;
+
+    h1 { margin-block-end: var(--space-3); }
+
+    .home-email {
+      font-size: var(--font-size-sm);
+      color: var(--text-muted);
+      margin-block-end: var(--space-6);
+    }
+
+    .home-tagline {
+      font-size: var(--font-size-lg);
+      color: var(--text-subtle);
+      max-inline-size: 40ch;
+      margin-inline: auto;
+    }
+  }
+}
