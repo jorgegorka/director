@@ -60,7 +60,7 @@ Users can organize AI agents into a functioning company structure and confidentl
 - **Tech stack**: Rails 8, PostgreSQL, Hotwire (Turbo + Stimulus), modern CSS, Solid Queue, Solid Cache, Solid Cable — no Tailwind, no React, no UUIDs
 - **Auth**: Rails 8 built-in authentication (`has_secure_password` + auth generator) — no Devise
 - **Multi-tenancy**: `Current.account` scoping pattern — no acts_as_tenant gem
-- **Testing**: Minitest + fixtures — no RSpec, no FactoryBot
+- **Testing**: Minitest + fixtures — no RSpec, no FactoryBot. No system/integration tests. Focus on unit tests.
 - **IDs**: Standard integer auto-increment primary keys
 - **Frontend**: Hotwire + modern CSS only — no JavaScript frameworks, no Tailwind CSS
 - **Deployment**: Standard Rails deployment via Kamal (PostgreSQL, Puma, Solid Queue)

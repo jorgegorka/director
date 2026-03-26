@@ -5,33 +5,33 @@
 See: .ariadna_planning/PROJECT.md (updated 2026-03-26)
 
 **Core value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
-**Current focus:** Phase 1 - Authentication
+**Current focus:** Phase 1 - Authentication (executing verification)
 
 ## Current Position
 
 Phase: 1 of 10 (Authentication)
-Plan: 1 of TBD in current phase (01-01 complete)
-Status: In progress
-Last activity: 2026-03-26 -- Plan 01-01 complete (PostgreSQL + Rails 8 auth + registration + home page)
+Plan: 2 of 2 in current phase (both complete)
+Status: Verifying phase goal
+Last activity: 2026-03-26 -- Plan 01-02 complete (account settings + controller tests). All flows verified in Chrome browser.
 
-Progress: [█░░░░░░░░░] ~5%
+Progress: [█░░░░░░░░░] ~10%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 1
+- Total plans completed: 2
 - Average duration: ~5 minutes
-- Total execution time: ~5 minutes
+- Total execution time: ~10 minutes
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01-authentication | 1 | ~5 min | ~5 min |
+| 01-authentication | 2 | ~10 min | ~5 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (~5 min)
-- Trend: baseline established
+- Last 5 plans: 01-01 (~5 min), 01-02 (~5 min)
+- Trend: consistent
 
 *Updated after each plan completion*
 
@@ -49,10 +49,12 @@ Recent decisions affecting current work:
 - [01-01]: PostgreSQL for primary database; sqlite3 retained for Solid Queue/Cache/Cable secondary connections
 - [01-01]: CSS design system uses OKLCH colors, CSS layers, CSS nesting, logical properties (dark mode via prefers-color-scheme)
 - [01-01]: Root route (`/`) is the authenticated landing page -- unauthenticated users redirect to /session/new
+- [01-02]: No system/integration tests -- only unit and controller tests. Flows verified manually in Chrome.
+- [01-02]: SettingsController requires current password verification before any account changes
 
 ### Pending Todos
 
-- Phase 01 plan 02 (if exists): check requirements for remaining auth items (AUTH-04 profile management)
+None.
 
 ### Blockers/Concerns
 
@@ -61,5 +63,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-26
-Stopped at: Plan 01-01 complete -- authentication foundation in place (21 tests passing)
-Resume file: .ariadna_planning/phases/01-authentication/01-01-SUMMARY.md
+Stopped at: Phase 1 plans complete, running verification
+Resume file: .ariadna_planning/phases/01-authentication/01-02-SUMMARY.md

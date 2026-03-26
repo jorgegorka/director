@@ -287,6 +287,20 @@
   }
 
   /* --- Forms --- */
+  .field-group {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-3) var(--space-4) var(--space-4);
+    margin-block-end: var(--space-3);
+
+    legend {
+      font-size: var(--font-size-sm);
+      font-weight: 500;
+      color: var(--text-subtle);
+      padding-inline: var(--space-2);
+    }
+  }
+
   .field {
     display: flex;
     flex-direction: column;
