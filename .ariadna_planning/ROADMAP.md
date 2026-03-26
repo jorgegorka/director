@@ -16,7 +16,7 @@ Director transforms the chaos of managing multiple AI agents into a structured b
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Authentication** - Users can create accounts, log in, and manage credentials
-- [ ] **Phase 2: Accounts & Multi-tenancy** - Users can create isolated companies with team access
+- [x] **Phase 2: Accounts & Multi-tenancy** - Users can create isolated companies with team access
 - [ ] **Phase 3: Org Chart & Roles** - Users can define company structure with hierarchical roles
 - [ ] **Phase 4: Agent Connection** - Users can register and monitor AI agents via HTTP or bash
 - [ ] **Phase 5: Tasks & Conversations** - Users can assign work to agents with threaded discussion and audit trails
@@ -54,11 +54,11 @@ Plans:
   2. User can invite a team member by email, and that person can accept and access the company
   3. Company data is fully isolated -- members of one company cannot see another company's data
   4. Owner, admin, and member roles exist with appropriate access boundaries (e.g., only owner can delete company)
-**Plans**: TBD
+**Plans**: 2/2 complete
 
 Plans:
-- [ ] 02-01: TBD
-- [ ] 02-02: TBD
+- [x] 02-01: Multi-tenancy foundation (Company/Membership models, tenant switching, company switcher UI)
+- [x] 02-02: Invitation system (token-based invitations, role authorization, acceptance flow)
 
 ### Phase 3: Org Chart & Roles
 **Goal**: Users can define their AI company's organizational structure with roles, hierarchy, and visual representation
@@ -200,7 +200,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Authentication | 2/2 | Complete | 2026-03-26 |
-| 2. Accounts & Multi-tenancy | 0/TBD | Not started | - |
+| 2. Accounts & Multi-tenancy | 2/2 | Complete | 2026-03-26 |
 | 3. Org Chart & Roles | 0/TBD | Not started | - |
 | 4. Agent Connection | 0/TBD | Not started | - |
 | 5. Tasks & Conversations | 0/TBD | Not started | - |
