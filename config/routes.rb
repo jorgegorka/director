@@ -6,6 +6,9 @@ Rails.application.routes.draw do
   # User registration (sign-up)
   resource :registration, only: [ :new, :create ]
 
+  # Account settings
+  resource :settings, only: [ :show, :update ]
+
   # Authenticated landing page
   root "home#show"
 
