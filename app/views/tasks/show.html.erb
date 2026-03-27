@@ -1,0 +1,99 @@
+<% content_for(:title, @task.title) %>
+
+<section class="task-detail">
+  <div class="task-detail__header">
+    <div>
+      <h1><%= @task.title %></h1>
+      <div class="task-detail__badges">
+        <%= task_status_badge(@task) %>
+        <%= task_priority_badge(@task) %>
+      </div>
+    </div>
+    <div class="task-detail__actions">
+      <%= link_to "Edit", edit_task_path(@task), class: "btn btn--ghost btn--sm" %>
+      <%= button_to "Delete", @task, method: :delete, class: "btn btn--ghost btn--sm task-detail__delete",
+            data: { turbo_confirm: "Delete '#{@task.title}'? This cannot be undone." } %>
+    </div>
+  </div>
+
+  <div class="task-detail__body">
+    <% if @task.description.present? %>
+      <div class="task-detail__section">
+        <h2>Description</h2>
+        <p><%= @task.description %></p>
+      </div>
+    <% end %>
+
+    <div class="task-detail__section">
+      <h2>Details</h2>
+      <dl class="task-detail__meta">
+        <div class="task-detail__meta-row">
+          <dt>Assignee</dt>
+          <dd>
+            <% if @task.assignee.present? %>
+              <%= link_to @task.assignee.name, agent_path(@task.assignee) %>
+            <% else %>
+              <span class="task-detail__unassigned">Unassigned</span>
+            <% end %>
+          </dd>
+        </div>
+        <% if @task.creator.present? %>
+          <div class="task-detail__meta-row">
+            <dt>Created by</dt>
+            <dd><%= @task.creator.email_address %></dd>
+          </div>
+        <% end %>
+        <div class="task-detail__meta-row">
+          <dt>Created</dt>
+          <dd><%= @task.created_at.strftime("%b %d, %Y at %H:%M") %></dd>
+        </div>
+        <% if @task.due_at.present? %>
+          <div class="task-detail__meta-row">
+            <dt>Due</dt>
+            <dd><%= @task.due_at.strftime("%b %d, %Y at %H:%M") %></dd>
+          </div>
+        <% end %>
+        <% if @task.completed_at.present? %>
+          <div class="task-detail__meta-row">
+            <dt>Completed</dt>
+            <dd><%= @task.completed_at.strftime("%b %d, %Y at %H:%M") %></dd>
+          </div>
+        <% end %>
+      </dl>
+    </div>
+
+    <div class="task-detail__section">
+      <h2>Conversation (<%= @task.messages.size %>)</h2>
+      <div class="message-thread">
+        <% @messages.each do |message| %>
+          <%= render partial: "messages/thread", locals: { message: message, task: @task } %>
+        <% end %>
+        <% if @messages.empty? %>
+          <p class="task-detail__empty-note">No messages yet. Start the conversation below.</p>
+        <% end %>
+      </div>
+      <%= render "messages/form", task: @task, parent_id: nil %>
+    </div>
+
+    <div class="task-detail__section">
+      <h2>Audit Trail</h2>
+      <% if @task.audit_events.any? %>
+        <ol class="audit-trail">
+          <% @task.audit_events.reverse_chronological.each do |event| %>
+            <li class="audit-trail__event">
+              <span class="audit-trail__action"><%= audit_event_description(event) %></span>
+              <span class="audit-trail__meta">
+                by <strong><%= event.actor.try(:email_address) || event.actor.try(:name) || "Unknown" %></strong>
+              </span>
+              <time class="audit-trail__time" datetime="<%= event.created_at.iso8601 %>">
+                <%= time_ago_in_words(event.created_at) %> ago
+              </time>
+            </li>
+          <% end %>
+        </ol>
+      <% else %>
+        <p class="task-detail__empty-note">No audit events recorded yet.</p>
+      <% end %>
+    </div>
+  </div>
+</section>

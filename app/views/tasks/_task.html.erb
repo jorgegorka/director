@@ -1,0 +1,23 @@
+<div class="task-card">
+  <div class="task-card__title">
+    <%= link_to task.title, task_path(task) %>
+  </div>
+  <div class="task-card__meta">
+    <%= task_status_badge(task) %>
+    <%= task_priority_badge(task) %>
+    <span class="task-card__assignee">
+      <% if task.assignee.present? %>
+        <%= link_to task.assignee.name, agent_path(task.assignee) %>
+      <% else %>
+        <span class="task-card__unassigned">Unassigned</span>
+      <% end %>
+    </span>
+    <% if task.creator.present? %>
+      <span class="task-card__creator">by <%= task.creator.email_address %></span>
+    <% end %>
+    <% if task.due_at.present? %>
+      <span class="task-card__due">Due <%= task.due_at.strftime("%b %d, %Y") %></span>
+    <% end %>
+    <span class="task-card__messages"><%= task.messages.size %> <%= "message".pluralize(task.messages.size) %></span>
+  </div>
+</div>

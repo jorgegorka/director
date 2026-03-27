@@ -29,6 +29,11 @@ Rails.application.routes.draw do
     resources :capabilities, only: [ :create, :destroy ], controller: "agent_capabilities"
   end
 
+  # Tasks (scoped to active company via Current.company)
+  resources :tasks do
+    resources :messages, only: [ :create ]
+  end
+
   # Health check - used by load balancers and uptime monitors
   get "up" => "rails/health#show", as: :rails_health_check
 
