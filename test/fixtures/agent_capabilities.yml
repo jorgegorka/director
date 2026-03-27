@@ -1,0 +1,14 @@
+claude_coding:
+  agent: claude_agent
+  name: coding
+  description: "Write and review code"
+
+claude_analysis:
+  agent: claude_agent
+  name: analysis
+  description: "Analyze data and produce reports"
+
+http_data_processing:
+  agent: http_agent
+  name: data_processing
+  description: "Process and transform datasets"

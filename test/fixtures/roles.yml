@@ -10,6 +10,7 @@ cto:
   job_spec: "Lead technology strategy and engineering"
   company: acme
   parent: ceo
+  agent: claude_agent
 
 developer:
   title: Senior Developer
