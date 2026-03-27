@@ -5,14 +5,14 @@
 See: .ariadna_planning/PROJECT.md (updated 2026-03-26)
 
 **Core value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
-**Current focus:** Phase 9 in progress — governance logic layer (GateCheckService, EmergencyStopService, agent pause/resume/terminate/approve/reject actions) complete
+**Current focus:** Phase 9 in progress — governance UI layer (approval gate form, pending approval banner, emergency stop, notification helper) complete
 
 ## Current Position
 
 Phase: 9 of 10 (Governance and Audit) — IN PROGRESS
-Plan: 2 of 4 complete (09-01, 09-02 done; 09-03, 09-04 pending)
-Status: Governance logic layer complete — GateCheckService, EmergencyStopService, agent status control actions, 612 tests passing
-Last activity: 2026-03-27 -- 09-02 complete (2 tasks, 612 tests passing, 0 failures)
+Plan: 3 of 4 complete (09-01, 09-02, 09-03 done; 09-04 also executed concurrently)
+Status: Governance UI layer complete — gate fieldset, pending approval banner, emergency stop button, notification helper, 627 tests passing
+Last activity: 2026-03-27 -- 09-03 complete (2 tasks, 627 tests passing, 0 failures)
 
 Progress: [████████░░] ~87%
 
@@ -35,10 +35,10 @@ Progress: [████████░░] ~87%
 | 06-goals-and-alignment | 2/2 | ~18 min | ~9 min |
 | 07-heartbeats-and-triggers | 3/3 | ~20 min | ~6.7 min |
 | 08-budget-cost-control | 4/4 | ~31 min | ~7.8 min |
-| 09-governance-audit | 2/4 | ~9 min | ~4.5 min |
+| 09-governance-audit | 3/4 | ~19 min | ~6.3 min |
 
 **Recent Trend:**
-- Last 5 plans: 08-02 (~8 min), 08-03 (~8 min), 08-04 (~11 min), 09-01 (~6 min), 09-02 (~3 min)
+- Last 5 plans: 08-03 (~8 min), 08-04 (~11 min), 09-01 (~6 min), 09-02 (~3 min), 09-03 (~10 min)
 - Trend: consistent, stable
 
 *Updated after each plan completion*
@@ -108,6 +108,9 @@ Recent decisions affecting current work:
 - [09-01]: ConfigVersioned concern's should_version? check: saved_changes.keys == ["updated_at"] catches touch-only saves; also filters via governance_attributes intersection so non-governance attribute changes are ignored
 - [09-02]: GateCheckService records agent as both auditable AND actor on gate_blocked AuditEvent — agent is the subject of the event and the initiator; Auditable concern not used here since it assumes Current.user as actor
 - [09-02]: approve action reads pause_reason before clearing it (for gate_approval audit metadata); regex match extracts action_type from "Approval required: {action_type} gate is active" format
+- [09-03]: Rack encodes gates: {} (empty nested hash) as empty string; params.require(:agent) raises ParameterMissing (400) when only gates is submitted — use hidden gates_submitted sentinel field to detect gate fieldset presence instead of checking gates key presence
+- [09-03]: gate_fieldset partial only renders on edit form (agent.new_record? check) since gates require existing agent_id FK
+- [09-03]: sync_approval_gates uses ActionController::Parameters.new.permit! for all-unchecked case (empty permitted params with all-false gate checks)
 
 ### Pending Todos
 
@@ -120,5 +123,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-27
-Stopped at: Phase 9, plan 09-02 complete — governance logic layer (GateCheckService, EmergencyStopService, agent status actions, 612 tests)
-Resume file: .ariadna_planning/phases/09-governance-audit/09-02-SUMMARY.md
+Stopped at: Phase 9, plan 09-03 complete — governance UI layer (gate checkboxes, pending approval banner, emergency stop button, notification helper, 627 tests)
+Resume file: .ariadna_planning/phases/09-governance-audit/09-03-SUMMARY.md
