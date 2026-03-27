@@ -22,7 +22,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 5: Tasks & Conversations** - Users can assign work to agents with threaded discussion and audit trails
 - [x] **Phase 6: Goals & Alignment** - Users can define company mission and trace all work back to objectives
 - [x] **Phase 7: Heartbeats & Triggers** - Agents wake on schedule or in response to events
-- [ ] **Phase 8: Budget & Cost Control** - Users can enforce per-agent spending limits with atomic enforcement
+- [x] **Phase 8: Budget & Cost Control** - Users can enforce per-agent spending limits with atomic enforcement
 - [ ] **Phase 9: Governance & Audit** - Users can gate high-impact actions, control agents, and audit everything
 - [ ] **Phase 10: Dashboard & Real-time UI** - Users get a unified command center with live updates
 
@@ -152,11 +152,13 @@ Plans:
   2. When an agent's budget is exhausted, the system atomically stops the agent -- no further actions until budget is replenished or increased
   3. Costs are tracked and displayed per task and per session so the user can see what each piece of work cost
   4. User receives an alert (in-app notification) before an agent's budget limit is reached (e.g., at 80%)
-**Plans**: TBD
+**Plans**: 4/4 complete
 
 Plans:
-- [ ] 08-01: TBD
-- [ ] 08-02: TBD
+- [x] 08-01: Budget data layer (budget_cents on Agent, cost_cents on Task, Notification model, budget calculation methods)
+- [x] 08-02: BudgetEnforcementService (atomic pause on exhaustion, 80% threshold alerts, cost reporting API)
+- [x] 08-03: Budget UI (agent form budget fieldset, spend bar visualization, task cost display)
+- [x] 08-04: Notification bell UI (header bell icon, dropdown, mark-read actions, Stimulus toggle)
 
 ### Phase 9: Governance & Audit
 **Goal**: Users can control agent autonomy through approval gates, kill switches, and comprehensive audit logging
@@ -206,6 +208,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 5. Tasks & Conversations | 3/3 | Complete | 2026-03-27 |
 | 6. Goals & Alignment | 2/2 | Complete | 2026-03-27 |
 | 7. Heartbeats & Triggers | 3/3 | Complete | 2026-03-27 |
-| 8. Budget & Cost Control | 0/TBD | Not started | - |
+| 8. Budget & Cost Control | 4/4 | Complete | 2026-03-27 |
 | 9. Governance & Audit | 0/TBD | Not started | - |
 | 10. Dashboard & Real-time UI | 0/TBD | Not started | - |
