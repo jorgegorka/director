@@ -9,10 +9,10 @@ See: .ariadna_planning/PROJECT.md (updated 2026-03-26)
 
 ## Current Position
 
-Phase: 5 of 10 (Tasks and Conversations) — IN PROGRESS
-Plan: 2 of 3 complete (05-01, 05-02 done)
-Status: Controllers/UI complete — TasksController (CRUD + audit), MessagesController (threaded conversations), all views and tests
-Last activity: 2026-03-27 -- 05-02 complete (2 tasks, 289 tests passing, 0 failures)
+Phase: 5 of 10 (Tasks and Conversations) — COMPLETE
+Plan: 3 of 3 complete (05-01, 05-02, 05-03 done)
+Status: All phase 5 success criteria met — task CRUD, threaded conversations, delegation/escalation, full audit trail
+Last activity: 2026-03-27 -- 05-03 complete (2 tasks, 311 tests passing, 0 failures)
 
 Progress: [████░░░░░░] ~40%
 
@@ -31,7 +31,7 @@ Progress: [████░░░░░░] ~40%
 | 02-accounts-and-multi-tenancy | 2 | ~23 min | ~11 min |
 | 03-org-chart-and-roles | 2/2 | ~12 min | ~6 min |
 | 04-agent-connection | 3/3 | ~16 min | ~5.3 min |
-| 05-tasks-and-conversations | 2/3 | ~15 min | ~7.5 min |
+| 05-tasks-and-conversations | 3/3 | ~20 min | ~6.7 min |
 
 **Recent Trend:**
 - Last 5 plans: 03-02 (~3 min), 04-01 (~5 min), 04-02 (~6 min), 04-03 (~5 min)
@@ -77,6 +77,9 @@ Recent decisions affecting current work:
 - [05-01]: creator_id on tasks is nullable -- plan said null: false but also dependent: nullify; nullable is correct for user deletion without cascade
 - [05-01]: t.references auto-creates indexes -- removed duplicate explicit add_index calls for parent_task_id and actor polymorphic index
 - [05-02]: When testing audit events, use `.where(action: ...).last` not `.find_by(action: ...)` -- fixtures pre-populate audit events so find_by returns the fixture record, not the newly created one
+- [05-03]: AgentApiAuthenticatable uses skip_before_action :require_authentication and replaces with session-OR-bearer-token logic -- does not modify Authentication concern
+- [05-03]: current_actor returns @current_agent (Agent) if Bearer token auth succeeded, else Current.user (User) -- determines AuditEvent actor_type polymorphism
+- [05-03]: developer role fixture updated with agent: http_agent to create testable CEO -> CTO/claude_agent -> Developer/http_agent hierarchy
 
 ### Pending Todos
 
@@ -89,5 +92,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-27
-Stopped at: Phase 5, plan 02 complete — controllers/UI (TasksController, MessagesController, views, tests)
-Resume file: .ariadna_planning/phases/05-tasks-and-conversations/05-02-SUMMARY.md
+Stopped at: Phase 5, plan 03 complete — ALL of phase 5 complete (task CRUD, threaded conversations, delegation/escalation, dual auth, audit trail)
+Resume file: .ariadna_planning/phases/05-tasks-and-conversations/05-03-SUMMARY.md
