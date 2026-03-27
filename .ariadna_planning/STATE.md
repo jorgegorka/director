@@ -9,12 +9,12 @@ See: .ariadna_planning/PROJECT.md (updated 2026-03-26)
 
 ## Current Position
 
-Phase: 3 of 10 (Org Chart and Roles) — COMPLETE
-Plan: 2 of 2 complete (03-01 done, 03-02 done)
-Status: Phase verified and complete
-Last activity: 2026-03-27 -- Phase 3 verified (14/14 truths, all 4 success criteria met).
+Phase: 4 of 10 (Agent Connection) — IN PROGRESS
+Plan: 1 of 2 complete (04-01 done)
+Status: 04-01 complete — Agent model foundation and adapter registry created
+Last activity: 2026-03-27 -- 04-01 complete (3 tasks, 165 tests passing, 0 failures)
 
-Progress: [████░░░░░░] ~30%
+Progress: [████░░░░░░] ~35%
 
 ## Performance Metrics
 
@@ -30,10 +30,11 @@ Progress: [████░░░░░░] ~30%
 | 01-authentication | 2 | ~10 min | ~5 min |
 | 02-accounts-and-multi-tenancy | 2 | ~23 min | ~11 min |
 | 03-org-chart-and-roles | 2/2 | ~12 min | ~6 min |
+| 04-agent-connection | 1/2 | ~5 min | ~5 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-01 (~7 min), 02-02 (~16 min), 03-01 (~9 min), 03-02 (~3 min)
-- Trend: consistent
+- Last 5 plans: 02-02 (~16 min), 03-01 (~9 min), 03-02 (~3 min), 04-01 (~5 min)
+- Trend: consistent, accelerating
 
 *Updated after each plan completion*
 
@@ -64,6 +65,8 @@ Recent decisions affecting current work:
 - [03-01]: assert_raises(ActiveRecord::RecordNotFound) does not work in integration tests — Rails catches it in middleware and returns 404. Use assert_response :not_found instead.
 - [03-02]: SVG foreignObject nodes built with programmatic DOM (createElement/textContent/appendChild) — never innerHTML with user data. XSS-safe by design.
 - [03-02]: agent_name is nil placeholder throughout Phase 3; Phase 4 will populate real agent names
+- [04-01]: Zeitwerk namespace pattern: app/adapters/adapters/ subdirectory required for Adapters::* constants (Rails 8 treats app/adapters as autoload root, so files must be nested under adapters/ subdir)
+- [04-01]: Agent.active scope excludes only :terminated — paused/error/pending_approval are still "active" records
 
 ### Pending Todos
 
@@ -76,5 +79,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-27
-Stopped at: Phase 3 complete, verified
-Resume file: .ariadna_planning/phases/03-org-chart-and-roles/03-VERIFICATION.md
+Stopped at: Phase 4, plan 01 complete — Agent model foundation and adapter registry
+Resume file: .ariadna_planning/phases/04-agent-connection/04-01-SUMMARY.md
