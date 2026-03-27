@@ -5,14 +5,14 @@
 See: .ariadna_planning/PROJECT.md (updated 2026-03-26)
 
 **Core value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
-**Current focus:** Phase 8 plan 01 complete — budget/cost data layer established
+**Current focus:** Phase 8 plan 02 complete — budget enforcement service and cost reporting API built
 
 ## Current Position
 
 Phase: 8 of 10 (Budget and Cost Control) — IN PROGRESS
-Plan: 1 of 3 complete (08-01 done)
-Status: Budget/cost data layer complete: budget columns on Agent, cost_cents on Task, Notification model, Notifiable concern, budget calculation methods, 505 tests passing
-Last activity: 2026-03-27 -- 08-01 complete (2 tasks, 505 tests passing, 0 failures)
+Plan: 2 of 3 complete (08-01, 08-02 done)
+Status: BudgetEnforcementService and POST /api/agent/tasks/:id/cost endpoint complete, 528 tests passing
+Last activity: 2026-03-27 -- 08-02 complete (2 tasks, 528 tests passing, 0 failures)
 
 Progress: [████████░░] ~82%
 
@@ -34,10 +34,10 @@ Progress: [████████░░] ~82%
 | 05-tasks-and-conversations | 3/3 | ~20 min | ~6.7 min |
 | 06-goals-and-alignment | 2/2 | ~18 min | ~9 min |
 | 07-heartbeats-and-triggers | 3/3 | ~20 min | ~6.7 min |
-| 08-budget-cost-control | 1/3 | ~4 min | ~4 min |
+| 08-budget-cost-control | 2/3 | ~12 min | ~6 min |
 
 **Recent Trend:**
-- Last 5 plans: 06-02 (~10 min), 07-01 (~6 min), 07-02 (~6 min), 07-03 (~20 min), 08-01 (~4 min)
+- Last 5 plans: 07-01 (~6 min), 07-02 (~6 min), 07-03 (~20 min), 08-01 (~4 min), 08-02 (~8 min)
 - Trend: consistent, stable
 
 *Updated after each plan completion*
@@ -97,6 +97,9 @@ Recent decisions affecting current work:
 - [08-01]: t.references with polymorphic: true auto-creates an index; use index: false on t.references calls when providing explicit add_index with custom names to avoid PG::DuplicateTable on migration
 - [08-01]: budget_cents uses integer cents (not float dollars) to avoid floating-point issues; nil = no budget configured (unlimited)
 - [08-01]: Notification model reuses Tenantable for company scoping; polymorphic recipient (User), actor (Agent/User/nil), notifiable (Agent/nil) — designed for reuse in Phase 9 governance alerts
+- [08-02]: BudgetEnforcementService.check!(agent) is the single entry point; called after every cost recording from AgentCostsController
+- [08-02]: Alert threshold test budget_cents must account for fixture task costs already in current period (claude_agent: 3700 cents from design_homepage+completed_task) — use budget_cents: 15000 for 81.3% utilization at 12200 cents total
+- [08-02]: cost endpoint accumulates cost (adds to existing cost_cents), not replaces — supports agents reporting partial costs across multiple calls
 
 ### Pending Todos
 
@@ -109,5 +112,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-27
-Stopped at: Phase 8, plan 1 complete — budget/cost data layer (budget columns on Agent, cost_cents on Task, Notification model, Notifiable concern, 505 tests)
-Resume file: .ariadna_planning/phases/08-budget-cost-control/08-01-SUMMARY.md
+Stopped at: Phase 8, plan 2 complete — budget enforcement service and cost reporting API (BudgetEnforcementService, POST /api/agent/tasks/:id/cost, 528 tests)
+Resume file: .ariadna_planning/phases/08-budget-cost-control/08-02-SUMMARY.md
