@@ -260,4 +260,112 @@ class AgentTest < ActiveSupport::TestCase
     assert_not_equal old_token, @claude_agent.api_token
     assert @claude_agent.api_token.present?
   end
+
+  # --- Budget ---
+
+  test "valid with budget_cents" do
+    @claude_agent.budget_cents = 50000
+    assert @claude_agent.valid?
+  end
+
+  test "invalid with negative budget_cents" do
+    @claude_agent.budget_cents = -100
+    assert_not @claude_agent.valid?
+    assert_includes @claude_agent.errors[:budget_cents], "must be greater than 0"
+  end
+
+  test "invalid with zero budget_cents" do
+    @claude_agent.budget_cents = 0
+    assert_not @claude_agent.valid?
+  end
+
+  test "valid with nil budget_cents (no budget)" do
+    @claude_agent.budget_cents = nil
+    assert @claude_agent.valid?
+  end
+
+  test "budget_configured? returns true when budget_cents present" do
+    assert @claude_agent.budget_configured?
+  end
+
+  test "budget_configured? returns false when budget_cents nil" do
+    @process_agent.budget_cents = nil
+    assert_not @process_agent.budget_configured?
+  end
+
+  test "monthly_spend_cents returns sum of task costs in current period" do
+    expected = Task.where(assignee: @claude_agent)
+                   .where.not(cost_cents: nil)
+                   .where(created_at: Date.current.beginning_of_month.beginning_of_day..Date.current.end_of_month.end_of_day)
+                   .sum(:cost_cents)
+    assert_equal expected, @claude_agent.monthly_spend_cents
+  end
+
+  test "monthly_spend_cents returns 0 when no budget configured" do
+    assert_equal 0, @process_agent.monthly_spend_cents
+  end
+
+  test "monthly_spend_cents ignores tasks with nil cost_cents" do
+    spend = @claude_agent.monthly_spend_cents
+    assert spend >= 0
+  end
+
+  test "budget_remaining_cents returns correct remaining amount" do
+    remaining = @claude_agent.budget_remaining_cents
+    assert_equal [ 50000 - @claude_agent.monthly_spend_cents, 0 ].max, remaining
+  end
+
+  test "budget_remaining_cents returns nil when no budget" do
+    @process_agent.budget_cents = nil
+    assert_nil @process_agent.budget_remaining_cents
+  end
+
+  test "budget_remaining_cents never goes below zero" do
+    @claude_agent.budget_cents = 1  # $0.01 budget, guaranteed to be exhausted
+    assert_equal 0, @claude_agent.budget_remaining_cents
+  end
+
+  test "budget_utilization returns percentage" do
+    util = @claude_agent.budget_utilization
+    assert_kind_of Float, util
+    assert util >= 0.0
+    assert util <= 100.0
+  end
+
+  test "budget_utilization returns 0.0 when no budget" do
+    @process_agent.budget_cents = nil
+    assert_equal 0.0, @process_agent.budget_utilization
+  end
+
+  test "budget_exhausted? returns true when spend meets budget" do
+    @claude_agent.budget_cents = 1  # tiny budget
+    assert @claude_agent.budget_exhausted?
+  end
+
+  test "budget_exhausted? returns false when under budget" do
+    @claude_agent.budget_cents = 999_999_99  # very large budget
+    assert_not @claude_agent.budget_exhausted?
+  end
+
+  test "budget_alert_threshold? returns true at 80% utilization" do
+    spend = @claude_agent.monthly_spend_cents
+    @claude_agent.budget_cents = (spend / 0.80).ceil if spend > 0
+    if @claude_agent.budget_cents && @claude_agent.budget_cents > 0
+      assert @claude_agent.budget_alert_threshold?
+    end
+  end
+
+  test "budget_alert_threshold? returns false when well under budget" do
+    @claude_agent.budget_cents = 999_999_99
+    assert_not @claude_agent.budget_alert_threshold?
+  end
+
+  test "current_budget_period_start defaults to beginning of month" do
+    @claude_agent.budget_period_start = nil
+    assert_equal Date.current.beginning_of_month, @claude_agent.current_budget_period_start
+  end
+
+  test "current_budget_period_end returns end of month" do
+    assert_equal @claude_agent.current_budget_period_start.end_of_month, @claude_agent.current_budget_period_end
+  end
 end

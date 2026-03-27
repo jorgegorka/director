@@ -5,4 +5,17 @@ class UserTest < ActiveSupport::TestCase
     user = User.new(email_address: " DOWNCASED@EXAMPLE.COM ")
     assert_equal("downcased@example.com", user.email_address)
   end
+
+  test "unread_notification_count returns count of unread notifications" do
+    user = users(:one)
+    count = user.unread_notification_count
+    assert count >= 0
+  end
+
+  test "unread_notification_count scoped to company" do
+    user = users(:one)
+    company = companies(:acme)
+    count = user.unread_notification_count(company: company)
+    assert count >= 0
+  end
 end

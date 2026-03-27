@@ -245,4 +245,43 @@ class TaskTest < ActiveSupport::TestCase
     task.reload
     assert_nil task.creator_id
   end
+
+  # --- Cost ---
+
+  test "valid with cost_cents" do
+    task = tasks(:design_homepage)
+    task.cost_cents = 5000
+    assert task.valid?
+  end
+
+  test "valid with nil cost_cents" do
+    task = tasks(:write_tests)
+    task.cost_cents = nil
+    assert task.valid?
+  end
+
+  test "invalid with negative cost_cents" do
+    task = tasks(:design_homepage)
+    task.cost_cents = -100
+    assert_not task.valid?
+    assert_includes task.errors[:cost_cents], "must be greater than or equal to 0"
+  end
+
+  test "valid with zero cost_cents" do
+    task = tasks(:design_homepage)
+    task.cost_cents = 0
+    assert task.valid?
+  end
+
+  test "cost_in_dollars returns dollar amount" do
+    task = tasks(:design_homepage)
+    task.cost_cents = 1500
+    assert_equal 15.0, task.cost_in_dollars
+  end
+
+  test "cost_in_dollars returns nil when cost_cents is nil" do
+    task = tasks(:write_tests)
+    task.cost_cents = nil
+    assert_nil task.cost_in_dollars
+  end
 end
