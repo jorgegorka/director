@@ -10,7 +10,7 @@
   <% if @roles.any? %>
     <div class="org-chart-container"
          data-controller="org-chart"
-         data-org-chart-roles-value="<%= roles_tree_data(@root_roles).to_json %>">
+         data-org-chart-roles-value="<%= roles_tree_data(@root_roles, @roles_by_parent_id).to_json %>">
       <svg class="org-chart-svg" data-org-chart-target="svg">
       </svg>
     </div>

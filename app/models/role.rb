@@ -3,15 +3,17 @@ class Role < ApplicationRecord
 
   belongs_to :parent, class_name: "Role", optional: true
   belongs_to :agent, optional: true
-  has_many :children, class_name: "Role", foreign_key: :parent_id, dependent: :nullify, inverse_of: :parent
+  has_many :children, class_name: "Role", foreign_key: :parent_id, inverse_of: :parent
 
   delegate :name, to: :agent, prefix: true, allow_nil: true
 
-  validates :title, presence: true
-  validates :title, uniqueness: { scope: :company_id, message: "already exists in this company" }
+  validates :title, presence: true,
+                    uniqueness: { scope: :company_id, message: "already exists in this company" }
   validate :parent_belongs_to_same_company
   validate :parent_is_not_self
   validate :parent_is_not_descendant
+
+  before_destroy :reparent_children
 
   scope :roots, -> { where(parent_id: nil) }
 
@@ -54,6 +56,14 @@ class Role < ApplicationRecord
   def parent_is_not_descendant
     if parent_id.present? && id.present? && descendants.map(&:id).include?(parent_id)
       errors.add(:parent, "cannot be a descendant of this role")
+    end
+  end
+
+  def reparent_children
+    if parent_id.present? && !Role.exists?(parent_id)
+      children.update_all(parent_id: nil)
+    else
+      children.update_all(parent_id: parent_id)
     end
   end
 end

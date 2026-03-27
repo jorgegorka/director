@@ -188,15 +188,15 @@ class AgentTest < ActiveSupport::TestCase
   end
 
   test "adapter returns correct adapter class for claude_local" do
-    assert_equal ClaudeLocalAdapter, @claude_agent.adapter
+    assert_equal ClaudeLocalAdapter, @claude_agent.adapter_class
   end
 
   test "adapter returns correct adapter class for http" do
-    assert_equal HttpAdapter, @http_agent.adapter
+    assert_equal HttpAdapter, @http_agent.adapter_class
   end
 
   test "adapter returns correct adapter class for process" do
-    assert_equal ProcessAdapter, @process_agent.adapter
+    assert_equal ProcessAdapter, @process_agent.adapter_class
   end
 
   # --- Deletion behavior ---

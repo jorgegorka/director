@@ -116,10 +116,16 @@ class RoleTest < ActiveSupport::TestCase
 
   # --- Deletion behavior ---
 
-  test "destroying parent nullifies children parent_id" do
+  test "destroying parent re-parents children to grandparent" do
     @cto.destroy
     @developer.reload
-    assert_nil @developer.parent_id
+    assert_equal @ceo.id, @developer.parent_id
+  end
+
+  test "destroying root role makes children root" do
+    @ceo.destroy
+    @cto.reload
+    assert_nil @cto.parent_id
   end
 
   test "destroying company destroys all roles" do

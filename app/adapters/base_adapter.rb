@@ -14,4 +14,8 @@ class BaseAdapter
   def self.description
     raise NotImplementedError, "#{name} must implement .description"
   end
+
+  def self.config_schema
+    { required: [], optional: [] }
+  end
 end

@@ -35,8 +35,6 @@ class RolesController < ApplicationController
   end
 
   def destroy
-    # Re-parent children to the deleted role's parent before destroying
-    @role.children.update_all(parent_id: @role.parent_id)
     @role.destroy
     redirect_to roles_path, notice: "#{@role.title} role has been deleted."
   end
