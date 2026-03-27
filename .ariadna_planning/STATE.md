@@ -9,12 +9,12 @@ See: .ariadna_planning/PROJECT.md (updated 2026-03-26)
 
 ## Current Position
 
-Phase: 6 of 10 (Goals and Alignment) — COMPLETE
-Plan: 2 of 2 complete (06-01 and 06-02 done)
-Status: Full goals feature: data layer + GoalsController + views + home mission display + 373 tests passing
-Last activity: 2026-03-27 -- 06-02 complete (2 tasks, 373 tests passing, 0 failures)
+Phase: 7 of 10 (Heartbeats and Triggers) — IN PROGRESS
+Plan: 1 of 3 complete (07-01 done)
+Status: Heartbeat data layer complete: HeartbeatEvent model, Agent schedule columns, WakeAgentService, AgentHeartbeatJob, HeartbeatScheduleManager — 412 tests passing
+Last activity: 2026-03-27 -- 07-01 complete (2 tasks, 412 tests passing, 0 failures)
 
-Progress: [███████░░░] ~65%
+Progress: [███████░░░] ~70%
 
 ## Performance Metrics
 
@@ -33,9 +33,10 @@ Progress: [███████░░░] ~65%
 | 04-agent-connection | 3/3 | ~16 min | ~5.3 min |
 | 05-tasks-and-conversations | 3/3 | ~20 min | ~6.7 min |
 | 06-goals-and-alignment | 2/2 | ~18 min | ~9 min |
+| 07-heartbeats-and-triggers | 1/3 | ~6 min | ~6 min |
 
 **Recent Trend:**
-- Last 5 plans: 04-03 (~5 min), 05-01 (~7 min), 05-02 (~7 min), 06-01 (~8 min), 06-02 (~10 min)
+- Last 5 plans: 05-01 (~7 min), 05-02 (~7 min), 06-01 (~8 min), 06-02 (~10 min), 07-01 (~6 min)
 - Trend: consistent, stable
 
 *Updated after each plan completion*
@@ -86,6 +87,7 @@ Recent decisions affecting current work:
 - [06-01]: Progress roll-up: subtree_task_ids collects all descendant goal IDs, then single Task.where query; returns 0.0 when no tasks
 - [06-02]: CSS plan aliases (--space-lg, --text-sm, --border-default, --radius-full) mapped to actual project tokens (--space-6, --font-size-sm, --border, 9999px) -- do not create new token definitions
 - [06-02]: options_for_goal_select available in TasksHelper context because Rails includes all helpers in all views by default
+- [07-01]: HeartbeatScheduleManager uses class_attribute :task_store (nil in production = uses SolidQueue::RecurringTask; set in tests = uses FakeTaskStore). SolidQueue uses separate SQLite DB in production (not primary PostgreSQL), so guard checks table existence; tests inject fake store to avoid needing queue schema in primary DB
 
 ### Pending Todos
 
@@ -98,5 +100,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-27
-Stopped at: Phase 6 complete — GoalsController, views, home mission, 373 tests
-Resume file: .ariadna_planning/phases/06-goals-and-alignment/06-02-SUMMARY.md
+Stopped at: Phase 7, plan 1 complete — heartbeat data layer (HeartbeatEvent, WakeAgentService, AgentHeartbeatJob, HeartbeatScheduleManager), 412 tests
+Resume file: .ariadna_planning/phases/07-heartbeats-and-triggers/07-01-SUMMARY.md
