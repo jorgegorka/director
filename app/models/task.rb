@@ -1,6 +1,7 @@
 class Task < ApplicationRecord
   include Tenantable
   include Auditable
+  include Triggerable
 
   belongs_to :creator, class_name: "User", optional: true
   belongs_to :assignee, class_name: "Agent", optional: true
@@ -23,6 +24,7 @@ class Task < ApplicationRecord
   scope :roots, -> { where(parent_task_id: nil) }
 
   before_save :set_completed_at
+  after_commit :trigger_assignment_wake, on: [ :create, :update ], if: :agent_just_assigned?
 
   private
 
@@ -50,5 +52,24 @@ class Task < ApplicationRecord
     elsif status_changed? && !completed?
       self.completed_at = nil
     end
+  end
+
+  def agent_just_assigned?
+    # On create: assignee_id is set
+    # On update: assignee_id changed from nil/different to a new non-nil value
+    return assignee_id.present? if previously_new_record?
+
+    saved_change_to_assignee_id? && assignee_id.present?
+  end
+
+  def trigger_assignment_wake
+    return unless assignee
+
+    trigger_agent_wake(
+      agent: assignee,
+      trigger_type: :task_assigned,
+      trigger_source: "Task##{id}",
+      context: { task_id: id, task_title: title }
+    )
   end
 end
