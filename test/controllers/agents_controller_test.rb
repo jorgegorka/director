@@ -208,4 +208,65 @@ class AgentsControllerTest < ActionDispatch::IntegrationTest
     get agents_url
     assert_redirected_to new_company_url
   end
+
+  # --- Heartbeat Schedule ---
+
+  test "should create agent with heartbeat schedule" do
+    assert_difference("Agent.count", 1) do
+      post agents_url, params: {
+        agent: {
+          name: "Scheduled Agent",
+          adapter_type: "http",
+          adapter_config: { url: "https://example.com/agent" },
+          heartbeat_enabled: "1",
+          heartbeat_interval: "15"
+        }
+      }
+    end
+    agent = Agent.order(:created_at).last
+    assert agent.heartbeat_enabled?
+    assert_equal 15, agent.heartbeat_interval
+  end
+
+  test "should update agent heartbeat schedule" do
+    patch agent_url(@claude_agent), params: {
+      agent: {
+        heartbeat_enabled: "1",
+        heartbeat_interval: "30"
+      }
+    }
+    assert_redirected_to agent_url(@claude_agent)
+    @claude_agent.reload
+    assert @claude_agent.heartbeat_enabled?
+    assert_equal 30, @claude_agent.heartbeat_interval
+  end
+
+  test "should disable agent heartbeat" do
+    @claude_agent.update_columns(heartbeat_enabled: true, heartbeat_interval: 15)
+    patch agent_url(@claude_agent), params: {
+      agent: { heartbeat_enabled: "0" }
+    }
+    assert_redirected_to agent_url(@claude_agent)
+    @claude_agent.reload
+    assert_not @claude_agent.heartbeat_enabled?
+  end
+
+  test "should show heartbeat section on agent detail page" do
+    get agent_url(@claude_agent)
+    assert_response :success
+    assert_select ".agent-detail__heartbeat-config"
+  end
+
+  test "should show heartbeat events on agent detail page" do
+    get agent_url(@claude_agent)
+    assert_response :success
+    # claude_agent has heartbeat events from fixtures
+    assert_select ".heartbeat-table"
+  end
+
+  test "should link to heartbeat history from agent page" do
+    get agent_url(@claude_agent)
+    assert_response :success
+    assert_select "a[href=?]", agent_heartbeats_path(@claude_agent)
+  end
 end

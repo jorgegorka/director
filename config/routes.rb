@@ -27,6 +27,7 @@ Rails.application.routes.draw do
   # Agents (scoped to active company via Current.company)
   resources :agents do
     resources :capabilities, only: [ :create, :destroy ], controller: "agent_capabilities"
+    resources :heartbeats, only: [ :index ]
   end
 
   # Tasks (scoped to active company via Current.company)

@@ -1,0 +1,67 @@
+<% content_for(:title, "Heartbeat History - #{@agent.name}") %>
+
+<section class="heartbeats-history">
+  <div class="heartbeats-history__header">
+    <div>
+      <h1>Heartbeat History</h1>
+      <p class="heartbeats-history__subtitle">
+        <%= link_to @agent.name, agent_path(@agent) %> &mdash;
+        <%= @total_count %> total events
+      </p>
+    </div>
+    <%= link_to "Back to Agent", agent_path(@agent), class: "btn btn--ghost btn--sm" %>
+  </div>
+
+  <% if @heartbeat_events.any? %>
+    <table class="table heartbeat-table">
+      <thead>
+        <tr>
+          <th>Trigger</th>
+          <th>Status</th>
+          <th>Source</th>
+          <th>Delivered</th>
+          <th>Created</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @heartbeat_events.each do |event| %>
+          <tr class="heartbeat-row heartbeat-row--<%= event.status %>">
+            <td><%= heartbeat_trigger_badge(event) %></td>
+            <td><%= heartbeat_status_indicator(event) %></td>
+            <td><%= event.trigger_source || "—" %></td>
+            <td>
+              <% if event.delivered_at %>
+                <%= time_ago_in_words(event.delivered_at) %> ago
+              <% else %>
+                &mdash;
+              <% end %>
+            </td>
+            <td><%= time_ago_in_words(event.created_at) %> ago</td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <% if @total_pages > 1 %>
+      <nav class="pagination" aria-label="Heartbeat history pages">
+        <% if @current_page > 1 %>
+          <%= link_to "Previous", agent_heartbeats_path(@agent, page: @current_page - 1), class: "btn btn--ghost btn--sm" %>
+        <% end %>
+        <span class="pagination__info">Page <%= @current_page %> of <%= @total_pages %></span>
+        <% if @current_page < @total_pages %>
+          <%= link_to "Next", agent_heartbeats_path(@agent, page: @current_page + 1), class: "btn btn--ghost btn--sm" %>
+        <% end %>
+      </nav>
+    <% end %>
+  <% else %>
+    <div class="heartbeats-history__empty">
+      <p>No heartbeat events recorded yet.</p>
+      <p>Events will appear here when the agent is triggered by:</p>
+      <ul>
+        <li>Scheduled heartbeat (configure in agent settings)</li>
+        <li>Task assigned to this agent</li>
+        <li>@mention in a task conversation</li>
+      </ul>
+    </div>
+  <% end %>
+</section>
