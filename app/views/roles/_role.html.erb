@@ -14,8 +14,13 @@
 
   <div class="role-card__footer">
     <span class="role-card__agent">
-      <span class="role-card__agent-dot role-card__agent-dot--unassigned"></span>
-      Unassigned
+      <% if role.agent %>
+        <span class="role-card__agent-dot role-card__agent-dot--<%= role.agent.status %>"></span>
+        <%= link_to role.agent.name, role.agent %>
+      <% else %>
+        <span class="role-card__agent-dot role-card__agent-dot--unassigned"></span>
+        Unassigned
+      <% end %>
     </span>
     <% if role.children.any? %>
       <span class="role-card__reports"><%= pluralize(role.children.size, "direct report") %></span>

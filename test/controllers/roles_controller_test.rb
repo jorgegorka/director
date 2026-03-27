@@ -141,6 +141,43 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
     assert_nil @cto.parent_id
   end
 
+  # --- Agent assignment ---
+
+  test "should assign agent to role on create" do
+    agent = agents(:claude_agent)
+    assert_difference("Role.count", 1) do
+      post roles_url, params: {
+        role: { title: "Lead Architect", agent_id: agent.id }
+      }
+    end
+    role = Role.order(:created_at).last
+    assert_equal agent.id, role.agent_id
+  end
+
+  test "should assign agent to role on update" do
+    agent = agents(:http_agent)
+    patch role_url(@ceo), params: { role: { agent_id: agent.id } }
+    assert_redirected_to role_url(@ceo)
+    @ceo.reload
+    assert_equal agent.id, @ceo.agent_id
+  end
+
+  test "should unassign agent from role" do
+    # CTO already has claude_agent assigned (from fixture)
+    assert_not_nil @cto.agent_id
+    patch role_url(@cto), params: { role: { agent_id: "" } }
+    assert_redirected_to role_url(@cto)
+    @cto.reload
+    assert_nil @cto.agent_id
+  end
+
+  test "should show agent name on role detail" do
+    # CTO has claude_agent assigned
+    get role_url(@cto)
+    assert_response :success
+    assert_select ".role-detail__agent", text: /Claude Assistant/
+  end
+
   # --- Auth / Scoping ---
 
   test "should redirect unauthenticated user" do

@@ -21,9 +21,14 @@
     <div class="role-detail__section">
       <h2>Agent</h2>
       <div class="role-detail__agent">
-        <span class="role-card__agent-dot role-card__agent-dot--unassigned"></span>
-        <span>Unassigned</span>
-        <span class="role-detail__agent-hint">Agents can be assigned in Phase 4</span>
+        <% if @role.agent %>
+          <span class="role-card__agent-dot role-card__agent-dot--<%= @role.agent.status %>"></span>
+          <%= link_to @role.agent.name, @role.agent %>
+          <%= agent_status_badge(@role.agent) %>
+        <% else %>
+          <span class="role-card__agent-dot role-card__agent-dot--unassigned"></span>
+          <span>Unassigned</span>
+        <% end %>
       </div>
     </div>
 

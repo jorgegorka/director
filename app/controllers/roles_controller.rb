@@ -3,7 +3,7 @@ class RolesController < ApplicationController
   before_action :set_role, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    @roles = Current.company.roles.includes(:parent, :children).order(:title)
+    @roles = Current.company.roles.includes(:parent, :children, :agent).order(:title)
   end
 
   def show
@@ -48,6 +48,6 @@ class RolesController < ApplicationController
   end
 
   def role_params
-    params.require(:role).permit(:title, :description, :job_spec, :parent_id)
+    params.require(:role).permit(:title, :description, :job_spec, :parent_id, :agent_id)
   end
 end

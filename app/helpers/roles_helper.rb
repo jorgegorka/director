@@ -5,4 +5,8 @@ module RolesHelper
     available_roles = Current.company.roles.where.not(id: excluded_ids).order(:title)
     available_roles.map { |r| [ r.title, r.id ] }
   end
+
+  def options_for_agent_select
+    Current.company.agents.active.order(:name).map { |a| [ a.name, a.id ] }
+  end
 end

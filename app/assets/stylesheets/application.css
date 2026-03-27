@@ -1057,6 +1057,13 @@
     background-color: var(--color-neutral-300);
   }
 
+  .role-card__agent-dot--idle { background: var(--color-success-fg); }
+  .role-card__agent-dot--running { background: var(--color-accent-500); }
+  .role-card__agent-dot--paused { background: var(--color-warning-fg); }
+  .role-card__agent-dot--error { background: var(--color-error-fg); }
+  .role-card__agent-dot--terminated { background: var(--color-neutral-300); }
+  .role-card__agent-dot--pending_approval { background: var(--color-brand-500); }
+
   .role-card__reports {
     font-size: var(--font-size-sm);
     color: var(--text-muted);
