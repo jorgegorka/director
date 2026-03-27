@@ -84,4 +84,44 @@ class AuditEventTest < ActiveSupport::TestCase
     assert_equal "open", event.metadata["from"]
     assert_equal "in_progress", event.metadata["to"]
   end
+
+  # --- Company scoping ---
+
+  test "for_company returns events for specified company" do
+    company = companies(:acme)
+    events = AuditEvent.for_company(company)
+    events.each { |e| assert_equal company.id, e.company_id }
+  end
+
+  test "for_actor_type filters by actor type" do
+    events = AuditEvent.for_actor_type("User")
+    events.each { |e| assert_equal "User", e.actor_type }
+  end
+
+  test "for_date_range filters by date" do
+    start_date = 1.week.ago.to_date
+    end_date = Date.current
+    events = AuditEvent.for_date_range(start_date, end_date)
+    events.each do |e|
+      assert e.created_at >= start_date.beginning_of_day
+      assert e.created_at <= end_date.end_of_day
+    end
+  end
+
+  test "governance_action? returns true for governance actions" do
+    event = audit_events(:gate_approval_event)
+    assert event.governance_action?
+  end
+
+  test "governance_action? returns false for regular actions" do
+    event = audit_events(:task_created)
+    assert_not event.governance_action?
+  end
+
+  test "GOVERNANCE_ACTIONS includes expected action types" do
+    expected = %w[gate_approval gate_rejection emergency_stop emergency_resume agent_paused agent_resumed agent_terminated config_rollback cost_recorded]
+    expected.each do |action|
+      assert_includes AuditEvent::GOVERNANCE_ACTIONS, action
+    end
+  end
 end
