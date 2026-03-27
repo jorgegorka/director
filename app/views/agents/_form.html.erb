@@ -1,0 +1,107 @@
+<%= form_with(model: agent, class: "form", data: { controller: "adapter-config" }) do |f| %>
+  <% if agent.errors.any? %>
+    <div class="form__errors" role="alert">
+      <% agent.errors.full_messages.each do |message| %>
+        <p><%= message %></p>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="form__field">
+    <%= f.label :name, "Agent name" %>
+    <%= f.text_field :name, autofocus: true, required: true, placeholder: "e.g. Claude Assistant, Data Processor" %>
+  </div>
+
+  <div class="form__field">
+    <%= f.label :description, "Description" %>
+    <%= f.text_area :description, rows: 3, placeholder: "What does this agent do?" %>
+  </div>
+
+  <div class="form__field">
+    <%= f.label :adapter_type, "Connection type" %>
+    <%= f.select :adapter_type, adapter_type_options, {}, {
+      class: "form__select",
+      data: { adapter_config_select: "", action: "change->adapter-config#toggle" }
+    } %>
+  </div>
+
+  <!-- HTTP adapter config fields -->
+  <fieldset class="form__fieldset" data-adapter-config-target="configGroup" data-adapter-type="http">
+    <legend>HTTP API Configuration</legend>
+    <div class="form__field">
+      <%= label_tag "agent_adapter_config_url", "Endpoint URL" %>
+      <%= text_field_tag "agent[adapter_config][url]",
+            agent.adapter_config&.dig("url"),
+            placeholder: "https://api.example.com/agent",
+            id: "agent_adapter_config_url" %>
+    </div>
+    <div class="form__field">
+      <%= label_tag "agent_adapter_config_method", "HTTP Method" %>
+      <%= select_tag "agent[adapter_config][method]",
+            options_for_select([ "POST", "PUT" ], agent.adapter_config&.dig("method") || "POST"),
+            id: "agent_adapter_config_method",
+            class: "form__select" %>
+    </div>
+    <div class="form__field">
+      <%= label_tag "agent_adapter_config_auth_token", "Auth Token (optional)" %>
+      <%= text_field_tag "agent[adapter_config][auth_token]",
+            agent.adapter_config&.dig("auth_token"),
+            placeholder: "Bearer token for authentication",
+            id: "agent_adapter_config_auth_token" %>
+    </div>
+  </fieldset>
+
+  <!-- Process adapter config fields -->
+  <fieldset class="form__fieldset" data-adapter-config-target="configGroup" data-adapter-type="process">
+    <legend>Shell Command Configuration</legend>
+    <div class="form__field">
+      <%= label_tag "agent_adapter_config_command", "Command" %>
+      <%= text_field_tag "agent[adapter_config][command]",
+            agent.adapter_config&.dig("command"),
+            placeholder: "/usr/local/bin/my-agent.sh",
+            id: "agent_adapter_config_command" %>
+    </div>
+    <div class="form__field">
+      <%= label_tag "agent_adapter_config_working_directory", "Working Directory (optional)" %>
+      <%= text_field_tag "agent[adapter_config][working_directory]",
+            agent.adapter_config&.dig("working_directory"),
+            placeholder: "/home/user/agent",
+            id: "agent_adapter_config_working_directory" %>
+    </div>
+  </fieldset>
+
+  <!-- Claude Local adapter config fields -->
+  <fieldset class="form__fieldset" data-adapter-config-target="configGroup" data-adapter-type="claude_local">
+    <legend>Claude Code Configuration</legend>
+    <div class="form__field">
+      <%= label_tag "agent_adapter_config_model", "Model" %>
+      <%= select_tag "agent[adapter_config][model]",
+            options_for_select(
+              [ [ "Claude Sonnet 4", "claude-sonnet-4-20250514" ], [ "Claude Opus 4", "claude-opus-4-20250514" ] ],
+              agent.adapter_config&.dig("model")
+            ),
+            id: "agent_adapter_config_model",
+            class: "form__select" %>
+    </div>
+    <div class="form__field">
+      <%= label_tag "agent_adapter_config_max_turns", "Max Turns (optional)" %>
+      <%= number_field_tag "agent[adapter_config][max_turns]",
+            agent.adapter_config&.dig("max_turns"),
+            placeholder: "25",
+            min: 1,
+            id: "agent_adapter_config_max_turns" %>
+    </div>
+    <div class="form__field">
+      <%= label_tag "agent_adapter_config_system_prompt", "System Prompt (optional)" %>
+      <%= text_area_tag "agent[adapter_config][system_prompt]",
+            agent.adapter_config&.dig("system_prompt"),
+            rows: 4,
+            placeholder: "Custom instructions for the agent...",
+            id: "agent_adapter_config_system_prompt" %>
+    </div>
+  </fieldset>
+
+  <div class="form__actions">
+    <%= f.submit class: "btn btn--primary" %>
+  </div>
+<% end %>

@@ -1,0 +1,6 @@
+<% content_for(:title, "Edit #{@agent.name}") %>
+
+<section class="agent-form-page">
+  <h1>Edit <%= @agent.name %></h1>
+  <%= render "form", agent: @agent %>
+</section>

@@ -1,0 +1,83 @@
+<% content_for(:title, @agent.name) %>
+
+<section class="agent-detail">
+  <div class="agent-detail__header">
+    <div>
+      <h1><%= @agent.name %></h1>
+      <div class="agent-detail__status">
+        <%= agent_status_badge(@agent) %>
+        <span class="agent-detail__adapter-label"><%= adapter_type_label(@agent) %></span>
+      </div>
+    </div>
+    <div class="agent-detail__actions">
+      <%= link_to "Edit", edit_agent_path(@agent), class: "btn btn--ghost btn--sm" %>
+      <%= button_to "Delete", @agent, method: :delete, class: "btn btn--ghost btn--sm agent-detail__delete",
+            data: { turbo_confirm: "Delete #{@agent.name}? This cannot be undone." } %>
+    </div>
+  </div>
+
+  <div class="agent-detail__body">
+    <% if @agent.description.present? %>
+      <div class="agent-detail__section">
+        <h2>Description</h2>
+        <p><%= @agent.description %></p>
+      </div>
+    <% end %>
+
+    <div class="agent-detail__section">
+      <h2>Adapter Configuration</h2>
+      <dl class="agent-detail__config">
+        <% if @agent.adapter_config.present? %>
+          <% @agent.adapter_config.each do |key, value| %>
+            <div class="agent-detail__config-row">
+              <dt><%= key.humanize %></dt>
+              <dd>
+                <% if key.to_s == "auth_token" && value.present? %>
+                  <span class="agent-detail__masked">••••••••<%= value.to_s.last(4) %></span>
+                <% else %>
+                  <code><%= value %></code>
+                <% end %>
+              </dd>
+            </div>
+          <% end %>
+        <% else %>
+          <p class="agent-detail__empty-note">No configuration set.</p>
+        <% end %>
+      </dl>
+    </div>
+
+    <div class="agent-detail__section">
+      <h2>Heartbeat</h2>
+      <p class="agent-detail__heartbeat">
+        <% if @agent.last_heartbeat_at %>
+          Last seen <%= time_ago_in_words(@agent.last_heartbeat_at) %> ago
+        <% else %>
+          <span class="agent-detail__never">Never</span>
+          <span class="agent-detail__heartbeat-hint">Heartbeats will be configured in a future update</span>
+        <% end %>
+      </p>
+    </div>
+
+    <% if @agent.agent_capabilities.any? %>
+      <div class="agent-detail__section">
+        <h2>Capabilities (<%= @agent.agent_capabilities.size %>)</h2>
+        <div class="agent-detail__capabilities">
+          <% @agent.agent_capabilities.by_name.each do |cap| %>
+            <span class="capability-badge" title="<%= cap.description %>"><%= cap.name %></span>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <% if @agent.roles.any? %>
+      <div class="agent-detail__section">
+        <h2>Assigned Roles (<%= @agent.roles.size %>)</h2>
+        <ul class="agent-detail__roles-list">
+          <% @agent.roles.order(:title).each do |role| %>
+            <li><%= link_to role.title, role %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+  </div>
+</section>

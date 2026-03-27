@@ -1,0 +1,20 @@
+<div class="agent-card">
+  <div class="agent-card__header">
+    <%= link_to agent.name, agent, class: "agent-card__name" %>
+    <%= agent_status_badge(agent) %>
+  </div>
+  <div class="agent-card__meta">
+    <span class="agent-card__adapter"><%= adapter_type_label(agent) %></span>
+    <% if agent.description.present? %>
+      <p class="agent-card__description"><%= truncate(agent.description, length: 120) %></p>
+    <% end %>
+  </div>
+  <div class="agent-card__footer">
+    <% if agent.agent_capabilities.any? %>
+      <span class="agent-card__capabilities"><%= pluralize(agent.agent_capabilities.size, "capability") %></span>
+    <% end %>
+    <% if agent.roles.any? %>
+      <span class="agent-card__roles"><%= pluralize(agent.roles.size, "role") %></span>
+    <% end %>
+  </div>
+</div>

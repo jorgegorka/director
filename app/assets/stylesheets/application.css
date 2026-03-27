@@ -1334,6 +1334,416 @@
 }
 
 /* ============================================================
+   AGENT COMPONENTS (inside @layer components)
+   ============================================================ */
+@layer components {
+  /* --- Agents page --- */
+  .agents-page {
+    max-inline-size: 56rem;
+    margin-inline: auto;
+    padding-block: var(--space-8);
+    padding-inline: var(--space-4);
+  }
+
+  .agents-page__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-block-end: var(--space-6);
+
+    & h1 {
+      margin: 0;
+    }
+  }
+
+  .agents-page__empty {
+    text-align: center;
+    padding-block: var(--space-16);
+    color: var(--text-muted);
+
+    & p {
+      margin-block-end: var(--space-4);
+    }
+  }
+
+  /* --- Agents list --- */
+  .agents-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+    gap: var(--space-4);
+  }
+
+  /* --- Agent card --- */
+  .agent-card {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4) var(--space-5);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    transition:
+      border-color var(--transition-fast),
+      box-shadow var(--transition-fast);
+
+    &:hover {
+      border-color: var(--color-neutral-300);
+      box-shadow: var(--shadow-md);
+    }
+  }
+
+  .agent-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  .agent-card__name {
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    color: var(--text-base);
+    text-decoration: none;
+
+    &:hover {
+      color: var(--color-brand-500);
+      text-decoration: underline;
+    }
+  }
+
+  .agent-card__meta {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .agent-card__adapter {
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .agent-card__description {
+    font-size: var(--font-size-sm);
+    color: var(--text-subtle);
+    margin: 0;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .agent-card__footer {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-block-start: auto;
+  }
+
+  .agent-card__capabilities,
+  .agent-card__roles {
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+  }
+
+  /* --- Status badge --- */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding-block: 2px;
+    padding-inline: var(--space-2);
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: capitalize;
+    letter-spacing: 0.02em;
+    flex-shrink: 0;
+  }
+
+  .status-badge--idle {
+    background-color: var(--color-success-bg);
+    color: var(--color-success-fg);
+    border: 1px solid oklch(from var(--color-success-fg) l c h / 0.2);
+  }
+
+  .status-badge--running {
+    background-color: var(--color-accent-50);
+    color: var(--color-accent-600);
+    border: 1px solid oklch(from var(--color-accent-500) l c h / 0.3);
+  }
+
+  .status-badge--paused {
+    background-color: var(--color-warning-bg);
+    color: var(--color-warning-fg);
+    border: 1px solid oklch(from var(--color-warning-fg) l c h / 0.2);
+  }
+
+  .status-badge--error {
+    background-color: var(--color-error-bg);
+    color: var(--color-error-fg);
+    border: 1px solid oklch(from var(--color-error-fg) l c h / 0.2);
+  }
+
+  .status-badge--terminated {
+    background-color: var(--color-neutral-100);
+    color: var(--color-neutral-500);
+    border: 1px solid var(--color-neutral-200);
+  }
+
+  .status-badge--pending_approval {
+    background-color: var(--color-brand-50);
+    color: var(--color-brand-600);
+    border: 1px solid oklch(from var(--color-brand-400) l c h / 0.5);
+  }
+
+  /* --- Agent detail page --- */
+  .agent-detail {
+    max-inline-size: 56rem;
+    margin-inline: auto;
+    padding-block: var(--space-8);
+    padding-inline: var(--space-4);
+  }
+
+  .agent-detail__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-block-end: var(--space-8);
+
+    & h1 {
+      margin-block-end: var(--space-2);
+    }
+  }
+
+  .agent-detail__status {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .agent-detail__adapter-label {
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .agent-detail__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-shrink: 0;
+  }
+
+  .agent-detail__delete {
+    color: var(--color-error-fg);
+    border-color: oklch(from var(--color-error-fg) l c h / 0.3);
+
+    &:hover {
+      background-color: var(--color-error-bg);
+      color: var(--color-error-fg);
+      border-color: oklch(from var(--color-error-fg) l c h / 0.5);
+    }
+  }
+
+  .agent-detail__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .agent-detail__section {
+    & h2 {
+      font-size: var(--font-size-base);
+      font-weight: 600;
+      color: var(--text-subtle);
+      text-transform: uppercase;
+      letter-spacing: var(--letter-spacing-wide);
+      margin-block-end: var(--space-3);
+    }
+  }
+
+  .agent-detail__config {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    background-color: var(--color-neutral-100);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+  }
+
+  .agent-detail__config-row {
+    display: grid;
+    grid-template-columns: 10rem 1fr;
+    gap: var(--space-3);
+    align-items: baseline;
+
+    & dt {
+      font-size: var(--font-size-sm);
+      font-weight: 500;
+      color: var(--text-subtle);
+      text-transform: capitalize;
+    }
+
+    & dd {
+      font-size: var(--font-size-sm);
+      color: var(--text-base);
+
+      & code {
+        font-family: var(--font-mono);
+        font-size: 0.85em;
+        background-color: var(--bg-surface);
+        padding-inline: var(--space-1);
+        padding-block: 1px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+        word-break: break-all;
+      }
+    }
+  }
+
+  .agent-detail__masked {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+  }
+
+  .agent-detail__empty-note {
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  .agent-detail__heartbeat {
+    font-size: var(--font-size-base);
+    color: var(--text-subtle);
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .agent-detail__never {
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  .agent-detail__heartbeat-hint {
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  .agent-detail__capabilities {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .agent-detail__roles-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    list-style: none;
+
+    & li {
+      font-size: var(--font-size-base);
+    }
+  }
+
+  /* --- Capability badge --- */
+  .capability-badge {
+    display: inline-flex;
+    align-items: center;
+    padding-block: var(--space-1);
+    padding-inline: var(--space-3);
+    background-color: var(--color-accent-50);
+    color: var(--color-accent-600);
+    border: 1px solid oklch(from var(--color-accent-500) l c h / 0.3);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+  }
+
+  /* --- Agent form page --- */
+  .agent-form-page {
+    max-inline-size: 40rem;
+    margin-inline: auto;
+    padding-block: var(--space-8);
+    padding-inline: var(--space-4);
+
+    & h1 {
+      margin-block-end: var(--space-6);
+    }
+  }
+
+  /* --- Form fieldset (adapter config groups) --- */
+  .form__fieldset {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-4) var(--space-4) var(--space-2);
+    margin-block-end: var(--space-4);
+    background-color: var(--color-neutral-100);
+
+    & legend {
+      font-size: var(--font-size-sm);
+      font-weight: 600;
+      color: var(--text-subtle);
+      padding-inline: var(--space-2);
+      text-transform: uppercase;
+      letter-spacing: var(--letter-spacing-wide);
+    }
+
+    /* Inputs inside fieldset inherit form styling */
+    & input[type="text"],
+    & input[type="number"] {
+      padding-block: var(--space-2);
+      padding-inline: var(--space-3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background-color: var(--bg-surface);
+      color: var(--text-base);
+      inline-size: 100%;
+      transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast);
+
+      &::placeholder { color: var(--text-muted); }
+
+      &:focus {
+        outline: none;
+        border-color: var(--color-brand-500);
+        box-shadow: 0 0 0 3px var(--glow-brand);
+      }
+    }
+
+    & textarea {
+      padding-block: var(--space-2);
+      padding-inline: var(--space-3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background-color: var(--bg-surface);
+      color: var(--text-base);
+      inline-size: 100%;
+      resize: vertical;
+      transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast);
+
+      &::placeholder { color: var(--text-muted); }
+
+      &:focus {
+        outline: none;
+        border-color: var(--color-brand-500);
+        box-shadow: 0 0 0 3px var(--glow-brand);
+      }
+    }
+  }
+}
+
+/* ============================================================
    UTILITIES
    ============================================================ */
 @layer utilities {

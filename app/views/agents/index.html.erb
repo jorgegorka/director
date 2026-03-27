@@ -1,0 +1,21 @@
+<% content_for(:title, "Agents") %>
+
+<section class="agents-page">
+  <div class="agents-page__header">
+    <h1>Agents</h1>
+    <%= link_to "New Agent", new_agent_path, class: "btn btn--primary btn--sm" %>
+  </div>
+
+  <% if @agents.any? %>
+    <div class="agents-list">
+      <% @agents.each do |agent| %>
+        <%= render partial: "agents/agent", locals: { agent: agent } %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="agents-page__empty">
+      <p>No agents yet. Connect your first AI agent to get started.</p>
+      <%= link_to "Add an agent", new_agent_path, class: "btn btn--primary" %>
+    </div>
+  <% end %>
+</section>
