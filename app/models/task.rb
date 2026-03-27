@@ -5,6 +5,7 @@ class Task < ApplicationRecord
   belongs_to :creator, class_name: "User", optional: true
   belongs_to :assignee, class_name: "Agent", optional: true
   belongs_to :parent_task, class_name: "Task", optional: true
+  belongs_to :goal, optional: true
 
   has_many :subtasks, class_name: "Task", foreign_key: :parent_task_id, inverse_of: :parent_task, dependent: :destroy
   has_many :messages, dependent: :destroy
@@ -15,6 +16,7 @@ class Task < ApplicationRecord
   validates :title, presence: true
   validate :assignee_belongs_to_same_company
   validate :parent_task_belongs_to_same_company
+  validate :goal_belongs_to_same_company
 
   scope :active, -> { where.not(status: [ :completed, :cancelled ]) }
   scope :by_priority, -> { order(priority: :desc, created_at: :desc) }
@@ -33,6 +35,12 @@ class Task < ApplicationRecord
   def parent_task_belongs_to_same_company
     if parent_task.present? && parent_task.company_id != company_id
       errors.add(:parent_task, "must belong to the same company")
+    end
+  end
+
+  def goal_belongs_to_same_company
+    if goal.present? && goal.company_id != company_id
+      errors.add(:goal, "must belong to the same company")
     end
   end
 

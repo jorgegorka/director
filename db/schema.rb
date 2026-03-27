@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_27_103456) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_27_114317) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -61,6 +61,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_27_103456) do
     t.datetime "created_at", null: false
     t.string "name", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "goals", force: :cascade do |t|
+    t.bigint "company_id", null: false
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.bigint "parent_id"
+    t.integer "position", default: 0, null: false
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.index ["company_id", "parent_id"], name: "index_goals_on_company_id_and_parent_id"
+    t.index ["company_id"], name: "index_goals_on_company_id"
+    t.index ["parent_id"], name: "index_goals_on_parent_id"
   end
 
   create_table "invitations", force: :cascade do |t|
@@ -137,6 +150,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_27_103456) do
     t.bigint "creator_id"
     t.text "description"
     t.datetime "due_at"
+    t.bigint "goal_id"
     t.bigint "parent_task_id"
     t.integer "priority", default: 1, null: false
     t.integer "status", default: 0, null: false
@@ -147,6 +161,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_27_103456) do
     t.index ["company_id", "status"], name: "index_tasks_on_company_id_and_status"
     t.index ["company_id"], name: "index_tasks_on_company_id"
     t.index ["creator_id"], name: "index_tasks_on_creator_id"
+    t.index ["goal_id"], name: "index_tasks_on_goal_id"
     t.index ["parent_task_id"], name: "index_tasks_on_parent_task_id"
   end
 
@@ -160,6 +175,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_27_103456) do
 
   add_foreign_key "agent_capabilities", "agents"
   add_foreign_key "agents", "companies"
+  add_foreign_key "goals", "companies"
+  add_foreign_key "goals", "goals", column: "parent_id"
   add_foreign_key "invitations", "companies"
   add_foreign_key "invitations", "users", column: "inviter_id"
   add_foreign_key "memberships", "companies"
@@ -172,6 +189,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_27_103456) do
   add_foreign_key "sessions", "users"
   add_foreign_key "tasks", "agents", column: "assignee_id"
   add_foreign_key "tasks", "companies"
+  add_foreign_key "tasks", "goals"
   add_foreign_key "tasks", "tasks", column: "parent_task_id"
   add_foreign_key "tasks", "users", column: "creator_id"
 end

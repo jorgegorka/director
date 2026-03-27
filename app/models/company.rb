@@ -5,6 +5,7 @@ class Company < ApplicationRecord
   has_many :roles, dependent: :destroy
   has_many :agents, dependent: :destroy
   has_many :tasks, dependent: :destroy
+  has_many :goals, dependent: :destroy
 
   validates :name, presence: true
 end
