@@ -5,23 +5,23 @@
 See: .ariadna_planning/PROJECT.md (updated 2026-03-26)
 
 **Core value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
-**Current focus:** Phase 7 plan 03 complete — phase 7 complete (3/3 plans done)
+**Current focus:** Phase 8 plan 01 complete — budget/cost data layer established
 
 ## Current Position
 
-Phase: 7 of 10 (Heartbeats and Triggers) — COMPLETE
-Plan: 3 of 3 complete (07-01, 07-02, 07-03 all done)
-Status: Phase 7 fully complete: heartbeat data layer, Triggerable concern, agent events polling API, UI (form, show page, history view) — 455 tests passing
-Last activity: 2026-03-27 -- 07-02 complete (2 tasks, 455 tests passing, 0 failures)
+Phase: 8 of 10 (Budget and Cost Control) — IN PROGRESS
+Plan: 1 of 3 complete (08-01 done)
+Status: Budget/cost data layer complete: budget columns on Agent, cost_cents on Task, Notification model, Notifiable concern, budget calculation methods, 505 tests passing
+Last activity: 2026-03-27 -- 08-01 complete (2 tasks, 505 tests passing, 0 failures)
 
-Progress: [████████░░] ~80%
+Progress: [████████░░] ~82%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 14
+- Total plans completed: 15
 - Average duration: ~8 minutes
-- Total execution time: ~119 minutes
+- Total execution time: ~123 minutes
 
 **By Phase:**
 
@@ -34,9 +34,10 @@ Progress: [████████░░] ~80%
 | 05-tasks-and-conversations | 3/3 | ~20 min | ~6.7 min |
 | 06-goals-and-alignment | 2/2 | ~18 min | ~9 min |
 | 07-heartbeats-and-triggers | 3/3 | ~20 min | ~6.7 min |
+| 08-budget-cost-control | 1/3 | ~4 min | ~4 min |
 
 **Recent Trend:**
-- Last 5 plans: 06-01 (~8 min), 06-02 (~10 min), 07-01 (~6 min), 07-02 (~6 min), 07-03 (~20 min)
+- Last 5 plans: 06-02 (~10 min), 07-01 (~6 min), 07-02 (~6 min), 07-03 (~20 min), 08-01 (~4 min)
 - Trend: consistent, stable
 
 *Updated after each plan completion*
@@ -93,6 +94,9 @@ Recent decisions affecting current work:
 - [07-02]: Api::AgentEventsController scoped find_by for acknowledge — `@current_agent.heartbeat_events.queued.find_by(id:)` prevents cross-agent access and double-ack with a single 404 (no information disclosure)
 - [07-03]: assert_raises(RecordNotFound) in integration tests must be assert_response :not_found (reconfirmed 03-01 pattern for HeartbeatsController cross-company isolation test)
 - [07-03]: HeartbeatsHelper is in app/helpers/ (not app/presenters/ or included explicitly) -- Rails includes all helpers in all views, so helper methods are available in agents/show and heartbeats/index without any extra configuration
+- [08-01]: t.references with polymorphic: true auto-creates an index; use index: false on t.references calls when providing explicit add_index with custom names to avoid PG::DuplicateTable on migration
+- [08-01]: budget_cents uses integer cents (not float dollars) to avoid floating-point issues; nil = no budget configured (unlimited)
+- [08-01]: Notification model reuses Tenantable for company scoping; polymorphic recipient (User), actor (Agent/User/nil), notifiable (Agent/nil) — designed for reuse in Phase 9 governance alerts
 
 ### Pending Todos
 
@@ -105,5 +109,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-27
-Stopped at: Phase 7, plan 2 complete — Triggerable concern (task assignment + @mention triggers), agent events polling API (GET /api/agent/events, POST acknowledge), 455 tests
-Resume file: .ariadna_planning/phases/07-heartbeats-and-triggers/07-02-SUMMARY.md
+Stopped at: Phase 8, plan 1 complete — budget/cost data layer (budget columns on Agent, cost_cents on Task, Notification model, Notifiable concern, 505 tests)
+Resume file: .ariadna_planning/phases/08-budget-cost-control/08-01-SUMMARY.md
