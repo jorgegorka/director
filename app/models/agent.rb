@@ -3,6 +3,7 @@ class Agent < ApplicationRecord
 
   has_many :agent_capabilities, dependent: :destroy
   has_many :roles, dependent: :nullify
+  has_many :assigned_tasks, class_name: "Task", foreign_key: :assignee_id, inverse_of: :assignee, dependent: :nullify
 
   enum :adapter_type, { http: 0, process: 1, claude_local: 2 }
   enum :status, { idle: 0, running: 1, paused: 2, error: 3, terminated: 4, pending_approval: 5 }
@@ -14,6 +15,19 @@ class Agent < ApplicationRecord
   validate :validate_adapter_config_schema
 
   scope :active, -> { where.not(status: [ :terminated ]) }
+
+  before_create :generate_api_token
+
+  def regenerate_api_token!
+    update!(api_token: self.class.generate_unique_api_token)
+  end
+
+  def self.generate_unique_api_token
+    loop do
+      token = SecureRandom.base58(24)
+      break token unless exists?(api_token: token)
+    end
+  end
 
   def adapter_class
     AdapterRegistry.for(adapter_type)
@@ -28,6 +42,10 @@ class Agent < ApplicationRecord
   end
 
   private
+
+  def generate_api_token
+    self.api_token ||= self.class.generate_unique_api_token
+  end
 
   def validate_adapter_config_schema
     return if adapter_config.blank?

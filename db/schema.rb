@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_27_085837) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_27_103012) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -27,6 +27,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_27_085837) do
   create_table "agents", force: :cascade do |t|
     t.jsonb "adapter_config", default: {}, null: false
     t.integer "adapter_type", default: 0, null: false
+    t.string "api_token"
     t.bigint "company_id", null: false
     t.datetime "created_at", null: false
     t.text "description"
@@ -36,9 +37,24 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_27_085837) do
     t.datetime "paused_at"
     t.integer "status", default: 0, null: false
     t.datetime "updated_at", null: false
+    t.index ["api_token"], name: "index_agents_on_api_token", unique: true
     t.index ["company_id", "name"], name: "index_agents_on_company_id_and_name", unique: true
     t.index ["company_id"], name: "index_agents_on_company_id"
     t.index ["status"], name: "index_agents_on_status"
+  end
+
+  create_table "audit_events", force: :cascade do |t|
+    t.string "action", null: false
+    t.bigint "actor_id", null: false
+    t.string "actor_type", null: false
+    t.bigint "auditable_id", null: false
+    t.string "auditable_type", null: false
+    t.datetime "created_at", null: false
+    t.jsonb "metadata", default: {}, null: false
+    t.index ["action"], name: "index_audit_events_on_action"
+    t.index ["actor_type", "actor_id"], name: "index_audit_events_on_actor"
+    t.index ["auditable_type", "auditable_id", "created_at"], name: "index_audit_events_on_auditable_and_created_at"
+    t.index ["auditable_type", "auditable_id"], name: "index_audit_events_on_auditable"
   end
 
   create_table "companies", force: :cascade do |t|
@@ -75,6 +91,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_27_085837) do
     t.index ["user_id"], name: "index_memberships_on_user_id"
   end
 
+  create_table "messages", force: :cascade do |t|
+    t.bigint "author_id", null: false
+    t.string "author_type", null: false
+    t.text "body", null: false
+    t.datetime "created_at", null: false
+    t.bigint "parent_id"
+    t.bigint "task_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["author_type", "author_id"], name: "index_messages_on_author"
+    t.index ["parent_id"], name: "index_messages_on_parent_id"
+    t.index ["task_id", "created_at"], name: "index_messages_on_task_id_and_created_at"
+    t.index ["task_id"], name: "index_messages_on_task_id"
+  end
+
   create_table "roles", force: :cascade do |t|
     t.bigint "agent_id"
     t.bigint "company_id", null: false
@@ -99,6 +129,27 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_27_085837) do
     t.index ["user_id"], name: "index_sessions_on_user_id"
   end
 
+  create_table "tasks", force: :cascade do |t|
+    t.bigint "assignee_id"
+    t.bigint "company_id", null: false
+    t.datetime "completed_at"
+    t.datetime "created_at", null: false
+    t.bigint "creator_id", null: false
+    t.text "description"
+    t.datetime "due_at"
+    t.bigint "parent_task_id"
+    t.integer "priority", default: 1, null: false
+    t.integer "status", default: 0, null: false
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.index ["assignee_id", "status"], name: "index_tasks_on_assignee_id_and_status"
+    t.index ["assignee_id"], name: "index_tasks_on_assignee_id"
+    t.index ["company_id", "status"], name: "index_tasks_on_company_id_and_status"
+    t.index ["company_id"], name: "index_tasks_on_company_id"
+    t.index ["creator_id"], name: "index_tasks_on_creator_id"
+    t.index ["parent_task_id"], name: "index_tasks_on_parent_task_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email_address", null: false
@@ -113,8 +164,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_27_085837) do
   add_foreign_key "invitations", "users", column: "inviter_id"
   add_foreign_key "memberships", "companies"
   add_foreign_key "memberships", "users"
+  add_foreign_key "messages", "messages", column: "parent_id"
+  add_foreign_key "messages", "tasks"
   add_foreign_key "roles", "agents"
   add_foreign_key "roles", "companies"
   add_foreign_key "roles", "roles", column: "parent_id"
   add_foreign_key "sessions", "users"
+  add_foreign_key "tasks", "agents", column: "assignee_id"
+  add_foreign_key "tasks", "companies"
+  add_foreign_key "tasks", "tasks", column: "parent_task_id"
+  add_foreign_key "tasks", "users", column: "creator_id"
 end
