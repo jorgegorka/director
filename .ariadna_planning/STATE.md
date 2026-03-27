@@ -9,12 +9,12 @@ See: .ariadna_planning/PROJECT.md (updated 2026-03-26)
 
 ## Current Position
 
-Phase: 3 of 10 (Org Chart and Roles) — IN PROGRESS
-Plan: 1 of 2 complete (03-01 done, 03-02 pending)
-Status: Plan 03-01 complete — Role model and CRUD interface delivered
-Last activity: 2026-03-27 -- Plan 03-01 complete (2/2 tasks, 120 tests passing, rubocop/brakeman clean)
+Phase: 3 of 10 (Org Chart and Roles) — COMPLETE
+Plan: 2 of 2 complete (03-01 done, 03-02 done)
+Status: Phase 3 complete — Role CRUD + Visual SVG org chart delivered
+Last activity: 2026-03-27 -- Plan 03-02 complete (2/2 tasks, 127 tests passing, rubocop/brakeman clean)
 
-Progress: [███░░░░░░░] ~25%
+Progress: [████░░░░░░] ~30%
 
 ## Performance Metrics
 
@@ -29,10 +29,10 @@ Progress: [███░░░░░░░] ~25%
 |-------|-------|-------|----------|
 | 01-authentication | 2 | ~10 min | ~5 min |
 | 02-accounts-and-multi-tenancy | 2 | ~23 min | ~11 min |
-| 03-org-chart-and-roles | 1/2 | ~9 min | ~9 min |
+| 03-org-chart-and-roles | 2/2 | ~12 min | ~6 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-02 (~5 min), 02-01 (~7 min), 02-02 (~16 min), 03-01 (~9 min)
+- Last 5 plans: 02-01 (~7 min), 02-02 (~16 min), 03-01 (~9 min), 03-02 (~3 min)
 - Trend: consistent
 
 *Updated after each plan completion*
@@ -62,6 +62,8 @@ Recent decisions affecting current work:
 - [02-02]: Role param sanitized outside permit() using .in?(enum.keys) -- avoids brakeman mass assignment warning
 - [02-02]: Routes added in Task 1 (not Task 2) to unblock InvitationMailer URL helper in test environment
 - [03-01]: assert_raises(ActiveRecord::RecordNotFound) does not work in integration tests — Rails catches it in middleware and returns 404. Use assert_response :not_found instead.
+- [03-02]: SVG foreignObject nodes built with programmatic DOM (createElement/textContent/appendChild) — never innerHTML with user data. XSS-safe by design.
+- [03-02]: agent_name is nil placeholder throughout Phase 3; Phase 4 will populate real agent names
 
 ### Pending Todos
 
@@ -74,5 +76,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-27
-Stopped at: Phase 3, Plan 1 complete
-Resume file: .ariadna_planning/phases/03-org-chart-and-roles/03-01-SUMMARY.md
+Stopped at: Phase 3, Plan 2 complete — Phase 3 done
+Resume file: .ariadna_planning/phases/03-org-chart-and-roles/03-02-SUMMARY.md
