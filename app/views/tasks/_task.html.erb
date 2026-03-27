@@ -20,5 +20,8 @@
     <% end %>
     <% count = task.try(:messages_count) || task.messages.size %>
     <span class="task-card__messages"><%= count %> <%= "message".pluralize(count) %></span>
+    <% if task.cost_cents.present? %>
+      <span class="task-card__cost task-cost"><%= format_cents_as_dollars(task.cost_cents) %></span>
+    <% end %>
   </div>
 </div>

@@ -95,6 +95,48 @@
     </div>
 
     <div class="agent-detail__section">
+      <h2>Budget</h2>
+      <% if @agent.budget_configured? %>
+        <div class="budget-display">
+          <div class="budget-display__bar-container">
+            <div class="budget-display__bar <%= budget_bar_class(@agent.budget_utilization) %>"
+                 style="--budget-fill: <%= @agent.budget_utilization %>%">
+            </div>
+          </div>
+          <div class="budget-display__details">
+            <div class="budget-display__amounts">
+              <span class="budget-display__spent">
+                <strong><%= format_cents_as_dollars(@agent.monthly_spend_cents) %></strong> spent
+              </span>
+              <span class="budget-display__limit">
+                of <strong><%= format_cents_as_dollars(@agent.budget_cents) %></strong> monthly limit
+              </span>
+            </div>
+            <div class="budget-display__status">
+              <span class="budget-display__remaining">
+                <%= format_cents_as_dollars(@agent.budget_remaining_cents) %> remaining
+              </span>
+              <span class="budget-display__utilization <%= 'budget-display__utilization--warning' if @agent.budget_alert_threshold? %> <%= 'budget-display__utilization--danger' if @agent.budget_exhausted? %>">
+                <%= budget_status_text(@agent) %>
+              </span>
+            </div>
+          </div>
+          <% if @agent.budget_exhausted? %>
+            <div class="budget-display__alert budget-display__alert--exhausted">
+              Agent paused — monthly budget exhausted. Increase the budget or wait for the next billing period to resume.
+            </div>
+          <% elsif @agent.budget_alert_threshold? %>
+            <div class="budget-display__alert budget-display__alert--warning">
+              Approaching budget limit — consider increasing the monthly budget.
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="agent-detail__empty-note">No budget configured. <%= link_to "Set a monthly budget", edit_agent_path(@agent) %> to control spending.</p>
+      <% end %>
+    </div>
+
+    <div class="agent-detail__section">
       <h2>Capabilities (<%= @agent.agent_capabilities.size %>)</h2>
       <div class="agent-detail__capabilities">
         <% @agent.agent_capabilities.by_name.each do |cap| %>

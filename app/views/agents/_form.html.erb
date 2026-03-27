@@ -137,6 +137,25 @@
     </div>
   </fieldset>
 
+  <!-- Budget Configuration -->
+  <fieldset class="form__fieldset">
+    <legend>Monthly Budget</legend>
+    <p class="form__hint">Set a monthly spending limit for this agent. When the limit is reached, the agent will be automatically paused. Leave blank for unlimited.</p>
+
+    <div class="form__field">
+      <%= f.label :budget_dollars, "Monthly budget ($)" %>
+      <div class="form__input-group">
+        <span class="form__input-prefix">$</span>
+        <%= f.number_field :budget_dollars,
+              value: agent.budget_cents ? (agent.budget_cents / 100.0).round(2) : nil,
+              step: 0.01,
+              min: 0.01,
+              placeholder: "e.g. 500.00",
+              class: "form__input--with-prefix" %>
+      </div>
+    </div>
+  </fieldset>
+
   <div class="form__actions">
     <%= f.submit class: "btn btn--primary" %>
   </div>

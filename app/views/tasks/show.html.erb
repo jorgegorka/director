@@ -59,6 +59,12 @@
             <dd><%= @task.completed_at.strftime("%b %d, %Y at %H:%M") %></dd>
           </div>
         <% end %>
+        <% if @task.cost_cents.present? %>
+          <div class="task-detail__meta-row">
+            <dt>Cost</dt>
+            <dd><strong class="task-cost"><%= format_cents_as_dollars(@task.cost_cents) %></strong></dd>
+          </div>
+        <% end %>
       </dl>
     </div>
 

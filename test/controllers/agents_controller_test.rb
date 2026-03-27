@@ -269,4 +269,47 @@ class AgentsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "a[href=?]", agent_heartbeats_path(@claude_agent)
   end
+
+  # --- Budget ---
+
+  test "should create agent with budget" do
+    assert_difference("Agent.count") do
+      post agents_url, params: { agent: {
+        name: "Budget Agent",
+        adapter_type: "http",
+        adapter_config: { url: "https://example.com" },
+        budget_dollars: "250.00"
+      } }
+    end
+    agent = Agent.find_by(name: "Budget Agent")
+    assert_equal 25000, agent.budget_cents
+    assert_equal Date.current.beginning_of_month, agent.budget_period_start
+  end
+
+  test "should update agent budget" do
+    patch agent_url(@claude_agent), params: { agent: { budget_dollars: "750.00" } }
+    assert_redirected_to agent_url(@claude_agent)
+    @claude_agent.reload
+    assert_equal 75000, @claude_agent.budget_cents
+  end
+
+  test "should clear budget when empty string submitted" do
+    patch agent_url(@claude_agent), params: { agent: { budget_dollars: "" } }
+    assert_redirected_to agent_url(@claude_agent)
+    @claude_agent.reload
+    assert_nil @claude_agent.budget_cents
+    assert_nil @claude_agent.budget_period_start
+  end
+
+  test "should show budget section on agent detail page" do
+    get agent_url(@claude_agent)
+    assert_response :success
+    assert_select ".budget-display"
+  end
+
+  test "should show no-budget message for agent without budget" do
+    get agent_url(agents(:process_agent))
+    assert_response :success
+    assert_select ".agent-detail__empty-note", /No budget configured/
+  end
 end
