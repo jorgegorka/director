@@ -1,7 +1,6 @@
 class HeartbeatScheduleManager
   TASK_KEY_PREFIX = "agent_heartbeat_".freeze
 
-  # task_store can be overridden in tests
   class_attribute :task_store
   self.task_store = nil
 

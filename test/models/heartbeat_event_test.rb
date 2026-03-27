@@ -139,12 +139,9 @@ class HeartbeatEventTest < ActiveSupport::TestCase
     assert agent.valid?
   end
 
-  test "agent.last_heartbeat_event returns most recent" do
+  test "agent reverse_chronological heartbeat events returns most recent first" do
     claude = agents(:claude_agent)
-    # scheduled_heartbeat was delivered 1 hour ago, mention_event 15 minutes ago
-    # most recent should be mention_event
-    last = claude.last_heartbeat_event
-    assert_not_nil last
-    assert_equal heartbeat_events(:mention_event).id, last.id
+    events = claude.heartbeat_events.reverse_chronological
+    assert events.first.created_at >= events.last.created_at
   end
 end

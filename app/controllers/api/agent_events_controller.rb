@@ -2,9 +2,6 @@ module Api
   class AgentEventsController < ApplicationController
     include AgentApiAuthenticatable
 
-    # GET /api/agent/events
-    # Returns queued (pending) heartbeat events for the authenticated agent.
-    # Process/bash agents poll this endpoint to pick up their events.
     def index
       events = @current_agent.heartbeat_events.queued.chronological
       render json: {
@@ -14,8 +11,6 @@ module Api
       }
     end
 
-    # POST /api/agent/events/:id/acknowledge
-    # Agent acknowledges receipt of an event, marking it as delivered.
     def acknowledge
       event = @current_agent.heartbeat_events.queued.find_by(id: params[:id])
 
@@ -28,8 +23,6 @@ module Api
     end
 
     private
-
-    # Auth handled by AgentApiAuthenticatable concern (sets @current_agent and Current.company)
 
     def serialize_event(event)
       {

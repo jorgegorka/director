@@ -24,21 +24,7 @@
         </tr>
       </thead>
       <tbody>
-        <% @heartbeat_events.each do |event| %>
-          <tr class="heartbeat-row heartbeat-row--<%= event.status %>">
-            <td><%= heartbeat_trigger_badge(event) %></td>
-            <td><%= heartbeat_status_indicator(event) %></td>
-            <td><%= event.trigger_source || "—" %></td>
-            <td>
-              <% if event.delivered_at %>
-                <%= time_ago_in_words(event.delivered_at) %> ago
-              <% else %>
-                &mdash;
-              <% end %>
-            </td>
-            <td><%= time_ago_in_words(event.created_at) %> ago</td>
-          </tr>
-        <% end %>
+        <%= render partial: "heartbeats/event_row", collection: @heartbeat_events, as: :event, locals: { show_delivered: true } %>
       </tbody>
     </table>
 

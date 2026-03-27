@@ -55,8 +55,6 @@ class Task < ApplicationRecord
   end
 
   def agent_just_assigned?
-    # On create: assignee_id is set
-    # On update: assignee_id changed from nil/different to a new non-nil value
     return assignee_id.present? if previously_new_record?
 
     saved_change_to_assignee_id? && assignee_id.present?

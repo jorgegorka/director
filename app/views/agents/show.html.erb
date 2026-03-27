@@ -85,14 +85,7 @@
             </tr>
           </thead>
           <tbody>
-            <% @recent_heartbeats.each do |event| %>
-              <tr>
-                <td><%= heartbeat_trigger_badge(event) %></td>
-                <td><%= heartbeat_status_indicator(event) %></td>
-                <td><%= event.trigger_source || "—" %></td>
-                <td><%= time_ago_in_words(event.created_at) %> ago</td>
-              </tr>
-            <% end %>
+            <%= render partial: "heartbeats/event_row", collection: @recent_heartbeats, as: :event %>
           </tbody>
         </table>
         <%= link_to "View all heartbeat history", agent_heartbeats_path(@agent), class: "btn btn--ghost btn--sm" %>

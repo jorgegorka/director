@@ -72,10 +72,6 @@ class Agent < ApplicationRecord
     heartbeat_enabled? && heartbeat_interval.present?
   end
 
-  def last_heartbeat_event
-    heartbeat_events.reverse_chronological.first
-  end
-
   private
 
   def generate_api_token

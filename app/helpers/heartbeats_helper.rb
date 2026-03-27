@@ -1,20 +1,17 @@
 module HeartbeatsHelper
-  def heartbeat_trigger_badge(event)
-    label = case event.trigger_type
-    when "scheduled" then "Scheduled"
-    when "task_assigned" then "Task Assigned"
-    when "mention" then "Mentioned"
-    else event.trigger_type.humanize
-    end
+  TRIGGER_LABELS = {
+    "scheduled" => "Scheduled",
+    "task_assigned" => "Task Assigned",
+    "mention" => "Mentioned"
+  }.freeze
 
-    css_class = "heartbeat-badge heartbeat-badge--#{event.trigger_type}"
-    tag.span(label, class: css_class)
+  def heartbeat_trigger_badge(event)
+    label = TRIGGER_LABELS.fetch(event.trigger_type, event.trigger_type.humanize)
+    tag.span(label, class: "heartbeat-badge heartbeat-badge--#{event.trigger_type}")
   end
 
   def heartbeat_status_indicator(event)
-    label = event.status.humanize
-    css_class = "heartbeat-status heartbeat-status--#{event.status}"
-    tag.span(label, class: css_class)
+    tag.span(event.status.humanize, class: "heartbeat-status heartbeat-status--#{event.status}")
   end
 
   def heartbeat_schedule_label(agent)

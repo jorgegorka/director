@@ -33,7 +33,6 @@ class WakeAgentService
   end
 
   def initial_status
-    # HTTP agents get immediate delivery attempt; process/claude_local agents get queued events
     agent.http? ? :delivered : :queued
   end
 
@@ -41,8 +40,6 @@ class WakeAgentService
     if agent.http?
       deliver_http(event)
     else
-      # Process and claude_local agents poll for queued events
-      # Event is already created with status: queued -- they will pick it up
       event
     end
   rescue StandardError => e
@@ -50,11 +47,8 @@ class WakeAgentService
     event
   end
 
+  # TODO: POST to agent.adapter_config["url"] when adapter execution is built
   def deliver_http(event)
-    # For now, mark as delivered. Actual HTTP POST will be implemented
-    # when the adapter execution system is fully built.
-    # The event is created with status: delivered for HTTP agents.
-    # In a full implementation, this would POST to agent.adapter_config["url"].
     event.mark_delivered!(response: { status: "acknowledged" })
     event
   end
