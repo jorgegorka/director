@@ -3,7 +3,8 @@ claude_agent:
   company: acme
   adapter_type: 2  # claude_local
   status: 0        # idle
-  adapter_config: '{"model": "claude-sonnet-4-20250514"}'
+  adapter_config:
+    model: claude-sonnet-4-20250514
   description: "Primary AI development assistant"
 
 http_agent:
@@ -11,7 +12,9 @@ http_agent:
   company: acme
   adapter_type: 0  # http
   status: 0        # idle
-  adapter_config: '{"url": "https://api.example.com/agent", "method": "POST"}'
+  adapter_config:
+    url: "https://api.example.com/agent"
+    method: POST
   description: "Cloud-hosted agent for data processing"
 
 process_agent:
@@ -19,7 +22,8 @@ process_agent:
   company: acme
   adapter_type: 1  # process
   status: 2        # paused
-  adapter_config: '{"command": "/usr/local/bin/my-agent.sh"}'
+  adapter_config:
+    command: "/usr/local/bin/my-agent.sh"
   pause_reason: "Maintenance window"
 
 widgets_agent:
@@ -27,4 +31,5 @@ widgets_agent:
   company: widgets
   adapter_type: 0  # http
   status: 0        # idle
-  adapter_config: '{"url": "https://widgets.example.com/bot"}'
+  adapter_config:
+    url: "https://widgets.example.com/bot"
