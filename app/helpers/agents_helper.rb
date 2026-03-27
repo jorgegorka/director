@@ -5,12 +5,12 @@ module AgentsHelper
   end
 
   def adapter_type_label(agent)
-    Adapters::Registry.for(agent.adapter_type).display_name
+    Registry.for(agent.adapter_type).display_name
   end
 
   def adapter_type_options
-    Adapters::Registry.adapter_types.map do |type|
-      adapter_class = Adapters::Registry.for(type)
+    Registry.adapter_types.map do |type|
+      adapter_class = Registry.for(type)
       [ adapter_class.display_name, type ]
     end
   end
