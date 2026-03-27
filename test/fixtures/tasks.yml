@@ -1,0 +1,52 @@
+design_homepage:
+  title: Design homepage
+  description: "Create the main homepage design with responsive layout"
+  company: acme
+  creator: one
+  assignee: claude_agent
+  status: 1  # in_progress
+  priority: 2  # high
+
+fix_login_bug:
+  title: Fix login bug
+  description: "Users cannot log in when using special characters in password"
+  company: acme
+  creator: one
+  assignee: http_agent
+  status: 0  # open
+  priority: 3  # urgent
+
+write_tests:
+  title: Write unit tests
+  description: "Add comprehensive test coverage for authentication module"
+  company: acme
+  creator: two
+  status: 0  # open
+  priority: 1  # medium
+  # No assignee -- unassigned task
+
+completed_task:
+  title: Set up CI pipeline
+  description: "Configure GitHub Actions for automated testing"
+  company: acme
+  creator: one
+  assignee: claude_agent
+  status: 3  # completed
+  priority: 1  # medium
+  completed_at: <%= 2.days.ago.to_fs(:db) %>
+
+subtask_one:
+  title: Design header component
+  company: acme
+  creator: one
+  parent_task: design_homepage
+  status: 0  # open
+  priority: 1  # medium
+
+widgets_task:
+  title: Update widget catalog
+  description: "Refresh the product catalog with new widgets"
+  company: widgets
+  creator: one
+  status: 0  # open
+  priority: 0  # low

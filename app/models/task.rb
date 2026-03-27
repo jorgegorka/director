@@ -2,7 +2,7 @@ class Task < ApplicationRecord
   include Tenantable
   include Auditable
 
-  belongs_to :creator, class_name: "User"
+  belongs_to :creator, class_name: "User", optional: true
   belongs_to :assignee, class_name: "Agent", optional: true
   belongs_to :parent_task, class_name: "Task", optional: true
 

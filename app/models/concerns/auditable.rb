@@ -2,7 +2,7 @@ module Auditable
   extend ActiveSupport::Concern
 
   included do
-    has_many :audit_events, as: :auditable, dependent: :destroy
+    has_many :audit_events, as: :auditable, dependent: :delete_all
   end
 
   def record_audit_event!(actor:, action:, metadata: {})

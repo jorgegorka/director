@@ -6,6 +6,7 @@ claude_agent:
   adapter_config:
     model: claude-sonnet-4-20250514
   description: "Primary AI development assistant"
+  api_token: "test_token_claude_agent_abc1"
 
 http_agent:
   name: API Bot
@@ -16,6 +17,7 @@ http_agent:
     url: "https://api.example.com/agent"
     method: POST
   description: "Cloud-hosted agent for data processing"
+  api_token: "test_token_http_agent_abc2"
 
 process_agent:
   name: Script Runner
@@ -25,6 +27,7 @@ process_agent:
   adapter_config:
     command: "/usr/local/bin/my-agent.sh"
   pause_reason: "Maintenance window"
+  api_token: "test_token_process_agent3"
 
 widgets_agent:
   name: Widget Bot
@@ -33,3 +36,4 @@ widgets_agent:
   status: 0        # idle
   adapter_config:
     url: "https://widgets.example.com/bot"
+  api_token: "test_token_widgets_agnt4"

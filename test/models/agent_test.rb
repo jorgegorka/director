@@ -224,4 +224,40 @@ class AgentTest < ActiveSupport::TestCase
       @company.destroy
     end
   end
+
+  # --- API Token ---
+
+  test "generates api_token on create" do
+    agent = Agent.create!(
+      name: "Token Agent",
+      company: @company,
+      adapter_type: :http,
+      adapter_config: { "url" => "https://example.com" }
+    )
+    assert agent.api_token.present?
+    assert_equal 24, agent.api_token.length
+  end
+
+  test "api_token is unique" do
+    agent1 = Agent.create!(
+      name: "Token Agent 1",
+      company: @company,
+      adapter_type: :http,
+      adapter_config: { "url" => "https://example.com" }
+    )
+    agent2 = Agent.create!(
+      name: "Token Agent 2",
+      company: @company,
+      adapter_type: :http,
+      adapter_config: { "url" => "https://example.com" }
+    )
+    assert_not_equal agent1.api_token, agent2.api_token
+  end
+
+  test "regenerate_api_token! changes the token" do
+    old_token = @claude_agent.api_token
+    @claude_agent.regenerate_api_token!
+    assert_not_equal old_token, @claude_agent.api_token
+    assert @claude_agent.api_token.present?
+  end
 end

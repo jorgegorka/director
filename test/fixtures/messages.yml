@@ -1,0 +1,25 @@
+first_update:
+  task: design_homepage
+  author: one (User)
+  body: "I've started working on the wireframes for this."
+
+agent_reply:
+  task: design_homepage
+  author: claude_agent (Agent)
+  body: "I've analyzed the requirements and have some suggestions for the layout."
+
+threaded_reply:
+  task: design_homepage
+  author: one (User)
+  parent: agent_reply
+  body: "Great, can you elaborate on the navigation structure?"
+
+bug_report_msg:
+  task: fix_login_bug
+  author: two (User)
+  body: "I can reproduce this consistently with passwords containing & and < characters."
+
+widgets_msg:
+  task: widgets_task
+  author: one (User)
+  body: "Starting the catalog update process."
