@@ -7,6 +7,8 @@ claude_agent:
     model: claude-sonnet-4-20250514
   description: "Primary AI development assistant"
   api_token: "test_token_claude_agent_abc1"
+  budget_cents: 50000
+  budget_period_start: <%= Date.current.beginning_of_month.to_fs(:db) %>
 
 http_agent:
   name: API Bot
@@ -18,6 +20,8 @@ http_agent:
     method: POST
   description: "Cloud-hosted agent for data processing"
   api_token: "test_token_http_agent_abc2"
+  budget_cents: 100000
+  budget_period_start: <%= Date.current.beginning_of_month.to_fs(:db) %>
 
 process_agent:
   name: Script Runner

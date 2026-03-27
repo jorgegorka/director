@@ -15,6 +15,7 @@ class Task < ApplicationRecord
   enum :priority, { low: 0, medium: 1, high: 2, urgent: 3 }
 
   validates :title, presence: true
+  validates :cost_cents, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, allow_nil: true
   validate :assignee_belongs_to_same_company
   validate :parent_task_belongs_to_same_company
   validate :goal_belongs_to_same_company
@@ -25,6 +26,11 @@ class Task < ApplicationRecord
 
   before_save :set_completed_at
   after_commit :trigger_assignment_wake, on: [ :create, :update ], if: :agent_just_assigned?
+
+  def cost_in_dollars
+    return nil unless cost_cents
+    cost_cents / 100.0
+  end
 
   private
 

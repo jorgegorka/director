@@ -7,6 +7,7 @@ design_homepage:
   status: 1  # in_progress
   priority: 2  # high
   goal: acme_objective_one
+  cost_cents: 1500
 
 fix_login_bug:
   title: Fix login bug
@@ -17,6 +18,7 @@ fix_login_bug:
   status: 0  # open
   priority: 3  # urgent
   goal: acme_objective_one
+  cost_cents: 800
 
 write_tests:
   title: Write unit tests
@@ -38,6 +40,7 @@ completed_task:
   priority: 1  # medium
   completed_at: <%= 2.days.ago.to_fs(:db) %>
   goal: acme_sub_objective
+  cost_cents: 2200
 
 subtask_one:
   title: Design header component

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_27_135006) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_27_175602) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -28,6 +28,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_27_135006) do
     t.jsonb "adapter_config", default: {}, null: false
     t.integer "adapter_type", default: 0, null: false
     t.string "api_token"
+    t.integer "budget_cents"
+    t.date "budget_period_start"
     t.bigint "company_id", null: false
     t.datetime "created_at", null: false
     t.text "description"
@@ -137,6 +139,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_27_135006) do
     t.index ["task_id"], name: "index_messages_on_task_id"
   end
 
+  create_table "notifications", force: :cascade do |t|
+    t.string "action", null: false
+    t.bigint "actor_id"
+    t.string "actor_type"
+    t.bigint "company_id", null: false
+    t.datetime "created_at", null: false
+    t.jsonb "metadata", default: {}, null: false
+    t.bigint "notifiable_id"
+    t.string "notifiable_type"
+    t.datetime "read_at"
+    t.bigint "recipient_id", null: false
+    t.string "recipient_type", null: false
+    t.datetime "updated_at", null: false
+    t.index ["company_id", "created_at"], name: "index_notifications_on_company_and_time"
+    t.index ["company_id"], name: "index_notifications_on_company_id"
+    t.index ["notifiable_type", "notifiable_id"], name: "index_notifications_on_notifiable"
+    t.index ["recipient_type", "recipient_id", "read_at"], name: "index_notifications_on_recipient_and_read"
+  end
+
   create_table "roles", force: :cascade do |t|
     t.bigint "agent_id"
     t.bigint "company_id", null: false
@@ -165,6 +186,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_27_135006) do
     t.bigint "assignee_id"
     t.bigint "company_id", null: false
     t.datetime "completed_at"
+    t.integer "cost_cents"
     t.datetime "created_at", null: false
     t.bigint "creator_id"
     t.text "description"
@@ -203,6 +225,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_27_135006) do
   add_foreign_key "memberships", "users"
   add_foreign_key "messages", "messages", column: "parent_id"
   add_foreign_key "messages", "tasks"
+  add_foreign_key "notifications", "companies"
   add_foreign_key "roles", "agents"
   add_foreign_key "roles", "companies"
   add_foreign_key "roles", "roles", column: "parent_id"

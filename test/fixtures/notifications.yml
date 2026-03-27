@@ -1,0 +1,35 @@
+budget_alert_claude:
+  company: acme
+  recipient: one (User)
+  actor: claude_agent (Agent)
+  notifiable: claude_agent (Agent)
+  action: budget_alert
+  metadata:
+    agent_name: Claude Assistant
+    percentage: 80
+    budget_cents: 50000
+    spent_cents: 40000
+  read_at:
+
+budget_exhausted_http:
+  company: acme
+  recipient: one (User)
+  actor: http_agent (Agent)
+  notifiable: http_agent (Agent)
+  action: budget_exhausted
+  metadata:
+    agent_name: API Bot
+    budget_cents: 100000
+    spent_cents: 100000
+  read_at: <%= 1.hour.ago.to_fs(:db) %>
+
+read_notification:
+  company: acme
+  recipient: two (User)
+  actor: claude_agent (Agent)
+  notifiable: claude_agent (Agent)
+  action: budget_alert
+  metadata:
+    agent_name: Claude Assistant
+    percentage: 85
+  read_at: <%= 2.hours.ago.to_fs(:db) %>
