@@ -1,0 +1,55 @@
+<% content_for(:title, @role.title) %>
+
+<section class="role-detail">
+  <div class="role-detail__header">
+    <div>
+      <h1><%= @role.title %></h1>
+      <% if @role.parent %>
+        <p class="role-detail__reports-to">Reports to <%= link_to @role.parent.title, @role.parent %></p>
+      <% else %>
+        <p class="role-detail__reports-to">Top-level role</p>
+      <% end %>
+    </div>
+    <div class="role-detail__actions">
+      <%= link_to "Edit", edit_role_path(@role), class: "btn btn--ghost btn--sm" %>
+      <%= button_to "Delete", @role, method: :delete, class: "btn btn--ghost btn--sm role-detail__delete",
+            data: { turbo_confirm: "Delete #{@role.title}? Direct reports will be reassigned to #{@role.parent&.title || 'top-level'}." } %>
+    </div>
+  </div>
+
+  <div class="role-detail__body">
+    <div class="role-detail__section">
+      <h2>Agent</h2>
+      <div class="role-detail__agent">
+        <span class="role-card__agent-dot role-card__agent-dot--unassigned"></span>
+        <span>Unassigned</span>
+        <span class="role-detail__agent-hint">Agents can be assigned in Phase 4</span>
+      </div>
+    </div>
+
+    <% if @role.description.present? %>
+      <div class="role-detail__section">
+        <h2>Description</h2>
+        <p><%= @role.description %></p>
+      </div>
+    <% end %>
+
+    <% if @role.job_spec.present? %>
+      <div class="role-detail__section">
+        <h2>Job Specification</h2>
+        <div class="role-detail__job-spec"><%= simple_format(@role.job_spec) %></div>
+      </div>
+    <% end %>
+
+    <% if @role.children.any? %>
+      <div class="role-detail__section">
+        <h2>Direct Reports (<%= @role.children.size %>)</h2>
+        <div class="roles-list roles-list--compact">
+          <% @role.children.order(:title).each do |child| %>
+            <%= render partial: "roles/role", locals: { role: child } %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</section>

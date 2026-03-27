@@ -20,6 +20,9 @@ Rails.application.routes.draw do
   # Invitation acceptance (public, token-based)
   resources :invitation_acceptances, only: [ :show, :update ], param: :token
 
+  # Org Chart & Roles (scoped to active company via Current.company)
+  resources :roles
+
   # Health check - used by load balancers and uptime monitors
   get "up" => "rails/health#show", as: :rails_health_check
 

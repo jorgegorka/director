@@ -1,0 +1,24 @@
+<div class="role-card">
+  <div class="role-card__header">
+    <%= link_to role.title, role, class: "role-card__title" %>
+    <% if role.parent %>
+      <span class="role-card__reports-to">Reports to <%= role.parent.title %></span>
+    <% else %>
+      <span class="role-card__reports-to role-card__reports-to--root">Top-level role</span>
+    <% end %>
+  </div>
+
+  <% if role.description.present? %>
+    <p class="role-card__description"><%= role.description %></p>
+  <% end %>
+
+  <div class="role-card__footer">
+    <span class="role-card__agent">
+      <span class="role-card__agent-dot role-card__agent-dot--unassigned"></span>
+      Unassigned
+    </span>
+    <% if role.children.any? %>
+      <span class="role-card__reports"><%= pluralize(role.children.size, "direct report") %></span>
+    <% end %>
+  </div>
+</div>

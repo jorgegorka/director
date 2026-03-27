@@ -1,0 +1,21 @@
+<% content_for(:title, "Roles") %>
+
+<section class="roles-page">
+  <div class="roles-page__header">
+    <h1>Roles</h1>
+    <%= link_to "New Role", new_role_path, class: "btn btn--primary btn--sm" %>
+  </div>
+
+  <% if @roles.any? %>
+    <div class="roles-list">
+      <% @roles.each do |role| %>
+        <%= render partial: "roles/role", locals: { role: role } %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="roles-page__empty">
+      <p>No roles yet. Create your first role to start building your org chart.</p>
+      <%= link_to "Create a role", new_role_path, class: "btn btn--primary" %>
+    </div>
+  <% end %>
+</section>
