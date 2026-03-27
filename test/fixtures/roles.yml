@@ -1,0 +1,25 @@
+ceo:
+  title: CEO
+  description: Chief Executive Officer
+  job_spec: "Oversee all company operations and strategy"
+  company: acme
+
+cto:
+  title: CTO
+  description: Chief Technology Officer
+  job_spec: "Lead technology strategy and engineering"
+  company: acme
+  parent: ceo
+
+developer:
+  title: Senior Developer
+  description: Senior software developer
+  job_spec: "Build and maintain software products"
+  company: acme
+  parent: cto
+
+widgets_lead:
+  title: Operations Lead
+  description: Leads widget operations
+  job_spec: "Manage daily operations"
+  company: widgets

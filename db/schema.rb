@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_26_220952) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_27_074136) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -48,6 +48,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_26_220952) do
     t.index ["user_id"], name: "index_memberships_on_user_id"
   end
 
+  create_table "roles", force: :cascade do |t|
+    t.bigint "agent_id"
+    t.bigint "company_id", null: false
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.text "job_spec"
+    t.bigint "parent_id"
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.index ["agent_id"], name: "index_roles_on_agent_id"
+    t.index ["company_id", "title"], name: "index_roles_on_company_id_and_title", unique: true
+    t.index ["company_id"], name: "index_roles_on_company_id"
+    t.index ["parent_id"], name: "index_roles_on_parent_id"
+  end
+
   create_table "sessions", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "ip_address"
@@ -69,5 +84,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_26_220952) do
   add_foreign_key "invitations", "users", column: "inviter_id"
   add_foreign_key "memberships", "companies"
   add_foreign_key "memberships", "users"
+  add_foreign_key "roles", "companies"
+  add_foreign_key "roles", "roles", column: "parent_id"
   add_foreign_key "sessions", "users"
 end
