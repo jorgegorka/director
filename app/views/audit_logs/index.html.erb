@@ -1,0 +1,35 @@
+<% content_for(:title, "Audit Log") %>
+
+<section class="audit-log-page">
+  <div class="audit-log-page__header">
+    <h1>Audit Log</h1>
+    <p class="audit-log-page__subtitle">All actions recorded across <%= Current.company.name %></p>
+  </div>
+
+  <%= render "audit_logs/filters" %>
+
+  <% if @audit_events.any? %>
+    <table class="table audit-table">
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Action</th>
+          <th>Actor</th>
+          <th>Target</th>
+          <th>Details</th>
+        </tr>
+      </thead>
+      <tbody>
+        <%= render partial: "audit_logs/event_row", collection: @audit_events, as: :event %>
+      </tbody>
+    </table>
+
+    <% if @audit_events.size >= 100 %>
+      <p class="audit-log-page__note">Showing the 100 most recent events. Use filters to narrow results.</p>
+    <% end %>
+  <% else %>
+    <div class="audit-log-page__empty">
+      <p>No audit events found<%= " matching your filters" if params[:actor_type].present? || params[:action_filter].present? || params[:start_date].present? %>.</p>
+    </div>
+  <% end %>
+</section>

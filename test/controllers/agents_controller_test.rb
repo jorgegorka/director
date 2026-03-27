@@ -438,4 +438,63 @@ class AgentsControllerTest < ActionDispatch::IntegrationTest
     post pause_agent_url(agents(:widgets_agent))
     assert_response :not_found
   end
+
+  # --- Approval Gates ---
+
+  test "should save approval gates on agent update" do
+    patch agent_url(@claude_agent), params: {
+      agent: {
+        gates_submitted: "1",
+        gates: {
+          task_creation: "1",
+          budget_spend: "1"
+        }
+      }
+    }
+    assert_redirected_to agent_url(@claude_agent)
+    @claude_agent.reload
+    assert @claude_agent.gate_enabled?("task_creation")
+    assert @claude_agent.gate_enabled?("budget_spend")
+  end
+
+  test "should disable gates when unchecked" do
+    patch agent_url(@claude_agent), params: {
+      agent: {
+        gates_submitted: "1",
+        gates: {
+          task_creation: "1",
+          budget_spend: "1"
+        }
+      }
+    }
+    patch agent_url(@claude_agent), params: {
+      agent: {
+        gates_submitted: "1",
+        gates: {}
+      }
+    }
+    assert_redirected_to agent_url(@claude_agent)
+    @claude_agent.reload
+    assert_not @claude_agent.gate_enabled?("task_creation")
+    assert_not @claude_agent.gate_enabled?("budget_spend")
+  end
+
+  test "should show approval gates section on agent detail page" do
+    get agent_url(@claude_agent)
+    assert_response :success
+    assert_select ".gate-list", minimum: 0
+  end
+
+  test "should show pending approval banner when agent is pending" do
+    @claude_agent.update_columns(status: Agent.statuses[:pending_approval], pause_reason: "Approval required: Task creation gate is active")
+    get agent_url(@claude_agent)
+    assert_response :success
+    assert_select ".approval-banner"
+  end
+
+  test "should not show pending approval banner for idle agent" do
+    get agent_url(@claude_agent)
+    assert_response :success
+    assert_select ".approval-banner", count: 0
+  end
 end

@@ -1,6 +1,8 @@
 <fieldset class="form__fieldset form__fieldset--gates">
   <legend>Approval Gates</legend>
   <p class="form__hint">Select which actions require human approval before this agent can proceed.</p>
+  <%# Hidden field signals that the gate section was submitted (handles all-unchecked case) %>
+  <input type="hidden" name="agent[gates_submitted]" value="1">
   <div class="gate-checkboxes">
     <% ApprovalGate::GATABLE_ACTIONS.each do |action_type| %>
       <% gate = agent.approval_gates.find { |g| g.action_type == action_type } %>

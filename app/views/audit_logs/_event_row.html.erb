@@ -1,0 +1,7 @@
+<tr class="audit-row <%= 'audit-row--governance' if event.governance_action? %>">
+  <td class="audit-row__time"><%= l(event.created_at, format: :short) rescue event.created_at.strftime("%b %d %H:%M") %></td>
+  <td class="audit-row__action"><%= audit_action_badge(event.action) %></td>
+  <td class="audit-row__actor"><%= audit_actor_display(event) %></td>
+  <td class="audit-row__target"><%= audit_auditable_display(event) %></td>
+  <td class="audit-row__details"><%= audit_metadata_display(event.metadata) %></td>
+</tr>

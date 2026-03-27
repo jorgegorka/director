@@ -62,6 +62,16 @@ Rails.application.routes.draw do
     end
   end
 
+  # Audit Log (scoped to active company via Current.company)
+  resources :audit_logs, only: [ :index ]
+
+  # Config Versions (version history and rollback for Agent/Role)
+  resources :config_versions, only: [ :index, :show ] do
+    member do
+      post :rollback
+    end
+  end
+
   # Agent API (Bearer token auth for process/bash agents)
   namespace :api do
     scope :agent do

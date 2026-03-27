@@ -3064,4 +3064,289 @@
     font-size: 0.75rem;
     padding: var(--space-1, 0.25rem) var(--space-2, 0.5rem);
   }
+
+  /* ============================================================
+     AUDIT LOG PAGE
+     ============================================================ */
+
+  .audit-log-page__header {
+    margin-block-end: var(--space-4);
+  }
+
+  .audit-log-page__subtitle {
+    color: var(--text-muted);
+    font-size: var(--font-size-sm);
+  }
+
+  .audit-log-page__empty {
+    text-align: center;
+    padding: var(--space-8);
+    color: var(--text-muted);
+  }
+
+  .audit-log-page__note {
+    text-align: center;
+    padding: var(--space-4);
+    color: var(--text-muted);
+    font-size: var(--font-size-sm);
+  }
+
+  /* Audit Filters */
+  .audit-filters {
+    margin-block-end: var(--space-4);
+    padding: var(--space-3);
+    background: var(--color-neutral-100);
+    border-radius: var(--radius-md);
+  }
+
+  .audit-filters__form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: var(--space-3);
+  }
+
+  .audit-filters__field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .audit-filters__field label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .audit-filters__field select,
+  .audit-filters__field input[type="date"] {
+    padding: var(--space-1) var(--space-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-sm);
+    background: var(--bg-surface);
+    color: var(--text-base);
+  }
+
+  .audit-filters__actions {
+    display: flex;
+    gap: var(--space-2);
+    align-items: center;
+  }
+
+  /* Audit table */
+  .audit-table {
+    inline-size: 100%;
+  }
+
+  .audit-row--governance {
+    background: var(--color-warning-bg);
+  }
+
+  .audit-row__time {
+    white-space: nowrap;
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+  }
+
+  .audit-row__details {
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+    max-inline-size: 20rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Audit badges */
+  .audit-badge {
+    display: inline-block;
+    padding: 2px var(--space-2);
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  .audit-badge--governance {
+    background: var(--color-warning-bg);
+    color: var(--color-warning-fg);
+  }
+
+  .audit-badge--info {
+    background: var(--color-brand-50);
+    color: var(--color-brand-600);
+  }
+
+  .audit-badge--change {
+    background: var(--color-accent-50);
+    color: var(--color-accent-600);
+  }
+
+  .audit-badge--default {
+    background: var(--color-neutral-100);
+    color: var(--text-muted);
+  }
+
+  /* ============================================================
+     VERSION HISTORY PAGE
+     ============================================================ */
+
+  .versions-page__header {
+    margin-block-end: var(--space-4);
+  }
+
+  .versions-page__subtitle {
+    color: var(--text-muted);
+    font-size: var(--font-size-sm);
+  }
+
+  .versions-page__empty {
+    text-align: center;
+    padding: var(--space-8);
+    color: var(--text-muted);
+  }
+
+  /* Version table */
+  .version-row__time {
+    white-space: nowrap;
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+  }
+
+  .version-row__changes {
+    font-size: var(--font-size-sm);
+  }
+
+  /* Version badges */
+  .version-badge {
+    display: inline-block;
+    padding: 2px var(--space-2);
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  .version-badge--create {
+    background: var(--color-success-bg);
+    color: var(--color-success-fg);
+  }
+
+  .version-badge--update {
+    background: var(--color-brand-50);
+    color: var(--color-brand-600);
+  }
+
+  .version-badge--rollback {
+    background: var(--color-warning-bg);
+    color: var(--color-warning-fg);
+  }
+
+  .version-badge--default {
+    background: var(--color-neutral-100);
+    color: var(--text-muted);
+  }
+
+  /* Version detail page */
+  .version-detail__header {
+    margin-block-end: var(--space-4);
+  }
+
+  .version-detail__subtitle {
+    color: var(--text-muted);
+    font-size: var(--font-size-sm);
+  }
+
+  .version-detail__meta {
+    margin-block-end: var(--space-4);
+  }
+
+  .version-detail__info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    gap: var(--space-3);
+  }
+
+  .version-detail__info-row {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .version-detail__info-row dt {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .version-detail__section {
+    margin-block-end: var(--space-6);
+  }
+
+  .version-detail__actions {
+    display: flex;
+    gap: var(--space-3);
+    align-items: center;
+    padding-block-start: var(--space-4);
+    border-block-start: 1px solid var(--border);
+  }
+
+  .version-detail__note {
+    color: var(--text-muted);
+    font-size: var(--font-size-sm);
+  }
+
+  /* Diff display */
+  .version-diff {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .version-diff__row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    background: var(--color-neutral-100);
+    border-radius: var(--radius-md);
+  }
+
+  .version-diff__attr {
+    font-weight: 500;
+    min-inline-size: 10rem;
+  }
+
+  .version-diff__values {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .version-diff__old {
+    color: var(--color-error-fg);
+    text-decoration: line-through;
+  }
+
+  .version-diff__arrow {
+    color: var(--text-muted);
+  }
+
+  .version-diff__new {
+    color: var(--color-success-fg);
+    font-weight: 500;
+  }
+
+  .version-diff__item {
+    display: flex;
+    gap: var(--space-2);
+    font-size: var(--font-size-sm);
+  }
+
+  .version-diff__change {
+    color: var(--text-muted);
+  }
 }

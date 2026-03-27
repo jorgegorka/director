@@ -39,7 +39,12 @@
           <% if Current.company %>
             <%= link_to "Agents", agents_path, class: "nav__link #{"nav__link--active" if controller_name == "agents"}" %>
             <%= link_to "Tasks", tasks_path, class: "nav__link #{"nav__link--active" if controller_name == "tasks"}" %>
+            <%= link_to "Audit Log", audit_logs_path, class: "nav__link #{"nav__link--active" if controller_name == "audit_logs"}" %>
             <%= render "notifications/dropdown" %>
+            <%= button_to "Emergency Stop", emergency_stop_company_path(Current.company),
+                  method: :post,
+                  class: "btn btn--sm emergency-stop-btn",
+                  data: { turbo_confirm: "EMERGENCY STOP: This will pause ALL active agents in #{Current.company.name}. Continue?" } %>
           <% end %>
           <span class="app-header__user"><%= Current.user.email_address %></span>
           <%= link_to "Settings", settings_path, class: "btn btn--ghost btn--sm" %>
