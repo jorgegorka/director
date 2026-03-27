@@ -22,6 +22,7 @@ Rails.application.routes.draw do
 
   # Org Chart & Roles (scoped to active company via Current.company)
   resources :roles
+  resource :org_chart, only: [ :show ]
 
   # Health check - used by load balancers and uptime monitors
   get "up" => "rails/health#show", as: :rails_health_check
