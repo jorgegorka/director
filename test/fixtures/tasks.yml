@@ -6,6 +6,7 @@ design_homepage:
   assignee: claude_agent
   status: 1  # in_progress
   priority: 2  # high
+  goal: acme_objective_one
 
 fix_login_bug:
   title: Fix login bug
@@ -15,6 +16,7 @@ fix_login_bug:
   assignee: http_agent
   status: 0  # open
   priority: 3  # urgent
+  goal: acme_objective_one
 
 write_tests:
   title: Write unit tests
@@ -23,6 +25,7 @@ write_tests:
   creator: two
   status: 0  # open
   priority: 1  # medium
+  goal: acme_sub_objective
   # No assignee -- unassigned task
 
 completed_task:
@@ -34,6 +37,7 @@ completed_task:
   status: 3  # completed
   priority: 1  # medium
   completed_at: <%= 2.days.ago.to_fs(:db) %>
+  goal: acme_sub_objective
 
 subtask_one:
   title: Design header component
