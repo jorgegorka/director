@@ -62,6 +62,17 @@
       </dl>
     </div>
 
+    <% if @task.assignee.present? %>
+      <div class="task-detail__section task-detail__workflow">
+        <h2>Workflow Actions</h2>
+        <%= render "task_delegations/form", task: @task %>
+        <%= render "task_escalations/form", task: @task %>
+        <% if delegation_targets_for(@task).empty? && !can_escalate?(@task) %>
+          <p class="task-detail__empty-note">No delegation or escalation targets available for this assignee's position.</p>
+        <% end %>
+      </div>
+    <% end %>
+
     <div class="task-detail__section">
       <h2>Conversation (<%= @task.messages.size %>)</h2>
       <div class="message-thread">

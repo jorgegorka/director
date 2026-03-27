@@ -18,6 +18,7 @@ developer:
   job_spec: "Build and maintain software products"
   company: acme
   parent: cto
+  agent: http_agent
 
 widgets_lead:
   title: Operations Lead
