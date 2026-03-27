@@ -56,5 +56,15 @@
         </div>
       </div>
     <% end %>
+
+    <div class="role-detail__section">
+      <h2>Configuration History</h2>
+      <% if @role.config_versions.any? %>
+        <p><%= pluralize(@role.config_versions.count, "version") %> recorded.</p>
+        <%= link_to "View full history", version_history_path_for(@role), class: "btn btn--ghost btn--sm" %>
+      <% else %>
+        <p class="role-detail__empty-note">No configuration changes recorded yet.</p>
+      <% end %>
+    </div>
   </div>
 </section>

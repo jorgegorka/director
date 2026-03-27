@@ -1,0 +1,9 @@
+<tr class="version-row">
+  <td class="version-row__time"><%= version.created_at.strftime("%b %d, %Y %H:%M") %></td>
+  <td class="version-row__action"><%= version_action_badge(version.action) %></td>
+  <td class="version-row__author"><%= version_author_display(version) %></td>
+  <td class="version-row__changes"><%= version_diff_display(version.changeset) %></td>
+  <td class="version-row__actions">
+    <%= link_to "View", config_version_path(version), class: "btn btn--ghost btn--xs" %>
+  </td>
+</tr>

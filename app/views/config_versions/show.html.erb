@@ -1,0 +1,79 @@
+<% content_for(:title, "Version Detail") %>
+
+<section class="version-detail">
+  <div class="version-detail__header">
+    <h1>Version Detail</h1>
+    <p class="version-detail__subtitle">
+      <%= @version.versionable_type %> "<%= @versionable&.try(:title) || @versionable&.try(:name) || "Deleted" %>"
+      &mdash; <%= @version.created_at.strftime("%B %d, %Y at %H:%M") %>
+    </p>
+  </div>
+
+  <div class="version-detail__meta">
+    <dl class="version-detail__info">
+      <div class="version-detail__info-row">
+        <dt>Action</dt>
+        <dd><%= version_action_badge(@version.action) %></dd>
+      </div>
+      <div class="version-detail__info-row">
+        <dt>Author</dt>
+        <dd><%= version_author_display(@version) %></dd>
+      </div>
+    </dl>
+  </div>
+
+  <% if @version.changeset.present? && @version.changeset.reject { |k, _| k.start_with?("_") }.any? %>
+    <div class="version-detail__section">
+      <h2>What Changed</h2>
+      <div class="version-diff">
+        <% @version.changeset.reject { |k, _| k.start_with?("_") }.each do |attr, values| %>
+          <% if values.is_a?(Array) && values.length == 2 %>
+            <div class="version-diff__row">
+              <span class="version-diff__attr"><%= attr.humanize %></span>
+              <div class="version-diff__values">
+                <span class="version-diff__old"><%= values[0] || "nil" %></span>
+                <span class="version-diff__arrow">&rarr;</span>
+                <span class="version-diff__new"><%= values[1] || "nil" %></span>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="version-detail__section">
+    <h2>Full Snapshot</h2>
+    <table class="table snapshot-table">
+      <thead>
+        <tr>
+          <th>Attribute</th>
+          <th>Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @version.restorable_attributes.each do |attr, value| %>
+          <tr>
+            <td><%= attr.humanize %></td>
+            <td><code><%= value %></code></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="version-detail__actions">
+    <% if @versionable %>
+      <%= button_to "Rollback to this version",
+            rollback_config_version_path(@version),
+            class: "btn btn--warning btn--sm",
+            data: { turbo_confirm: "Restore this configuration? The current values will be overwritten with this snapshot." } %>
+    <% else %>
+      <p class="version-detail__note">Cannot rollback -- the original record no longer exists.</p>
+    <% end %>
+
+    <%= link_to "Back to history",
+          config_versions_path(type: @version.versionable_type, record_id: @version.versionable_id),
+          class: "btn btn--ghost btn--sm" %>
+  </div>
+</section>

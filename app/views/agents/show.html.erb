@@ -200,5 +200,15 @@
         </ul>
       </div>
     <% end %>
+
+    <div class="agent-detail__section">
+      <h2>Configuration History</h2>
+      <% if @agent.config_versions.any? %>
+        <p><%= pluralize(@agent.config_versions.count, "version") %> recorded.</p>
+        <%= link_to "View full history", version_history_path_for(@agent), class: "btn btn--ghost btn--sm" %>
+      <% else %>
+        <p class="agent-detail__empty-note">No configuration changes recorded yet.</p>
+      <% end %>
+    </div>
   </div>
 </section>
