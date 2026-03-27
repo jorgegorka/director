@@ -5,21 +5,21 @@
 See: .ariadna_planning/PROJECT.md (updated 2026-03-26)
 
 **Core value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
-**Current focus:** Phase 9 in progress — governance data layer (ApprovalGate, ConfigVersion, AuditEvent company scoping, ConfigVersioned concern) complete
+**Current focus:** Phase 9 in progress — governance logic layer (GateCheckService, EmergencyStopService, agent pause/resume/terminate/approve/reject actions) complete
 
 ## Current Position
 
 Phase: 9 of 10 (Governance and Audit) — IN PROGRESS
-Plan: 1 of 4 complete (09-01 done; 09-02, 09-03, 09-04 pending)
-Status: Governance data layer complete — ApprovalGate, ConfigVersion, ConfigVersioned, AuditEvent company scoping, 581 tests passing
-Last activity: 2026-03-27 -- 09-01 complete (3 tasks, 581 tests passing, 0 failures)
+Plan: 2 of 4 complete (09-01, 09-02 done; 09-03, 09-04 pending)
+Status: Governance logic layer complete — GateCheckService, EmergencyStopService, agent status control actions, 612 tests passing
+Last activity: 2026-03-27 -- 09-02 complete (2 tasks, 612 tests passing, 0 failures)
 
 Progress: [████████░░] ~87%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 16
+- Total plans completed: 17
 - Average duration: ~8 minutes
 - Total execution time: ~134 minutes
 
@@ -35,10 +35,10 @@ Progress: [████████░░] ~87%
 | 06-goals-and-alignment | 2/2 | ~18 min | ~9 min |
 | 07-heartbeats-and-triggers | 3/3 | ~20 min | ~6.7 min |
 | 08-budget-cost-control | 4/4 | ~31 min | ~7.8 min |
-| 09-governance-audit | 1/4 | ~6 min | ~6 min |
+| 09-governance-audit | 2/4 | ~9 min | ~4.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 08-01 (~4 min), 08-02 (~8 min), 08-03 (~8 min), 08-04 (~11 min), 09-01 (~6 min)
+- Last 5 plans: 08-02 (~8 min), 08-03 (~8 min), 08-04 (~11 min), 09-01 (~6 min), 09-02 (~3 min)
 - Trend: consistent, stable
 
 *Updated after each plan completion*
@@ -106,6 +106,8 @@ Recent decisions affecting current work:
 - [09-01]: Company has_many :audit_events must use dependent: :delete_all (not :destroy) — AuditEvent#readonly? prevents ActiveRecord destroy callbacks on persisted records; delete_all bypasses callbacks, matching the Auditable concern pattern
 - [09-01]: ConfigVersioned concern declares has_many :config_versions on included models — do not add a separate explicit declaration to Agent/Role; the concern's declaration in the included block is the single source
 - [09-01]: ConfigVersioned concern's should_version? check: saved_changes.keys == ["updated_at"] catches touch-only saves; also filters via governance_attributes intersection so non-governance attribute changes are ignored
+- [09-02]: GateCheckService records agent as both auditable AND actor on gate_blocked AuditEvent — agent is the subject of the event and the initiator; Auditable concern not used here since it assumes Current.user as actor
+- [09-02]: approve action reads pause_reason before clearing it (for gate_approval audit metadata); regex match extracts action_type from "Approval required: {action_type} gate is active" format
 
 ### Pending Todos
 
@@ -118,5 +120,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-27
-Stopped at: Phase 9, plan 09-01 complete — governance data layer (ApprovalGate, ConfigVersion, AuditEvent company scoping, ConfigVersioned concern, 581 tests)
-Resume file: .ariadna_planning/phases/09-governance-audit/09-01-SUMMARY.md
+Stopped at: Phase 9, plan 09-02 complete — governance logic layer (GateCheckService, EmergencyStopService, agent status actions, 612 tests)
+Resume file: .ariadna_planning/phases/09-governance-audit/09-02-SUMMARY.md
