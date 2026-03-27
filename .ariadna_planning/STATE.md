@@ -5,14 +5,14 @@
 See: .ariadna_planning/PROJECT.md (updated 2026-03-26)
 
 **Core value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
-**Current focus:** Phase 8 plan 02 complete — budget enforcement service and cost reporting API built
+**Current focus:** Phase 8 plan 03 complete — budget and cost UI built (agent form budget fieldset, agent show budget bar, task cost display)
 
 ## Current Position
 
 Phase: 8 of 10 (Budget and Cost Control) — IN PROGRESS
-Plan: 2 of 3 complete (08-01, 08-02 done)
-Status: BudgetEnforcementService and POST /api/agent/tasks/:id/cost endpoint complete, 528 tests passing
-Last activity: 2026-03-27 -- 08-02 complete (2 tasks, 528 tests passing, 0 failures)
+Plan: 3 of 3 complete (08-01, 08-02, 08-03 done — awaiting 08-04)
+Status: Budget/cost UI complete — agent form budget fieldset, show page budget bar, task cost display, 533 tests passing
+Last activity: 2026-03-27 -- 08-03 complete (1 task, 533 tests passing, 0 failures)
 
 Progress: [████████░░] ~82%
 
@@ -34,10 +34,10 @@ Progress: [████████░░] ~82%
 | 05-tasks-and-conversations | 3/3 | ~20 min | ~6.7 min |
 | 06-goals-and-alignment | 2/2 | ~18 min | ~9 min |
 | 07-heartbeats-and-triggers | 3/3 | ~20 min | ~6.7 min |
-| 08-budget-cost-control | 2/3 | ~12 min | ~6 min |
+| 08-budget-cost-control | 3/3 | ~20 min | ~6.7 min |
 
 **Recent Trend:**
-- Last 5 plans: 07-01 (~6 min), 07-02 (~6 min), 07-03 (~20 min), 08-01 (~4 min), 08-02 (~8 min)
+- Last 5 plans: 07-02 (~6 min), 07-03 (~20 min), 08-01 (~4 min), 08-02 (~8 min), 08-03 (~8 min)
 - Trend: consistent, stable
 
 *Updated after each plan completion*
@@ -112,5 +112,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-27
-Stopped at: Phase 8, plan 2 complete — budget enforcement service and cost reporting API (BudgetEnforcementService, POST /api/agent/tasks/:id/cost, 528 tests)
-Resume file: .ariadna_planning/phases/08-budget-cost-control/08-02-SUMMARY.md
+Stopped at: Phase 8, plan 3 complete — budget and cost UI (agent form budget fieldset, agent show budget bar, task cost display, BudgetHelper, 533 tests)
+Resume file: .ariadna_planning/phases/08-budget-cost-control/08-03-SUMMARY.md
