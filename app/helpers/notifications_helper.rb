@@ -3,6 +3,10 @@ module NotificationsHelper
     case notification.action
     when "budget_alert" then "warning"
     when "budget_exhausted" then "error"
+    when "gate_pending_approval" then "warning"
+    when "gate_approval" then "success"
+    when "gate_rejection" then "error"
+    when "emergency_stop" then "error"
     else "info"
     end
   end
@@ -14,6 +18,14 @@ module NotificationsHelper
       "#{meta['agent_name']} has used #{meta['percentage']}% of its monthly budget (#{format_cents_as_dollars(meta['spent_cents'])} of #{format_cents_as_dollars(meta['budget_cents'])})"
     when "budget_exhausted"
       "#{meta['agent_name']} has been paused — monthly budget exhausted (#{format_cents_as_dollars(meta['spent_cents'])} spent)"
+    when "gate_pending_approval"
+      "#{meta['agent_name']} is waiting for approval: #{meta['action_type']&.humanize} gate triggered"
+    when "gate_approval"
+      "#{meta['agent_name']} has been approved and resumed"
+    when "gate_rejection"
+      "#{meta['agent_name']} approval was rejected"
+    when "emergency_stop"
+      "Emergency stop activated by #{meta['triggered_by']} — #{meta['agents_paused']} agent(s) paused"
     else
       notification.action.humanize
     end
@@ -23,6 +35,8 @@ module NotificationsHelper
     case notification.notifiable_type
     when "Agent"
       agent_path(notification.notifiable_id)
+    when "Company"
+      agents_path
     else
       "#"
     end

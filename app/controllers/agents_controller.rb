@@ -128,9 +128,13 @@ class AgentsController < ApplicationController
   end
 
   def sync_approval_gates
-    return unless params.dig(:agent, :gates)
+    # gates_submitted signals the gate fieldset was present in the form.
+    # Without it, we skip syncing (e.g., API calls or programmatic updates).
+    return unless params.dig(:agent, :gates_submitted) == "1"
 
-    gate_params = params[:agent][:gates].permit(*ApprovalGate::GATABLE_ACTIONS)
+    # gates key may be absent when all checkboxes are unchecked
+    raw_gates = params.dig(:agent, :gates)
+    gate_params = raw_gates ? raw_gates.permit(*ApprovalGate::GATABLE_ACTIONS) : ActionController::Parameters.new.permit!
 
     ApprovalGate::GATABLE_ACTIONS.each do |action_type|
       gate = @agent.approval_gates.find_or_initialize_by(action_type: action_type)
