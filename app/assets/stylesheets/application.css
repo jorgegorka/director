@@ -2865,6 +2865,187 @@
     background: var(--color-brand-600);
   }
 
+  /* --- Approval Gates --- */
+  .gate-checkboxes {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .gate-checkbox {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+    gap: 0 var(--space-2);
+    align-items: start;
+    cursor: pointer;
+  }
+
+  .gate-checkbox input[type="checkbox"] {
+    grid-row: 1 / -1;
+    margin-block-start: var(--space-1);
+  }
+
+  .gate-checkbox__label {
+    font-weight: 500;
+    color: var(--text-base);
+  }
+
+  .gate-checkbox__description {
+    grid-column: 2;
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+  }
+
+  .gate-indicator {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+  }
+
+  .gate-indicator--active {
+    color: var(--color-warning-fg);
+  }
+
+  .gate-indicator--none {
+    color: var(--text-muted);
+  }
+
+  /* Gate list on show page */
+  .gate-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .gate-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-md);
+    background: var(--color-neutral-100);
+  }
+
+  .gate-item--enabled {
+    border-inline-start: 3px solid var(--color-warning-fg);
+  }
+
+  .gate-item--disabled {
+    opacity: 0.6;
+  }
+
+  .gate-item__status {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    min-inline-size: 5rem;
+  }
+
+  .gate-item--enabled .gate-item__status {
+    color: var(--color-warning-fg);
+  }
+
+  .gate-item--disabled .gate-item__status {
+    color: var(--text-muted);
+  }
+
+  .gate-item__type {
+    font-weight: 500;
+  }
+
+  .gate-item__description {
+    color: var(--text-subtle);
+    font-size: var(--font-size-sm);
+    margin-inline-start: auto;
+  }
+
+  /* Approval banner */
+  .approval-banner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    background: var(--color-warning-bg);
+    border: 1px solid oklch(from var(--color-warning-fg) l c h / 0.3);
+    border-radius: var(--radius-md);
+    margin-block-end: var(--space-4);
+  }
+
+  .approval-banner__content {
+    flex: 1;
+  }
+
+  .approval-banner__title {
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    color: var(--color-warning-fg);
+    margin: 0;
+  }
+
+  .approval-banner__reason {
+    font-size: var(--font-size-sm);
+    color: var(--color-warning-fg);
+    margin: var(--space-1) 0 0;
+    opacity: 0.85;
+  }
+
+  .approval-banner__actions {
+    display: flex;
+    gap: var(--space-2);
+  }
+
+  /* Emergency stop button */
+  .emergency-stop-btn {
+    background-color: var(--color-error-fg);
+    color: oklch(100% 0 0);
+    border-color: var(--color-error-fg);
+    font-weight: 600;
+  }
+
+  .emergency-stop-btn:hover {
+    background-color: oklch(from var(--color-error-fg) calc(l - 0.05) c h);
+    border-color: oklch(from var(--color-error-fg) calc(l - 0.05) c h);
+    text-decoration: none;
+  }
+
+  /* Button variants for governance */
+  .btn--success {
+    background-color: var(--color-success-fg);
+    color: oklch(100% 0 0);
+    border-color: var(--color-success-fg);
+  }
+
+  .btn--success:hover {
+    background-color: oklch(from var(--color-success-fg) calc(l - 0.05) c h);
+    border-color: oklch(from var(--color-success-fg) calc(l - 0.05) c h);
+    text-decoration: none;
+  }
+
+  .btn--warning {
+    background-color: var(--color-warning-fg);
+    color: oklch(100% 0 0);
+    border-color: var(--color-warning-fg);
+  }
+
+  .btn--warning:hover {
+    background-color: oklch(from var(--color-warning-fg) calc(l - 0.05) c h);
+    border-color: oklch(from var(--color-warning-fg) calc(l - 0.05) c h);
+    text-decoration: none;
+  }
+
+  .btn--danger {
+    background-color: var(--color-error-fg);
+    color: oklch(100% 0 0);
+    border-color: var(--color-error-fg);
+  }
+
+  .btn--danger:hover {
+    background-color: oklch(from var(--color-error-fg) calc(l - 0.05) c h);
+    border-color: oklch(from var(--color-error-fg) calc(l - 0.05) c h);
+    text-decoration: none;
+  }
+
   /* Screen reader only (for accessibility) */
   .sr-only {
     position: absolute;

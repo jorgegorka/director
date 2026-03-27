@@ -1,6 +1,7 @@
 <% content_for(:title, @agent.name) %>
 
 <section class="agent-detail">
+  <%= render "agents/pending_approval_banner", agent: @agent %>
   <div class="agent-detail__header">
     <div>
       <h1><%= @agent.name %></h1>
@@ -149,6 +150,23 @@
         </div>
       <% else %>
         <p class="agent-detail__empty-note">No budget configured. <%= link_to "Set a monthly budget", edit_agent_path(@agent) %> to control spending.</p>
+      <% end %>
+    </div>
+
+    <div class="agent-detail__section">
+      <h2>Approval Gates</h2>
+      <% if @agent.has_any_gates? %>
+        <div class="gate-list">
+          <% @agent.approval_gates.order(:action_type).each do |gate| %>
+            <div class="gate-item <%= "gate-item--enabled" if gate.enabled? %> <%= "gate-item--disabled" unless gate.enabled? %>">
+              <span class="gate-item__status"><%= gate.enabled? ? "Active" : "Disabled" %></span>
+              <span class="gate-item__type"><%= gate.action_type.humanize %></span>
+              <span class="gate-item__description"><%= gate_description(gate.action_type) %></span>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="agent-detail__empty-note">No approval gates configured. <%= link_to "Set up gates", edit_agent_path(@agent) %> to require human approval for critical actions.</p>
       <% end %>
     </div>
 

@@ -156,6 +156,10 @@
     </div>
   </fieldset>
 
+  <% unless agent.new_record? %>
+    <%= render "approval_gates/gate_fieldset", agent: agent %>
+  <% end %>
+
   <div class="form__actions">
     <%= f.submit class: "btn btn--primary" %>
   </div>

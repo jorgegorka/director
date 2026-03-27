@@ -29,6 +29,7 @@ class AgentsController < ApplicationController
 
   def update
     if @agent.update(agent_params)
+      sync_approval_gates
       redirect_to @agent, notice: "#{@agent.name} has been updated."
     else
       render :edit, status: :unprocessable_entity
@@ -123,7 +124,25 @@ class AgentsController < ApplicationController
   private
 
   def set_agent
-    @agent = Current.company.agents.includes(:agent_capabilities, :roles).find(params[:id])
+    @agent = Current.company.agents.includes(:agent_capabilities, :roles, :approval_gates).find(params[:id])
+  end
+
+  def sync_approval_gates
+    return unless params.dig(:agent, :gates)
+
+    gate_params = params[:agent][:gates].permit(*ApprovalGate::GATABLE_ACTIONS)
+
+    ApprovalGate::GATABLE_ACTIONS.each do |action_type|
+      gate = @agent.approval_gates.find_or_initialize_by(action_type: action_type)
+      should_enable = gate_params[action_type] == "1"
+
+      if should_enable
+        gate.enabled = true
+        gate.save!
+      elsif gate.persisted?
+        gate.update!(enabled: false)
+      end
+    end
   end
 
   def record_agent_audit(action, extra_metadata = {})
