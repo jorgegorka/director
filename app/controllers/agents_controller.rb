@@ -7,6 +7,7 @@ class AgentsController < ApplicationController
   end
 
   def show
+    @recent_heartbeats = @agent.heartbeat_events.reverse_chronological.limit(5)
   end
 
   def new
@@ -46,7 +47,7 @@ class AgentsController < ApplicationController
   end
 
   def agent_params
-    permitted = params.require(:agent).permit(:name, :description, :adapter_type)
+    permitted = params.require(:agent).permit(:name, :description, :adapter_type, :heartbeat_enabled, :heartbeat_interval)
     adapter_type = permitted[:adapter_type] || @agent&.adapter_type
     if adapter_type && params[:agent][:adapter_config].is_a?(ActionController::Parameters)
       allowed_keys = AdapterRegistry.all_config_keys(adapter_type)

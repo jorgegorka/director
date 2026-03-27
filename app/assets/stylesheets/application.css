@@ -2467,3 +2467,131 @@
     white-space: nowrap;
   }
 }
+
+/* ============================================================
+   HEARTBEAT COMPONENTS (inside @layer components)
+   ============================================================ */
+@layer components {
+  /* Heartbeat badges and status indicators */
+  .heartbeat-badge {
+    display: inline-block;
+    padding-inline: 0.5em;
+    padding-block: 0.15em;
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+  }
+
+  .heartbeat-badge--scheduled {
+    background: oklch(0.92 0.04 250);
+    color: oklch(0.35 0.1 250);
+  }
+
+  .heartbeat-badge--task_assigned {
+    background: oklch(0.92 0.04 150);
+    color: oklch(0.35 0.1 150);
+  }
+
+  .heartbeat-badge--mention {
+    background: oklch(0.92 0.04 300);
+    color: oklch(0.35 0.1 300);
+  }
+
+  .heartbeat-status {
+    display: inline-block;
+    font-size: var(--font-size-sm);
+  }
+
+  .heartbeat-status--queued {
+    color: oklch(0.6 0.15 60);
+  }
+
+  .heartbeat-status--delivered {
+    color: var(--color-success-fg);
+  }
+
+  .heartbeat-status--failed {
+    color: var(--color-error-fg);
+  }
+
+  .heartbeat-active {
+    color: var(--color-success-fg);
+    font-weight: 500;
+  }
+
+  .heartbeat-table {
+    margin-block-start: var(--space-2);
+    margin-block-end: var(--space-4);
+  }
+
+  /* Heartbeat history page */
+  .heartbeats-history {
+    max-inline-size: var(--content-max-width);
+    margin-inline: auto;
+    padding-inline: var(--space-6);
+    padding-block: var(--space-8);
+  }
+
+  .heartbeats-history__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-block-end: var(--space-6);
+  }
+
+  .heartbeats-history__header h1 {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    letter-spacing: var(--letter-spacing-tight);
+    margin-block-end: var(--space-1);
+  }
+
+  .heartbeats-history__subtitle {
+    color: var(--text-muted);
+    font-size: var(--font-size-sm);
+  }
+
+  .heartbeats-history__empty {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-8);
+    text-align: center;
+    color: var(--text-muted);
+  }
+
+  .heartbeats-history__empty p {
+    margin-block-end: var(--space-2);
+  }
+
+  .heartbeats-history__empty ul {
+    list-style: disc;
+    padding-inline-start: var(--space-6);
+    text-align: start;
+    display: inline-block;
+    margin-block-start: var(--space-2);
+  }
+
+  .heartbeat-row--failed td {
+    opacity: 0.8;
+  }
+
+  /* Form toggle */
+  .form__toggle {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .form__toggle-label {
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+  }
+
+  .form__hint {
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+    margin-block-end: var(--space-3);
+  }
+}

@@ -48,14 +48,57 @@
 
     <div class="agent-detail__section">
       <h2>Heartbeat</h2>
-      <p class="agent-detail__heartbeat">
-        <% if @agent.last_heartbeat_at %>
-          Last seen <%= time_ago_in_words(@agent.last_heartbeat_at) %> ago
-        <% else %>
-          <span class="agent-detail__never">Never</span>
-          <span class="agent-detail__heartbeat-hint">Heartbeats will be configured in a future update</span>
-        <% end %>
-      </p>
+      <div class="agent-detail__heartbeat-config">
+        <dl class="agent-detail__config">
+          <div class="agent-detail__config-row">
+            <dt>Schedule</dt>
+            <dd>
+              <% if @agent.heartbeat_scheduled? %>
+                <span class="heartbeat-active"><%= heartbeat_schedule_label(@agent) %></span>
+              <% else %>
+                <span class="agent-detail__never">Disabled</span>
+              <% end %>
+            </dd>
+          </div>
+          <div class="agent-detail__config-row">
+            <dt>Last activity</dt>
+            <dd>
+              <% if @agent.last_heartbeat_at %>
+                <%= time_ago_in_words(@agent.last_heartbeat_at) %> ago
+              <% else %>
+                <span class="agent-detail__never">No activity yet</span>
+              <% end %>
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <% if @recent_heartbeats.any? %>
+        <h3>Recent Events</h3>
+        <table class="table heartbeat-table">
+          <thead>
+            <tr>
+              <th>Trigger</th>
+              <th>Status</th>
+              <th>Source</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @recent_heartbeats.each do |event| %>
+              <tr>
+                <td><%= heartbeat_trigger_badge(event) %></td>
+                <td><%= heartbeat_status_indicator(event) %></td>
+                <td><%= event.trigger_source || "—" %></td>
+                <td><%= time_ago_in_words(event.created_at) %> ago</td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+        <%= link_to "View all heartbeat history", agent_heartbeats_path(@agent), class: "btn btn--ghost btn--sm" %>
+      <% else %>
+        <p class="agent-detail__empty-note">No heartbeat events yet. Events will appear here when the agent is triggered by schedule, task assignment, or @mentions.</p>
+      <% end %>
     </div>
 
     <div class="agent-detail__section">

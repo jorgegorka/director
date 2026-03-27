@@ -101,6 +101,42 @@
     </div>
   </fieldset>
 
+  <!-- Heartbeat Schedule Configuration -->
+  <fieldset class="form__fieldset">
+    <legend>Heartbeat Schedule</legend>
+    <p class="form__hint">Configure how often this agent wakes to check for work. The agent will run on this schedule when enabled.</p>
+
+    <div class="form__field">
+      <%= f.label :heartbeat_enabled, "Enable scheduled heartbeat" %>
+      <div class="form__toggle">
+        <%= f.check_box :heartbeat_enabled, class: "form__checkbox" %>
+        <span class="form__toggle-label">Agent wakes on schedule</span>
+      </div>
+    </div>
+
+    <div class="form__field">
+      <%= f.label :heartbeat_interval, "Heartbeat interval" %>
+      <%= f.select :heartbeat_interval,
+            options_for_select(
+              [
+                ["Every 5 minutes", 5],
+                ["Every 10 minutes", 10],
+                ["Every 15 minutes", 15],
+                ["Every 30 minutes", 30],
+                ["Every hour", 60],
+                ["Every 2 hours", 120],
+                ["Every 6 hours", 360],
+                ["Every 12 hours", 720],
+                ["Every 24 hours", 1440]
+              ],
+              agent.heartbeat_interval
+            ),
+            { include_blank: "Select interval..." },
+            { class: "form__select" }
+      %>
+    </div>
+  </fieldset>
+
   <div class="form__actions">
     <%= f.submit class: "btn btn--primary" %>
   </div>
