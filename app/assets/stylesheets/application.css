@@ -253,6 +253,24 @@
     color: var(--text-muted);
   }
 
+  .nav__link {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--text-subtle);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+
+    &:hover {
+      color: var(--color-brand-500);
+      text-decoration: none;
+    }
+  }
+
+  .nav__link--active {
+    color: var(--color-brand-500);
+    font-weight: 600;
+  }
+
   .app-main {
     margin-inline: auto;
     max-inline-size: var(--content-max-width);

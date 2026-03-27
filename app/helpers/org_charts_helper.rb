@@ -11,7 +11,7 @@ module OrgChartsHelper
       title: role.title,
       description: role.description.to_s.truncate(80),
       url: role_path(role),
-      agent_name: nil,
+      agent_name: role.agent&.name,
       children: role.children.order(:title).map { |child| role_node_data(child) }
     }
   end
