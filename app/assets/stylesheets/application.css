@@ -1657,6 +1657,7 @@
   .capability-badge {
     display: inline-flex;
     align-items: center;
+    gap: var(--space-1);
     padding-block: var(--space-1);
     padding-inline: var(--space-3);
     background-color: var(--color-accent-50);
@@ -1665,6 +1666,38 @@
     border-radius: var(--radius-md);
     font-size: var(--font-size-sm);
     font-weight: 500;
+  }
+
+  .capability-badge__remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: var(--color-accent-600);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    line-height: 1;
+    padding: 0;
+    opacity: 0.6;
+    transition: opacity var(--transition-fast);
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  /* --- Inline form layout --- */
+  .form--inline .form__field--inline {
+    display: flex;
+    gap: var(--space-2);
+    align-items: center;
+    flex-wrap: wrap;
+
+    & input[type="text"] {
+      flex: 1;
+      min-inline-size: 16rem;
+    }
   }
 
   /* --- Agent form page --- */
