@@ -3,6 +3,7 @@ scheduled_heartbeat:
   trigger_type: 0         # scheduled
   status: 1               # delivered
   trigger_source: "schedule"
+  created_at: <%= 1.hour.ago.to_fs(:db) %>
   delivered_at: <%= 1.hour.ago.to_fs(:db) %>
   request_payload:
     trigger: scheduled
@@ -51,6 +52,7 @@ mention_event:
   trigger_type: 2         # mention
   status: 1               # delivered
   trigger_source: "Message#1"
+  created_at: <%= 15.minutes.ago.to_fs(:db) %>
   delivered_at: <%= 15.minutes.ago.to_fs(:db) %>
   request_payload:
     trigger: mention
