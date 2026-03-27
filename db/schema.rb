@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_27_114317) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_27_135006) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -31,6 +31,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_27_114317) do
     t.bigint "company_id", null: false
     t.datetime "created_at", null: false
     t.text "description"
+    t.boolean "heartbeat_enabled", default: false, null: false
+    t.integer "heartbeat_interval"
     t.datetime "last_heartbeat_at"
     t.string "name", null: false
     t.text "pause_reason"
@@ -74,6 +76,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_27_114317) do
     t.index ["company_id", "parent_id"], name: "index_goals_on_company_id_and_parent_id"
     t.index ["company_id"], name: "index_goals_on_company_id"
     t.index ["parent_id"], name: "index_goals_on_parent_id"
+  end
+
+  create_table "heartbeat_events", force: :cascade do |t|
+    t.bigint "agent_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "delivered_at"
+    t.jsonb "metadata", default: {}, null: false
+    t.jsonb "request_payload", default: {}, null: false
+    t.jsonb "response_payload", default: {}, null: false
+    t.integer "status", default: 0, null: false
+    t.string "trigger_source"
+    t.integer "trigger_type", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.index ["agent_id", "created_at"], name: "index_heartbeat_events_on_agent_and_time"
+    t.index ["agent_id", "trigger_type"], name: "index_heartbeat_events_on_agent_and_trigger"
+    t.index ["agent_id"], name: "index_heartbeat_events_on_agent_id"
+    t.index ["status"], name: "index_heartbeat_events_on_status"
   end
 
   create_table "invitations", force: :cascade do |t|
@@ -177,6 +196,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_27_114317) do
   add_foreign_key "agents", "companies"
   add_foreign_key "goals", "companies"
   add_foreign_key "goals", "goals", column: "parent_id"
+  add_foreign_key "heartbeat_events", "agents"
   add_foreign_key "invitations", "companies"
   add_foreign_key "invitations", "users", column: "inviter_id"
   add_foreign_key "memberships", "companies"
