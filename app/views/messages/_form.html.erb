@@ -1,0 +1,11 @@
+<%= form_with(url: task_messages_path(task), model: Message.new, class: "message-form") do |f| %>
+  <% if local_assigns[:parent_id].present? %>
+    <%= f.hidden_field :parent_id, value: parent_id %>
+  <% end %>
+  <div class="message-form__field">
+    <%= f.text_area :body, placeholder: "Write a message...", required: true, rows: 3, class: "message-form__textarea" %>
+  </div>
+  <div class="message-form__actions">
+    <%= f.submit "Post Message", class: "btn btn--primary btn--sm" %>
+  </div>
+<% end %>

@@ -1,0 +1,24 @@
+<div class="message <%= "message--reply" if message.parent_id.present? %>" id="message_<%= message.id %>">
+  <div class="message__header">
+    <span class="message__author">
+      <% if message.author.is_a?(Agent) %>
+        <%= message.author.name %>
+        <span class="message__author-type">Agent</span>
+      <% else %>
+        <%= message.author.try(:email_address) || "Unknown" %>
+      <% end %>
+    </span>
+    <time class="message__timestamp" datetime="<%= message.created_at.iso8601 %>">
+      <%= time_ago_in_words(message.created_at) %> ago
+    </time>
+  </div>
+
+  <div class="message__body"><%= message.body %></div>
+
+  <div class="message__actions" data-controller="reply">
+    <button class="btn btn--ghost btn--sm" data-action="reply#toggle">Reply</button>
+    <div class="message-reply-form message-reply-form--hidden" data-reply-target="form">
+      <%= render "messages/form", task: task, parent_id: message.id %>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,8 @@
+<%= render partial: "messages/message", locals: { message: message, task: task } %>
+<% if message.replies.any? %>
+  <div class="message-thread__replies">
+    <% message.replies.chronological.each do |reply| %>
+      <%= render partial: "messages/thread", locals: { message: reply, task: task } %>
+    <% end %>
+  </div>
+<% end %>

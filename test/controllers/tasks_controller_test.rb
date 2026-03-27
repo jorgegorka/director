@@ -1,0 +1,194 @@
+require "test_helper"
+
+class TasksControllerTest < ActionDispatch::IntegrationTest
+  setup do
+    @user = users(:one)
+    @company = companies(:acme)
+    sign_in_as(@user)
+    post company_switch_url(@company)
+    @design_task = tasks(:design_homepage)
+    @widgets_task = tasks(:widgets_task)
+    @claude_agent = agents(:claude_agent)
+    @http_agent = agents(:http_agent)
+  end
+
+  # --- Index ---
+
+  test "should get index" do
+    get tasks_url
+    assert_response :success
+    assert_select ".task-card", minimum: 1
+  end
+
+  test "should only show tasks for current company" do
+    get tasks_url
+    assert_response :success
+    assert_select ".task-card__title a", text: "Design homepage"
+    assert_select ".task-card__title a", text: "Update widget catalog", count: 0
+  end
+
+  # --- Show ---
+
+  test "should show task" do
+    get task_url(@design_task)
+    assert_response :success
+    assert_select "h1", "Design homepage"
+  end
+
+  test "should not show task from another company" do
+    get task_url(@widgets_task)
+    assert_response :not_found
+  end
+
+  # --- New / Create ---
+
+  test "should get new task form" do
+    get new_task_url
+    assert_response :success
+    assert_select "form"
+  end
+
+  test "should create task" do
+    assert_difference("Task.count", 1) do
+      post tasks_url, params: {
+        task: {
+          title: "New test task",
+          description: "A task for testing",
+          priority: "medium"
+        }
+      }
+    end
+    task = Task.order(:created_at).last
+    assert_equal "New test task", task.title
+    assert_equal "medium", task.priority
+    assert_equal @company, task.company
+    assert_equal @user, task.creator
+    assert_redirected_to task_url(task)
+  end
+
+  test "should create task with assignee" do
+    assert_difference("Task.count", 1) do
+      post tasks_url, params: {
+        task: {
+          title: "Assigned task",
+          priority: "high",
+          assignee_id: @claude_agent.id
+        }
+      }
+    end
+    task = Task.order(:created_at).last
+    assert_equal @claude_agent, task.assignee
+  end
+
+  test "should create audit event on task creation" do
+    assert_difference("AuditEvent.count", 1) do
+      post tasks_url, params: {
+        task: {
+          title: "Audit test task",
+          priority: "low"
+        }
+      }
+    end
+    task = Task.order(:created_at).last
+    event = task.audit_events.find_by(action: "created")
+    assert_not_nil event
+    assert_equal "created", event.action
+  end
+
+  test "should create two audit events when task created with assignee" do
+    assert_difference("AuditEvent.count", 2) do
+      post tasks_url, params: {
+        task: {
+          title: "Assigned task with audit",
+          priority: "medium",
+          assignee_id: @claude_agent.id
+        }
+      }
+    end
+    task = Task.order(:created_at).last
+    assert task.audit_events.find_by(action: "created")
+    assert task.audit_events.find_by(action: "assigned")
+  end
+
+  test "should not create task with blank title" do
+    assert_no_difference("Task.count") do
+      post tasks_url, params: {
+        task: { title: "", priority: "medium" }
+      }
+    end
+    assert_response :unprocessable_entity
+  end
+
+  # --- Edit / Update ---
+
+  test "should get edit form" do
+    get edit_task_url(@design_task)
+    assert_response :success
+    assert_select "form"
+  end
+
+  test "should update task" do
+    patch task_url(@design_task), params: {
+      task: { title: "Updated title", description: "Updated description" }
+    }
+    assert_redirected_to task_url(@design_task)
+    @design_task.reload
+    assert_equal "Updated title", @design_task.title
+    assert_equal "Updated description", @design_task.description
+  end
+
+  test "should create audit event on status change" do
+    assert_difference("AuditEvent.count", 1) do
+      patch task_url(@design_task), params: {
+        task: { status: "blocked" }
+      }
+    end
+    event = @design_task.audit_events.reload.where(action: "status_changed").last
+    assert_not_nil event
+    assert_equal "blocked", event.metadata["to"]
+  end
+
+  test "should create audit event on assignment change" do
+    assert_difference("AuditEvent.count", 1) do
+      patch task_url(tasks(:write_tests)), params: {
+        task: { assignee_id: @http_agent.id }
+      }
+    end
+    event = tasks(:write_tests).audit_events.reload.find_by(action: "assigned")
+    assert_not_nil event
+    assert_equal @http_agent.name, event.metadata["assignee_name"]
+  end
+
+  test "should not update task with blank title" do
+    patch task_url(@design_task), params: { task: { title: "" } }
+    assert_response :unprocessable_entity
+  end
+
+  # --- Destroy ---
+
+  test "should destroy task" do
+    assert_difference("Task.count", -1) do
+      delete task_url(tasks(:write_tests))
+    end
+    assert_redirected_to tasks_url
+  end
+
+  # --- Auth / Scoping ---
+
+  test "should redirect unauthenticated user" do
+    sign_out
+    get tasks_url
+    assert_redirected_to new_session_url
+  end
+
+  test "should redirect user without company" do
+    user_without_company = User.create!(
+      email_address: "taskless@example.com",
+      password: "password",
+      password_confirmation: "password"
+    )
+    sign_in_as(user_without_company)
+    get tasks_url
+    assert_redirected_to new_company_url
+  end
+end
