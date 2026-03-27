@@ -5,23 +5,23 @@
 See: .ariadna_planning/PROJECT.md (updated 2026-03-26)
 
 **Core value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
-**Current focus:** Phase 9 in progress — governance UI layer (approval gate form, pending approval banner, emergency stop, notification helper) complete
+**Current focus:** Phase 9 complete — audit log UI and config version history UI built; Phase 10 (polish and final features) is next
 
 ## Current Position
 
-Phase: 9 of 10 (Governance and Audit) — IN PROGRESS
-Plan: 3 of 4 complete (09-01, 09-02, 09-03 done; 09-04 also executed concurrently)
-Status: Governance UI layer complete — gate fieldset, pending approval banner, emergency stop button, notification helper, 627 tests passing
-Last activity: 2026-03-27 -- 09-03 complete (2 tasks, 627 tests passing, 0 failures)
+Phase: 9 of 10 (Governance and Audit) — COMPLETE
+Plan: 4 of 4 complete (09-01, 09-02, 09-03, 09-04 done)
+Status: Phase 9 complete — audit log page with filters, config version history with rollback, 640 tests passing
+Last activity: 2026-03-27 -- 09-04 complete (2 tasks, 640 tests passing, 0 failures)
 
 Progress: [████████░░] ~87%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 17
+- Total plans completed: 18
 - Average duration: ~8 minutes
-- Total execution time: ~134 minutes
+- Total execution time: ~145 minutes
 
 **By Phase:**
 
@@ -35,10 +35,10 @@ Progress: [████████░░] ~87%
 | 06-goals-and-alignment | 2/2 | ~18 min | ~9 min |
 | 07-heartbeats-and-triggers | 3/3 | ~20 min | ~6.7 min |
 | 08-budget-cost-control | 4/4 | ~31 min | ~7.8 min |
-| 09-governance-audit | 3/4 | ~19 min | ~6.3 min |
+| 09-governance-audit | 4/4 | ~30 min | ~7.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 08-03 (~8 min), 08-04 (~11 min), 09-01 (~6 min), 09-02 (~3 min), 09-03 (~10 min)
+- Last 5 plans: 08-04 (~11 min), 09-01 (~6 min), 09-02 (~3 min), 09-03 (~10 min), 09-04 (~11 min)
 - Trend: consistent, stable
 
 *Updated after each plan completion*
@@ -111,6 +111,9 @@ Recent decisions affecting current work:
 - [09-03]: Rack encodes gates: {} (empty nested hash) as empty string; params.require(:agent) raises ParameterMissing (400) when only gates is submitted — use hidden gates_submitted sentinel field to detect gate fieldset presence instead of checking gates key presence
 - [09-03]: gate_fieldset partial only renders on edit form (agent.new_record? check) since gates require existing agent_id FK
 - [09-03]: sync_approval_gates uses ActionController::Parameters.new.permit! for all-unchecked case (empty permitted params with all-false gate checks)
+- [09-04]: AuditLogsController uses params[:action_filter] not params[:action] to avoid collision with Rails' own controller :action param
+- [09-04]: ConfigVersionsController find_versionable whitelist (Agent, Role only) prevents arbitrary model lookups; uses find_by (not find) so nil triggers graceful redirect instead of 404
+- [09-04]: Plan CSS tokens (--text-secondary, --surface-secondary, --font-weight-medium, etc.) are planning placeholders — map to actual project tokens (--text-muted, --color-neutral-100, literal 500, etc.)
 
 ### Pending Todos
 
@@ -123,5 +126,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-27
-Stopped at: Phase 9, plan 09-03 complete — governance UI layer (gate checkboxes, pending approval banner, emergency stop button, notification helper, 627 tests)
-Resume file: .ariadna_planning/phases/09-governance-audit/09-03-SUMMARY.md
+Stopped at: Phase 9, plan 09-04 complete — audit log UI and config version history UI (640 tests); Phase 9 fully complete
+Resume file: .ariadna_planning/phases/09-governance-audit/09-04-SUMMARY.md
