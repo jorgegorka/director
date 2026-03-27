@@ -12,6 +12,9 @@ Rails.application.routes.draw do
   # Companies
   resources :companies, only: [ :index, :new, :create ] do
     resource :switch, only: [ :create ], module: :companies, controller: "switches"
+    member do
+      post :emergency_stop
+    end
   end
 
   # Invitations (scoped to active company via Current.company)
@@ -28,6 +31,13 @@ Rails.application.routes.draw do
   resources :agents do
     resources :capabilities, only: [ :create, :destroy ], controller: "agent_capabilities"
     resources :heartbeats, only: [ :index ]
+    member do
+      post :pause
+      post :resume
+      post :terminate
+      post :approve
+      post :reject
+    end
   end
 
   # Tasks (scoped to active company via Current.company)

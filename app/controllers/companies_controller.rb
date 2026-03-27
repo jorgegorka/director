@@ -21,6 +21,17 @@ class CompaniesController < ApplicationController
     render :new, status: :unprocessable_entity
   end
 
+  def emergency_stop
+    company = Current.user.companies.find(params[:id])
+    unless company == Current.company
+      redirect_to companies_path, alert: "Cannot control agents for a company you are not viewing."
+      return
+    end
+
+    paused_count = EmergencyStopService.call!(company: company, user: Current.user)
+    redirect_to agents_path, notice: "Emergency stop activated. #{paused_count} agent(s) paused."
+  end
+
   private
 
   def company_params

@@ -11,6 +11,22 @@
     </div>
     <div class="agent-detail__actions">
       <%= link_to "Edit", edit_agent_path(@agent), class: "btn btn--ghost btn--sm" %>
+      <% if @agent.pending_approval? %>
+        <%= button_to "Approve", approve_agent_path(@agent), class: "btn btn--primary btn--sm",
+              data: { turbo_confirm: "Approve #{@agent.name} to continue?" } %>
+        <%= button_to "Reject", reject_agent_path(@agent), class: "btn btn--danger btn--sm",
+              data: { turbo_confirm: "Reject #{@agent.name}'s pending action?" } %>
+      <% end %>
+      <% unless @agent.terminated? %>
+        <% if @agent.paused? || @agent.pending_approval? %>
+          <%= button_to "Resume", resume_agent_path(@agent), class: "btn btn--success btn--sm" %>
+        <% else %>
+          <%= button_to "Pause", pause_agent_path(@agent), class: "btn btn--warning btn--sm",
+                data: { turbo_confirm: "Pause #{@agent.name}? It will stop processing tasks." } %>
+        <% end %>
+        <%= button_to "Terminate", terminate_agent_path(@agent), method: :post, class: "btn btn--danger btn--sm",
+              data: { turbo_confirm: "Terminate #{@agent.name}? This cannot be easily undone." } %>
+      <% end %>
       <%= button_to "Delete", @agent, method: :delete, class: "btn btn--ghost btn--sm agent-detail__delete",
             data: { turbo_confirm: "Delete #{@agent.name}? This cannot be undone." } %>
     </div>

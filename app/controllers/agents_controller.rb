@@ -1,6 +1,6 @@
 class AgentsController < ApplicationController
   before_action :require_company!
-  before_action :set_agent, only: [ :show, :edit, :update, :destroy ]
+  before_action :set_agent, only: [ :show, :edit, :update, :destroy, :pause, :resume, :terminate, :approve, :reject ]
 
   def index
     @agents = Current.company.agents.includes(:agent_capabilities, :roles).order(:name)
@@ -40,10 +40,103 @@ class AgentsController < ApplicationController
     redirect_to agents_path, notice: "#{@agent.name} has been deleted."
   end
 
+  def pause
+    if @agent.paused?
+      redirect_to @agent, alert: "#{@agent.name} is already paused."
+      return
+    end
+
+    if @agent.terminated?
+      redirect_to @agent, alert: "Cannot pause a terminated agent."
+      return
+    end
+
+    @agent.update!(
+      status: :paused,
+      pause_reason: params[:reason].presence || "Manually paused by #{Current.user.email_address}",
+      paused_at: Time.current
+    )
+    record_agent_audit("agent_paused", { reason: @agent.pause_reason })
+    redirect_to @agent, notice: "#{@agent.name} has been paused."
+  end
+
+  def resume
+    unless @agent.paused? || @agent.pending_approval?
+      redirect_to @agent, alert: "#{@agent.name} is not paused."
+      return
+    end
+
+    @agent.update!(
+      status: :idle,
+      pause_reason: nil,
+      paused_at: nil
+    )
+    record_agent_audit("agent_resumed")
+    redirect_to @agent, notice: "#{@agent.name} has been resumed."
+  end
+
+  def terminate
+    if @agent.terminated?
+      redirect_to @agent, alert: "#{@agent.name} is already terminated."
+      return
+    end
+
+    @agent.update!(status: :terminated)
+    record_agent_audit("agent_terminated")
+    redirect_to @agent, notice: "#{@agent.name} has been terminated."
+  end
+
+  def approve
+    unless @agent.pending_approval?
+      redirect_to @agent, alert: "#{@agent.name} is not pending approval."
+      return
+    end
+
+    @agent.update!(
+      status: :idle,
+      pause_reason: nil,
+      paused_at: nil
+    )
+    record_agent_audit("gate_approval", {
+      action_type: @agent.pause_reason&.match(/: (.+) gate/)&.captures&.first
+    })
+    redirect_to @agent, notice: "#{@agent.name} has been approved and resumed."
+  end
+
+  def reject
+    unless @agent.pending_approval?
+      redirect_to @agent, alert: "#{@agent.name} is not pending approval."
+      return
+    end
+
+    @agent.update!(
+      status: :paused,
+      pause_reason: "Approval rejected: #{params[:reason].presence || 'No reason given'}",
+      paused_at: Time.current
+    )
+    record_agent_audit("gate_rejection", {
+      reason: @agent.pause_reason
+    })
+    redirect_to @agent, notice: "#{@agent.name} approval has been rejected."
+  end
+
   private
 
   def set_agent
     @agent = Current.company.agents.includes(:agent_capabilities, :roles).find(params[:id])
+  end
+
+  def record_agent_audit(action, extra_metadata = {})
+    AuditEvent.create!(
+      auditable: @agent,
+      actor: Current.user,
+      action: action,
+      company: Current.company,
+      metadata: {
+        agent_name: @agent.name,
+        agent_id: @agent.id
+      }.merge(extra_metadata)
+    )
   end
 
   def agent_params

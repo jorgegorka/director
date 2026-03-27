@@ -312,4 +312,130 @@ class AgentsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select ".agent-detail__empty-note", /No budget configured/
   end
+
+  # --- Agent Status Actions ---
+
+  test "should pause agent" do
+    @claude_agent.update_columns(status: Agent.statuses[:idle])
+    post pause_agent_url(@claude_agent)
+    assert_redirected_to agent_url(@claude_agent)
+    @claude_agent.reload
+    assert @claude_agent.paused?
+    assert @claude_agent.pause_reason.present?
+    assert @claude_agent.paused_at.present?
+  end
+
+  test "should not pause already paused agent" do
+    @claude_agent.update_columns(status: Agent.statuses[:paused])
+    post pause_agent_url(@claude_agent)
+    assert_redirected_to agent_url(@claude_agent)
+    assert_equal "#{@claude_agent.name} is already paused.", flash[:alert]
+  end
+
+  test "should resume paused agent" do
+    @claude_agent.update_columns(status: Agent.statuses[:paused], pause_reason: "test", paused_at: Time.current)
+    post resume_agent_url(@claude_agent)
+    assert_redirected_to agent_url(@claude_agent)
+    @claude_agent.reload
+    assert @claude_agent.idle?
+    assert_nil @claude_agent.pause_reason
+  end
+
+  test "should resume pending_approval agent" do
+    @claude_agent.update_columns(status: Agent.statuses[:pending_approval], pause_reason: "test", paused_at: Time.current)
+    post resume_agent_url(@claude_agent)
+    assert_redirected_to agent_url(@claude_agent)
+    @claude_agent.reload
+    assert @claude_agent.idle?
+  end
+
+  test "should terminate agent" do
+    post terminate_agent_url(@claude_agent)
+    assert_redirected_to agent_url(@claude_agent)
+    @claude_agent.reload
+    assert @claude_agent.terminated?
+  end
+
+  test "should not terminate already terminated agent" do
+    @claude_agent.update_columns(status: Agent.statuses[:terminated])
+    post terminate_agent_url(@claude_agent)
+    assert_redirected_to agent_url(@claude_agent)
+    assert_equal "#{@claude_agent.name} is already terminated.", flash[:alert]
+  end
+
+  test "should approve pending_approval agent" do
+    @claude_agent.update_columns(status: Agent.statuses[:pending_approval], pause_reason: "Approval required: Task creation gate is active")
+    post approve_agent_url(@claude_agent)
+    assert_redirected_to agent_url(@claude_agent)
+    @claude_agent.reload
+    assert @claude_agent.idle?
+    assert_nil @claude_agent.pause_reason
+  end
+
+  test "should reject pending_approval agent" do
+    @claude_agent.update_columns(status: Agent.statuses[:pending_approval], pause_reason: "Approval required")
+    post reject_agent_url(@claude_agent)
+    assert_redirected_to agent_url(@claude_agent)
+    @claude_agent.reload
+    assert @claude_agent.paused?
+    assert_match /Approval rejected/, @claude_agent.pause_reason
+  end
+
+  test "pause records audit event" do
+    @claude_agent.update_columns(status: Agent.statuses[:idle])
+    assert_difference -> { AuditEvent.where(action: "agent_paused").count } do
+      post pause_agent_url(@claude_agent)
+    end
+  end
+
+  test "resume records audit event" do
+    @claude_agent.update_columns(status: Agent.statuses[:paused], pause_reason: "test", paused_at: Time.current)
+    assert_difference -> { AuditEvent.where(action: "agent_resumed").count } do
+      post resume_agent_url(@claude_agent)
+    end
+  end
+
+  test "terminate records audit event" do
+    assert_difference -> { AuditEvent.where(action: "agent_terminated").count } do
+      post terminate_agent_url(@claude_agent)
+    end
+  end
+
+  test "approve records gate_approval audit event" do
+    @claude_agent.update_columns(status: Agent.statuses[:pending_approval], pause_reason: "Approval required")
+    assert_difference -> { AuditEvent.where(action: "gate_approval").count } do
+      post approve_agent_url(@claude_agent)
+    end
+  end
+
+  test "reject records gate_rejection audit event" do
+    @claude_agent.update_columns(status: Agent.statuses[:pending_approval], pause_reason: "Approval required")
+    assert_difference -> { AuditEvent.where(action: "gate_rejection").count } do
+      post reject_agent_url(@claude_agent)
+    end
+  end
+
+  # --- Emergency Stop ---
+
+  test "should emergency stop all agents" do
+    @company.agents.update_all(status: Agent.statuses[:idle])
+    post emergency_stop_company_url(@company)
+    assert_redirected_to agents_url
+    @company.agents.reload.each do |agent|
+      assert agent.paused?, "Expected #{agent.name} to be paused"
+    end
+  end
+
+  test "should not affect other company agents during emergency stop" do
+    widgets_agent = agents(:widgets_agent)
+    widgets_agent.update_columns(status: Agent.statuses[:idle])
+    post emergency_stop_company_url(@company)
+    widgets_agent.reload
+    assert widgets_agent.idle?
+  end
+
+  test "should not allow status actions on other company agents" do
+    post pause_agent_url(agents(:widgets_agent))
+    assert_response :not_found
+  end
 end
