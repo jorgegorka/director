@@ -9,12 +9,12 @@ See: .ariadna_planning/PROJECT.md (updated 2026-03-26)
 
 ## Current Position
 
-Phase: 2 of 10 (Accounts and Multi-Tenancy) — COMPLETE
-Plan: 2 of 2 in current phase (all complete)
-Status: Phase verified and complete
-Last activity: 2026-03-26 -- Phase 2 verified (10/10 truths, all 4 success criteria met).
+Phase: 3 of 10 (Org Chart and Roles) — IN PROGRESS
+Plan: 1 of 2 complete (03-01 done, 03-02 pending)
+Status: Plan 03-01 complete — Role model and CRUD interface delivered
+Last activity: 2026-03-27 -- Plan 03-01 complete (2/2 tasks, 120 tests passing, rubocop/brakeman clean)
 
-Progress: [██░░░░░░░░] ~20%
+Progress: [███░░░░░░░] ~25%
 
 ## Performance Metrics
 
@@ -29,9 +29,10 @@ Progress: [██░░░░░░░░] ~20%
 |-------|-------|-------|----------|
 | 01-authentication | 2 | ~10 min | ~5 min |
 | 02-accounts-and-multi-tenancy | 2 | ~23 min | ~11 min |
+| 03-org-chart-and-roles | 1/2 | ~9 min | ~9 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (~5 min), 01-02 (~5 min), 02-01 (~7 min), 02-02 (~16 min)
+- Last 5 plans: 01-02 (~5 min), 02-01 (~7 min), 02-02 (~16 min), 03-01 (~9 min)
 - Trend: consistent
 
 *Updated after each plan completion*
@@ -60,6 +61,7 @@ Recent decisions affecting current work:
 - [02-02]: Partial unique index WHERE status = 0 on [company_id, email_address] -- prevents duplicate pending invites, allows re-inviting after accept/expire
 - [02-02]: Role param sanitized outside permit() using .in?(enum.keys) -- avoids brakeman mass assignment warning
 - [02-02]: Routes added in Task 1 (not Task 2) to unblock InvitationMailer URL helper in test environment
+- [03-01]: assert_raises(ActiveRecord::RecordNotFound) does not work in integration tests — Rails catches it in middleware and returns 404. Use assert_response :not_found instead.
 
 ### Pending Todos
 
@@ -71,6 +73,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-26
-Stopped at: Phase 2 complete, verified
-Resume file: .ariadna_planning/phases/02-accounts-and-multi-tenancy/02-VERIFICATION.md
+Last session: 2026-03-27
+Stopped at: Phase 3, Plan 1 complete
+Resume file: .ariadna_planning/phases/03-org-chart-and-roles/03-01-SUMMARY.md
