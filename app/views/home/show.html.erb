@@ -3,7 +3,27 @@
   <p class="home-tagline">Your AI company command center.</p>
 </section>
 
+<% if @mission %>
+  <section class="home-mission">
+    <div class="home-mission__header">
+      <h2 class="home-mission__label">Mission</h2>
+      <h3 class="home-mission__title"><%= link_to @mission.title, goal_path(@mission) %></h3>
+      <% if @mission.description.present? %>
+        <p class="home-mission__description"><%= @mission.description %></p>
+      <% end %>
+    </div>
+    <% percentage = @mission.progress_percentage %>
+    <div class="home-mission__progress">
+      <div class="progress-bar progress-bar--lg <%= progress_bar_class(percentage) %>">
+        <div class="progress-bar__fill" style="--progress: <%= percentage %>%"></div>
+      </div>
+      <span class="home-mission__percentage"><%= percentage %>% complete</span>
+    </div>
+  </section>
+<% end %>
+
 <nav class="home-nav">
+  <%= link_to "Goals", goals_path, class: "home-nav__link" %>
   <%= link_to "Org Chart", org_chart_path, class: "home-nav__link" %>
   <%= link_to "Roles", roles_path, class: "home-nav__link" %>
   <%= link_to "Agents", agents_path, class: "home-nav__link" %>

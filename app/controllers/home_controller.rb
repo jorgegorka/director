@@ -3,5 +3,6 @@ class HomeController < ApplicationController
 
   def show
     @company = Current.company
+    @mission = Current.company.goals.roots.ordered.first
   end
 end

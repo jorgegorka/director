@@ -38,6 +38,9 @@ Rails.application.routes.draw do
     end
   end
 
+  # Goals (scoped to active company via Current.company)
+  resources :goals
+
   # Health check - used by load balancers and uptime monitors
   get "up" => "rails/health#show", as: :rails_health_check
 

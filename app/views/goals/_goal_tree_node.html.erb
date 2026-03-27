@@ -1,0 +1,25 @@
+<% percentage = goal.progress_percentage %>
+<div class="goal-tree__node goal-tree__node--depth-<%= [depth, 3].min %>" style="--depth: <%= depth %>">
+  <div class="goal-tree__content">
+    <div class="goal-tree__info">
+      <% if goal.mission? %>
+        <span class="goal-tree__label goal-tree__label--mission">Mission</span>
+      <% end %>
+      <%= link_to goal.title, goal_path(goal), class: "goal-tree__title" %>
+      <span class="goal-tree__stats">
+        <%= percentage %>% complete
+      </span>
+    </div>
+    <div class="progress-bar <%= progress_bar_class(percentage) %>">
+      <div class="progress-bar__fill" style="--progress: <%= percentage %>%"></div>
+    </div>
+  </div>
+
+  <% if goal.children.any? %>
+    <div class="goal-tree__children">
+      <% goal.children.ordered.each do |child| %>
+        <%= render partial: "goals/goal_tree_node", locals: { goal: child, depth: depth + 1 } %>
+      <% end %>
+    </div>
+  <% end %>
+</div>

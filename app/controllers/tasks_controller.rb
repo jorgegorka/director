@@ -3,17 +3,22 @@ class TasksController < ApplicationController
   before_action :set_task, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    @tasks = Current.company.tasks.includes(:creator, :assignee)
+    @tasks = Current.company.tasks
+               .left_joins(:messages)
+               .includes(:creator, :assignee)
+               .select("tasks.*, COUNT(messages.id) AS messages_count")
+               .group("tasks.id")
                .roots.by_priority
   end
 
   def show
     @messages = @task.messages.includes(:author, replies: :author).roots.chronological
+    @audit_events = @task.audit_events.includes(:actor).reverse_chronological
     @message = Message.new
   end
 
   def new
-    @task = Current.company.tasks.new(priority: :medium)
+    @task = Current.company.tasks.new(priority: :medium, goal_id: params[:goal_id])
   end
 
   def create
@@ -83,6 +88,6 @@ class TasksController < ApplicationController
   end
 
   def task_params
-    params.require(:task).permit(:title, :description, :status, :priority, :assignee_id, :due_at, :parent_task_id)
+    params.require(:task).permit(:title, :description, :status, :priority, :assignee_id, :due_at, :parent_task_id, :goal_id)
   end
 end
