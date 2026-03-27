@@ -21,7 +21,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: Agent Connection** - Users can register and monitor AI agents via HTTP or bash
 - [x] **Phase 5: Tasks & Conversations** - Users can assign work to agents with threaded discussion and audit trails
 - [x] **Phase 6: Goals & Alignment** - Users can define company mission and trace all work back to objectives
-- [ ] **Phase 7: Heartbeats & Triggers** - Agents wake on schedule or in response to events
+- [x] **Phase 7: Heartbeats & Triggers** - Agents wake on schedule or in response to events
 - [ ] **Phase 8: Budget & Cost Control** - Users can enforce per-agent spending limits with atomic enforcement
 - [ ] **Phase 9: Governance & Audit** - Users can gate high-impact actions, control agents, and audit everything
 - [ ] **Phase 10: Dashboard & Real-time UI** - Users get a unified command center with live updates
@@ -135,12 +135,12 @@ Plans:
   2. Agent wakes immediately when a task is assigned to it or it is @mentioned in a conversation
   3. Heartbeat history is logged and viewable -- user can see when each agent last woke and what actions it took
   4. Different agents can have different wake conditions configured independently
-**Plans**: TBD
+**Plans**: 3/3 complete
 
 Plans:
-- [ ] 07-01: TBD
-- [ ] 07-02: TBD
-- [ ] 07-03: TBD
+- [x] 07-01: HeartbeatEvent model, Agent schedule columns, WakeAgentService, AgentHeartbeatJob, HeartbeatScheduleManager
+- [x] 07-02: Triggerable concern (task assignment + @mention callbacks), Agent events polling API
+- [x] 07-03: HeartbeatsController, heartbeat history view, agent form schedule fieldset, agent show heartbeat section
 
 ### Phase 8: Budget & Cost Control
 **Goal**: Users can set and enforce per-agent spending limits with full cost visibility
@@ -205,7 +205,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 4. Agent Connection | 3/3 | Complete | 2026-03-27 |
 | 5. Tasks & Conversations | 3/3 | Complete | 2026-03-27 |
 | 6. Goals & Alignment | 2/2 | Complete | 2026-03-27 |
-| 7. Heartbeats & Triggers | 0/TBD | Not started | - |
+| 7. Heartbeats & Triggers | 3/3 | Complete | 2026-03-27 |
 | 8. Budget & Cost Control | 0/TBD | Not started | - |
 | 9. Governance & Audit | 0/TBD | Not started | - |
 | 10. Dashboard & Real-time UI | 0/TBD | Not started | - |
