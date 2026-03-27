@@ -25,4 +25,35 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     get root_url
     assert_redirected_to new_company_url
   end
+
+  test "home page shows mission when present" do
+    sign_in_as(@user)
+    post company_switch_url(companies(:acme))
+    get root_url
+    assert_response :success
+    assert_select ".home-mission"
+    assert_select ".home-mission__title", text: /Build the best AI platform/
+    assert_select ".progress-bar"
+  end
+
+  test "home page shows goals link" do
+    sign_in_as(@user)
+    get root_url
+    assert_response :success
+    assert_select "a[href='#{goals_path}']", text: "Goals"
+  end
+
+  test "home page works without mission" do
+    # Switch to widgets company which has a mission (widgets_mission), but we want
+    # a company with no goals — create a fresh company
+    no_goals_company = Company.create!(name: "No Goals Co")
+    no_goals_company.memberships.create!(user: @user, role: :owner)
+
+    sign_in_as(@user)
+    post company_switch_url(no_goals_company)
+    get root_url
+    assert_response :success
+    assert_select ".home-mission", count: 0
+    assert_select "h1", "No Goals Co"
+  end
 end
