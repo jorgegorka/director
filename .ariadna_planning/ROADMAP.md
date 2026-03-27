@@ -17,7 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Authentication** - Users can create accounts, log in, and manage credentials
 - [x] **Phase 2: Accounts & Multi-tenancy** - Users can create isolated companies with team access
-- [ ] **Phase 3: Org Chart & Roles** - Users can define company structure with hierarchical roles
+- [x] **Phase 3: Org Chart & Roles** - Users can define company structure with hierarchical roles
 - [ ] **Phase 4: Agent Connection** - Users can register and monitor AI agents via HTTP or bash
 - [ ] **Phase 5: Tasks & Conversations** - Users can assign work to agents with threaded discussion and audit trails
 - [ ] **Phase 6: Goals & Alignment** - Users can define company mission and trace all work back to objectives
@@ -70,11 +70,11 @@ Plans:
   2. User can arrange roles in a hierarchy with parent/child reporting lines
   3. User can assign an agent to a role (placeholder -- agents connected in Phase 4)
   4. Company org chart renders as a visual tree showing roles, hierarchy, and assignments
-**Plans**: TBD
+**Plans**: 2/2 complete
 
 Plans:
-- [ ] 03-01: TBD
-- [ ] 03-02: TBD
+- [x] 03-01: Role model with hierarchy, CRUD controller, views, and tests
+- [x] 03-02: Visual SVG org chart with Stimulus tree layout and controller tests
 
 ### Phase 4: Agent Connection
 **Goal**: Users can connect external AI agents to Director and monitor their status
@@ -201,7 +201,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 |-------|----------------|--------|-----------|
 | 1. Authentication | 2/2 | Complete | 2026-03-26 |
 | 2. Accounts & Multi-tenancy | 2/2 | Complete | 2026-03-26 |
-| 3. Org Chart & Roles | 0/TBD | Not started | - |
+| 3. Org Chart & Roles | 2/2 | Complete | 2026-03-27 |
 | 4. Agent Connection | 0/TBD | Not started | - |
 | 5. Tasks & Conversations | 0/TBD | Not started | - |
 | 6. Goals & Alignment | 0/TBD | Not started | - |
