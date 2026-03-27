@@ -10,16 +10,16 @@ See: .ariadna_planning/PROJECT.md (updated 2026-03-26)
 ## Current Position
 
 Phase: 4 of 10 (Agent Connection) — COMPLETE
-Plan: 2 of 2 complete (04-01 + 04-02 done)
-Status: Phase 4 complete — Agent CRUD interface with dynamic adapter config form
-Last activity: 2026-03-27 -- 04-02 complete (3 tasks, 185 tests passing, 0 failures)
+Plan: 3 of 3 complete (04-01 + 04-02 + 04-03 done)
+Status: Phase 4 complete — Capabilities management, agent-role assignment, navigation
+Last activity: 2026-03-27 -- 04-03 complete (3 tasks, 197 tests passing, 0 failures)
 
 Progress: [████░░░░░░] ~40%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 8
+- Total plans completed: 9
 - Average duration: ~7 minutes
 - Total execution time: ~35 minutes
 
@@ -30,11 +30,11 @@ Progress: [████░░░░░░] ~40%
 | 01-authentication | 2 | ~10 min | ~5 min |
 | 02-accounts-and-multi-tenancy | 2 | ~23 min | ~11 min |
 | 03-org-chart-and-roles | 2/2 | ~12 min | ~6 min |
-| 04-agent-connection | 2/2 | ~11 min | ~5.5 min |
+| 04-agent-connection | 3/3 | ~16 min | ~5.3 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-01 (~9 min), 03-02 (~3 min), 04-01 (~5 min), 04-02 (~6 min)
-- Trend: consistent, accelerating
+- Last 5 plans: 03-02 (~3 min), 04-01 (~5 min), 04-02 (~6 min), 04-03 (~5 min)
+- Trend: consistent, stable
 
 *Updated after each plan completion*
 
@@ -70,6 +70,8 @@ Recent decisions affecting current work:
 - [04-02]: Fixture jsonb format: YAML hash syntax (key: val) required for jsonb columns in fixtures — JSON string literals ('{"key": "val"}') cause Rails to store/return String instead of Hash, breaking all jsonb operations in controller tests
 - [04-02]: adapter_params pattern: use params[:agent][:adapter_config].permit!.to_h for unrestricted jsonb key acceptance in strong params
 - [04-02]: Stimulus toggle disables hidden inputs (not just display:none) to prevent non-active adapter config fields from submitting
+- [04-03]: form_with(model: [@agent, NestedModel.new]) generates wrong path helper when controller uses custom naming — use explicit url: helper instead
+- [04-03]: agent_name: nil placeholder in OrgChartsHelper replaced with role.agent&.name; OrgChartsController eager-loads :agent to prevent N+1
 
 ### Pending Todos
 
@@ -82,5 +84,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-27
-Stopped at: Phase 4, plan 02 complete — Agent CRUD interface
-Resume file: .ariadna_planning/phases/04-agent-connection/04-02-SUMMARY.md
+Stopped at: Phase 4, plan 03 complete — Phase 4 fully complete
+Resume file: .ariadna_planning/phases/04-agent-connection/04-03-SUMMARY.md
