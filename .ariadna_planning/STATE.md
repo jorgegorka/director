@@ -19,9 +19,9 @@ Progress: [███████░░░] ~65%
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 10
-- Average duration: ~7 minutes
-- Total execution time: ~35 minutes
+- Total plans completed: 12
+- Average duration: ~8 minutes
+- Total execution time: ~99 minutes
 
 **By Phase:**
 
@@ -35,7 +35,7 @@ Progress: [███████░░░] ~65%
 | 06-goals-and-alignment | 2/2 | ~18 min | ~9 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-02 (~3 min), 04-01 (~5 min), 04-02 (~6 min), 04-03 (~5 min)
+- Last 5 plans: 04-03 (~5 min), 05-01 (~7 min), 05-02 (~7 min), 06-01 (~8 min), 06-02 (~10 min)
 - Trend: consistent, stable
 
 *Updated after each plan completion*

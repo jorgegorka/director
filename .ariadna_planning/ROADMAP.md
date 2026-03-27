@@ -20,7 +20,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: Org Chart & Roles** - Users can define company structure with hierarchical roles
 - [x] **Phase 4: Agent Connection** - Users can register and monitor AI agents via HTTP or bash
 - [x] **Phase 5: Tasks & Conversations** - Users can assign work to agents with threaded discussion and audit trails
-- [ ] **Phase 6: Goals & Alignment** - Users can define company mission and trace all work back to objectives
+- [x] **Phase 6: Goals & Alignment** - Users can define company mission and trace all work back to objectives
 - [ ] **Phase 7: Heartbeats & Triggers** - Agents wake on schedule or in response to events
 - [ ] **Phase 8: Budget & Cost Control** - Users can enforce per-agent spending limits with atomic enforcement
 - [ ] **Phase 9: Governance & Audit** - Users can gate high-impact actions, control agents, and audit everything
@@ -119,11 +119,11 @@ Plans:
   1. User can set a company mission (top-level goal) and see it displayed prominently
   2. User can create a hierarchy of objectives under the mission, and assign tasks under objectives
   3. Dashboard shows goal progress that rolls up from task completion -- user can see what percentage of an objective is done
-**Plans**: TBD
+**Plans**: 2/2 complete
 
 Plans:
-- [ ] 06-01: TBD
-- [ ] 06-02: TBD
+- [x] 06-01: Goal model with self-referential tree hierarchy, task goal_id FK, recursive progress roll-up
+- [x] 06-02: GoalsController CRUD, goal tree views, home mission display, task form goal linking
 
 ### Phase 7: Heartbeats & Triggers
 **Goal**: Agents wake on configurable schedules and respond to events like task assignments or mentions
@@ -204,7 +204,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 3. Org Chart & Roles | 2/2 | Complete | 2026-03-27 |
 | 4. Agent Connection | 3/3 | Complete | 2026-03-27 |
 | 5. Tasks & Conversations | 3/3 | Complete | 2026-03-27 |
-| 6. Goals & Alignment | 0/TBD | Not started | - |
+| 6. Goals & Alignment | 2/2 | Complete | 2026-03-27 |
 | 7. Heartbeats & Triggers | 0/TBD | Not started | - |
 | 8. Budget & Cost Control | 0/TBD | Not started | - |
 | 9. Governance & Audit | 0/TBD | Not started | - |
