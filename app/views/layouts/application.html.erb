@@ -39,6 +39,7 @@
           <% if Current.company %>
             <%= link_to "Agents", agents_path, class: "nav__link #{"nav__link--active" if controller_name == "agents"}" %>
             <%= link_to "Tasks", tasks_path, class: "nav__link #{"nav__link--active" if controller_name == "tasks"}" %>
+            <%= render "notifications/dropdown" %>
           <% end %>
           <span class="app-header__user"><%= Current.user.email_address %></span>
           <%= link_to "Settings", settings_path, class: "btn btn--ghost btn--sm" %>

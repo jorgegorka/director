@@ -1,0 +1,35 @@
+<div class="notification-dropdown" data-controller="notification">
+  <button class="notification-dropdown__trigger" data-action="click->notification#toggle" aria-label="Notifications">
+    <span class="notification-dropdown__bell">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <path d="M10 2a6 6 0 00-6 6v3l-1.5 2.5h15L16 11V8a6 6 0 00-6-6z" stroke="currentColor" stroke-width="1.5" fill="none"/>
+        <path d="M8 16.5a2 2 0 004 0" stroke="currentColor" stroke-width="1.5" fill="none"/>
+      </svg>
+    </span>
+    <% unread_count = Current.user.unread_notification_count(company: Current.company) %>
+    <% if unread_count > 0 %>
+      <span class="notification-dropdown__badge" id="notification-badge"><%= unread_count > 99 ? "99+" : unread_count %></span>
+    <% else %>
+      <span class="notification-dropdown__badge" id="notification-badge" hidden></span>
+    <% end %>
+  </button>
+
+  <div class="notification-dropdown__panel" data-notification-target="panel" hidden>
+    <div class="notification-dropdown__header">
+      <h3>Notifications</h3>
+      <% if unread_count > 0 %>
+        <%= button_to "Mark all read", mark_all_read_notifications_path, method: :post, class: "btn btn--ghost btn--xs" %>
+      <% end %>
+    </div>
+    <div class="notification-dropdown__list">
+      <% notifications = Current.company.notifications.where(recipient: Current.user).recent.includes(:notifiable, :actor) %>
+      <% if notifications.any? %>
+        <% notifications.each do |notification| %>
+          <%= render "notifications/notification", notification: notification %>
+        <% end %>
+      <% else %>
+        <p class="notification-dropdown__empty">No notifications yet.</p>
+      <% end %>
+    </div>
+  </div>
+</div>

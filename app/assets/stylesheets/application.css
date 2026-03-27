@@ -2706,4 +2706,181 @@
     font-weight: 600;
     color: var(--color-neutral-700);
   }
+
+  /* Notification dropdown */
+  .notification-dropdown {
+    position: relative;
+  }
+
+  .notification-dropdown__trigger {
+    background: none;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    padding: var(--space-1, 0.25rem);
+    color: var(--color-neutral-700);
+    display: flex;
+    align-items: center;
+  }
+
+  .notification-dropdown__trigger:hover {
+    color: var(--color-brand-500);
+  }
+
+  .notification-dropdown__badge {
+    position: absolute;
+    inset-block-start: -2px;
+    inset-inline-end: -4px;
+    background: oklch(60% 0.22 25);
+    color: white;
+    font-size: 0.625rem;
+    font-weight: 700;
+    min-inline-size: 1rem;
+    block-size: 1rem;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-inline: 0.2rem;
+    line-height: 1;
+  }
+
+  .notification-dropdown__badge[hidden] {
+    display: none;
+  }
+
+  .notification-dropdown__panel {
+    position: absolute;
+    inset-block-start: 100%;
+    inset-inline-end: 0;
+    inline-size: min(24rem, 90vw);
+    max-block-size: 28rem;
+    overflow-y: auto;
+    background: var(--color-neutral-0);
+    border: 1px solid var(--color-neutral-200);
+    border-radius: var(--radius, 8px);
+    box-shadow: 0 4px 12px oklch(0% 0 0 / 0.12);
+    z-index: 100;
+    margin-block-start: var(--space-2, 0.5rem);
+  }
+
+  .notification-dropdown__panel[hidden] {
+    display: none;
+  }
+
+  .notification-dropdown__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-3, 0.75rem) var(--space-4, 1rem);
+    border-block-end: 1px solid var(--color-neutral-200);
+  }
+
+  .notification-dropdown__header h3 {
+    font-size: var(--font-size-sm, 0.875rem);
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .notification-dropdown__list {
+    padding: var(--space-2, 0.5rem) 0;
+  }
+
+  .notification-dropdown__empty {
+    padding: var(--space-4, 1rem);
+    text-align: center;
+    color: var(--color-neutral-500);
+    font-size: var(--font-size-sm, 0.875rem);
+  }
+
+  /* Notification item */
+  .notification-item {
+    display: flex;
+    gap: var(--space-3, 0.75rem);
+    padding: var(--space-3, 0.75rem) var(--space-4, 1rem);
+    align-items: flex-start;
+    border-block-end: 1px solid var(--color-neutral-100);
+  }
+
+  .notification-item--unread {
+    background: var(--color-brand-50);
+  }
+
+  .notification-item__icon {
+    flex-shrink: 0;
+    inline-size: 0.5rem;
+    block-size: 0.5rem;
+    border-radius: 9999px;
+    margin-block-start: 0.5rem;
+  }
+
+  .notification-item__icon--warning {
+    background: oklch(75% 0.15 85);
+  }
+
+  .notification-item__icon--error {
+    background: oklch(60% 0.22 25);
+  }
+
+  .notification-item__icon--info {
+    background: var(--color-brand-400);
+  }
+
+  .notification-item__content {
+    flex: 1;
+    min-inline-size: 0;
+  }
+
+  .notification-item__message {
+    display: block;
+    font-size: var(--font-size-sm, 0.875rem);
+    color: var(--color-neutral-900);
+    text-decoration: none;
+    line-height: 1.4;
+  }
+
+  .notification-item__message:hover {
+    color: var(--color-brand-500);
+  }
+
+  .notification-item__time {
+    font-size: 0.75rem;
+    color: var(--color-neutral-500);
+  }
+
+  .notification-item__mark-read {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: var(--space-1, 0.25rem);
+    inline-size: 0.75rem;
+    block-size: 0.75rem;
+    border-radius: 9999px;
+    background: var(--color-brand-400);
+    flex-shrink: 0;
+    margin-block-start: 0.25rem;
+  }
+
+  .notification-item__mark-read:hover {
+    background: var(--color-brand-600);
+  }
+
+  /* Screen reader only (for accessibility) */
+  .sr-only {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  /* Button size: xs (for mark all read) */
+  .btn--xs {
+    font-size: 0.75rem;
+    padding: var(--space-1, 0.25rem) var(--space-2, 0.5rem);
+  }
 }

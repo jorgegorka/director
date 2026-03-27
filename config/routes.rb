@@ -42,6 +42,16 @@ Rails.application.routes.draw do
   # Goals (scoped to active company via Current.company)
   resources :goals
 
+  # Notifications (scoped to active company via Current.company)
+  resources :notifications, only: [ :index ] do
+    member do
+      patch :mark_read
+    end
+    collection do
+      post :mark_all_read
+    end
+  end
+
   # Agent API (Bearer token auth for process/bash agents)
   namespace :api do
     scope :agent do

@@ -1,0 +1,16 @@
+<%= tag.div id: dom_id(notification), class: "notification-item #{'notification-item--unread' unless notification.read?}" do %>
+  <div class="notification-item__icon notification-item__icon--<%= notification_icon(notification) %>"></div>
+  <div class="notification-item__content">
+    <%= link_to notification_link(notification), class: "notification-item__message" do %>
+      <%= notification_message(notification) %>
+    <% end %>
+    <time class="notification-item__time" datetime="<%= notification.created_at.iso8601 %>">
+      <%= time_ago_in_words(notification.created_at) %> ago
+    </time>
+  </div>
+  <% if notification.unread? %>
+    <%= button_to mark_read_notification_path(notification), method: :patch, class: "notification-item__mark-read", title: "Mark as read" do %>
+      <span class="sr-only">Mark as read</span>
+    <% end %>
+  <% end %>
+<% end %>
