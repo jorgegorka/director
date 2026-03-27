@@ -16,7 +16,7 @@ class Agent < ApplicationRecord
   scope :active, -> { where.not(status: [ :terminated ]) }
 
   def adapter
-    Registry.for(adapter_type)
+    AdapterRegistry.for(adapter_type)
   end
 
   def online?
@@ -31,7 +31,7 @@ class Agent < ApplicationRecord
 
   def validate_adapter_config_schema
     return if adapter_config.blank?
-    required_keys = Registry.required_config_keys(adapter_type)
+    required_keys = AdapterRegistry.required_config_keys(adapter_type)
     missing = required_keys - adapter_config.keys.map(&:to_s)
     if missing.any?
       errors.add(:adapter_config, "missing required keys: #{missing.join(', ')}")

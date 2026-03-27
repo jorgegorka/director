@@ -1,8 +1,8 @@
-class Registry
+class AdapterRegistry
   ADAPTERS = {
-    "http" => "HttpAdapter",
-    "process" => "ProcessAdapter",
-    "claude_local" => "ClaudeLocalAdapter"
+    "http" => HttpAdapter,
+    "process" => ProcessAdapter,
+    "claude_local" => ClaudeLocalAdapter
   }.freeze
 
   CONFIG_SCHEMAS = {
@@ -21,9 +21,9 @@ class Registry
   }.freeze
 
   def self.for(adapter_type)
-    class_name = ADAPTERS[adapter_type.to_s]
-    raise ArgumentError, "Unknown adapter type: #{adapter_type}" unless class_name
-    class_name.constantize
+    adapter = ADAPTERS[adapter_type.to_s]
+    raise ArgumentError, "Unknown adapter type: #{adapter_type}" unless adapter
+    adapter
   end
 
   def self.required_config_keys(adapter_type)
