@@ -7,6 +7,7 @@ class Company < ApplicationRecord
   has_many :tasks, dependent: :destroy
   has_many :goals, dependent: :destroy
   has_many :notifications, dependent: :destroy
+  has_many :config_versions, dependent: :destroy
 
   validates :name, presence: true
 end

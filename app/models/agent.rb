@@ -6,6 +6,7 @@ class Agent < ApplicationRecord
   has_many :roles, dependent: :nullify
   has_many :assigned_tasks, class_name: "Task", foreign_key: :assignee_id, inverse_of: :assignee, dependent: :nullify
   has_many :heartbeat_events, dependent: :destroy
+  has_many :approval_gates, dependent: :destroy
 
   enum :adapter_type, { http: 0, process: 1, claude_local: 2 }
   enum :status, { idle: 0, running: 1, paused: 2, error: 3, terminated: 4, pending_approval: 5 }
@@ -88,16 +89,23 @@ class Agent < ApplicationRecord
     current_budget_period_start.end_of_month
   end
 
+  def reload(*)
+    @monthly_spend_cents = nil
+    super
+  end
+
   def monthly_spend_cents
     return 0 unless budget_configured?
 
-    period_start = current_budget_period_start
-    period_end = current_budget_period_end
+    @monthly_spend_cents ||= begin
+      period_start = current_budget_period_start
+      period_end = current_budget_period_end
 
-    assigned_tasks
-      .where.not(cost_cents: nil)
-      .where(created_at: period_start.beginning_of_day..period_end.end_of_day)
-      .sum(:cost_cents)
+      assigned_tasks
+        .where.not(cost_cents: nil)
+        .where(created_at: period_start.beginning_of_day..period_end.end_of_day)
+        .sum(:cost_cents)
+    end
   end
 
   def budget_remaining_cents
@@ -117,6 +125,14 @@ class Agent < ApplicationRecord
 
   def budget_alert_threshold?
     budget_configured? && budget_utilization >= 80.0
+  end
+
+  def gate_enabled?(action_type)
+    approval_gates.enabled.exists?(action_type: action_type)
+  end
+
+  def has_any_gates?
+    approval_gates.enabled.any?
   end
 
   private

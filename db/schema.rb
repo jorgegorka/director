@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_27_175602) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_27_191037) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -47,6 +47,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_27_175602) do
     t.index ["status"], name: "index_agents_on_status"
   end
 
+  create_table "approval_gates", force: :cascade do |t|
+    t.string "action_type", null: false
+    t.bigint "agent_id", null: false
+    t.datetime "created_at", null: false
+    t.boolean "enabled", default: true, null: false
+    t.datetime "updated_at", null: false
+    t.index ["agent_id", "action_type"], name: "index_approval_gates_on_agent_and_action_type", unique: true
+    t.index ["agent_id"], name: "index_approval_gates_on_agent_id"
+  end
+
   create_table "audit_events", force: :cascade do |t|
     t.string "action", null: false
     t.bigint "actor_id", null: false
@@ -65,6 +75,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_27_175602) do
     t.datetime "created_at", null: false
     t.string "name", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "config_versions", force: :cascade do |t|
+    t.string "action", null: false
+    t.bigint "author_id"
+    t.string "author_type"
+    t.jsonb "changeset", default: {}, null: false
+    t.bigint "company_id", null: false
+    t.datetime "created_at", null: false
+    t.jsonb "snapshot", default: {}, null: false
+    t.datetime "updated_at", null: false
+    t.bigint "versionable_id", null: false
+    t.string "versionable_type", null: false
+    t.index ["author_type", "author_id"], name: "index_config_versions_on_author"
+    t.index ["company_id"], name: "index_config_versions_on_company_id"
+    t.index ["versionable_type", "versionable_id", "created_at"], name: "index_config_versions_on_versionable_and_time"
+    t.index ["versionable_type", "versionable_id"], name: "index_config_versions_on_versionable"
   end
 
   create_table "goals", force: :cascade do |t|
@@ -216,6 +243,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_27_175602) do
 
   add_foreign_key "agent_capabilities", "agents"
   add_foreign_key "agents", "companies"
+  add_foreign_key "approval_gates", "agents"
+  add_foreign_key "config_versions", "companies"
   add_foreign_key "goals", "companies"
   add_foreign_key "goals", "goals", column: "parent_id"
   add_foreign_key "heartbeat_events", "agents"

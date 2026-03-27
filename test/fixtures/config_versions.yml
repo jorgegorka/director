@@ -1,0 +1,26 @@
+role_edit_version:
+  company: acme
+  versionable: cto (Role)
+  author: one (User)
+  action: update
+  snapshot:
+    title: CTO
+    description: Chief Technology Officer
+    job_spec: "Lead technology strategy and engineering"
+  changeset:
+    description:
+      - "Chief Tech Officer"
+      - "Chief Technology Officer"
+
+agent_budget_version:
+  company: acme
+  versionable: claude_agent (Agent)
+  author: one (User)
+  action: update
+  snapshot:
+    name: Claude Assistant
+    budget_cents: 50000
+  changeset:
+    budget_cents:
+      - 25000
+      - 50000
