@@ -5,7 +5,7 @@
 See: .ariadna_planning/PROJECT.md (updated 2026-03-26)
 
 **Core value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
-**Current focus:** Phase 5 in progress — data layer complete, controllers/UI next
+**Current focus:** Phase 5 complete — ready for Phase 6
 
 ## Current Position
 
@@ -14,7 +14,7 @@ Plan: 3 of 3 complete (05-01, 05-02, 05-03 done)
 Status: All phase 5 success criteria met — task CRUD, threaded conversations, delegation/escalation, full audit trail
 Last activity: 2026-03-27 -- 05-03 complete (2 tasks, 311 tests passing, 0 failures)
 
-Progress: [████░░░░░░] ~40%
+Progress: [█████░░░░░] ~50%
 
 ## Performance Metrics
 

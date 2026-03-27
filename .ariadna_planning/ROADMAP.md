@@ -18,8 +18,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Authentication** - Users can create accounts, log in, and manage credentials
 - [x] **Phase 2: Accounts & Multi-tenancy** - Users can create isolated companies with team access
 - [x] **Phase 3: Org Chart & Roles** - Users can define company structure with hierarchical roles
-- [ ] **Phase 4: Agent Connection** - Users can register and monitor AI agents via HTTP or bash
-- [ ] **Phase 5: Tasks & Conversations** - Users can assign work to agents with threaded discussion and audit trails
+- [x] **Phase 4: Agent Connection** - Users can register and monitor AI agents via HTTP or bash
+- [x] **Phase 5: Tasks & Conversations** - Users can assign work to agents with threaded discussion and audit trails
 - [ ] **Phase 6: Goals & Alignment** - Users can define company mission and trace all work back to objectives
 - [ ] **Phase 7: Heartbeats & Triggers** - Agents wake on schedule or in response to events
 - [ ] **Phase 8: Budget & Cost Control** - Users can enforce per-agent spending limits with atomic enforcement
@@ -103,12 +103,12 @@ Plans:
   2. Tasks have threaded conversation where agents and humans can post messages
   3. Agents can delegate tasks down the org chart to subordinates or escalate up to managers
   4. Every task action (creation, assignment, status change, delegation) is recorded in an immutable audit trail viewable by the user
-**Plans**: TBD
+**Plans**: 3/3 complete
 
 Plans:
-- [ ] 05-01: TBD
-- [ ] 05-02: TBD
-- [ ] 05-03: TBD
+- [x] 05-01: Task, Message, AuditEvent models with Auditable concern and Agent api_token
+- [x] 05-02: TasksController CRUD, MessagesController, conversation thread UI, audit trail display
+- [x] 05-03: Delegation/escalation with dual auth (session + Bearer), org chart validation
 
 ### Phase 6: Goals & Alignment
 **Goal**: Users can define a company mission and connect all work to it through a goal hierarchy
@@ -202,8 +202,8 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 1. Authentication | 2/2 | Complete | 2026-03-26 |
 | 2. Accounts & Multi-tenancy | 2/2 | Complete | 2026-03-26 |
 | 3. Org Chart & Roles | 2/2 | Complete | 2026-03-27 |
-| 4. Agent Connection | 0/TBD | Not started | - |
-| 5. Tasks & Conversations | 0/TBD | Not started | - |
+| 4. Agent Connection | 3/3 | Complete | 2026-03-27 |
+| 5. Tasks & Conversations | 3/3 | Complete | 2026-03-27 |
 | 6. Goals & Alignment | 0/TBD | Not started | - |
 | 7. Heartbeats & Triggers | 0/TBD | Not started | - |
 | 8. Budget & Cost Control | 0/TBD | Not started | - |
