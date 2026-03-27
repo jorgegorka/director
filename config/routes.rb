@@ -32,6 +32,10 @@ Rails.application.routes.draw do
   # Tasks (scoped to active company via Current.company)
   resources :tasks do
     resources :messages, only: [ :create ]
+    member do
+      post :delegate, to: "task_delegations#create"
+      post :escalate, to: "task_escalations#create"
+    end
   end
 
   # Health check - used by load balancers and uptime monitors
