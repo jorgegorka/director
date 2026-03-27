@@ -10,14 +10,13 @@
         <%= percentage %>% complete
       </span>
     </div>
-    <div class="progress-bar <%= progress_bar_class(percentage) %>">
-      <div class="progress-bar__fill" style="--progress: <%= percentage %>%"></div>
-    </div>
+    <%= render "shared/progress_bar", percentage: percentage %>
   </div>
 
-  <% if goal.children.any? %>
+  <% sorted_children = goal.children.sort_by { |c| [ c.position || 0, c.title ] } %>
+  <% if sorted_children.any? %>
     <div class="goal-tree__children">
-      <% goal.children.ordered.each do |child| %>
+      <% sorted_children.each do |child| %>
         <%= render partial: "goals/goal_tree_node", locals: { goal: child, depth: depth + 1 } %>
       <% end %>
     </div>

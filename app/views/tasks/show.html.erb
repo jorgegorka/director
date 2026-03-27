@@ -88,9 +88,9 @@
 
     <div class="task-detail__section">
       <h2>Audit Trail</h2>
-      <% if @task.audit_events.any? %>
+      <% if @audit_events.any? %>
         <ol class="audit-trail">
-          <% @task.audit_events.reverse_chronological.each do |event| %>
+          <% @audit_events.each do |event| %>
             <li class="audit-trail__event">
               <span class="audit-trail__action"><%= audit_event_description(event) %></span>
               <span class="audit-trail__meta">

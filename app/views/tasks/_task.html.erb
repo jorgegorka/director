@@ -18,6 +18,7 @@
     <% if task.due_at.present? %>
       <span class="task-card__due">Due <%= task.due_at.strftime("%b %d, %Y") %></span>
     <% end %>
-    <span class="task-card__messages"><%= task.messages.size %> <%= "message".pluralize(task.messages.size) %></span>
+    <% count = task.try(:messages_count) || task.messages.size %>
+    <span class="task-card__messages"><%= count %> <%= "message".pluralize(count) %></span>
   </div>
 </div>

@@ -10,6 +10,7 @@ class MessagesController < ApplicationController
       redirect_to task_path(@task, anchor: "message_#{@message.id}"), notice: "Message posted."
     else
       @messages = @task.messages.includes(:author, replies: :author).roots.chronological
+      @audit_events = @task.audit_events.includes(:actor).reverse_chronological
       render "tasks/show", status: :unprocessable_entity
     end
   end

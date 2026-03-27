@@ -33,27 +33,11 @@ class TaskDelegationsController < ApplicationController
 
   private
 
-  def set_task
-    @task = Current.company.tasks.find_by(id: params[:id])
-    respond_not_found unless @task
-  end
-
   def delegation_params
     params.permit(:agent_id, :reason)
   end
 
-  # A valid delegation target is an agent assigned to a child role
-  # of the current assignee's role in the org chart.
-  # If the task has no current assignee, delegation is not allowed.
-  # Note: assumes one role per agent per company (uses .first)
   def valid_delegation_target?(target_agent)
-    return false unless @task.assignee.present?
-
-    current_role = @task.assignee.roles.for_current_company.first
-    return false unless current_role
-
-    subordinate_roles = current_role.children
-    subordinate_agent_ids = subordinate_roles.where.not(agent_id: nil).pluck(:agent_id)
-    subordinate_agent_ids.include?(target_agent.id)
+    @task.assignee.present? && @task.assignee.subordinate_agents.exists?(target_agent.id)
   end
 end

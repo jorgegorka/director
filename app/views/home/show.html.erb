@@ -14,9 +14,7 @@
     </div>
     <% percentage = @mission.progress_percentage %>
     <div class="home-mission__progress">
-      <div class="progress-bar progress-bar--lg <%= progress_bar_class(percentage) %>">
-        <div class="progress-bar__fill" style="--progress: <%= percentage %>%"></div>
-      </div>
+      <%= render "shared/progress_bar", percentage: percentage, large: true %>
       <span class="home-mission__percentage"><%= percentage %>% complete</span>
     </div>
   </section>

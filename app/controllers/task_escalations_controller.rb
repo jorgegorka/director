@@ -29,31 +29,11 @@ class TaskEscalationsController < ApplicationController
 
   private
 
-  def set_task
-    @task = Current.company.tasks.find_by(id: params[:id])
-    respond_not_found unless @task
-  end
-
   def escalation_params
     params.permit(:reason)
   end
 
-  # Find the agent assigned to the parent role of the current assignee's role.
-  # Walks up the hierarchy until finding a role with an assigned agent.
-  # Returns nil if no assignee, no role, no parent, or no parent has an agent.
   def find_manager_agent
-    return nil unless @task.assignee.present?
-
-    current_role = @task.assignee.roles.for_current_company.first
-    return nil unless current_role
-
-    parent_role = current_role.parent
-    while parent_role
-      return parent_role.agent if parent_role.agent.present?
-
-      parent_role = parent_role.parent
-    end
-
-    nil
+    @task.assignee&.manager_agent
   end
 end

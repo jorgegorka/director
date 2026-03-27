@@ -33,6 +33,30 @@ class Agent < ApplicationRecord
     AdapterRegistry.for(adapter_type)
   end
 
+  def current_company_role
+    roles.for_current_company.first
+  end
+
+  def subordinate_agents
+    role = current_company_role
+    return Agent.none unless role
+
+    ids = role.children.where.not(agent_id: nil).pluck(:agent_id)
+    Agent.where(id: ids).active
+  end
+
+  def manager_agent
+    role = current_company_role
+    return nil unless role
+
+    parent_role = role.parent
+    while parent_role
+      return parent_role.agent if parent_role.agent.present?
+      parent_role = parent_role.parent
+    end
+    nil
+  end
+
   def online?
     idle? || running?
   end

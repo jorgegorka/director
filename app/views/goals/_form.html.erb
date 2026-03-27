@@ -21,7 +21,7 @@
 
   <div class="form__field">
     <%= f.label :parent_id, "Parent Goal" %>
-    <%= f.select :parent_id, options_for_parent_goal_select(goal), { include_blank: "None (top-level mission)" }, { class: "form__select" } %>
+    <%= f.select :parent_id, options_for_goal_select(exclude: goal), { include_blank: "None (top-level mission)" }, { class: "form__select" } %>
   </div>
 
   <div class="form__field">
