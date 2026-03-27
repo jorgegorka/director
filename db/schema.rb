@@ -10,9 +10,36 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_27_074136) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_27_085837) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "agent_capabilities", force: :cascade do |t|
+    t.bigint "agent_id", null: false
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["agent_id", "name"], name: "index_agent_capabilities_on_agent_id_and_name", unique: true
+    t.index ["agent_id"], name: "index_agent_capabilities_on_agent_id"
+  end
+
+  create_table "agents", force: :cascade do |t|
+    t.jsonb "adapter_config", default: {}, null: false
+    t.integer "adapter_type", default: 0, null: false
+    t.bigint "company_id", null: false
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.datetime "last_heartbeat_at"
+    t.string "name", null: false
+    t.text "pause_reason"
+    t.datetime "paused_at"
+    t.integer "status", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.index ["company_id", "name"], name: "index_agents_on_company_id_and_name", unique: true
+    t.index ["company_id"], name: "index_agents_on_company_id"
+    t.index ["status"], name: "index_agents_on_status"
+  end
 
   create_table "companies", force: :cascade do |t|
     t.datetime "created_at", null: false
@@ -80,10 +107,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_27_074136) do
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
   end
 
+  add_foreign_key "agent_capabilities", "agents"
+  add_foreign_key "agents", "companies"
   add_foreign_key "invitations", "companies"
   add_foreign_key "invitations", "users", column: "inviter_id"
   add_foreign_key "memberships", "companies"
   add_foreign_key "memberships", "users"
+  add_foreign_key "roles", "agents"
   add_foreign_key "roles", "companies"
   add_foreign_key "roles", "roles", column: "parent_id"
   add_foreign_key "sessions", "users"
