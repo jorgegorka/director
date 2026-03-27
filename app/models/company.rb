@@ -8,6 +8,7 @@ class Company < ApplicationRecord
   has_many :goals, dependent: :destroy
   has_many :notifications, dependent: :destroy
   has_many :config_versions, dependent: :destroy
+  has_many :audit_events, dependent: :delete_all
 
   validates :name, presence: true
 end

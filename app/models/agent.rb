@@ -1,6 +1,7 @@
 class Agent < ApplicationRecord
   include Tenantable
   include Notifiable
+  include ConfigVersioned
 
   has_many :agent_capabilities, dependent: :destroy
   has_many :roles, dependent: :nullify
@@ -133,6 +134,10 @@ class Agent < ApplicationRecord
 
   def has_any_gates?
     approval_gates.enabled.any?
+  end
+
+  def governance_attributes
+    %w[name budget_cents budget_period_start status]
   end
 
   private

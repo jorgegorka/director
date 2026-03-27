@@ -1,6 +1,7 @@
 class Role < ApplicationRecord
   include Tenantable
   include TreeHierarchy
+  include ConfigVersioned
 
   belongs_to :agent, optional: true
 
@@ -10,6 +11,10 @@ class Role < ApplicationRecord
                     uniqueness: { scope: :company_id, message: "already exists in this company" }
 
   before_destroy :reparent_children
+
+  def governance_attributes
+    %w[title description job_spec parent_id agent_id]
+  end
 
   private
 

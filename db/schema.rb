@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_27_191037) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_27_191216) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -63,12 +63,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_27_191037) do
     t.string "actor_type", null: false
     t.bigint "auditable_id", null: false
     t.string "auditable_type", null: false
+    t.bigint "company_id"
     t.datetime "created_at", null: false
     t.jsonb "metadata", default: {}, null: false
     t.index ["action"], name: "index_audit_events_on_action"
     t.index ["actor_type", "actor_id"], name: "index_audit_events_on_actor"
     t.index ["auditable_type", "auditable_id", "created_at"], name: "index_audit_events_on_auditable_and_created_at"
     t.index ["auditable_type", "auditable_id"], name: "index_audit_events_on_auditable"
+    t.index ["company_id", "action"], name: "index_audit_events_on_company_and_action"
+    t.index ["company_id", "created_at"], name: "index_audit_events_on_company_and_time"
+    t.index ["company_id"], name: "index_audit_events_on_company_id"
   end
 
   create_table "companies", force: :cascade do |t|
@@ -244,6 +248,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_27_191037) do
   add_foreign_key "agent_capabilities", "agents"
   add_foreign_key "agents", "companies"
   add_foreign_key "approval_gates", "agents"
+  add_foreign_key "audit_events", "companies"
   add_foreign_key "config_versions", "companies"
   add_foreign_key "goals", "companies"
   add_foreign_key "goals", "goals", column: "parent_id"

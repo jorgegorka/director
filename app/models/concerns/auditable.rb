@@ -5,11 +5,13 @@ module Auditable
     has_many :audit_events, as: :auditable, dependent: :delete_all
   end
 
-  def record_audit_event!(actor:, action:, metadata: {})
+  def record_audit_event!(actor:, action:, metadata: {}, company: nil)
+    resolved_company = company || try(:company) || Current.company
     audit_events.create!(
       actor: actor,
       action: action,
-      metadata: metadata
+      metadata: metadata,
+      company: resolved_company
     )
   end
 end
