@@ -5,23 +5,23 @@
 See: .ariadna_planning/PROJECT.md (updated 2026-03-26)
 
 **Core value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
-**Current focus:** Phase 8 plan 03 complete — budget and cost UI built (agent form budget fieldset, agent show budget bar, task cost display)
+**Current focus:** Phase 8 complete — budget data layer, enforcement service, budget UI, and notification bell all done
 
 ## Current Position
 
-Phase: 8 of 10 (Budget and Cost Control) — IN PROGRESS
-Plan: 3 of 3 complete (08-01, 08-02, 08-03 done — awaiting 08-04)
-Status: Budget/cost UI complete — agent form budget fieldset, show page budget bar, task cost display, 533 tests passing
-Last activity: 2026-03-27 -- 08-03 complete (1 task, 533 tests passing, 0 failures)
+Phase: 8 of 10 (Budget and Cost Control) — COMPLETE
+Plan: 4 of 4 complete (08-01, 08-02, 08-03, 08-04 done)
+Status: Notification bell UI with dropdown, mark-read actions, Stimulus controller complete, 540 tests passing
+Last activity: 2026-03-27 -- 08-04 complete (1 task, 540 tests passing, 0 failures)
 
-Progress: [████████░░] ~82%
+Progress: [████████░░] ~87%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 15
+- Total plans completed: 16
 - Average duration: ~8 minutes
-- Total execution time: ~123 minutes
+- Total execution time: ~134 minutes
 
 **By Phase:**
 
@@ -34,10 +34,10 @@ Progress: [████████░░] ~82%
 | 05-tasks-and-conversations | 3/3 | ~20 min | ~6.7 min |
 | 06-goals-and-alignment | 2/2 | ~18 min | ~9 min |
 | 07-heartbeats-and-triggers | 3/3 | ~20 min | ~6.7 min |
-| 08-budget-cost-control | 3/3 | ~20 min | ~6.7 min |
+| 08-budget-cost-control | 4/4 | ~31 min | ~7.8 min |
 
 **Recent Trend:**
-- Last 5 plans: 07-02 (~6 min), 07-03 (~20 min), 08-01 (~4 min), 08-02 (~8 min), 08-03 (~8 min)
+- Last 5 plans: 07-03 (~20 min), 08-01 (~4 min), 08-02 (~8 min), 08-03 (~8 min), 08-04 (~11 min)
 - Trend: consistent, stable
 
 *Updated after each plan completion*
@@ -100,6 +100,8 @@ Recent decisions affecting current work:
 - [08-02]: BudgetEnforcementService.check!(agent) is the single entry point; called after every cost recording from AgentCostsController
 - [08-02]: Alert threshold test budget_cents must account for fixture task costs already in current period (claude_agent: 3700 cents from design_homepage+completed_task) — use budget_cents: 15000 for 81.3% utilization at 12200 cents total
 - [08-02]: cost endpoint accumulates cost (adds to existing cost_cents), not replaces — supports agents reporting partial costs across multiple calls
+- [08-04]: NotificationsController index requires an HTML template (index.html.erb) even with respond_to block — 406 returned without it
+- [08-04]: assert_response :not_found do...end is invalid (block ignored); always make request then assert separately (reconfirmed 03-01 pattern)
 
 ### Pending Todos
 
@@ -112,5 +114,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-27
-Stopped at: Phase 8, plan 3 complete — budget and cost UI (agent form budget fieldset, agent show budget bar, task cost display, BudgetHelper, 533 tests)
-Resume file: .ariadna_planning/phases/08-budget-cost-control/08-03-SUMMARY.md
+Stopped at: Phase 8 complete — notification bell UI (NotificationsController, notification_controller.js, dropdown/notification partials, CSS, 540 tests)
+Resume file: .ariadna_planning/phases/08-budget-cost-control/08-04-SUMMARY.md
