@@ -50,6 +50,12 @@ Rails.application.routes.draw do
           post :acknowledge
         end
       end
+      # Cost reporting: agents report task costs
+      resources :tasks, only: [], controller: "agent_costs", as: "agent_tasks" do
+        member do
+          post :cost
+        end
+      end
     end
   end
 
