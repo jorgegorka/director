@@ -42,6 +42,17 @@ Rails.application.routes.draw do
   # Goals (scoped to active company via Current.company)
   resources :goals
 
+  # Agent API (Bearer token auth for process/bash agents)
+  namespace :api do
+    scope :agent do
+      resources :events, only: [ :index ], controller: "agent_events" do
+        member do
+          post :acknowledge
+        end
+      end
+    end
+  end
+
   # Health check - used by load balancers and uptime monitors
   get "up" => "rails/health#show", as: :rails_health_check
 

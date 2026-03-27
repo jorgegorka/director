@@ -5,23 +5,23 @@
 See: .ariadna_planning/PROJECT.md (updated 2026-03-26)
 
 **Core value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
-**Current focus:** Phase 6 complete — ready for Phase 7
+**Current focus:** Phase 7 plan 03 complete — phase 7 complete (3/3 plans done)
 
 ## Current Position
 
-Phase: 7 of 10 (Heartbeats and Triggers) — IN PROGRESS
-Plan: 1 of 3 complete (07-01 done)
-Status: Heartbeat data layer complete: HeartbeatEvent model, Agent schedule columns, WakeAgentService, AgentHeartbeatJob, HeartbeatScheduleManager — 412 tests passing
-Last activity: 2026-03-27 -- 07-01 complete (2 tasks, 412 tests passing, 0 failures)
+Phase: 7 of 10 (Heartbeats and Triggers) — COMPLETE
+Plan: 3 of 3 complete (07-01, 07-02, 07-03 all done)
+Status: Phase 7 fully complete: heartbeat data layer, Triggerable concern, UI (form, show page, history view) — 445 tests passing
+Last activity: 2026-03-27 -- 07-03 complete (2 tasks, 445 tests passing, 0 failures)
 
-Progress: [███████░░░] ~70%
+Progress: [████████░░] ~80%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 12
+- Total plans completed: 14
 - Average duration: ~8 minutes
-- Total execution time: ~99 minutes
+- Total execution time: ~119 minutes
 
 **By Phase:**
 
@@ -33,10 +33,10 @@ Progress: [███████░░░] ~70%
 | 04-agent-connection | 3/3 | ~16 min | ~5.3 min |
 | 05-tasks-and-conversations | 3/3 | ~20 min | ~6.7 min |
 | 06-goals-and-alignment | 2/2 | ~18 min | ~9 min |
-| 07-heartbeats-and-triggers | 1/3 | ~6 min | ~6 min |
+| 07-heartbeats-and-triggers | 3/3 | ~20 min | ~6.7 min |
 
 **Recent Trend:**
-- Last 5 plans: 05-01 (~7 min), 05-02 (~7 min), 06-01 (~8 min), 06-02 (~10 min), 07-01 (~6 min)
+- Last 5 plans: 06-01 (~8 min), 06-02 (~10 min), 07-01 (~6 min), 07-02 (~?), 07-03 (~20 min)
 - Trend: consistent, stable
 
 *Updated after each plan completion*
@@ -88,6 +88,8 @@ Recent decisions affecting current work:
 - [06-02]: CSS plan aliases (--space-lg, --text-sm, --border-default, --radius-full) mapped to actual project tokens (--space-6, --font-size-sm, --border, 9999px) -- do not create new token definitions
 - [06-02]: options_for_goal_select available in TasksHelper context because Rails includes all helpers in all views by default
 - [07-01]: HeartbeatScheduleManager uses class_attribute :task_store (nil in production = uses SolidQueue::RecurringTask; set in tests = uses FakeTaskStore). SolidQueue uses separate SQLite DB in production (not primary PostgreSQL), so guard checks table existence; tests inject fake store to avoid needing queue schema in primary DB
+- [07-03]: assert_raises(RecordNotFound) in integration tests must be assert_response :not_found (reconfirmed 03-01 pattern for HeartbeatsController cross-company isolation test)
+- [07-03]: HeartbeatsHelper is in app/helpers/ (not app/presenters/ or included explicitly) -- Rails includes all helpers in all views, so helper methods are available in agents/show and heartbeats/index without any extra configuration
 
 ### Pending Todos
 
@@ -100,5 +102,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-27
-Stopped at: Phase 7, plan 1 complete — heartbeat data layer (HeartbeatEvent, WakeAgentService, AgentHeartbeatJob, HeartbeatScheduleManager), 412 tests
-Resume file: .ariadna_planning/phases/07-heartbeats-and-triggers/07-01-SUMMARY.md
+Stopped at: Phase 7, plan 3 complete — heartbeat UI (agent form schedule fieldset, show page real heartbeat data, history view, HeartbeatsController), 445 tests
+Resume file: .ariadna_planning/phases/07-heartbeats-and-triggers/07-03-SUMMARY.md
