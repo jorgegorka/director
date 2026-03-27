@@ -5,14 +5,14 @@
 See: .ariadna_planning/PROJECT.md (updated 2026-03-26)
 
 **Core value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
-**Current focus:** Phase 8 complete — budget data layer, enforcement service, budget UI, and notification bell all done
+**Current focus:** Phase 9 in progress — governance data layer (ApprovalGate, ConfigVersion, AuditEvent company scoping, ConfigVersioned concern) complete
 
 ## Current Position
 
-Phase: 8 of 10 (Budget and Cost Control) — COMPLETE
-Plan: 4 of 4 complete (08-01, 08-02, 08-03, 08-04 done)
-Status: Notification bell UI with dropdown, mark-read actions, Stimulus controller complete, 540 tests passing
-Last activity: 2026-03-27 -- 08-04 complete (1 task, 540 tests passing, 0 failures)
+Phase: 9 of 10 (Governance and Audit) — IN PROGRESS
+Plan: 1 of 4 complete (09-01 done; 09-02, 09-03, 09-04 pending)
+Status: Governance data layer complete — ApprovalGate, ConfigVersion, ConfigVersioned, AuditEvent company scoping, 581 tests passing
+Last activity: 2026-03-27 -- 09-01 complete (3 tasks, 581 tests passing, 0 failures)
 
 Progress: [████████░░] ~87%
 
@@ -35,9 +35,10 @@ Progress: [████████░░] ~87%
 | 06-goals-and-alignment | 2/2 | ~18 min | ~9 min |
 | 07-heartbeats-and-triggers | 3/3 | ~20 min | ~6.7 min |
 | 08-budget-cost-control | 4/4 | ~31 min | ~7.8 min |
+| 09-governance-audit | 1/4 | ~6 min | ~6 min |
 
 **Recent Trend:**
-- Last 5 plans: 07-03 (~20 min), 08-01 (~4 min), 08-02 (~8 min), 08-03 (~8 min), 08-04 (~11 min)
+- Last 5 plans: 08-01 (~4 min), 08-02 (~8 min), 08-03 (~8 min), 08-04 (~11 min), 09-01 (~6 min)
 - Trend: consistent, stable
 
 *Updated after each plan completion*
@@ -102,6 +103,9 @@ Recent decisions affecting current work:
 - [08-02]: cost endpoint accumulates cost (adds to existing cost_cents), not replaces — supports agents reporting partial costs across multiple calls
 - [08-04]: NotificationsController index requires an HTML template (index.html.erb) even with respond_to block — 406 returned without it
 - [08-04]: assert_response :not_found do...end is invalid (block ignored); always make request then assert separately (reconfirmed 03-01 pattern)
+- [09-01]: Company has_many :audit_events must use dependent: :delete_all (not :destroy) — AuditEvent#readonly? prevents ActiveRecord destroy callbacks on persisted records; delete_all bypasses callbacks, matching the Auditable concern pattern
+- [09-01]: ConfigVersioned concern declares has_many :config_versions on included models — do not add a separate explicit declaration to Agent/Role; the concern's declaration in the included block is the single source
+- [09-01]: ConfigVersioned concern's should_version? check: saved_changes.keys == ["updated_at"] catches touch-only saves; also filters via governance_attributes intersection so non-governance attribute changes are ignored
 
 ### Pending Todos
 
@@ -114,5 +118,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-27
-Stopped at: Phase 8 complete — notification bell UI (NotificationsController, notification_controller.js, dropdown/notification partials, CSS, 540 tests)
-Resume file: .ariadna_planning/phases/08-budget-cost-control/08-04-SUMMARY.md
+Stopped at: Phase 9, plan 09-01 complete — governance data layer (ApprovalGate, ConfigVersion, AuditEvent company scoping, ConfigVersioned concern, 581 tests)
+Resume file: .ariadna_planning/phases/09-governance-audit/09-01-SUMMARY.md
