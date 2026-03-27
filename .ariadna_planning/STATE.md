@@ -5,21 +5,21 @@
 See: .ariadna_planning/PROJECT.md (updated 2026-03-26)
 
 **Core value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
-**Current focus:** Phase 4 complete — ready for Phase 5
+**Current focus:** Phase 5 in progress — data layer complete, controllers/UI next
 
 ## Current Position
 
-Phase: 4 of 10 (Agent Connection) — COMPLETE
-Plan: 3 of 3 complete (04-01 + 04-02 + 04-03 done)
-Status: Phase 4 complete — Capabilities management, agent-role assignment, navigation
-Last activity: 2026-03-27 -- 04-03 complete (3 tasks, 197 tests passing, 0 failures)
+Phase: 5 of 10 (Tasks and Conversations) — IN PROGRESS
+Plan: 1 of 3 complete (05-01 done)
+Status: Data layer complete — Task/Message/AuditEvent models, Auditable concern, api_token on Agent
+Last activity: 2026-03-27 -- 05-01 complete (2 tasks, 265 tests passing, 0 failures)
 
 Progress: [████░░░░░░] ~40%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 9
+- Total plans completed: 10
 - Average duration: ~7 minutes
 - Total execution time: ~35 minutes
 
@@ -31,6 +31,7 @@ Progress: [████░░░░░░] ~40%
 | 02-accounts-and-multi-tenancy | 2 | ~23 min | ~11 min |
 | 03-org-chart-and-roles | 2/2 | ~12 min | ~6 min |
 | 04-agent-connection | 3/3 | ~16 min | ~5.3 min |
+| 05-tasks-and-conversations | 1/3 | ~9 min | ~9 min |
 
 **Recent Trend:**
 - Last 5 plans: 03-02 (~3 min), 04-01 (~5 min), 04-02 (~6 min), 04-03 (~5 min)
@@ -72,6 +73,9 @@ Recent decisions affecting current work:
 - [04-02]: Stimulus toggle disables hidden inputs (not just display:none) to prevent non-active adapter config fields from submitting
 - [04-03]: form_with(model: [@agent, NestedModel.new]) generates wrong path helper when controller uses custom naming — use explicit url: helper instead
 - [04-03]: agent_name: nil placeholder in OrgChartsHelper replaced with role.agent&.name; OrgChartsController eager-loads :agent to prevent N+1
+- [05-01]: Auditable concern uses dependent: delete_all (not destroy) -- AuditEvent readonly? blocks cascade destroy, delete_all bypasses callbacks
+- [05-01]: creator_id on tasks is nullable -- plan said null: false but also dependent: nullify; nullable is correct for user deletion without cascade
+- [05-01]: t.references auto-creates indexes -- removed duplicate explicit add_index calls for parent_task_id and actor polymorphic index
 
 ### Pending Todos
 
@@ -84,5 +88,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-27
-Stopped at: Phase 4, plan 03 complete — Phase 4 fully complete
-Resume file: .ariadna_planning/phases/04-agent-connection/04-03-SUMMARY.md
+Stopped at: Phase 5, plan 01 complete — data layer (Task/Message/AuditEvent models)
+Resume file: .ariadna_planning/phases/05-tasks-and-conversations/05-01-SUMMARY.md
