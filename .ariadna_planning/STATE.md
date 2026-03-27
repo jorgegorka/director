@@ -5,23 +5,23 @@
 See: .ariadna_planning/PROJECT.md (updated 2026-03-26)
 
 **Core value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
-**Current focus:** Phase 3 complete — ready for Phase 4
+**Current focus:** Phase 4 complete — ready for Phase 5
 
 ## Current Position
 
-Phase: 4 of 10 (Agent Connection) — IN PROGRESS
-Plan: 1 of 2 complete (04-01 done)
-Status: 04-01 complete — Agent model foundation and adapter registry created
-Last activity: 2026-03-27 -- 04-01 complete (3 tasks, 165 tests passing, 0 failures)
+Phase: 4 of 10 (Agent Connection) — COMPLETE
+Plan: 2 of 2 complete (04-01 + 04-02 done)
+Status: Phase 4 complete — Agent CRUD interface with dynamic adapter config form
+Last activity: 2026-03-27 -- 04-02 complete (3 tasks, 185 tests passing, 0 failures)
 
-Progress: [████░░░░░░] ~35%
+Progress: [████░░░░░░] ~40%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
+- Total plans completed: 8
 - Average duration: ~7 minutes
-- Total execution time: ~29 minutes
+- Total execution time: ~35 minutes
 
 **By Phase:**
 
@@ -30,10 +30,10 @@ Progress: [████░░░░░░] ~35%
 | 01-authentication | 2 | ~10 min | ~5 min |
 | 02-accounts-and-multi-tenancy | 2 | ~23 min | ~11 min |
 | 03-org-chart-and-roles | 2/2 | ~12 min | ~6 min |
-| 04-agent-connection | 1/2 | ~5 min | ~5 min |
+| 04-agent-connection | 2/2 | ~11 min | ~5.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-02 (~16 min), 03-01 (~9 min), 03-02 (~3 min), 04-01 (~5 min)
+- Last 5 plans: 03-01 (~9 min), 03-02 (~3 min), 04-01 (~5 min), 04-02 (~6 min)
 - Trend: consistent, accelerating
 
 *Updated after each plan completion*
@@ -67,6 +67,9 @@ Recent decisions affecting current work:
 - [03-02]: agent_name is nil placeholder throughout Phase 3; Phase 4 will populate real agent names
 - [04-01]: Zeitwerk namespace pattern: app/adapters/adapters/ subdirectory required for Adapters::* constants (Rails 8 treats app/adapters as autoload root, so files must be nested under adapters/ subdir)
 - [04-01]: Agent.active scope excludes only :terminated — paused/error/pending_approval are still "active" records
+- [04-02]: Fixture jsonb format: YAML hash syntax (key: val) required for jsonb columns in fixtures — JSON string literals ('{"key": "val"}') cause Rails to store/return String instead of Hash, breaking all jsonb operations in controller tests
+- [04-02]: adapter_params pattern: use params[:agent][:adapter_config].permit!.to_h for unrestricted jsonb key acceptance in strong params
+- [04-02]: Stimulus toggle disables hidden inputs (not just display:none) to prevent non-active adapter config fields from submitting
 
 ### Pending Todos
 
@@ -79,5 +82,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-27
-Stopped at: Phase 4, plan 01 complete — Agent model foundation and adapter registry
-Resume file: .ariadna_planning/phases/04-agent-connection/04-01-SUMMARY.md
+Stopped at: Phase 4, plan 02 complete — Agent CRUD interface
+Resume file: .ariadna_planning/phases/04-agent-connection/04-02-SUMMARY.md
