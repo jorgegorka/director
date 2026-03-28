@@ -78,12 +78,12 @@ Requirements for agent execution milestone. Each maps to roadmap phases.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| EXEC-01 | 22 - AgentRun Data Model and Job Dispatch | Not started |
-| EXEC-02 | 22 - AgentRun Data Model and Job Dispatch | Not started |
-| EXEC-03 | 22 - AgentRun Data Model and Job Dispatch | Not started |
-| EXEC-04 | 22 - AgentRun Data Model and Job Dispatch | Not started |
-| EXEC-05 | 22 - AgentRun Data Model and Job Dispatch | Not started |
-| EXEC-06 | 22 - AgentRun Data Model and Job Dispatch | Not started |
+| EXEC-01 | 22 - AgentRun Data Model and Job Dispatch | Complete |
+| EXEC-02 | 22 - AgentRun Data Model and Job Dispatch | Complete |
+| EXEC-03 | 22 - AgentRun Data Model and Job Dispatch | Complete |
+| EXEC-04 | 22 - AgentRun Data Model and Job Dispatch | Complete |
+| EXEC-05 | 22 - AgentRun Data Model and Job Dispatch | Complete |
+| EXEC-06 | 22 - AgentRun Data Model and Job Dispatch | Complete |
 | HTTP-01 | 23 - HTTP Adapter Real Execution | Not started |
 | HTTP-02 | 23 - HTTP Adapter Real Execution | Not started |
 | HTTP-03 | 23 - HTTP Adapter Real Execution | Not started |

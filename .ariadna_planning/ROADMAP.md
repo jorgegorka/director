@@ -257,10 +257,10 @@ Full details: [v1.3-ROADMAP.md](milestones/v1.3-ROADMAP.md)
   3. AgentRun stores the Claude session ID so that a subsequent run for the same agent can resume the conversation
   4. Long-running execution jobs run on a dedicated queue and do not block short background jobs from completing
   5. If an execution job fails mid-run, the agent status returns to idle -- it does not get stuck in the running state
-**Plans**: TBD
+**Plans**: 1/1 complete
 
 Plans:
-- [ ] 22-01: AgentRun migration, model with state machine, ExecuteAgentJob, WakeAgentService dispatch wiring
+- [x] 22-01: AgentRun migration, model with state machine, ExecuteAgentJob, WakeAgentService dispatch wiring
 
 ### Phase 23: HTTP Adapter Real Execution
 **Goal**: Agents configured with HTTP endpoints receive real POST delivery when woken, with correct failure handling and retry behavior
@@ -340,7 +340,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 19. Hook Triggering Engine | v1.3 | 2/2 | Complete | 2026-03-28 |
 | 20. Validation Feedback Loop | v1.3 | 1/1 | Complete | 2026-03-28 |
 | 21. Hook Management UI | v1.3 | 1/1 | Complete | 2026-03-28 |
-| 22. AgentRun Data Model and Job Dispatch | v1.4 | 0/TBD | Not started | - |
+| 22. AgentRun Data Model and Job Dispatch | v1.4 | 1/1 | Complete | 2026-03-28 |
 | 23. HTTP Adapter Real Execution | v1.4 | 0/TBD | Not started | - |
 | 24. Claude Local Adapter with Tmux | v1.4 | 0/TBD | Not started | - |
 | 25. Live Streaming UI and Result Callbacks | v1.4 | 0/TBD | Not started | - |
