@@ -40,7 +40,16 @@ Users can organize AI agents into a functioning company structure and confidentl
 
 ### Active
 
-(None — define requirements for next milestone with `/ariadna:new-milestone`)
+#### Current Milestone: v1.2 — Agent Skills
+
+**Goal:** Add a company-level skill library with rich markdown instruction packages, role-based auto-assignment, and full CRUD — replacing agent_capabilities.
+
+**Target features:**
+- Company-level skill library (44 builtin skills across 11 roles)
+- Agent skill assignments replacing agent_capabilities
+- Role-based auto-assignment on first agent assignment
+- Skills CRUD with category filtering
+- Company seeding on creation + rake task for existing companies
 
 ### Out of Scope
 
@@ -92,4 +101,4 @@ Users can organize AI agents into a functioning company structure and confidentl
 **Known tech debt:** None significant — v1.1 cleanup addressed scaffolding leftovers and stale docs.
 
 ---
-*Last updated: 2026-03-28 after v1.1 milestone completion*
+*Last updated: 2026-03-28 after v1.2 milestone started*

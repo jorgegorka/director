@@ -5,14 +5,14 @@
 See: .ariadna_planning/PROJECT.md (updated 2026-03-28)
 
 **Core value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
-**Current focus:** Planning next milestone
+**Current focus:** v1.2 — Agent Skills
 
 ## Current Position
 
-Phase: All complete (v1.0 + v1.1)
-Plan: N/A
-Status: v1.1 milestone archived. No active milestone.
-Last activity: 2026-03-28 -- v1.1 milestone completed and archived
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-28 — Milestone v1.2 started
 
 ## Performance Metrics
 
