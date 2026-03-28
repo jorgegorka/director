@@ -41,20 +41,16 @@ Users can organize AI agents into a functioning company structure and confidentl
 - Skills CRUD with category filtering and builtin protection — v1.2
 - Per-agent skill management UI with checkbox assignment — v1.2
 - Company seeding on creation + rake task for existing companies — v1.2
+- Agent hooks with lifecycle event triggers (after_task_start, after_task_complete) — v1.3
+- Hook execution tracking with status, payloads, timing, and retry logic — v1.3
+- Agent-to-agent validation: trigger_agent hooks create subtasks, wake target agents — v1.3
+- Webhook hooks POST JSON payloads to external URLs with headers and timeouts — v1.3
+- Validation feedback loop: subtask results posted back to parent task, original agent woken — v1.3
+- Hook management CRUD UI nested under agents with company scoping — v1.3
 
 ### Active
 
-## Current Milestone: v1.3 Agent Hooks
-
-**Goal:** Add a configurable agent hook system that fires at task lifecycle events, enabling agent-to-agent validation loops and webhook integrations.
-
-**Target features:**
-- AgentHook model with lifecycle event configuration per agent
-- HookExecution tracking with status, payloads, timing
-- Hookable concern detecting task status transitions
-- ExecuteHookService dispatching trigger_agent and webhook actions
-- Feedback loop: validation subtask → results → wake original agent
-- CRUD controller for managing hooks nested under agents
+None — planning next milestone.
 
 ### Out of Scope
 
@@ -98,12 +94,14 @@ Users can organize AI agents into a functioning company structure and confidentl
 
 ## Current State
 
-**Shipped:** v1.0 (Core Platform) + v1.1 (SQLite Migration & Cleanup) + v1.2 (Agent Skills)
-**Codebase:** ~17,900 LOC (Ruby/ERB/CSS/JS), 742 tests, 17 phases, 38 plans
+**Shipped:** v1.0 (Core Platform) + v1.1 (SQLite Migration) + v1.2 (Agent Skills) + v1.3 (Agent Hooks)
+**Codebase:** ~21,300 LOC (Ruby/ERB/CSS/JS), 878 tests, 21 phases, 41 plans
 **Stack:** Rails 8, SQLite (all databases), Hotwire, modern CSS, Solid Queue/Cache/Cable
-**Status:** Fully functional platform — auth, multi-tenancy, org charts, agents with skill management, tasks, goals, heartbeats, budgets, governance, dashboard with real-time updates. 50 builtin skills across 5 categories with role-based auto-assignment.
+**Status:** Fully functional platform — auth, multi-tenancy, org charts, agents with skill management, tasks, goals, heartbeats, budgets, governance, dashboard with real-time updates. 50 builtin skills across 5 categories with role-based auto-assignment. Agent hooks with lifecycle triggers, agent-to-agent validation loops, webhook integrations, and feedback cycle.
 
-**Known tech debt:** None significant.
+**Known tech debt:**
+- permit! on action_config params in AgentHooksController (mitigated by model validation)
+- N+1 COUNT query on hooks index page (negligible at expected cardinality)
 
 ---
-*Last updated: 2026-03-28 after v1.3 milestone started*
+*Last updated: 2026-03-28 after v1.3 milestone*
