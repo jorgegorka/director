@@ -398,4 +398,44 @@ class AgentTest < ActiveSupport::TestCase
       @claude_agent.update!(status: :running)
     end
   end
+
+  # --- all_documents ---
+
+  test "all_documents returns agent's directly linked documents" do
+    Current.company = companies(:acme)
+    agent = agents(:claude_agent)
+    docs = agent.all_documents
+    assert_includes docs, documents(:acme_refund_policy)
+  end
+
+  test "all_documents returns documents from agent's skills" do
+    Current.company = companies(:acme)
+    agent = agents(:claude_agent)
+    docs = agent.all_documents
+    assert_includes docs, documents(:acme_coding_standards)
+  end
+
+  test "all_documents does not return unlinked documents" do
+    Current.company = companies(:acme)
+    agent = agents(:claude_agent)
+    docs = agent.all_documents
+    assert_not_includes docs, documents(:acme_agent_created_doc)
+  end
+
+  test "all_documents does not return documents from other companies" do
+    Current.company = companies(:acme)
+    agent = agents(:claude_agent)
+    docs = agent.all_documents
+    assert_not_includes docs, documents(:widgets_doc)
+  end
+
+  test "all_documents does not duplicate documents linked both directly and via skill" do
+    Current.company = companies(:acme)
+    agent = agents(:claude_agent)
+    # Link coding_standards directly to the agent too (it's already linked via skill)
+    AgentDocument.find_or_create_by!(agent: agent, document: documents(:acme_coding_standards))
+    docs = agent.all_documents
+    coding_standards_count = docs.select { |d| d.id == documents(:acme_coding_standards).id }.count
+    assert_equal 1, coding_standards_count
+  end
 end
