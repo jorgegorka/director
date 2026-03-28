@@ -497,4 +497,54 @@ class AgentsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select ".approval-banner", count: 0
   end
+
+  # --- Skills: Skill Manager (show page) ---
+
+  test "should show skill manager with checkboxes on agent show" do
+    get agent_url(@claude_agent)
+    assert_response :success
+    assert_select ".skill-manager"
+    assert_select ".skill-manager__category", minimum: 1
+  end
+
+  test "should show assigned skills as checked on agent show" do
+    # claude_agent has 2 skills assigned via fixtures (acme_code_review, acme_strategic_planning)
+    get agent_url(@claude_agent)
+    assert_response :success
+    assert_select ".skill-manager__toggle--assigned", minimum: 1
+  end
+
+  test "should show unassigned skills as unchecked on agent show" do
+    # claude_agent has 2 assigned; acme company has many more skills unassigned
+    get agent_url(@claude_agent)
+    assert_response :success
+    # Total toggles should outnumber assigned toggles (there are unassigned skills)
+    assigned_count = css_select(".skill-manager__toggle--assigned").size
+    total_count = css_select(".skill-manager__toggle").size
+    assert total_count > assigned_count, "Expected unassigned skills to also appear as toggles"
+  end
+
+  test "should show skill categories in skill manager" do
+    # Acme skills span leadership, technical, creative, operations, research categories
+    get agent_url(@claude_agent)
+    assert_response :success
+    assert_select ".skill-manager__category-title", minimum: 2
+  end
+
+  # --- Skills: Agent Card (index page) ---
+
+  test "should show skill tags in agent card on index" do
+    # claude_agent has 2 skills assigned, so at least 1 .agent-card__skill-tag should appear
+    get agents_url
+    assert_response :success
+    assert_select ".agent-card__skill-tag", minimum: 1
+  end
+
+  test "should not show skill overflow for agent with 2 skills" do
+    # claude_agent has exactly 2 skills (<=3), so no overflow span
+    get agents_url
+    assert_response :success
+    # With only 2 skills, the +N overflow should not render for claude_agent
+    assert_select ".agent-card__skill-overflow", count: 0
+  end
 end
