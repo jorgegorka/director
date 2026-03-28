@@ -12,7 +12,7 @@ Director transforms the chaos of managing multiple AI agents into a structured b
 - v1.0 Core Platform - Phases 1-10 (shipped 2026-03-28)
 - v1.1 SQLite Migration & Cleanup - Phases 11-12 (shipped 2026-03-28)
 - v1.2 Agent Skills - Phases 13-17 (shipped 2026-03-28)
-- v1.3 Agent Hooks - Phases 18-21 (in progress)
+- v1.3 Agent Hooks - Phases 18-21 (shipped 2026-03-28)
 
 ## Phases
 
@@ -233,10 +233,10 @@ Full details: [v1.2-ROADMAP.md](milestones/v1.2-ROADMAP.md)
 
 **Milestone Goal:** Configurable agent hook system that fires at task lifecycle events, enabling agent-to-agent validation loops and webhook integrations -- so agents can check each other's work automatically.
 
-- [ ] **Phase 18: Hook Data Foundation** - AgentHook and HookExecution models with lifecycle event configuration and execution tracking
-- [ ] **Phase 19: Hook Triggering Engine** - Hookable concern detects task transitions and dispatches hooks as background jobs
-- [ ] **Phase 20: Validation Feedback Loop** - Completed validation subtasks feed results back to the original agent for iterative improvement
-- [ ] **Phase 21: Hook Management UI** - CRUD controller for creating and managing hooks nested under agents
+- [x] **Phase 18: Hook Data Foundation** - AgentHook and HookExecution models with lifecycle event configuration and execution tracking
+- [x] **Phase 19: Hook Triggering Engine** - Hookable concern detects task transitions and dispatches hooks as background jobs
+- [x] **Phase 20: Validation Feedback Loop** - Completed validation subtasks feed results back to the original agent for iterative improvement
+- [x] **Phase 21: Hook Management UI** - CRUD controller for creating and managing hooks nested under agents
 
 ### Phase 18: Hook Data Foundation
 **Goal**: Establish the data layer for agent hooks -- the AgentHook configuration model, the HookExecution tracking model, and updates to existing models that integrate with the hook system
@@ -294,10 +294,10 @@ Plans:
   1. User can navigate to an agent's hooks page, create a new hook with lifecycle event and action configuration, and see it listed
   2. User can edit an existing hook (change event, action type, enable/disable) and delete hooks they no longer need
   3. Hooks are scoped to the owning company -- users cannot see or modify hooks belonging to agents in other companies
-**Plans**: TBD
+**Plans**: 1/1 complete
 
 Plans:
-- [ ] 21-01: Routes, AgentHooksController CRUD, views, company scoping, and controller tests
+- [x] 21-01: Routes, AgentHooksController CRUD, views, company scoping, and controller tests
 
 ## Progress
 
@@ -326,4 +326,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 18. Hook Data Foundation | v1.3 | 1/1 | Complete | 2026-03-28 |
 | 19. Hook Triggering Engine | v1.3 | 2/2 | Complete | 2026-03-28 |
 | 20. Validation Feedback Loop | v1.3 | 1/1 | Complete | 2026-03-28 |
-| 21. Hook Management UI | v1.3 | 0/1 | Not started | - |
+| 21. Hook Management UI | v1.3 | 1/1 | Complete | 2026-03-28 |
