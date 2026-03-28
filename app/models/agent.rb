@@ -11,6 +11,7 @@ class Agent < ApplicationRecord
   has_many :heartbeat_events, dependent: :destroy
   has_many :approval_gates, dependent: :destroy
   has_many :agent_hooks, dependent: :destroy
+  has_many :agent_runs, dependent: :destroy
 
   enum :adapter_type, { http: 0, process: 1, claude_local: 2 }
   enum :status, { idle: 0, running: 1, paused: 2, error: 3, terminated: 4, pending_approval: 5 }
@@ -134,6 +135,12 @@ class Agent < ApplicationRecord
 
   def budget_alert_threshold?
     budget_configured? && budget_utilization >= 80.0
+  end
+
+  def latest_session_id
+    agent_runs.where.not(claude_session_id: nil)
+              .order(created_at: :desc)
+              .pick(:claude_session_id)
   end
 
   def gate_enabled?(action_type)

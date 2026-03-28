@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_28_143529) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_28_181016) do
   create_table "agent_hooks", force: :cascade do |t|
     t.json "action_config", default: {}, null: false
     t.integer "action_type", default: 0, null: false
@@ -27,6 +27,30 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_28_143529) do
     t.index ["agent_id", "lifecycle_event"], name: "index_agent_hooks_on_agent_id_and_lifecycle_event"
     t.index ["agent_id"], name: "index_agent_hooks_on_agent_id"
     t.index ["company_id"], name: "index_agent_hooks_on_company_id"
+  end
+
+  create_table "agent_runs", force: :cascade do |t|
+    t.integer "agent_id", null: false
+    t.string "claude_session_id"
+    t.integer "company_id", null: false
+    t.datetime "completed_at"
+    t.integer "cost_cents"
+    t.datetime "created_at", null: false
+    t.text "error_message"
+    t.integer "exit_code"
+    t.text "log_output"
+    t.datetime "started_at"
+    t.integer "status", default: 0, null: false
+    t.integer "task_id"
+    t.string "trigger_type"
+    t.datetime "updated_at", null: false
+    t.index ["agent_id", "created_at"], name: "index_agent_runs_on_agent_id_and_created_at"
+    t.index ["agent_id", "status"], name: "index_agent_runs_on_agent_id_and_status"
+    t.index ["agent_id"], name: "index_agent_runs_on_agent_id"
+    t.index ["claude_session_id"], name: "index_agent_runs_on_claude_session_id"
+    t.index ["company_id", "created_at"], name: "index_agent_runs_on_company_id_and_created_at"
+    t.index ["company_id"], name: "index_agent_runs_on_company_id"
+    t.index ["task_id"], name: "index_agent_runs_on_task_id"
   end
 
   create_table "agent_skills", force: :cascade do |t|
@@ -294,6 +318,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_28_143529) do
 
   add_foreign_key "agent_hooks", "agents"
   add_foreign_key "agent_hooks", "companies"
+  add_foreign_key "agent_runs", "agents"
+  add_foreign_key "agent_runs", "companies"
+  add_foreign_key "agent_runs", "tasks"
   add_foreign_key "agent_skills", "agents"
   add_foreign_key "agent_skills", "skills"
   add_foreign_key "agents", "companies"
