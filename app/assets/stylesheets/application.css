@@ -3350,3 +3350,205 @@
     color: var(--text-muted);
   }
 }
+
+/* ============================================================
+   DASHBOARD COMPONENTS
+   ============================================================ */
+@layer components {
+  /* Dashboard layout */
+  .dashboard {
+    max-width: var(--content-max-width);
+    margin-inline: auto;
+    padding: var(--space-6);
+  }
+
+  .dashboard__header {
+    margin-block-end: var(--space-6);
+  }
+
+  .dashboard__subtitle {
+    color: var(--text-muted);
+    font-size: var(--font-size-lg);
+  }
+
+  /* Mission banner */
+  .dashboard-mission {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-4);
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    margin-block-end: var(--space-6);
+  }
+
+  .dashboard-mission__info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .dashboard-mission__label {
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: var(--letter-spacing-wide);
+  }
+
+  .dashboard-mission__title {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+  }
+
+  .dashboard-mission__progress {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-inline-size: 200px;
+  }
+
+  .dashboard-mission__pct {
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  /* Tab navigation */
+  .dashboard-tabs {
+    display: flex;
+    gap: var(--space-1);
+    border-block-end: 2px solid var(--border);
+    margin-block-end: var(--space-6);
+  }
+
+  .dashboard-tab {
+    padding: var(--space-3) var(--space-4);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-weight: 500;
+    font-size: var(--font-size-base);
+    border-block-end: 2px solid transparent;
+    margin-block-end: -2px;
+    transition: color var(--transition-fast);
+
+    &:hover {
+      color: var(--text-base);
+    }
+  }
+
+  .dashboard-tab--active {
+    color: var(--color-brand-500);
+    border-block-end-color: var(--color-brand-500);
+  }
+
+  /* Stats grid */
+  .dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--space-4);
+    margin-block-end: var(--space-8);
+  }
+
+  /* Stat card */
+  .stat-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    text-align: center;
+  }
+
+  .stat-card__value {
+    font-size: var(--font-size-3xl);
+    font-weight: 700;
+    color: var(--color-brand-500);
+  }
+
+  .stat-card__label {
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+    margin-block-start: var(--space-1);
+  }
+
+  .stat-card__link {
+    font-size: var(--font-size-sm);
+    margin-block-start: var(--space-2);
+    display: inline-block;
+  }
+
+  /* Budget section */
+  .dashboard-budget-section {
+    margin-block-end: var(--space-8);
+  }
+
+  .dashboard-section-title {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    margin-block-end: var(--space-4);
+  }
+
+  .dashboard-budget-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--space-4);
+  }
+
+  .dashboard-budget-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+  }
+
+  .dashboard-budget-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-block-end: var(--space-3);
+  }
+
+  .dashboard-budget-card__name {
+    font-weight: 600;
+  }
+
+  .dashboard-budget-card__amounts {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+    margin-block-start: var(--space-2);
+  }
+
+  .dashboard-budget-card__limit {
+    color: var(--text-subtle);
+  }
+
+  .dashboard-budget-card__utilization {
+    font-size: var(--font-size-sm);
+    margin-block-start: var(--space-1);
+  }
+
+  /* Quick links row */
+  .dashboard-quick-links {
+    display: flex;
+    gap: var(--space-3);
+    padding-block-start: var(--space-4);
+    border-block-start: 1px solid var(--border-subtle);
+  }
+
+  /* Empty / placeholder states */
+  .dashboard-empty {
+    color: var(--text-muted);
+    font-size: var(--font-size-sm);
+    padding: var(--space-4) 0;
+  }
+
+  .dashboard-placeholder {
+    padding: var(--space-8);
+    text-align: center;
+    color: var(--text-muted);
+  }
+}

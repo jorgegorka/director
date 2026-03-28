@@ -1,0 +1,7 @@
+<div class="stat-card">
+  <div class="stat-card__value"><%= value %></div>
+  <div class="stat-card__label"><%= label %></div>
+  <% if defined?(link_path) && link_path %>
+    <%= link_to "View all", link_path, class: "stat-card__link" %>
+  <% end %>
+</div>

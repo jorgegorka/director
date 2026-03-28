@@ -37,6 +37,7 @@
         <% if Current.user %>
           <%= render "layouts/company_switcher" %>
           <% if Current.company %>
+            <%= link_to "Dashboard", root_path, class: "nav__link #{"nav__link--active" if controller_name == "dashboard"}" %>
             <%= link_to "Agents", agents_path, class: "nav__link #{"nav__link--active" if controller_name == "agents"}" %>
             <%= link_to "Tasks", tasks_path, class: "nav__link #{"nav__link--active" if controller_name == "tasks"}" %>
             <%= link_to "Audit Log", audit_logs_path, class: "nav__link #{"nav__link--active" if controller_name == "audit_logs"}" %>

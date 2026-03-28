@@ -1,0 +1,57 @@
+<div class="dashboard-stats">
+  <%= render "dashboard/stat_card",
+        value: @total_agents,
+        label: "Total Agents",
+        link_path: agents_path %>
+
+  <%= render "dashboard/stat_card",
+        value: @tasks_active,
+        label: "Active Tasks",
+        link_path: tasks_path %>
+
+  <%= render "dashboard/stat_card",
+        value: @tasks_completed,
+        label: "Tasks Completed" %>
+
+  <%= render "dashboard/stat_card",
+        value: "#{@agents_online} of #{@total_agents}",
+        label: "Agents Online" %>
+</div>
+
+<section class="dashboard-budget-section">
+  <h2 class="dashboard-section-title">Budget Overview</h2>
+
+  <% if @budget_agents.empty? %>
+    <p class="dashboard-empty">No agents have budgets configured.</p>
+  <% else %>
+    <div class="dashboard-budget-grid">
+      <% @budget_agents.each do |agent| %>
+        <div class="dashboard-budget-card">
+          <div class="dashboard-budget-card__header">
+            <span class="dashboard-budget-card__name">
+              <%= link_to agent.name, agent_path(agent) %>
+            </span>
+            <%= agent_status_badge(agent) %>
+          </div>
+          <% utilization = agent.budget_utilization %>
+          <div class="budget-bar <%= budget_bar_class(utilization) %>">
+            <div class="budget-bar__fill" style="--budget-fill: <%= utilization %>%"></div>
+          </div>
+          <div class="dashboard-budget-card__amounts">
+            <span><%= format_cents_as_dollars(agent.monthly_spend_cents) %> spent</span>
+            <span class="dashboard-budget-card__limit">of <%= format_cents_as_dollars(agent.budget_cents) %></span>
+          </div>
+          <div class="dashboard-budget-card__utilization <%= budget_bar_class(utilization) %>">
+            <%= utilization %>% used
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</section>
+
+<div class="dashboard-quick-links">
+  <%= link_to "Org Chart", org_chart_path, class: "btn btn--ghost btn--sm" %>
+  <%= link_to "Goals", goals_path, class: "btn btn--ghost btn--sm" %>
+  <%= link_to "Audit Log", audit_logs_path, class: "btn btn--ghost btn--sm" %>
+</div>
