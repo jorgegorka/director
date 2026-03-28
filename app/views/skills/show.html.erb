@@ -60,6 +60,15 @@
           <p class="skill-detail__empty-note">No agents have this skill assigned.</p>
         <% end %>
       </div>
+
+      <div class="skill-detail__card">
+        <h2 class="skill-detail__card-title">Documents</h2>
+        <%= render "documents/document_picker",
+              linkable: @skill,
+              linked_documents: @skill_document_links,
+              link_path: skill_skill_documents_path(@skill),
+              unlink_path_helper: ->(skill, sd) { skill_skill_document_path(skill, sd) } %>
+      </div>
     </div>
   </div>
 </section>

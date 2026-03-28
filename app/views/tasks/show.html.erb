@@ -68,6 +68,15 @@
       </dl>
     </div>
 
+    <div class="task-detail__section">
+      <h2>Documents</h2>
+      <%= render "documents/document_picker",
+            linkable: @task,
+            linked_documents: @task_document_links,
+            link_path: task_task_documents_path(@task),
+            unlink_path_helper: ->(task, td) { task_task_document_path(task, td) } %>
+    </div>
+
     <% if @task.assignee.present? %>
       <div class="task-detail__section task-detail__workflow">
         <h2>Workflow Actions</h2>

@@ -117,6 +117,16 @@
           <% end %>
         </div>
       </div>
+
+      <%# Documents %>
+      <div class="agent-detail__card">
+        <h2 class="agent-detail__card-title">Documents</h2>
+        <%= render "documents/document_picker",
+              linkable: @agent,
+              linked_documents: @agent_document_links,
+              link_path: agent_agent_documents_path(@agent),
+              unlink_path_helper: ->(agent, ad) { agent_agent_document_path(agent, ad) } %>
+      </div>
     </div>
 
     <%# ── Sidebar column ── %>
@@ -209,10 +219,12 @@
       <%# Hooks %>
       <div class="agent-detail__card">
         <h2 class="agent-detail__card-title">Hooks</h2>
-        <% if @agent.agent_hooks.any? %>
+        <% hooks = @agent.agent_hooks.to_a %>
+        <% if hooks.any? %>
+          <% enabled_count = hooks.count(&:enabled?) %>
           <div class="hook-summary">
-            <p><%= pluralize(@agent.agent_hooks.enabled.count, "active hook") %> configured
-            (<%= @agent.agent_hooks.disabled.count %> disabled).</p>
+            <p><%= pluralize(enabled_count, "active hook") %> configured
+            (<%= hooks.size - enabled_count %> disabled).</p>
           </div>
           <%= link_to "Manage hooks", agent_agent_hooks_path(@agent), class: "btn btn--ghost btn--sm" %>
         <% else %>
