@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_28_193033) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_28_223017) do
   create_table "agent_documents", force: :cascade do |t|
     t.integer "agent_id", null: false
     t.datetime "created_at", null: false
@@ -82,6 +82,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_28_193033) do
     t.bigint "company_id", null: false
     t.datetime "created_at", null: false
     t.text "description"
+    t.integer "goal_id"
     t.boolean "heartbeat_enabled", default: false, null: false
     t.integer "heartbeat_interval"
     t.datetime "last_heartbeat_at"
@@ -93,6 +94,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_28_193033) do
     t.index ["api_token"], name: "index_agents_on_api_token", unique: true
     t.index ["company_id", "name"], name: "index_agents_on_company_id_and_name", unique: true
     t.index ["company_id"], name: "index_agents_on_company_id"
+    t.index ["goal_id"], name: "index_agents_on_goal_id"
     t.index ["status"], name: "index_agents_on_status"
   end
 
@@ -390,6 +392,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_28_193033) do
   add_foreign_key "agent_skills", "agents"
   add_foreign_key "agent_skills", "skills"
   add_foreign_key "agents", "companies"
+  add_foreign_key "agents", "goals"
   add_foreign_key "approval_gates", "agents"
   add_foreign_key "audit_events", "companies"
   add_foreign_key "config_versions", "companies"
