@@ -288,11 +288,10 @@ Plans:
   3. After a run completes, the session ID from the result event is stored on the AgentRun; the next run for the same agent passes `--resume <session_id>` so Claude maintains conversation context
   4. The cost from the result event's `total_cost_usd` field is written to AgentRun cost_cents and triggers budget enforcement
   5. If the agent's budget is exhausted before execution starts, the run is blocked and the AgentRun is marked failed with a budget reason -- no tmux session is spawned
-**Plans**: TBD
+**Plans**: 1/1 complete
 
 Plans:
-- [ ] 24-01: ClaudeExecutionService with tmux session lifecycle, stream-JSON parsing, session capture, and budget gate
-- [ ] 24-02: Session resumption (--resume flag), cost tracking, budget enforcement wiring, and ClaudeLocalAdapter integration
+- [x] 24-01: ClaudeLocalAdapter.execute with tmux session lifecycle, stream-JSON parsing, session ID capture, budget gate, and --resume support
 
 ### Phase 25: Live Streaming UI and Result Callbacks
 **Goal**: Users watch agent output stream live in the browser, agent status updates appear on the dashboard in real time, and agents can report task completion back to Director via API
@@ -342,5 +341,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 21. Hook Management UI | v1.3 | 1/1 | Complete | 2026-03-28 |
 | 22. AgentRun Data Model and Job Dispatch | v1.4 | 1/1 | Complete | 2026-03-28 |
 | 23. HTTP Adapter Real Execution | v1.4 | 1/1 | Complete | 2026-03-28 |
-| 24. Claude Local Adapter with Tmux | v1.4 | 0/TBD | Not started | - |
+| 24. Claude Local Adapter with Tmux | v1.4 | 1/1 | Complete | 2026-03-28 |
 | 25. Live Streaming UI and Result Callbacks | v1.4 | 0/TBD | Not started | - |
