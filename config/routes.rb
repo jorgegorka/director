@@ -28,11 +28,18 @@ Rails.application.routes.draw do
   resource :org_chart, only: [ :show ]
 
   # Skills (scoped to active company via Current.company)
-  resources :skills
+  resources :skills do
+    resources :skill_documents, only: [ :create, :destroy ]
+  end
+
+  # Documents (scoped to active company via Current.company)
+  resources :documents
+  resources :document_tags, only: [ :index, :create, :destroy ]
 
   # Agents (scoped to active company via Current.company)
   resources :agents do
     resources :agent_skills, only: [ :create, :destroy ]
+    resources :agent_documents, only: [ :create, :destroy ]
     resources :heartbeats, only: [ :index ]
     resources :agent_hooks
     member do
@@ -46,6 +53,7 @@ Rails.application.routes.draw do
 
   # Tasks (scoped to active company via Current.company)
   resources :tasks do
+    resources :task_documents, only: [ :create, :destroy ]
     resources :messages, only: [ :create ]
     member do
       post :delegate, to: "task_delegations#create"
