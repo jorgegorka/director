@@ -13,7 +13,7 @@ Director transforms the chaos of managing multiple AI agents into a structured b
 - v1.1 SQLite Migration & Cleanup - Phases 11-12 (shipped 2026-03-28)
 - v1.2 Agent Skills - Phases 13-17 (shipped 2026-03-28)
 - v1.3 Agent Hooks - Phases 18-21 (shipped 2026-03-28)
-- v1.4 Agent Execution - Phases 22-25 (in progress)
+- v1.4 Agent Execution - Phases 22-25 (shipped 2026-03-28)
 
 ## Phases
 
@@ -242,7 +242,7 @@ Full details: [v1.3-ROADMAP.md](milestones/v1.3-ROADMAP.md)
 
 </details>
 
-## v1.4 Agent Execution (In Progress)
+## v1.4 Agent Execution (Shipped 2026-03-28)
 
 **Milestone Goal:** Make agents actually execute work -- Claude CLI with live streaming output, HTTP wake delivery, full autonomous task runs with API callbacks.
 
@@ -304,12 +304,12 @@ Plans:
   3. The dashboard and agent show page update the agent status badge from idle to running and back to idle without page refresh
   4. A cancel button on the running AgentRun kills the tmux session and marks the run as cancelled within a few seconds
   5. An agent can POST to `/api/agent_runs/:id/result` to report task completion, causing the task status to update and a completion message to appear in the task conversation thread
-**Plans**: TBD
+**Plans**: 3/3 complete
 
 Plans:
-- [ ] 25-01: AgentRunsController (index + show), turbo_stream_from live view, broadcast_line wiring in ClaudeExecutionService
-- [ ] 25-02: Agent status broadcasts, cancel action, STREAM-03 tool-use indicators, broadcast batching
-- [ ] 25-03: Api::AgentRunsController result and progress callback endpoints, task status update, conversation message posting
+- [x] 25-01: AgentRunsController (index + show), turbo_stream_from live view, broadcast_line! wiring in ClaudeLocalAdapter
+- [x] 25-02: Agent status broadcasts, cancel action, STREAM-03 tool-use indicators, broadcast batching
+- [x] 25-03: Api::AgentRunsController result and progress callback endpoints, task status update, conversation message posting
 
 ## Progress
 
@@ -342,4 +342,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 22. AgentRun Data Model and Job Dispatch | v1.4 | 1/1 | Complete | 2026-03-28 |
 | 23. HTTP Adapter Real Execution | v1.4 | 1/1 | Complete | 2026-03-28 |
 | 24. Claude Local Adapter with Tmux | v1.4 | 1/1 | Complete | 2026-03-28 |
-| 25. Live Streaming UI and Result Callbacks | v1.4 | 0/TBD | Not started | - |
+| 25. Live Streaming UI and Result Callbacks | v1.4 | 3/3 | Complete | 2026-03-28 |
