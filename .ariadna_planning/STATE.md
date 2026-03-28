@@ -5,14 +5,14 @@
 See: .ariadna_planning/PROJECT.md (updated 2026-03-28)
 
 **Core value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
-**Current focus:** v1.2 -- Agent Skills (Phase 16: Skills CRUD)
+**Current focus:** v1.2 -- Agent Skills (Phase 17: Agent Skill Management)
 
 ## Current Position
 
-Phase: 16 - Skills CRUD
-Plan: 02
-Status: Complete (plan 02 done -- phase complete)
-Last activity: 2026-03-28 -- Plan 16-02 complete: SkillsController tests (35 tests, all passing), 726 tests pass
+Phase: 17 - Agent Skill Management
+Plan: --
+Status: Not started
+Last activity: 2026-03-28 -- Phase 16 complete: Skills CRUD with full controller, views, category filtering, builtin protection, nav link, 35 new tests, 726 total pass
 
 ## Performance Metrics
 

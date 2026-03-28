@@ -283,10 +283,11 @@ Plans:
   3. User can edit any skill (including builtin skills) to customize the instruction content for their company
   4. User can create new custom skills (marked builtin: false) and destroy custom skills, but cannot destroy builtin skills
   5. Skill routes are active and capability routes are removed from the application
-**Plans**: TBD
+**Plans**: 2/2 complete
 
 Plans:
-- [ ] 16-01: TBD
+- [x] 16-01: Skills controller CRUD, routes, views with category filtering and builtin protection
+- [x] 16-02: Comprehensive controller tests (35 tests) covering all actions, filtering, isolation, auth
 
 #### Phase 17: Agent Skill Management
 **Goal**: Per-agent skill assignment and removal UI, with agent views updated to show skills instead of capabilities
@@ -325,5 +326,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 13. Skill Data Model | v1.2 | 2/2 | Complete | 2026-03-28 |
 | 14. Skill Catalog & Seeding | v1.2 | 2/2 | Complete | 2026-03-28 |
 | 15. Role Auto-Assignment | v1.2 | 1/1 | Complete | 2026-03-28 |
-| 16. Skills CRUD | v1.2 | 0/TBD | Not started | - |
+| 16. Skills CRUD | v1.2 | 2/2 | Complete | 2026-03-28 |
 | 17. Agent Skill Management | v1.2 | 0/TBD | Not started | - |
