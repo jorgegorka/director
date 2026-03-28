@@ -3,7 +3,7 @@ class SkillsController < ApplicationController
   before_action :set_skill, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    @skills = Current.company.skills.order(:name)
+    @skills = Current.company.skills.includes(:agents).order(:name)
     @skills = @skills.by_category(params[:category]) if params[:category].present?
     @current_category = params[:category]
     @categories = Current.company.skills.where.not(category: [ nil, "" ]).distinct.pluck(:category).sort
