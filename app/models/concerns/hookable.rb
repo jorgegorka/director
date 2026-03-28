@@ -29,6 +29,14 @@ module Hookable
     end
   end
 
+  def enqueue_validation_feedback
+    return unless saved_change_to_status?
+    return unless completed?
+    return unless parent_task_id.present?
+
+    ProcessValidationResultJob.perform_later(id)
+  end
+
   def build_hook_input_payload(hook)
     {
       task_id: id,

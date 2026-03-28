@@ -31,6 +31,7 @@ class Task < ApplicationRecord
   after_commit :broadcast_kanban_update, on: [ :create, :update ]
   after_commit :broadcast_kanban_remove, on: :destroy
   after_commit :enqueue_hooks_for_transition, on: [ :create, :update ]
+  after_commit :enqueue_validation_feedback, on: [ :create, :update ]
 
   def cost_in_dollars
     return nil unless cost_cents
