@@ -100,6 +100,14 @@ Rails.application.routes.draw do
         end
       end
     end
+
+    # Agent run callbacks (agents report results/progress back to Director)
+    resources :agent_runs, only: [] do
+      member do
+        post :result
+        post :progress
+      end
+    end
   end
 
   # Dashboard (company command center — root landing page)
