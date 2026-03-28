@@ -7,6 +7,8 @@ class WakeAgentServiceTest < ActiveSupport::TestCase
     @http_agent = agents(:http_agent)
     @process_agent = agents(:process_agent)
     @claude_agent = agents(:claude_agent)
+    # Clear active fixture runs so the idempotency guard doesn't block test dispatches
+    AgentRun.active.delete_all
   end
 
   test "creates heartbeat event for http agent with delivered status" do
