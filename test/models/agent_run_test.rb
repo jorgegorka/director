@@ -275,7 +275,7 @@ class AgentRunTest < ActiveSupport::TestCase
     run = AgentRun.create!(agent: @agent, company: @company, status: :running, started_at: 1.minute.ago)
     assert_nil run.log_output
     run.append_log!("Hello world\n")
-    assert_equal "Hello world\n", run.log_output
+    assert_equal "Hello world\n", run.reload.log_output
   end
 
   test "append_log! appends text to existing log_output" do
@@ -284,7 +284,7 @@ class AgentRunTest < ActiveSupport::TestCase
       started_at: 1.minute.ago, log_output: "Line 1\n"
     )
     run.append_log!("Line 2\n")
-    assert_equal "Line 1\nLine 2\n", run.log_output
+    assert_equal "Line 1\nLine 2\n", run.reload.log_output
   end
 
   test "append_log! ignores blank text" do
@@ -297,6 +297,29 @@ class AgentRunTest < ActiveSupport::TestCase
     run = AgentRun.create!(agent: @agent, company: @company, status: :running, started_at: 1.minute.ago)
     run.append_log!(nil)
     assert_nil run.log_output
+  end
+
+  # --- broadcast_line! ---
+
+  test "broadcast_line! persists text via append_log!" do
+    run = agent_runs(:running_run)
+    run.update_columns(log_output: nil)
+    run.broadcast_line!("hello world\n")
+    assert_equal "hello world\n", run.reload.log_output
+  end
+
+  test "broadcast_line! skips blank text" do
+    run = agent_runs(:running_run)
+    run.update_columns(log_output: "existing\n")
+    run.broadcast_line!("")
+    run.broadcast_line!(nil)
+    assert_equal "existing\n", run.reload.log_output
+  end
+
+  test "broadcast_line! broadcasts to agent_run stream" do
+    run = agent_runs(:running_run)
+    # Verify no error raised when broadcasting (Turbo Streams are fire-and-forget in test)
+    assert_nothing_raised { run.broadcast_line!("test line\n") }
   end
 
   # --- duration_seconds ---

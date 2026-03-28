@@ -125,7 +125,7 @@ class ClaudeLocalAdapter < BaseAdapter
       if lines.size > last_line_count
         new_lines = lines[last_line_count..]
         new_lines.each do |line|
-          agent_run.append_log!(line + "\n")
+          agent_run.broadcast_line!(line + "\n")
           accumulated_lines << line
         end
         last_line_count = lines.size
@@ -145,7 +145,7 @@ class ClaudeLocalAdapter < BaseAdapter
     lines = output.split("\n")
     if lines.size > last_line_count
       lines[last_line_count..].each do |line|
-        agent_run.append_log!(line + "\n")
+        agent_run.broadcast_line!(line + "\n")
         accumulated_lines << line
       end
     end
