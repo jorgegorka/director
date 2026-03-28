@@ -10,17 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_28_103248) do
-  create_table "agent_capabilities", force: :cascade do |t|
-    t.bigint "agent_id", null: false
-    t.datetime "created_at", null: false
-    t.text "description"
-    t.string "name", null: false
-    t.datetime "updated_at", null: false
-    t.index ["agent_id", "name"], name: "index_agent_capabilities_on_agent_id_and_name", unique: true
-    t.index ["agent_id"], name: "index_agent_capabilities_on_agent_id"
-  end
-
+ActiveRecord::Schema[8.1].define(version: 2026_03_28_103718) do
   create_table "agent_skills", force: :cascade do |t|
     t.integer "agent_id", null: false
     t.datetime "created_at", null: false
@@ -267,7 +257,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_28_103248) do
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
   end
 
-  add_foreign_key "agent_capabilities", "agents"
   add_foreign_key "agent_skills", "agents"
   add_foreign_key "agent_skills", "skills"
   add_foreign_key "agents", "companies"
