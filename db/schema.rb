@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_27_191216) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_28_103248) do
   create_table "agent_capabilities", force: :cascade do |t|
     t.bigint "agent_id", null: false
     t.datetime "created_at", null: false
@@ -19,6 +19,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_27_191216) do
     t.datetime "updated_at", null: false
     t.index ["agent_id", "name"], name: "index_agent_capabilities_on_agent_id_and_name", unique: true
     t.index ["agent_id"], name: "index_agent_capabilities_on_agent_id"
+  end
+
+  create_table "agent_skills", force: :cascade do |t|
+    t.integer "agent_id", null: false
+    t.datetime "created_at", null: false
+    t.integer "skill_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["agent_id", "skill_id"], name: "index_agent_skills_on_agent_id_and_skill_id", unique: true
+    t.index ["agent_id"], name: "index_agent_skills_on_agent_id"
+    t.index ["skill_id"], name: "index_agent_skills_on_skill_id"
   end
 
   create_table "agents", force: :cascade do |t|
@@ -210,6 +220,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_27_191216) do
     t.index ["user_id"], name: "index_sessions_on_user_id"
   end
 
+  create_table "skills", force: :cascade do |t|
+    t.boolean "builtin", default: true, null: false
+    t.string "category"
+    t.integer "company_id", null: false
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.string "key", null: false
+    t.text "markdown", null: false
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["company_id", "category"], name: "index_skills_on_company_id_and_category"
+    t.index ["company_id", "key"], name: "index_skills_on_company_id_and_key", unique: true
+    t.index ["company_id"], name: "index_skills_on_company_id"
+  end
+
   create_table "tasks", force: :cascade do |t|
     t.bigint "assignee_id"
     t.bigint "company_id", null: false
@@ -243,6 +268,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_27_191216) do
   end
 
   add_foreign_key "agent_capabilities", "agents"
+  add_foreign_key "agent_skills", "agents"
+  add_foreign_key "agent_skills", "skills"
   add_foreign_key "agents", "companies"
   add_foreign_key "approval_gates", "agents"
   add_foreign_key "audit_events", "companies"
@@ -261,6 +288,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_27_191216) do
   add_foreign_key "roles", "companies"
   add_foreign_key "roles", "roles", column: "parent_id"
   add_foreign_key "sessions", "users"
+  add_foreign_key "skills", "companies"
   add_foreign_key "tasks", "agents", column: "assignee_id"
   add_foreign_key "tasks", "companies"
   add_foreign_key "tasks", "goals"
