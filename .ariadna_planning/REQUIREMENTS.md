@@ -7,16 +7,16 @@
 
 All 38 requirements shipped in v1.0 (phases 1-10). See git history for details.
 
-- [x] AUTH-01 through AUTH-04 — Authentication (Phase 1)
-- [x] ACCT-01 through ACCT-03 — Accounts & Multi-tenancy (Phase 2)
-- [x] ORG-01 through ORG-04 — Org Chart & Roles (Phase 3)
-- [x] AGNT-01 through AGNT-04 — Agent Connection (Phase 4)
-- [x] TASK-01 through TASK-04 — Tasks & Conversations (Phase 5)
-- [x] GOAL-01 through GOAL-03 — Goals & Alignment (Phase 6)
-- [x] BEAT-01 through BEAT-04 — Heartbeats & Triggers (Phase 7)
-- [x] BUDG-01 through BUDG-04 — Budget & Cost Control (Phase 8)
-- [x] GOVR-01 through GOVR-04 — Governance & Audit (Phase 9)
-- [x] DASH-01 through DASH-04 — Dashboard & Real-time UI (Phase 10)
+- [x] AUTH-01 through AUTH-04 -- Authentication (Phase 1)
+- [x] ACCT-01 through ACCT-03 -- Accounts & Multi-tenancy (Phase 2)
+- [x] ORG-01 through ORG-04 -- Org Chart & Roles (Phase 3)
+- [x] AGNT-01 through AGNT-04 -- Agent Connection (Phase 4)
+- [x] TASK-01 through TASK-04 -- Tasks & Conversations (Phase 5)
+- [x] GOAL-01 through GOAL-03 -- Goals & Alignment (Phase 6)
+- [x] BEAT-01 through BEAT-04 -- Heartbeats & Triggers (Phase 7)
+- [x] BUDG-01 through BUDG-04 -- Budget & Cost Control (Phase 8)
+- [x] GOVR-01 through GOVR-04 -- Governance & Audit (Phase 9)
+- [x] DASH-01 through DASH-04 -- Dashboard & Real-time UI (Phase 10)
 
 ## v1.1 Requirements
 
@@ -24,17 +24,17 @@ Requirements for SQLite migration and cleanup. Each maps to roadmap phases.
 
 ### Database Migration
 
-- [ ] **DB-01**: Primary database uses SQLite instead of PostgreSQL — *simplifies deployment, eliminates external DB dependency*
-- [ ] **DB-02**: All jsonb columns migrated to json type compatible with SQLite — *8 columns across 5 tables*
-- [ ] **DB-03**: Gemfile removes pg gem and uses sqlite3 as sole database adapter — *single DB engine*
-- [ ] **DB-04**: All environments (dev/test/prod) use SQLite in database.yml — *consistent behavior across environments*
-- [ ] **DB-05**: Dockerfile and deploy config updated for SQLite-only stack — *no PostgreSQL packages needed*
+- [ ] **DB-01**: Primary database uses SQLite instead of PostgreSQL -- *simplifies deployment, eliminates external DB dependency*
+- [ ] **DB-02**: All jsonb columns migrated to json type compatible with SQLite -- *8 columns across 5 tables*
+- [ ] **DB-03**: Gemfile removes pg gem and uses sqlite3 as sole database adapter -- *single DB engine*
+- [ ] **DB-04**: All environments (dev/test/prod) use SQLite in database.yml -- *consistent behavior across environments*
+- [ ] **DB-05**: Dockerfile and deploy config updated for SQLite-only stack -- *no PostgreSQL packages needed*
 
 ### Cleanup
 
-- [ ] **CLN-01**: CLAUDE.md and project docs updated to reflect SQLite stack — *docs match reality*
-- [ ] **CLN-02**: Unused code, dead helpers, and leftover scaffolding removed — *reduce maintenance surface*
-- [ ] **CLN-03**: All existing tests pass after migration — *no regressions*
+- [ ] **CLN-01**: CLAUDE.md and project docs updated to reflect SQLite stack -- *docs match reality*
+- [ ] **CLN-02**: Unused code, dead helpers, and leftover scaffolding removed -- *reduce maintenance surface*
+- [ ] **CLN-03**: All existing tests pass after migration -- *no regressions*
 
 ## v2 Requirements
 
@@ -87,20 +87,20 @@ All 38 requirements mapped to phases 1-10. Complete.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DB-01 | TBD | Pending |
-| DB-02 | TBD | Pending |
-| DB-03 | TBD | Pending |
-| DB-04 | TBD | Pending |
-| DB-05 | TBD | Pending |
-| CLN-01 | TBD | Pending |
-| CLN-02 | TBD | Pending |
-| CLN-03 | TBD | Pending |
+| DB-01 | 11 - SQLite Migration | Pending |
+| DB-02 | 11 - SQLite Migration | Pending |
+| DB-03 | 11 - SQLite Migration | Pending |
+| DB-04 | 11 - SQLite Migration | Pending |
+| DB-05 | 11 - SQLite Migration | Pending |
+| CLN-01 | 12 - Cleanup & Verification | Pending |
+| CLN-02 | 12 - Cleanup & Verification | Pending |
+| CLN-03 | 12 - Cleanup & Verification | Pending |
 
 **Coverage:**
 - v1.1 requirements: 8 total
-- Mapped to phases: 0 (pending roadmap)
-- Unmapped: 8
+- Mapped to phases: 8/8 (100%)
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-26*
-*Last updated: 2026-03-28 after v1.1 requirements defined*
+*Last updated: 2026-03-28 after v1.1 roadmap created (phases 11-12)*

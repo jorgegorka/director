@@ -7,6 +7,11 @@ Director transforms the chaos of managing multiple AI agents into a structured b
 **Product vision:** Users can set up an AI company, assign agents to roles, define goals, set budgets, and walk away -- checking in periodically to approve decisions, review work, and adjust course.
 **Building for:** Solo AI builders running multiple agents across providers, small teams prototyping zero-human workflows, and developers who need self-hostable orchestration infrastructure.
 
+## Milestones
+
+- v1.0 Core Platform - Phases 1-10 (shipped 2026-03-28)
+- v1.1 SQLite Migration & Cleanup - Phases 11-12 (in progress)
+
 ## Phases
 
 **Phase Numbering:**
@@ -14,6 +19,9 @@ Director transforms the chaos of managing multiple AI agents into a structured b
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
 Decimal phases appear between their surrounding integers in numeric order.
+
+<details>
+<summary>v1.0 Core Platform (Phases 1-10) - SHIPPED 2026-03-28</summary>
 
 - [x] **Phase 1: Authentication** - Users can create accounts, log in, and manage credentials
 - [x] **Phase 2: Accounts & Multi-tenancy** - Users can create isolated companies with team access
@@ -25,8 +33,6 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 8: Budget & Cost Control** - Users can enforce per-agent spending limits with atomic enforcement
 - [x] **Phase 9: Governance & Audit** - Users can gate high-impact actions, control agents, and audit everything
 - [x] **Phase 10: Dashboard & Real-time UI** - Users get a unified command center with live updates
-
-## Phase Details
 
 ### Phase 1: Authentication
 **Goal**: Users can securely create and manage their accounts
@@ -86,12 +92,12 @@ Plans:
   2. User can register an agent via bash command configuration for local agents
   3. System displays agent status (online/offline/error) and updates it based on health checks
   4. Agents can declare capabilities/skills on registration, visible in the agent profile
-**Plans**: TBD
+**Plans**: 3/3 complete
 
 Plans:
-- [ ] 04-01: TBD
-- [ ] 04-02: TBD
-- [ ] 04-03: TBD
+- [x] 04-01: Agent model, adapters (HTTP + Bash), API token, status enum, capabilities jsonb
+- [x] 04-02: AgentsController CRUD, adapter config UI, Stimulus adapter toggle
+- [x] 04-03: Health check service, agent skills API, role agent_name population
 
 ### Phase 5: Tasks & Conversations
 **Goal**: Users can create, assign, and track units of work with full conversation history and audit trail
@@ -196,20 +202,63 @@ Plans:
 - [x] 10-03: Activity timeline with agent filter and audit event display
 - [x] 10-04: Real-time Turbo Stream broadcasts for live dashboard updates
 
+</details>
+
+### v1.1 SQLite Migration & Cleanup (In Progress)
+
+**Milestone Goal:** Replace PostgreSQL with SQLite for the primary database, unifying all databases on a single engine. Clean up v1.0 tech debt so the codebase is lean and docs match reality.
+
+- [ ] **Phase 11: SQLite Migration** - Primary database switches from PostgreSQL to SQLite
+- [ ] **Phase 12: Cleanup & Verification** - Docs, dead code, and test suite aligned with the new stack
+
+## Phase Details
+
+### Phase 11: SQLite Migration
+**Goal**: The application runs entirely on SQLite -- primary database, queue, cache, and cable all use the same engine
+**Why this matters**: Developers who want to self-host Director currently need PostgreSQL running alongside SQLite (for Solid Queue/Cache/Cable). Unifying on SQLite eliminates that external dependency, making setup as simple as cloning the repo and running `bin/setup` -- no database server to install, configure, or maintain.
+**Depends on**: Phase 10 (v1.0 complete)
+**Requirements**: DB-01, DB-02, DB-03, DB-04, DB-05
+**Success Criteria** (what must be TRUE):
+  1. Developer can clone the repo, run `bin/setup`, and the app starts with zero external database dependencies -- no PostgreSQL installation required
+  2. All 8 jsonb columns function correctly as json columns under SQLite -- agent capabilities, adapter config, approval gates, config version snapshots, and other structured data read and write without error
+  3. `bin/rails test` passes in full with SQLite as the primary database -- no PostgreSQL-specific SQL or features cause failures
+  4. Docker build completes without PostgreSQL client libraries and the production container runs on SQLite only
+**Plans**: TBD
+
+Plans:
+- [ ] 11-01: TBD
+- [ ] 11-02: TBD
+
+### Phase 12: Cleanup & Verification
+**Goal**: Project documentation, codebase, and test suite are fully aligned with the SQLite stack and free of v1.0 tech debt
+**Why this matters**: After 10 phases of rapid feature development, the codebase has accumulated rough edges -- dead helpers, leftover scaffolding, and docs that reference PostgreSQL. Developers evaluating or contributing to Director will judge it by these details. Clean code and accurate docs signal a mature project worth investing in.
+**Depends on**: Phase 11 (migration must be complete before docs can reflect it and tests can verify it)
+**Requirements**: CLN-01, CLN-02, CLN-03
+**Success Criteria** (what must be TRUE):
+  1. CLAUDE.md, PROJECT.md, and all planning docs reference SQLite as the primary database -- no stale PostgreSQL mentions remain in project guidance
+  2. Running a dead code audit finds no unused helpers, orphaned partials, or leftover scaffolding from v1.0 development
+  3. The full CI suite (`bin/ci` -- rubocop, brakeman, bundler-audit, and all tests) passes green with no warnings related to the database migration
+**Plans**: TBD
+
+Plans:
+- [ ] 12-01: TBD
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10 -> 11 -> 12
 
-| Phase | Plans Complete | Status | Completed |
-|-------|----------------|--------|-----------|
-| 1. Authentication | 2/2 | Complete | 2026-03-26 |
-| 2. Accounts & Multi-tenancy | 2/2 | Complete | 2026-03-26 |
-| 3. Org Chart & Roles | 2/2 | Complete | 2026-03-27 |
-| 4. Agent Connection | 3/3 | Complete | 2026-03-27 |
-| 5. Tasks & Conversations | 3/3 | Complete | 2026-03-27 |
-| 6. Goals & Alignment | 2/2 | Complete | 2026-03-27 |
-| 7. Heartbeats & Triggers | 3/3 | Complete | 2026-03-27 |
-| 8. Budget & Cost Control | 4/4 | Complete | 2026-03-27 |
-| 9. Governance & Audit | 4/4 | Complete | 2026-03-27 |
-| 10. Dashboard & Real-time UI | 4/4 | Complete | 2026-03-28 |
+| Phase | Milestone | Plans Complete | Status | Completed |
+|-------|-----------|----------------|--------|-----------|
+| 1. Authentication | v1.0 | 2/2 | Complete | 2026-03-26 |
+| 2. Accounts & Multi-tenancy | v1.0 | 2/2 | Complete | 2026-03-26 |
+| 3. Org Chart & Roles | v1.0 | 2/2 | Complete | 2026-03-27 |
+| 4. Agent Connection | v1.0 | 3/3 | Complete | 2026-03-27 |
+| 5. Tasks & Conversations | v1.0 | 3/3 | Complete | 2026-03-27 |
+| 6. Goals & Alignment | v1.0 | 2/2 | Complete | 2026-03-27 |
+| 7. Heartbeats & Triggers | v1.0 | 3/3 | Complete | 2026-03-27 |
+| 8. Budget & Cost Control | v1.0 | 4/4 | Complete | 2026-03-27 |
+| 9. Governance & Audit | v1.0 | 4/4 | Complete | 2026-03-27 |
+| 10. Dashboard & Real-time UI | v1.0 | 4/4 | Complete | 2026-03-28 |
+| 11. SQLite Migration | v1.1 | 0/2 | Not started | - |
+| 12. Cleanup & Verification | v1.1 | 0/1 | Not started | - |

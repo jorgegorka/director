@@ -2,17 +2,17 @@
 
 ## Project Reference
 
-See: .ariadna_planning/PROJECT.md (updated 2026-03-26)
+See: .ariadna_planning/PROJECT.md (updated 2026-03-28)
 
 **Core value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
-**Current focus:** v1.1 — SQLite Migration & Cleanup
+**Current focus:** v1.1 -- SQLite Migration & Cleanup
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-03-28 — Milestone v1.1 started
+Phase: 11 - SQLite Migration
+Plan: --
+Status: Not started
+Last activity: 2026-03-28 -- v1.1 roadmap created (phases 11-12)
 
 ## Performance Metrics
 
@@ -38,7 +38,7 @@ Last activity: 2026-03-28 — Milestone v1.1 started
 
 **Recent Trend:**
 - Last 5 plans: 09-04 (~11 min), 10-01 (~12 min), 10-02 (~4 min), 10-03 (~8 min), 10-04 (~3 min)
-- Trend: consistent, stable. Project COMPLETE.
+- Trend: consistent, stable. v1.0 COMPLETE. v1.1 roadmap created.
 
 *Updated after each plan completion*
 
@@ -51,6 +51,9 @@ Recent decisions affecting current work:
 
 - [Roadmap]: 10 phases derived from 38 requirements across 10 categories -- comprehensive depth
 - [Roadmap]: Multi-tenancy (Current.account scoping) established in Phase 2 as foundation for all subsequent phases
+- [v1.1-Roadmap]: 2 phases (11-12) derived from 8 requirements across 2 categories -- DB migration then cleanup
+- [v1.1-Roadmap]: Phase 11 covers all 5 DB-* requirements as one coherent deliverable (gem swap + config + column migration + deploy)
+- [v1.1-Roadmap]: Phase 12 covers all 3 CLN-* requirements (docs + dead code + test verification) -- depends on Phase 11
 - [01-01]: Rails 8 built-in authentication generator used (has_secure_password, Session model, Authentication concern)
 - [01-01]: `email_address` field name (not `email`) -- Rails 8 auth generator convention, keep throughout
 - [01-01]: PostgreSQL for primary database; sqlite3 retained for Solid Queue/Cache/Cable secondary connections
@@ -134,5 +137,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-28
-Stopped at: Phase 10 COMPLETE — Plan 10-04 done (Turbo Streams real-time broadcasts, 674 tests, all 10 phases complete)
-Resume file: .ariadna_planning/phases/10-dashboard-real-time-ui/10-04-SUMMARY.md
+Stopped at: v1.1 roadmap created (phases 11-12 covering 8 requirements)
+Resume file: .ariadna_planning/ROADMAP.md
+Next step: `/ariadna:plan-phase 11`
