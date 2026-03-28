@@ -5,19 +5,19 @@
 See: .ariadna_planning/PROJECT.md (updated 2026-03-28)
 
 **Core value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
-**Current focus:** v1.3 Agent Hooks -- Phase 19
+**Current focus:** v1.3 Agent Hooks -- Phase 20
 
 ## Current Position
 
 Phase: 19 - Hook Triggering Engine
-Plan: 01 complete
-Status: In Progress
-Last activity: 2026-03-28 -- 19-01 complete (Hookable concern + ExecuteHookJob + tests)
+Plan: 02 complete (phase complete)
+Status: Complete
+Last activity: 2026-03-28 -- 19-02 complete (ExecuteHookService dispatch logic + tests)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 39
+- Total plans completed: 40
 - Average duration: ~7 minutes
 - Total execution time: ~220 minutes
 
@@ -43,11 +43,11 @@ Last activity: 2026-03-28 -- 19-01 complete (Hookable concern + ExecuteHookJob +
 | 16-skills-crud | 2/2 | ~13 min | ~6.5 min |
 | 17-agent-skill-management | 2/2 | ~7 min | ~3.5 min |
 | 18-hook-data-foundation | 1/1 | ~4 min | ~4 min |
-| 19-hook-triggering-engine | 1/? | ~3 min | ~3 min |
+| 19-hook-triggering-engine | 2/2 | ~6 min | ~3 min |
 
 **Recent Trend:**
-- Last 5 plans: 17-01 (~4 min), 17-02 (~3 min), 18-01 (~4 min), 19-01 (~3 min)
-- Trend: consistent, stable. v1.0 COMPLETE. v1.1 COMPLETE. v1.2 COMPLETE. v1.3 in progress.
+- Last 5 plans: 17-02 (~3 min), 18-01 (~4 min), 19-01 (~3 min), 19-02 (~3 min)
+- Trend: consistent, stable. v1.0 COMPLETE. v1.1 COMPLETE. v1.2 COMPLETE. v1.3 in progress (Phase 19 COMPLETE).
 
 *Updated after each plan completion*
 
@@ -179,6 +179,11 @@ Recent decisions affecting current work:
 - [19-01]: HOOKABLE_TRANSITIONS maps only in_progress/completed -- all other status values return nil and are silently ignored, no explicit rejection needed
 - [19-01]: ExecuteHookJob must exist before hookable.rb is used in tests -- NameError raised on first after_commit trigger; created job in Task 1 as Rule 3 fix
 - [19-01]: claude_agent has 2 after_task_start hooks (claude_webhook_hook pos 0, claude_start_validation_hook pos 1) -- direct in_progress creation test expects 2 HookExecutions not 1
+- [19-02]: ExecuteHookService re-raises StandardError after mark_failed! -- required for ExecuteHookJob retry_on mechanism to catch it; service swallowing exception would prevent retries
+- [19-02]: unless execution.failed? guard on mark_failed! prevents double-marking on job retry (execution already marked failed from previous attempt)
+- [19-02]: Creating a validation subtask with an assignee fires Triggerable#trigger_assignment_wake (task_assigned event) in addition to the explicit hook_triggered WakeAgentService call -- HeartbeatEvent count is 2 not 1
+- [19-02]: hook_executed added to AuditEvent::GOVERNANCE_ACTIONS -- hook execution affects agent behavior (creates tasks, wakes agents), fits governance visibility pattern
+- [19-02]: webmock gem added to :development/:test group for HTTP stubbing in service tests
 
 ### Pending Todos
 
@@ -191,6 +196,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-28
-Stopped at: 19-01 complete -- Hookable concern + ExecuteHookJob + comprehensive tests (809 tests, 0 failures)
-Resume file: .ariadna_planning/phases/19-hook-triggering-engine/19-01-SUMMARY.md
-Next step: Execute 19-02 (ExecuteHookService dispatch logic)
+Stopped at: 19-02 complete -- ExecuteHookService dispatch logic + tests (826 tests, 0 failures)
+Resume file: .ariadna_planning/phases/19-hook-triggering-engine/19-02-SUMMARY.md
+Next step: Execute Phase 20 (feedback loop -- validation subtask processing)
