@@ -575,4 +575,251 @@ Message.create!(
 
 puts "  Created #{Message.where(task: tasks.values).count} messages across 5 task threads"
 
-puts "Done!"
+# Approval gates
+gate_defs = {
+  "Backend Engineer"  => %w[budget_spend task_creation],
+  "Security Engineer" => %w[status_change escalation],
+  "DevOps Engineer"   => %w[task_delegation budget_spend],
+  "CEO"               => %w[budget_spend]
+}
+
+gate_count = 0
+gate_defs.each do |agent_name, action_types|
+  action_types.each do |action_type|
+    ApprovalGate.create!(
+      agent: agents[agent_name],
+      action_type: action_type,
+      enabled: true
+    )
+    gate_count += 1
+  end
+end
+
+puts "  Created #{gate_count} approval gates"
+
+# Audit events — backdated for realistic activity timeline
+def create_audit_event!(attrs)
+  days_ago = attrs.delete(:days_ago) || 0
+  event = AuditEvent.create!(attrs)
+  AuditEvent.where(id: event.id).update_all(created_at: days_ago.days.ago) if days_ago > 0
+  event
+end
+
+create_audit_event!(
+  company: company, auditable: agents["CEO"], actor: user,
+  action: "agent_resumed", metadata: { status: "running" }, days_ago: 14
+)
+
+create_audit_event!(
+  company: company, auditable: agents["Security Engineer"], actor: agents["Security Engineer"],
+  action: "agent_paused", metadata: { reason: "Completed OWASP scan, awaiting next assignment" }, days_ago: 4
+)
+
+create_audit_event!(
+  company: company, auditable: agents["Security Engineer"], actor: user,
+  action: "agent_resumed", metadata: { status: "idle" }, days_ago: 4
+)
+
+create_audit_event!(
+  company: company, auditable: agents["Backend Engineer"], actor: user,
+  action: "gate_approval", metadata: { gate: "budget_spend", amount_cents: 6000, task: "Implement API rate limiting" }, days_ago: 7
+)
+
+create_audit_event!(
+  company: company, auditable: agents["DevOps Engineer"], actor: agents["CTO"],
+  action: "gate_approval", metadata: { gate: "task_delegation", task: "Set up staging environment" }, days_ago: 9
+)
+
+create_audit_event!(
+  company: company, auditable: agents["Security Engineer"], actor: agents["CTO"],
+  action: "gate_rejection", metadata: { gate: "escalation", reason: "Escalation not warranted — handle within team" }, days_ago: 6
+)
+
+create_audit_event!(
+  company: company, auditable: tasks["rate_limiting"], actor: agents["Backend Engineer"],
+  action: "cost_recorded", metadata: { cost_cents: 6000, task: "Implement API rate limiting" }, days_ago: 7
+)
+
+create_audit_event!(
+  company: company, auditable: tasks["ci_pipeline"], actor: agents["DevOps Engineer"],
+  action: "cost_recorded", metadata: { cost_cents: 3000, task: "Configure GitHub Actions CI pipeline" }, days_ago: 13
+)
+
+create_audit_event!(
+  company: company, auditable: tasks["staging_env"], actor: agents["DevOps Engineer"],
+  action: "cost_recorded", metadata: { cost_cents: 4500, task: "Set up staging environment" }, days_ago: 9
+)
+
+create_audit_event!(
+  company: company, auditable: agents["CTO"], actor: user,
+  action: "config_rollback",
+  metadata: { attribute: "budget_cents", old_value: 100_000, new_value: 150_000, reason: "Increased budget for Q2 technical initiatives" },
+  days_ago: 10
+)
+
+create_audit_event!(
+  company: company, auditable: agents["QA Engineer"], actor: user,
+  action: "emergency_stop", metadata: { reason: "Paused for test configuration fix" }, days_ago: 2
+)
+
+create_audit_event!(
+  company: company, auditable: agents["QA Engineer"], actor: user,
+  action: "emergency_resume", metadata: { reason: "Configuration fixed, resuming test execution" }, days_ago: 2
+)
+
+create_audit_event!(
+  company: company, auditable: agents["Backend Engineer"], actor: agents["Backend Engineer"],
+  action: "gate_blocked", metadata: { gate: "budget_spend", amount_cents: 8000, task: "Fix N+1 query on dashboard", reason: "Pending approval" }, days_ago: 1
+)
+
+create_audit_event!(
+  company: company, auditable: tasks["owasp_scan"], actor: agents["Security Engineer"],
+  action: "cost_recorded", metadata: { cost_cents: 2000, task: "Run OWASP dependency scan" }, days_ago: 4
+)
+
+create_audit_event!(
+  company: company, auditable: tasks["design_wireframes"], actor: agents["CMO"],
+  action: "cost_recorded", metadata: { cost_cents: 4500, task: "Design landing page wireframes" }, days_ago: 10
+)
+
+puts "  Created #{AuditEvent.where(company: company).count} audit events"
+
+# Notifications — mix of read and unread for the admin user
+def create_notification!(attrs)
+  days_ago = attrs.delete(:days_ago) || 0
+  is_read = attrs.delete(:read) || false
+  notif = Notification.create!(attrs)
+  updates = {}
+  updates[:created_at] = days_ago.days.ago if days_ago > 0
+  updates[:read_at] = (days_ago.days.ago + 1.hour) if is_read
+  notif.update_columns(updates) if updates.any?
+  notif
+end
+
+# Unread notifications (8)
+create_notification!(
+  company: company, recipient: user, actor: agents["Backend Engineer"],
+  notifiable: agents["Backend Engineer"],
+  action: "budget_threshold_alert",
+  metadata: { agent_name: "Backend Engineer", utilization: 75, budget_cents: 80_000, spent_cents: 60_000 },
+  days_ago: 1
+)
+
+create_notification!(
+  company: company, recipient: user, actor: agents["DevOps Engineer"],
+  notifiable: agents["DevOps Engineer"],
+  action: "gate_approval_requested",
+  metadata: { agent_name: "DevOps Engineer", gate: "budget_spend", task: "Implement zero-downtime deploys" },
+  days_ago: 1
+)
+
+create_notification!(
+  company: company, recipient: user, actor: agents["Security Engineer"],
+  notifiable: agents["Security Engineer"],
+  action: "gate_approval_requested",
+  metadata: { agent_name: "Security Engineer", gate: "status_change", task: "Audit authentication flow" },
+  days_ago: 2
+)
+
+create_notification!(
+  company: company, recipient: user, actor: agents["Security Engineer"],
+  notifiable: tasks["owasp_scan"],
+  action: "task_completed",
+  metadata: { task_title: "Run OWASP dependency scan", agent_name: "Security Engineer" },
+  days_ago: 4
+)
+
+create_notification!(
+  company: company, recipient: user, actor: agents["DevOps Engineer"],
+  notifiable: tasks["staging_env"],
+  action: "task_completed",
+  metadata: { task_title: "Set up staging environment", agent_name: "DevOps Engineer" },
+  days_ago: 9
+)
+
+create_notification!(
+  company: company, recipient: user, actor: agents["Security Engineer"],
+  notifiable: agents["Security Engineer"],
+  action: "agent_status_changed",
+  metadata: { agent_name: "Security Engineer", old_status: "running", new_status: "idle" },
+  days_ago: 4
+)
+
+create_notification!(
+  company: company, recipient: user, actor: agents["QA Engineer"],
+  notifiable: agents["QA Engineer"],
+  action: "agent_status_changed",
+  metadata: { agent_name: "QA Engineer", old_status: "paused", new_status: "idle" },
+  days_ago: 2
+)
+
+create_notification!(
+  company: company, recipient: user, actor: agents["Product Manager"],
+  notifiable: tasks["prioritize_roadmap"],
+  action: "task_assigned",
+  metadata: { task_title: "Prioritize Q2 roadmap", agent_name: "Product Manager" },
+  days_ago: 1
+)
+
+# Read notifications (5)
+create_notification!(
+  company: company, recipient: user, actor: agents["CEO"],
+  notifiable: tasks["approve_budget"],
+  action: "task_completed",
+  metadata: { task_title: "Approve marketing budget allocation", agent_name: "CEO" },
+  days_ago: 6, read: true
+)
+
+create_notification!(
+  company: company, recipient: user, actor: user,
+  notifiable: agents["CTO"],
+  action: "config_updated",
+  metadata: { agent_name: "CTO", attribute: "budget_cents", old_value: 100_000, new_value: 150_000 },
+  days_ago: 10, read: true
+)
+
+create_notification!(
+  company: company, recipient: user, actor: user,
+  notifiable: agents["Backend Engineer"],
+  action: "gate_approved",
+  metadata: { agent_name: "Backend Engineer", gate: "budget_spend", task: "Implement API rate limiting" },
+  days_ago: 7, read: true
+)
+
+create_notification!(
+  company: company, recipient: user, actor: agents["Backend Engineer"],
+  notifiable: tasks["rate_limiting"],
+  action: "task_completed",
+  metadata: { task_title: "Implement API rate limiting", agent_name: "Backend Engineer" },
+  days_ago: 7, read: true
+)
+
+create_notification!(
+  company: company, recipient: user, actor: agents["CMO"],
+  notifiable: tasks["design_wireframes"],
+  action: "task_completed",
+  metadata: { task_title: "Design landing page wireframes", agent_name: "CMO" },
+  days_ago: 10, read: true
+)
+
+puts "  Created #{Notification.where(company: company).count} notifications (#{Notification.where(company: company).unread.count} unread)"
+
+# Summary
+puts ""
+puts "=" * 60
+puts "  Director AI seeded successfully!"
+puts "=" * 60
+puts ""
+puts "  Login:    admin@director.ai / password123"
+puts ""
+puts "  Company:  #{company.name}"
+puts "  Agents:   #{Agent.where(company: company).count} (#{Agent.where(company: company, status: :running).count} running, #{Agent.where(company: company, status: :idle).count} idle)"
+puts "  Roles:    #{Role.where(company: company).count} in hierarchy"
+puts "  Skills:   #{Skill.where(company: company).count} (#{Skill.where(company: company).builtin.count} builtin)"
+puts "  Goals:    #{Goal.where(company: company).count} (1 mission, #{Goal.where(company: company).where.not(parent_id: nil).count} sub-goals)"
+puts "  Tasks:    #{Task.where(company: company).count} (#{Task.where(company: company).where(status: :completed).count} completed)"
+puts "  Messages: #{Message.joins(:task).where(tasks: { company_id: company.id }).count}"
+puts "  Gates:    #{ApprovalGate.joins(:agent).where(agents: { company_id: company.id }).count}"
+puts "  Audits:   #{AuditEvent.where(company: company).count}"
+puts "  Alerts:   #{Notification.where(company: company).count} (#{Notification.where(company: company).unread.count} unread)"
+puts ""
