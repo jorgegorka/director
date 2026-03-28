@@ -77,4 +77,81 @@ class AgentRunsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select ".agent-run-detail__kv-row--error"
   end
+
+  # --- Cancel ---
+
+  test "cancel marks running run as cancelled" do
+    run = @agent.agent_runs.create!(
+      company: @company,
+      status: :running,
+      trigger_type: "task_assigned",
+      started_at: Time.current
+    )
+    @agent.update!(status: :running)
+
+    # Stub kill_session to prevent actual tmux calls
+    killed = []
+    ClaudeLocalAdapter.define_singleton_method(:kill_session) { |name| killed << name }
+
+    post cancel_agent_agent_run_url(@agent, run)
+    assert_redirected_to agent_agent_run_path(@agent, run)
+
+    run.reload
+    assert run.cancelled?
+    assert_not_nil run.completed_at
+
+    @agent.reload
+    assert @agent.idle?
+
+    assert_includes killed, "director_run_#{run.id}"
+  ensure
+    if ClaudeLocalAdapter.singleton_class.method_defined?(:kill_session, false)
+      ClaudeLocalAdapter.singleton_class.remove_method(:kill_session)
+    end
+  end
+
+  test "cancel queued run succeeds" do
+    run = @agent.agent_runs.create!(
+      company: @company,
+      status: :queued,
+      trigger_type: "scheduled"
+    )
+
+    killed = []
+    ClaudeLocalAdapter.define_singleton_method(:kill_session) { |name| killed << name }
+
+    post cancel_agent_agent_run_url(@agent, run)
+    assert_redirected_to agent_agent_run_path(@agent, run)
+    assert run.reload.cancelled?
+  ensure
+    if ClaudeLocalAdapter.singleton_class.method_defined?(:kill_session, false)
+      ClaudeLocalAdapter.singleton_class.remove_method(:kill_session)
+    end
+  end
+
+  test "cancel completed run returns alert" do
+    run = agent_runs(:completed_run)
+    post cancel_agent_agent_run_url(@agent, run)
+    assert_redirected_to agent_agent_run_path(@agent, run)
+    assert_equal "Run is already completed.", flash[:alert]
+  end
+
+  test "cancel requires authentication" do
+    sign_out
+    run = agent_runs(:completed_run)
+    post cancel_agent_agent_run_url(@agent, run)
+    assert_redirected_to new_session_url
+  end
+
+  test "cancel scopes to current company" do
+    other_agent = agents(:widgets_agent)
+    run = other_agent.agent_runs.create!(
+      company: companies(:widgets),
+      status: :running,
+      trigger_type: "task_assigned",
+      started_at: Time.current
+    )
+    post cancel_agent_agent_run_url(other_agent, run)
+    assert_response :not_found
+  end
 end

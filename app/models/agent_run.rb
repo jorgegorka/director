@@ -42,6 +42,21 @@ class AgentRun < ApplicationRecord
     update!(status: :cancelled, completed_at: Time.current)
   end
 
+  # Cancels the run: kills the tmux session (if claude_local) and marks as cancelled.
+  # Called from AgentRunsController#cancel.
+  def cancel!
+    raise "Cannot cancel a #{status} run" if terminal?
+
+    # Kill tmux session if this is a claude_local agent run
+    if agent.claude_local?
+      session_name = "#{ClaudeLocalAdapter::SESSION_PREFIX}_#{id}"
+      ClaudeLocalAdapter.kill_session(session_name)
+    end
+
+    mark_cancelled!
+    agent.update!(status: :idle) if agent.running?
+  end
+
   # SQL-level concat avoids read-modify-write races.
   # Does NOT update the in-memory attribute; call reload if you need the value.
   def append_log!(text)

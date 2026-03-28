@@ -42,7 +42,11 @@ Rails.application.routes.draw do
     resources :agent_documents, only: [ :create, :destroy ]
     resources :heartbeats, only: [ :index ]
     resources :agent_hooks
-    resources :agent_runs, only: [ :index, :show ]
+    resources :agent_runs, only: [ :index, :show ] do
+      member do
+        post :cancel
+      end
+    end
     member do
       post :pause
       post :resume

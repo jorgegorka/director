@@ -13,6 +13,11 @@
     </div>
     <div class="agent-run-detail__actions">
       <%= link_to "All Runs", agent_agent_runs_path(@agent), class: "btn btn--ghost btn--sm" %>
+      <% unless @agent_run.terminal? %>
+        <%= button_to "Cancel Run", cancel_agent_agent_run_path(@agent, @agent_run),
+              method: :post,
+              class: "btn btn--danger btn--sm" %>
+      <% end %>
     </div>
   </header>
 

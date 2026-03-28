@@ -322,6 +322,55 @@ class AgentRunTest < ActiveSupport::TestCase
     assert_nothing_raised { run.broadcast_line!("test line\n") }
   end
 
+  # --- cancel! (STREAM-04) ---
+
+  test "cancel! marks run as cancelled and returns agent to idle" do
+    agent = agents(:claude_agent)
+    agent.update!(status: :running)
+    run = agent.agent_runs.create!(
+      company: companies(:acme),
+      status: :running,
+      trigger_type: "task_assigned",
+      started_at: Time.current
+    )
+
+    killed = []
+    ClaudeLocalAdapter.define_singleton_method(:kill_session) { |name| killed << name }
+
+    run.cancel!
+
+    assert run.cancelled?
+    assert_not_nil run.completed_at
+    assert agent.reload.idle?
+    assert_equal [ "director_run_#{run.id}" ], killed
+  ensure
+    if ClaudeLocalAdapter.singleton_class.method_defined?(:kill_session, false)
+      ClaudeLocalAdapter.singleton_class.remove_method(:kill_session)
+    end
+  end
+
+  test "cancel! on HTTP agent skips tmux kill" do
+    agent = agents(:http_agent)
+    agent.update!(status: :running)
+    run = agent.agent_runs.create!(
+      company: companies(:acme),
+      status: :running,
+      trigger_type: "task_assigned",
+      started_at: Time.current
+    )
+
+    # Should not call kill_session at all
+    run.cancel!
+
+    assert run.cancelled?
+    assert agent.reload.idle?
+  end
+
+  test "cancel! raises on already completed run" do
+    run = agent_runs(:completed_run)
+    assert_raises(RuntimeError) { run.cancel! }
+  end
+
   # --- broadcast batching (STREAM-05) ---
 
   test "broadcast_line! persists every line regardless of batching" do

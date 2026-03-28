@@ -1,13 +1,23 @@
 class AgentRunsController < ApplicationController
   before_action :require_company!
   before_action :set_agent
-  before_action :set_agent_run, only: [ :show ]
+  before_action :set_agent_run, only: [ :show, :cancel ]
 
   def index
     @agent_runs = @agent.agent_runs.order(created_at: :desc).limit(50)
   end
 
   def show
+  end
+
+  def cancel
+    if @agent_run.terminal?
+      redirect_to agent_agent_run_path(@agent, @agent_run), alert: "Run is already #{@agent_run.status}."
+      return
+    end
+
+    @agent_run.cancel!
+    redirect_to agent_agent_run_path(@agent, @agent_run), notice: "Run has been cancelled."
   end
 
   private
