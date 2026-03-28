@@ -10,6 +10,7 @@ class Agent < ApplicationRecord
   has_many :assigned_tasks, class_name: "Task", foreign_key: :assignee_id, inverse_of: :assignee, dependent: :nullify
   has_many :heartbeat_events, dependent: :destroy
   has_many :approval_gates, dependent: :destroy
+  has_many :agent_hooks, dependent: :destroy
 
   enum :adapter_type, { http: 0, process: 1, claude_local: 2 }
   enum :status, { idle: 0, running: 1, paused: 2, error: 3, terminated: 4, pending_approval: 5 }

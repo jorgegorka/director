@@ -1,0 +1,26 @@
+completed_execution:
+  agent_hook: claude_validation_hook
+  task: completed_task
+  company: acme
+  status: 2  # completed
+  input_payload:
+    task_id: 1
+    task_title: "Set up CI pipeline"
+  output_payload:
+    validation_task_id: 99
+    result: "validation_created"
+  started_at: <%= 10.minutes.ago.to_fs(:db) %>
+  completed_at: <%= 5.minutes.ago.to_fs(:db) %>
+
+failed_execution:
+  agent_hook: claude_webhook_hook
+  task: design_homepage
+  company: acme
+  status: 3  # failed
+  input_payload:
+    task_id: 2
+    webhook_url: "https://hooks.example.com/task-started"
+  output_payload: {}
+  error_message: "Connection refused - https://hooks.example.com/task-started"
+  started_at: <%= 8.minutes.ago.to_fs(:db) %>
+  completed_at: <%= 8.minutes.ago.to_fs(:db) %>

@@ -1,7 +1,7 @@
 class HeartbeatEvent < ApplicationRecord
   belongs_to :agent
 
-  enum :trigger_type, { scheduled: 0, task_assigned: 1, mention: 2 }
+  enum :trigger_type, { scheduled: 0, task_assigned: 1, mention: 2, hook_triggered: 3 }
   enum :status, { queued: 0, delivered: 1, failed: 2 }
 
   validates :trigger_type, presence: true
