@@ -244,4 +244,75 @@ class ExecuteAgentJobTest < ActiveSupport::TestCase
     assert_match(/budget/i, run.error_message)
     assert @agent.idle?, "Agent should return to idle, got #{@agent.status}"
   end
+
+  # ---------------------------------------------------------------------------
+  # Document context tests
+  # ---------------------------------------------------------------------------
+
+  test "build_context includes skill documents for the agent" do
+    agent = agents(:claude_agent)
+    agent_run = AgentRun.create!(
+      agent: agent,
+      company: agent.company,
+      status: :queued,
+      trigger_type: :scheduled
+    )
+
+    job = ExecuteAgentJob.new
+    ctx = job.send(:build_context, agent, agent_run)
+
+    assert ctx.key?(:documents)
+    assert ctx[:documents].key?(:skill_documents)
+    skill_doc_titles = ctx[:documents][:skill_documents].map { |d| d[:title] }
+    assert_includes skill_doc_titles, "Coding Standards"
+  end
+
+  test "build_context includes agent documents" do
+    agent = agents(:claude_agent)
+    agent_run = AgentRun.create!(
+      agent: agent,
+      company: agent.company,
+      status: :queued,
+      trigger_type: :scheduled
+    )
+
+    job = ExecuteAgentJob.new
+    ctx = job.send(:build_context, agent, agent_run)
+
+    agent_doc_titles = ctx[:documents][:agent_documents].map { |d| d[:title] }
+    assert_includes agent_doc_titles, "Refund Policy"
+  end
+
+  test "build_context includes task documents when task present" do
+    agent = agents(:claude_agent)
+    task = tasks(:design_homepage)
+    agent_run = AgentRun.create!(
+      agent: agent,
+      company: agent.company,
+      task: task,
+      status: :queued,
+      trigger_type: :task_assigned
+    )
+
+    job = ExecuteAgentJob.new
+    ctx = job.send(:build_context, agent, agent_run)
+
+    task_doc_titles = ctx[:documents][:task_documents].map { |d| d[:title] }
+    assert_includes task_doc_titles, "Coding Standards"
+  end
+
+  test "build_context has empty task_documents when no task" do
+    agent = agents(:claude_agent)
+    agent_run = AgentRun.create!(
+      agent: agent,
+      company: agent.company,
+      status: :queued,
+      trigger_type: :scheduled
+    )
+
+    job = ExecuteAgentJob.new
+    ctx = job.send(:build_context, agent, agent_run)
+
+    assert_equal [], ctx[:documents][:task_documents]
+  end
 end

@@ -2,7 +2,7 @@ class ExecuteAgentJob < ApplicationJob
   queue_as :execution
 
   # Do not retry execution jobs automatically -- failed runs should be
-  # investigated or manually retried. The ensure block guarantees cleanup.
+  # investigated or manually retried.
   discard_on ActiveJob::DeserializationError
 
   def perform(agent_run_id)
@@ -14,7 +14,7 @@ class ExecuteAgentJob < ApplicationJob
     agent_run.mark_running!
     agent.update!(status: :running)
 
-    result = agent.adapter_class.execute(agent, build_context(agent_run))
+    result = agent.adapter_class.execute(agent, build_context(agent, agent_run))
 
     agent_run.mark_completed!(
       exit_code: result&.dig(:exit_code),
@@ -22,7 +22,9 @@ class ExecuteAgentJob < ApplicationJob
       claude_session_id: result&.dig(:session_id)
     )
     agent.update!(status: :idle)
-  rescue Exception => e # rubocop:disable Lint/RescueException
+  # NotImplementedError is a ScriptError (not StandardError) — catch it
+  # explicitly so unimplemented adapters fail gracefully.
+  rescue StandardError, NotImplementedError => e
     if agent_run && !agent_run.terminal?
       agent_run.mark_failed!(error_message: e.message, exit_code: 1)
     end
@@ -31,22 +33,47 @@ class ExecuteAgentJob < ApplicationJob
 
   private
 
-  def build_context(agent_run)
+  def build_context(agent, agent_run)
     ctx = {
       run_id: agent_run.id,
       trigger_type: agent_run.trigger_type
     }
 
-    if agent_run.task.present?
+    if agent_run.task_id.present?
+      task = agent_run.task
       ctx[:task_id] = agent_run.task_id
-      ctx[:task_title] = agent_run.task.title
-      ctx[:task_description] = agent_run.task.description
+      ctx[:task_title] = task.title
+      ctx[:task_description] = task.description
     end
 
-    # Pass session ID for Claude conversation resumption (EXEC-03)
-    session_id = agent_run.agent.latest_session_id
+    session_id = agent.latest_session_id
     ctx[:resume_session_id] = session_id if session_id.present?
 
+    ctx[:documents] = build_document_context(agent, agent_run)
+
     ctx
+  end
+
+  def build_document_context(agent, agent_run)
+    skill_doc_ids = SkillDocument.where(skill_id: agent.skill_ids).pluck(:document_id)
+    agent_doc_ids = agent.agent_documents.pluck(:document_id)
+    task_doc_ids = agent_run.task_id.present? ? TaskDocument.where(task_id: agent_run.task_id).pluck(:document_id) : []
+
+    {
+      skill_documents: serialize_documents(Document.where(id: skill_doc_ids)),
+      agent_documents: serialize_documents(Document.where(id: agent_doc_ids)),
+      task_documents: serialize_documents(Document.where(id: task_doc_ids))
+    }
+  end
+
+  def serialize_documents(documents)
+    documents.includes(:tags).map do |doc|
+      {
+        id: doc.id,
+        title: doc.title,
+        body: doc.body,
+        tags: doc.tags.pluck(:name)
+      }
+    end
   end
 end
