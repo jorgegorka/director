@@ -170,6 +170,16 @@ class Agent < ApplicationRecord
 
   def broadcast_dashboard_update
     broadcast_overview_stats
+    broadcast_agent_status
+  end
+
+  def broadcast_agent_status
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "agent_#{id}",
+      target: "agent-status-badge-#{id}",
+      partial: "agents/status_badge",
+      locals: { agent: self }
+    )
   end
 
   def broadcast_overview_stats

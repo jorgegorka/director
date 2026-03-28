@@ -1,5 +1,7 @@
 <% content_for(:title, @agent.name) %>
 
+<%= turbo_stream_from "agent_#{@agent.id}" %>
+
 <section class="agent-detail">
   <%= render "agents/pending_approval_banner", agent: @agent %>
 
@@ -9,7 +11,7 @@
       <div class="agent-detail__identity">
         <h1 class="agent-detail__name"><%= @agent.name %></h1>
         <div class="agent-detail__status-line">
-          <%= agent_status_badge(@agent) %>
+          <%= render "agents/status_badge", agent: @agent %>
           <span class="agent-detail__adapter-label"><%= adapter_type_label(@agent) %></span>
         </div>
       </div>

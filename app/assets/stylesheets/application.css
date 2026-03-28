@@ -5281,4 +5281,23 @@
     color: var(--color-neutral-500);
     border: 1px solid var(--color-neutral-200);
   }
+
+  /* Tool-use indicators (STREAM-03) */
+  .agent-run-output__line--tool {
+    padding: var(--space-1) 0;
+  }
+
+  .agent-run-output__tool-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: 2px var(--space-2);
+    border-radius: var(--radius-sm);
+    background: oklch(40% 0.08 250);
+    color: oklch(90% 0.02 250);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    font-family: var(--font-mono);
+    text-transform: lowercase;
+  }
 }

@@ -57,9 +57,11 @@
       <%# New lines will be appended here by Turbo Stream broadcasts %>
     </div>
     <% if @agent_run.running? || @agent_run.queued? %>
-      <div class="agent-run-output__live-indicator">
+      <div class="agent-run-output__live-indicator" id="agent-run-live-indicator">
         <span class="agent-run-output__pulse"></span> Live
       </div>
+    <% else %>
+      <div id="agent-run-live-indicator"></div>
     <% end %>
   </div>
 </section>

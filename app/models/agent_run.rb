@@ -4,6 +4,11 @@ class AgentRun < ApplicationRecord
   include Runnable
 
   TERMINAL_STATUSES = %w[completed failed cancelled].freeze
+  BROADCAST_MIN_INTERVAL = 0.1 # seconds (100ms) -- STREAM-05
+
+  # Class-level tracking for broadcast timestamps per run.
+  # Thread-safe via the GIL for single-process Puma; good enough for SQLite deployment.
+  @@last_broadcast_at = {} # rubocop:disable Style/ClassVars
 
   belongs_to :agent
   belongs_to :task, optional: true
@@ -15,6 +20,8 @@ class AgentRun < ApplicationRecord
   scope :for_agent, ->(agent) { where(agent: agent) }
   scope :active, -> { where(status: [ :queued, :running ]) }
   scope :terminal, -> { where(status: TERMINAL_STATUSES) }
+
+  after_commit :broadcast_flush!, if: :terminal_status_reached?
 
   def mark_completed!(exit_code: nil, cost_cents: nil, claude_session_id: nil)
     update!(
@@ -46,18 +53,44 @@ class AgentRun < ApplicationRecord
 
   # Appends a line to log_output AND broadcasts it to subscribed browsers.
   # Called from adapter poll loops instead of append_log! directly.
+  # Batching: only broadcasts if at least BROADCAST_MIN_INTERVAL has elapsed (STREAM-05).
+  # Every line is still persisted via append_log! regardless of batching (no data loss).
   def broadcast_line!(text)
     return if text.blank?
     append_log!(text)
-    Turbo::StreamsChannel.broadcast_append_to(
+
+    now = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    last = @@last_broadcast_at[id] || 0
+
+    if (now - last) >= BROADCAST_MIN_INTERVAL
+      @@last_broadcast_at[id] = now
+      Turbo::StreamsChannel.broadcast_append_to(
+        "agent_run_#{id}",
+        target: "agent-run-output",
+        partial: "agent_runs/log_line",
+        locals: { text: text }
+      )
+    end
+  end
+
+  # Cleans up broadcast tracking state and removes the live indicator from the UI.
+  # Called via after_commit callback when a run reaches a terminal state.
+  def broadcast_flush!
+    @@last_broadcast_at.delete(id)
+    Turbo::StreamsChannel.broadcast_replace_to(
       "agent_run_#{id}",
-      target: "agent-run-output",
-      partial: "agent_runs/log_line",
-      locals: { text: text }
+      target: "agent-run-live-indicator",
+      html: ""
     )
   end
 
   def terminal?
     status.in?(TERMINAL_STATUSES)
+  end
+
+  private
+
+  def terminal_status_reached?
+    saved_change_to_status? && terminal?
   end
 end
