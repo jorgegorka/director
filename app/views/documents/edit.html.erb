@@ -1,1 +1,6 @@
-<%= render "form", document: @document %>
+<% content_for(:title, "Edit #{@document.title}") %>
+
+<section class="documents-page">
+  <h1>Edit <%= @document.title %></h1>
+  <%= render "form", document: @document %>
+</section>

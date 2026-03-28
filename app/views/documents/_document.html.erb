@@ -1,0 +1,22 @@
+<div class="document-card">
+  <div class="document-card__main">
+    <h3 class="document-card__title">
+      <%= link_to document.title, document %>
+    </h3>
+    <% if document.tags.any? %>
+      <div class="document-card__tags">
+        <% document.tags.each do |tag| %>
+          <span class="document-card__tag"><%= tag.name %></span>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+  <div class="document-card__meta">
+    <span class="document-card__author">
+      by <%= document.author.try(:email_address) || document.author.try(:name) %>
+    </span>
+    <time class="document-card__date" datetime="<%= document.updated_at.iso8601 %>">
+      <%= time_ago_in_words(document.updated_at) %> ago
+    </time>
+  </div>
+</div>

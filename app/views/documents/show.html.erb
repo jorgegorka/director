@@ -1,1 +1,79 @@
-<h1><%= @document.title %></h1>
+<% content_for(:title, @document.title) %>
+
+<section class="document-detail">
+  <header class="document-detail__profile">
+    <div class="document-detail__profile-main">
+      <h1 class="document-detail__name"><%= @document.title %></h1>
+      <div class="document-detail__meta">
+        <span>by <%= @document.author.try(:email_address) || @document.author.try(:name) %></span>
+        <% if @document.last_editor.present? %>
+          <span>edited by <%= @document.last_editor.try(:email_address) || @document.last_editor.try(:name) %></span>
+        <% end %>
+        <time datetime="<%= @document.updated_at.iso8601 %>">
+          Updated <%= time_ago_in_words(@document.updated_at) %> ago
+        </time>
+      </div>
+      <% if @document.tags.any? %>
+        <div class="document-detail__tags">
+          <% @document.tags.each do |tag| %>
+            <span class="document-card__tag"><%= tag.name %></span>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+    <div class="document-detail__actions">
+      <%= link_to "Edit", edit_document_path(@document), class: "btn btn--ghost btn--sm" %>
+      <%= button_to "Delete", @document, method: :delete, class: "btn btn--ghost btn--sm document-detail__delete",
+            data: { turbo_confirm: "Delete '#{@document.title}'? This will unlink it from all agents, skills, and tasks." } %>
+    </div>
+  </header>
+
+  <div class="document-detail__grid">
+    <div class="document-detail__primary">
+      <div class="document-detail__card">
+        <h2 class="document-detail__card-title">Content</h2>
+        <div class="document-detail__markdown">
+          <%= simple_format(@document.body) %>
+        </div>
+      </div>
+    </div>
+
+    <div class="document-detail__sidebar">
+      <% if @linked_skills.any? %>
+        <div class="document-detail__card">
+          <h2 class="document-detail__card-title">Linked Skills (<%= @linked_skills.size %>)</h2>
+          <ul class="document-detail__link-list">
+            <% @linked_skills.each do |skill| %>
+              <li><%= link_to skill.name, skill %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <% if @linked_agents.any? %>
+        <div class="document-detail__card">
+          <h2 class="document-detail__card-title">Linked Agents (<%= @linked_agents.size %>)</h2>
+          <ul class="document-detail__link-list">
+            <% @linked_agents.each do |agent| %>
+              <li>
+                <span class="role-card__agent-dot role-card__agent-dot--<%= agent.status %>"></span>
+                <%= link_to agent.name, agent %>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <% if @linked_tasks.any? %>
+        <div class="document-detail__card">
+          <h2 class="document-detail__card-title">Linked Tasks (<%= @linked_tasks.size %>)</h2>
+          <ul class="document-detail__link-list">
+            <% @linked_tasks.each do |task| %>
+              <li><%= link_to task.title, task %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</section>

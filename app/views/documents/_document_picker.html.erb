@@ -1,0 +1,34 @@
+<%# locals: (linkable:, linked_documents:, link_path:, unlink_path_helper:) %>
+<div class="document-picker">
+  <% if linked_documents.any? %>
+    <ul class="document-picker__list">
+      <% linked_documents.each do |ld| %>
+        <li class="document-picker__item">
+          <%= link_to ld.document.title, ld.document, class: "document-picker__link" %>
+          <%= button_to unlink_path_helper.call(linkable, ld),
+                method: :delete,
+                class: "document-picker__remove",
+                title: "Remove #{ld.document.title}",
+                data: { turbo_confirm: "Remove '#{ld.document.title}' from this #{linkable.class.name.downcase}?" } do %>
+            &times;
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+
+  <% available_docs = Current.company.documents.where.not(id: linked_documents.map(&:document_id)).order(:title) %>
+  <% if available_docs.any? %>
+    <%= form_with url: link_path, method: :post, class: "document-picker__add" do |f| %>
+      <%= f.select :document_id, available_docs.map { |d| [d.title, d.id] },
+            { include_blank: "Link a document..." }, class: "form__select" %>
+      <%= f.submit "Link", class: "btn btn--ghost btn--sm" %>
+    <% end %>
+  <% end %>
+
+  <% if linked_documents.empty? && available_docs.empty? %>
+    <p class="agent-detail__empty-note">No documents available. <%= link_to "Create one", new_document_path %></p>
+  <% elsif linked_documents.empty? %>
+    <p class="agent-detail__empty-note">No documents linked yet.</p>
+  <% end %>
+</div>

@@ -1,1 +1,34 @@
-<h1>Document Tags</h1>
+<% content_for(:title, "Document Tags") %>
+
+<section class="documents-page">
+  <div class="documents-page__header">
+    <h1>Document Tags</h1>
+    <%= link_to "Back to Documents", documents_path, class: "btn btn--ghost btn--sm" %>
+  </div>
+
+  <%= form_with model: DocumentTag.new, url: document_tags_path, class: "form form--inline" do |f| %>
+    <div class="form__field">
+      <%= f.text_field :name, placeholder: "New tag name...", required: true %>
+    </div>
+    <%= f.submit "Add Tag", class: "btn btn--primary btn--sm" %>
+  <% end %>
+
+  <% if @tags.any? %>
+    <div class="document-tags-list">
+      <% @tags.each do |tag| %>
+        <div class="document-tag">
+          <span class="document-tag__name"><%= tag.name %></span>
+          <span class="document-tag__count"><%= tag.documents.count %></span>
+          <%= button_to document_tag_path(tag), method: :delete,
+                class: "document-tag__remove",
+                title: "Delete tag '#{tag.name}'",
+                data: { turbo_confirm: "Delete tag '#{tag.name}'? It will be removed from all documents." } do %>
+            &times;
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="documents-page__empty">No tags yet. Add one above.</p>
+  <% end %>
+</section>

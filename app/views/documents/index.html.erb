@@ -1,1 +1,39 @@
-<h1>Documents</h1>
+<% content_for(:title, "Documents") %>
+
+<section class="documents-page">
+  <div class="documents-page__header">
+    <h1>Documents</h1>
+    <div class="documents-page__actions">
+      <%= link_to "Manage Tags", document_tags_path, class: "btn btn--ghost btn--sm" %>
+      <%= link_to "New Document", new_document_path, class: "btn btn--primary btn--sm" %>
+    </div>
+  </div>
+
+  <% if @tags.any? %>
+    <nav class="documents-page__filters">
+      <%= link_to "All", documents_path, class: "filter-link #{"filter-link--active" unless @current_tag}" %>
+      <% @tags.each do |tag| %>
+        <%= link_to tag.name, documents_path(tag: tag.name),
+              class: "filter-link #{"filter-link--active" if @current_tag == tag.name}" %>
+      <% end %>
+    </nav>
+  <% end %>
+
+  <%= form_with url: documents_path, method: :get, class: "documents-page__search" do |f| %>
+    <%= f.search_field :q, value: params[:q], placeholder: "Search by title...", class: "form__input" %>
+    <%= f.submit "Search", class: "btn btn--ghost btn--sm" %>
+  <% end %>
+
+  <% if @documents.any? %>
+    <div class="documents-list">
+      <% @documents.each do |document| %>
+        <%= render partial: "documents/document", locals: { document: document } %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="documents-page__empty">
+      <p>No documents yet. Create your first document to build your company's knowledge base.</p>
+      <%= link_to "Create a document", new_document_path, class: "btn btn--primary" %>
+    </div>
+  <% end %>
+</section>

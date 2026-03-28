@@ -1,1 +1,6 @@
-<%= render "form", document: @document %>
+<% content_for(:title, "New Document") %>
+
+<section class="documents-page">
+  <h1>New Document</h1>
+  <%= render "form", document: @document %>
+</section>
