@@ -10,9 +10,9 @@ See: .ariadna_planning/PROJECT.md (updated 2026-03-28)
 ## Current Position
 
 Phase: 18 - Hook Data Foundation
-Plan: --
-Status: Planning
-Last activity: 2026-03-28 -- v1.3 roadmap created (phases 18-21)
+Plan: 01 (complete)
+Status: In Progress
+Last activity: 2026-03-28 -- 18-01 complete: AgentHook + HookExecution data layer
 
 ## Performance Metrics
 
@@ -42,10 +42,11 @@ Last activity: 2026-03-28 -- v1.3 roadmap created (phases 18-21)
 | 15-role-auto-assignment | 1/1 | ~2 min | ~2 min |
 | 16-skills-crud | 2/2 | ~13 min | ~6.5 min |
 | 17-agent-skill-management | 2/2 | ~7 min | ~3.5 min |
+| 18-hook-data-foundation | 1/? | ~4 min | ~4 min |
 
 **Recent Trend:**
-- Last 5 plans: 16-01 (~8 min), 16-02 (~5 min), 17-01 (~4 min), 17-02 (~3 min)
-- Trend: consistent, stable. v1.0 COMPLETE. v1.1 COMPLETE. v1.2 COMPLETE. All milestones shipped.
+- Last 5 plans: 16-02 (~5 min), 17-01 (~4 min), 17-02 (~3 min), 18-01 (~4 min)
+- Trend: consistent, stable. v1.0 COMPLETE. v1.1 COMPLETE. v1.2 COMPLETE. v1.3 in progress.
 
 *Updated after each plan completion*
 
@@ -168,6 +169,11 @@ Recent decisions affecting current work:
 - [17-02]: Idempotency test for create uses assert_no_difference + assert_redirected_to -- find_or_create_by! is silent no-op, redirect is the expected outcome
 - [17-02]: Cross-agent destroy test: use http_data_analysis fixture via claude_agent nested route -- @agent.agent_skills.find scopes the lookup, gives 404 for mismatched parent
 - [17-02]: Skill UI assertions use css_select size comparison (total toggles > assigned toggles) rather than hardcoded counts -- resilient to fixture changes
+- [18-01]: index: false on t.references when providing explicit add_index -- avoids SQLite "index already exists" error (reconfirmed 08-01 pattern for all t.references calls with explicit indexes)
+- [18-01]: HookExecution does NOT include Tenantable -- has direct belongs_to :company column; Tenantable would add duplicate belongs_to declaration
+- [18-01]: Task model needs has_many :hook_executions, dependent: :destroy -- FK constraint on hook_executions.task_id blocks task destroy tests without it
+- [18-01]: AgentHook lifecycle_event uses LIFECYCLE_EVENTS string constant (not integer enum) -- allows future extension without migration, same pattern as ApprovalGate GATABLE_ACTIONS
+- [18-01]: target_agent is a convenience method reading action_config JSON (not a belongs_to) -- target is stored in JSON config, not a direct FK column
 
 ### Pending Todos
 
@@ -180,6 +186,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-28
-Stopped at: v1.3 roadmap created (phases 18-21)
-Resume file: .ariadna_planning/ROADMAP.md
-Next step: /ariadna:plan-phase 18
+Stopped at: 18-01 complete -- AgentHook + HookExecution data layer with migrations, models, fixtures, tests
+Resume file: .ariadna_planning/phases/18-hook-data-foundation/18-01-SUMMARY.md
+Next step: Execute 18-02 (if exists) or plan Phase 19
