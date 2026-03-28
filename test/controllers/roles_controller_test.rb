@@ -171,6 +171,34 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
     assert_nil @cto.agent_id
   end
 
+  test "assigning agent to unassigned role triggers skill auto-assignment" do
+    # CEO has no agent (fixture). Assigning process_agent should trigger auto-assignment.
+    agent = agents(:process_agent)
+    assert_equal 0, agent.agent_skills.count
+
+    patch role_url(@ceo), params: { role: { agent_id: agent.id } }
+    assert_redirected_to role_url(@ceo)
+
+    agent.reload
+    assert agent.skills.any?, "Agent should have skills after first role assignment"
+    skill_keys = agent.skills.pluck(:key).sort
+    expected_keys = %w[company_vision decision_making risk_assessment stakeholder_communication strategic_planning]
+    assert_equal expected_keys, skill_keys
+  end
+
+  test "reassigning role agent does not trigger auto-assignment" do
+    # CTO already has claude_agent. Reassigning to process_agent should NOT assign CTO skills.
+    agent = agents(:process_agent)
+    assert_equal 0, agent.agent_skills.count
+
+    patch role_url(@cto), params: { role: { agent_id: agent.id } }
+    assert_redirected_to role_url(@cto)
+
+    agent.reload
+    assert_equal 0, agent.agent_skills.count,
+      "Reassignment should not trigger auto-assignment"
+  end
+
   test "should show agent name on role detail" do
     # CTO has claude_agent assigned
     get role_url(@cto)
