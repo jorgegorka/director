@@ -239,7 +239,8 @@ def create_task!(attrs)
   completed_ago = attrs.delete(:completed_ago)
   task = Task.create!(attrs)
   if task.completed? && completed_ago
-    task.update_columns(completed_at: completed_ago.ago, created_at: (completed_ago + 2.days).ago)
+    completed_at = completed_ago.ago
+    task.update_columns(completed_at: completed_at, created_at: completed_at - 2.days)
   end
   task
 end
