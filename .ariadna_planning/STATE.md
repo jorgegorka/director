@@ -5,21 +5,21 @@
 See: .ariadna_planning/PROJECT.md (updated 2026-03-26)
 
 **Core value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
-**Current focus:** Phase 10 in progress — dashboard foundation done (10-01), kanban task board done (10-02); plan 10-03 (activity tab) is next
+**Current focus:** Phase 10 COMPLETE — all 4 plans done (10-01 dashboard, 10-02 kanban, 10-03 activity tab, 10-04 real-time Turbo Streams)
 
 ## Current Position
 
-Phase: 10 of 10 (Dashboard & Real-time UI) — IN PROGRESS
-Plan: 2 of 4 complete (10-01, 10-02 done)
-Status: Plan 10-02 complete — Kanban task board with drag-and-drop, 5 status columns, Stimulus controller, 661 tests passing
-Last activity: 2026-03-28 -- 10-02 complete (2 tasks, 661 tests passing, 0 failures)
+Phase: 10 of 10 (Dashboard & Real-time UI) — COMPLETE
+Plan: 4 of 4 complete (10-01, 10-02, 10-03, 10-04 done)
+Status: Plan 10-04 complete — Turbo Streams real-time broadcasts, 674 tests passing
+Last activity: 2026-03-28 -- 10-04 complete (2 tasks, 674 tests passing, 0 failures)
 
-Progress: [█████████░] ~92%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 20
+- Total plans completed: 22
 - Average duration: ~8 minutes
 - Total execution time: ~161 minutes
 
@@ -36,11 +36,11 @@ Progress: [█████████░] ~92%
 | 07-heartbeats-and-triggers | 3/3 | ~20 min | ~6.7 min |
 | 08-budget-cost-control | 4/4 | ~31 min | ~7.8 min |
 | 09-governance-audit | 4/4 | ~30 min | ~7.5 min |
-| 10-dashboard-real-time-ui | 2/4 | ~16 min | ~8 min |
+| 10-dashboard-real-time-ui | 4/4 | ~19 min | ~4.8 min |
 
 **Recent Trend:**
-- Last 5 plans: 09-02 (~3 min), 09-03 (~10 min), 09-04 (~11 min), 10-01 (~12 min), 10-02 (~4 min)
-- Trend: consistent, stable
+- Last 5 plans: 09-04 (~11 min), 10-01 (~12 min), 10-02 (~4 min), 10-03 (~8 min), 10-04 (~3 min)
+- Trend: consistent, stable. Project COMPLETE.
 
 *Updated after each plan completion*
 
@@ -120,6 +120,10 @@ Recent decisions affecting current work:
 - [10-02]: @all_tasks loaded once with includes(:assignee, :creator); in-memory grouping via @tasks_by_status avoids 5 separate status-filtered queries
 - [10-02]: kanban_controller.js auto-discovered by eagerLoadControllersFrom naming convention — no manual registration needed
 - [10-02]: PATCH on drop uses fetch with CSRF meta tag; page.reload() on failure to restore server-authoritative state
+- [10-04]: turbo_stream_from + Turbo::StreamsChannel.broadcast_*_to — standard Rails 8 / Turbo 8 pattern; no custom Action Cable channel JS needed; turbo-rails handles auto-subscription via turbo-cable-stream-source element
+- [10-04]: Stream name convention "dashboard_company_{company_id}" — simple string for company-scoped isolation
+- [10-04]: ApplicationCable::Channel base class created — was missing from app/channels/; required for Action Cable
+- [10-04]: after_create_commit (not after_commit) used on AuditEvent — readonly after persist so only initial create triggers broadcast
 
 ### Pending Todos
 
@@ -132,5 +136,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-28
-Stopped at: Phase 10, plan 10-02 complete — Kanban task board (drag-and-drop, 5 status columns, Stimulus controller, 661 tests)
-Resume file: .ariadna_planning/phases/10-dashboard-real-time-ui/10-02-SUMMARY.md
+Stopped at: Phase 10 COMPLETE — Plan 10-04 done (Turbo Streams real-time broadcasts, 674 tests, all 10 phases complete)
+Resume file: .ariadna_planning/phases/10-dashboard-real-time-ui/10-04-SUMMARY.md
