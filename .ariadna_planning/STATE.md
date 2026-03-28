@@ -9,10 +9,10 @@ See: .ariadna_planning/PROJECT.md (updated 2026-03-28)
 
 ## Current Position
 
-Phase: 11 - SQLite Migration
-Plan: 01 - COMPLETE
-Status: Plan 01 done, plan 02 pending
-Last activity: 2026-03-28 -- 11-01 complete: pg gem removed, database switched to SQLite, 8 jsonb columns converted to json, 674 tests pass
+Phase: 11 - SQLite Migration - COMPLETE
+Plan: 02 - COMPLETE
+Status: Phase 11 done, phase 12 pending
+Last activity: 2026-03-28 -- 11-02 complete: deploy.yml cleaned, Dockerfile verified SQLite-clean, bin/ci passes green (674 tests, 0 failures)
 
 ## Performance Metrics
 
@@ -37,8 +37,8 @@ Last activity: 2026-03-28 -- 11-01 complete: pg gem removed, database switched t
 | 10-dashboard-real-time-ui | 4/4 | ~19 min | ~4.8 min |
 
 **Recent Trend:**
-- Last 5 plans: 10-01 (~12 min), 10-02 (~4 min), 10-03 (~8 min), 10-04 (~3 min), 11-01 (~8 min)
-- Trend: consistent, stable. v1.0 COMPLETE. v1.1 in progress (11-01 done).
+- Last 5 plans: 10-03 (~8 min), 10-04 (~3 min), 11-01 (~8 min), 11-02 (~5 min)
+- Trend: consistent, stable. v1.0 COMPLETE. v1.1 Phase 11 COMPLETE (SQLite migration done).
 
 *Updated after each plan completion*
 
@@ -128,6 +128,8 @@ Recent decisions affecting current work:
 - [11-01]: db:prepare fails when schema.rb has jsonb columns (SQLite rejects them at schema:load). Fix: manually update schema.rb then use db:create + db:migrate + db:schema:dump sequence
 - [11-01]: SQLite uses t.json (not t.jsonb) for hash/object columns — jsonb is PostgreSQL-only; json works identically for storing Ruby hashes in fixtures and AR operations
 - [11-01]: bigint declarations are preserved in SQLite schema.rb — cosmetic only; SQLite stores all integers natively regardless of declared size
+- [11-02]: Dockerfile was already SQLite-clean (Rails 8 generator defaults); only deploy.yml needed cleanup (DB_HOST comment block + mysql/db accessory removed)
+- [11-02]: No SQLite-specific test failures in full CI run — json column migration from 11-01 was sufficient for all 674 tests
 
 ### Pending Todos
 
@@ -140,6 +142,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-28
-Stopped at: 11-01 complete -- SQLite migration done, pg removed, jsonb->json, 674 tests pass
-Resume file: .ariadna_planning/phases/11-sqlite-migration/11-01-SUMMARY.md
-Next step: Execute plan 11-02 (cleanup: remove dead code, update docs, verify test coverage)
+Stopped at: 11-02 complete -- Phase 11 DONE: deploy.yml cleaned, Dockerfile verified, bin/ci green (674 tests)
+Resume file: .ariadna_planning/phases/11-sqlite-migration/11-02-SUMMARY.md
+Next step: Execute Phase 12 (CLN-* cleanup: dead code removal, docs update, test coverage verification)
