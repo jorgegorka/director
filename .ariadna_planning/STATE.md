@@ -5,23 +5,23 @@
 See: .ariadna_planning/PROJECT.md (updated 2026-03-28)
 
 **Core value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
-**Current focus:** v1.4 Agent Execution -- Phase 22 complete, ready for Phase 23
+**Current focus:** v1.4 Agent Execution -- Phase 24 complete, ready for Phase 25
 
 ## Current Position
 
-Phase: 23 of 25 (HTTP Adapter Real Execution) -- COMPLETE
+Phase: 24 of 25 (Claude Local Adapter with tmux) -- COMPLETE
 Plan: 1 of 1 in current phase -- COMPLETE
-Status: Phase 23 done, move to Phase 24 (Claude Local Adapter)
-Last activity: 2026-03-28 -- Phase 23 Plan 01 complete (HttpAdapter.execute with Net::HTTP, error classification, retry, 16-test suite)
+Status: Phase 24 done, move to Phase 25 (Streaming UI + Callbacks)
+Last activity: 2026-03-28 -- Phase 24 Plan 01 complete (ClaudeLocalAdapter.execute with tmux, stream-JSON parsing, 19-test suite)
 
-Progress: [████████████████████████░] 92% (23/25 phases complete)
+Progress: [█████████████████████████░] 96% (24/25 phases complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 42
+- Total plans completed: 43
 - Average duration: ~7 minutes
-- Total execution time: ~228 minutes
+- Total execution time: ~239 minutes
 
 **By Phase:**
 
@@ -50,9 +50,10 @@ Progress: [███████████████████████
 | 21-hook-management-ui | 1/1 | ~4 min | ~4 min |
 | 22-agentrun-data-model-and-job-dispatch | 1/1 | ~4 min | ~4 min |
 | 23-http-adapter-real-execution | 1/1 | ~6 min | ~6 min |
+| 24-claude-local-adapter-with-tmux | 1/1 | ~11 min | ~11 min |
 
 **Recent Trend:**
-- Last 5 plans: 20-01 (~3 min), 21-01 (~4 min), 22-01 (~4 min), 23-01 (~6 min)
+- Last 5 plans: 21-01 (~4 min), 22-01 (~4 min), 23-01 (~6 min), 24-01 (~11 min)
 - Trend: consistent, stable. v1.0 COMPLETE. v1.1 COMPLETE. v1.2 COMPLETE. v1.3 COMPLETE. v1.4 in progress.
 
 *Updated after each plan completion*
@@ -77,6 +78,9 @@ Recent decisions affecting current work:
 - [23-01]: Minitest 6.0.2 has no minitest/mock -- use define_singleton_method for class method overrides in tests; extract backoff_sleep as public hook on adapter classes for zero-sleep test execution
 - [23-01]: Net::HTTP::GenericRequest has no merge! -- set headers via request[key]=value iteration
 - [23-01]: HttpAdapter error classes (PermanentError, TransientError) both inherit from StandardError -- caught by existing ExecuteAgentJob rescue StandardError clause
+- [24-01]: private_class_method on def self.method is not compatible with define_singleton_method test isolation -- both share the same singleton class slot, so remove_method permanently destroys the method. Hookable shell-out methods (spawn_session, session_exists?, capture_pane, kill_session, env_prefix) must be public class methods for test isolation to work correctly
+- [24-01]: define_singleton_method blocks run with self = the class, not the test instance -- use local variable closures (spawn_calls = @spawn_calls = []) to share state between define_singleton_method blocks and test assertions
+- [24-01]: ExecuteAgentJob loads a fresh AR object via agent_run.agent, so singleton method stubs on test @agent instances do not apply -- use real DB state to trigger budget exhaustion
 
 ### Pending Todos
 
@@ -91,6 +95,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-28
-Stopped at: Phase 23 complete -- HttpAdapter.execute with Net::HTTP POST delivery, error classification, exponential backoff retry. 970 tests passing.
+Stopped at: Phase 24 complete -- ClaudeLocalAdapter.execute with tmux session lifecycle, stream-JSON polling, budget gate, session ID and cost extraction. 991 tests passing.
 Resume file: --
-Next step: `/ariadna:plan-phase 24` (Claude Local Adapter implementation)
+Next step: `/ariadna:plan-phase 25` (Streaming UI + Callbacks)
