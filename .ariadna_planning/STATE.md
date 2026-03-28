@@ -10,9 +10,9 @@ See: .ariadna_planning/PROJECT.md (updated 2026-03-28)
 ## Current Position
 
 Phase: 20 - Validation Feedback Loop
-Plan: --
-Status: Planning
-Last activity: 2026-03-28 -- Phase 19 complete (2/2 plans, verified 12/12)
+Plan: 01 COMPLETE
+Status: In Progress
+Last activity: 2026-03-28 -- Phase 20 Plan 01 complete (3/3 tasks, 852 tests, 0 failures)
 
 ## Performance Metrics
 
@@ -44,10 +44,11 @@ Last activity: 2026-03-28 -- Phase 19 complete (2/2 plans, verified 12/12)
 | 17-agent-skill-management | 2/2 | ~7 min | ~3.5 min |
 | 18-hook-data-foundation | 1/1 | ~4 min | ~4 min |
 | 19-hook-triggering-engine | 2/2 | ~6 min | ~3 min |
+| 20-validation-feedback-loop | 1/1 | ~3 min | ~3 min |
 
 **Recent Trend:**
-- Last 5 plans: 17-02 (~3 min), 18-01 (~4 min), 19-01 (~3 min), 19-02 (~3 min)
-- Trend: consistent, stable. v1.0 COMPLETE. v1.1 COMPLETE. v1.2 COMPLETE. v1.3 in progress (Phase 19 COMPLETE).
+- Last 5 plans: 18-01 (~4 min), 19-01 (~3 min), 19-02 (~3 min), 20-01 (~3 min)
+- Trend: consistent, stable. v1.0 COMPLETE. v1.1 COMPLETE. v1.2 COMPLETE. v1.3 in progress (Phase 20 Plan 01 COMPLETE).
 
 *Updated after each plan completion*
 
@@ -184,6 +185,11 @@ Recent decisions affecting current work:
 - [19-02]: Creating a validation subtask with an assignee fires Triggerable#trigger_assignment_wake (task_assigned event) in addition to the explicit hook_triggered WakeAgentService call -- HeartbeatEvent count is 2 not 1
 - [19-02]: hook_executed added to AuditEvent::GOVERNANCE_ACTIONS -- hook execution affects agent behavior (creates tasks, wakes agents), fits governance visibility pattern
 - [19-02]: webmock gem added to :development/:test group for HTTP stubbing in service tests
+- [20-01]: enqueue_validation_feedback fires after enqueue_hooks_for_transition -- trigger_agent hooks that create subtasks fire first, then feedback loop activates if this task itself is a completed subtask
+- [20-01]: ProcessValidationResultJob receives task_id integer (not record) -- same idempotent retry pattern as ExecuteHookJob; guard clauses check find_by, completed?, parent_task_id.present?
+- [20-01]: Feedback message authored by validation agent (subtask assignee) with fallback to parent_agent if subtask has no assignee -- clear attribution in conversation thread
+- [20-01]: review_validation: 4 added to HeartbeatEvent enum; validation_feedback_received added to AuditEvent::GOVERNANCE_ACTIONS
+- [20-01]: wake_original_agent skips if parent agent is terminated but message and audit still proceed -- defense in depth without blocking the feedback record
 
 ### Pending Todos
 
@@ -196,6 +202,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-28
-Stopped at: Phase 19 complete -- Hook Triggering Engine verified (12/12 must-haves, 826 tests)
-Resume file: .ariadna_planning/phases/19-hook-triggering-engine/19-VERIFICATION.md
-Next step: Plan Phase 20 (Validation Feedback Loop)
+Stopped at: Phase 20 Plan 01 complete -- Validation Feedback Loop (3/3 tasks, 852 tests, 0 failures)
+Resume file: .ariadna_planning/phases/20-validation-feedback-loop/20-01-SUMMARY.md
+Next step: Phase 21 (Hook Management UI)
