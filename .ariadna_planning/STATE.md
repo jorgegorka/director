@@ -9,12 +9,12 @@ See: .ariadna_planning/PROJECT.md (updated 2026-03-28)
 
 ## Current Position
 
-Phase: 22 of 25 (AgentRun Data Model and Job Dispatch) -- COMPLETE
+Phase: 23 of 25 (HTTP Adapter Real Execution) -- COMPLETE
 Plan: 1 of 1 in current phase -- COMPLETE
-Status: Phase 22 done, move to Phase 23 (HTTP Adapter)
-Last activity: 2026-03-28 -- Phase 22 Plan 01 complete (AgentRun model + ExecuteAgentJob + WakeAgentService wiring)
+Status: Phase 23 done, move to Phase 24 (Claude Local Adapter)
+Last activity: 2026-03-28 -- Phase 23 Plan 01 complete (HttpAdapter.execute with Net::HTTP, error classification, retry, 16-test suite)
 
-Progress: [████████████████████░░░░░] 88% (22/25 phases complete)
+Progress: [████████████████████████░] 92% (23/25 phases complete)
 
 ## Performance Metrics
 
@@ -49,9 +49,10 @@ Progress: [████████████████████░░░
 | 20-validation-feedback-loop | 1/1 | ~3 min | ~3 min |
 | 21-hook-management-ui | 1/1 | ~4 min | ~4 min |
 | 22-agentrun-data-model-and-job-dispatch | 1/1 | ~4 min | ~4 min |
+| 23-http-adapter-real-execution | 1/1 | ~6 min | ~6 min |
 
 **Recent Trend:**
-- Last 5 plans: 19-01 (~3 min), 19-02 (~3 min), 20-01 (~3 min), 21-01 (~4 min), 22-01 (~4 min)
+- Last 5 plans: 20-01 (~3 min), 21-01 (~4 min), 22-01 (~4 min), 23-01 (~6 min)
 - Trend: consistent, stable. v1.0 COMPLETE. v1.1 COMPLETE. v1.2 COMPLETE. v1.3 COMPLETE. v1.4 in progress.
 
 *Updated after each plan completion*
@@ -73,6 +74,9 @@ Recent decisions affecting current work:
 - [21-01]: action_config["target_agent_id"] returns string from SQLite JSON storage (not integer) -- assert with .to_i in tests
 - [22-01]: NotImplementedError inherits from ScriptError, not StandardError -- rescue Exception in ExecuteAgentJob to catch adapter NotImplementedError and prevent agent getting stuck in running state
 - [22-01]: Task model needs has_many :agent_runs, dependent: :nullify -- task deletion with associated runs causes FK constraint failure without it
+- [23-01]: Minitest 6.0.2 has no minitest/mock -- use define_singleton_method for class method overrides in tests; extract backoff_sleep as public hook on adapter classes for zero-sleep test execution
+- [23-01]: Net::HTTP::GenericRequest has no merge! -- set headers via request[key]=value iteration
+- [23-01]: HttpAdapter error classes (PermanentError, TransientError) both inherit from StandardError -- caught by existing ExecuteAgentJob rescue StandardError clause
 
 ### Pending Todos
 
@@ -87,6 +91,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-28
-Stopped at: Phase 22 complete -- AgentRun model, ExecuteAgentJob, WakeAgentService wired. 952 tests passing.
+Stopped at: Phase 23 complete -- HttpAdapter.execute with Net::HTTP POST delivery, error classification, exponential backoff retry. 970 tests passing.
 Resume file: --
-Next step: `/ariadna:plan-phase 23` (HTTP Adapter implementation)
+Next step: `/ariadna:plan-phase 24` (Claude Local Adapter implementation)
