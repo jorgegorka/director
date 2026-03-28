@@ -5,7 +5,7 @@ class CreateAgents < ActiveRecord::Migration[8.1]
       t.string :name, null: false
       t.integer :adapter_type, null: false, default: 0
       t.integer :status, null: false, default: 0
-      t.jsonb :adapter_config, null: false, default: {}
+      t.json :adapter_config, null: false, default: {}
       t.text :description
       t.datetime :last_heartbeat_at
       t.text :pause_reason

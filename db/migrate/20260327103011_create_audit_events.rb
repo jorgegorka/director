@@ -4,7 +4,7 @@ class CreateAuditEvents < ActiveRecord::Migration[8.1]
       t.references :auditable, polymorphic: true, null: false
       t.references :actor, polymorphic: true, null: false
       t.string :action, null: false
-      t.jsonb :metadata, null: false, default: {}
+      t.json :metadata, null: false, default: {}
       t.datetime :created_at, null: false
     end
 

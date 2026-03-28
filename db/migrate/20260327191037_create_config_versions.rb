@@ -5,8 +5,8 @@ class CreateConfigVersions < ActiveRecord::Migration[8.1]
       t.references :versionable, polymorphic: true, null: false
       t.references :author, polymorphic: true
       t.string :action, null: false
-      t.jsonb :snapshot, default: {}, null: false
-      t.jsonb :changeset, default: {}, null: false
+      t.json :snapshot, default: {}, null: false
+      t.json :changeset, default: {}, null: false
       t.timestamps
     end
 

@@ -11,9 +11,6 @@
 # It's strongly recommended that you check this file into your version control system.
 
 ActiveRecord::Schema[8.1].define(version: 2026_03_27_191216) do
-  # These are extensions that must be enabled in order to support this database
-  enable_extension "pg_catalog.plpgsql"
-
   create_table "agent_capabilities", force: :cascade do |t|
     t.bigint "agent_id", null: false
     t.datetime "created_at", null: false
@@ -25,7 +22,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_27_191216) do
   end
 
   create_table "agents", force: :cascade do |t|
-    t.jsonb "adapter_config", default: {}, null: false
+    t.json "adapter_config", default: {}, null: false
     t.integer "adapter_type", default: 0, null: false
     t.string "api_token"
     t.integer "budget_cents"
@@ -65,7 +62,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_27_191216) do
     t.string "auditable_type", null: false
     t.bigint "company_id"
     t.datetime "created_at", null: false
-    t.jsonb "metadata", default: {}, null: false
+    t.json "metadata", default: {}, null: false
     t.index ["action"], name: "index_audit_events_on_action"
     t.index ["actor_type", "actor_id"], name: "index_audit_events_on_actor"
     t.index ["auditable_type", "auditable_id", "created_at"], name: "index_audit_events_on_auditable_and_created_at"
@@ -85,10 +82,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_27_191216) do
     t.string "action", null: false
     t.bigint "author_id"
     t.string "author_type"
-    t.jsonb "changeset", default: {}, null: false
+    t.json "changeset", default: {}, null: false
     t.bigint "company_id", null: false
     t.datetime "created_at", null: false
-    t.jsonb "snapshot", default: {}, null: false
+    t.json "snapshot", default: {}, null: false
     t.datetime "updated_at", null: false
     t.bigint "versionable_id", null: false
     t.string "versionable_type", null: false
@@ -115,9 +112,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_27_191216) do
     t.bigint "agent_id", null: false
     t.datetime "created_at", null: false
     t.datetime "delivered_at"
-    t.jsonb "metadata", default: {}, null: false
-    t.jsonb "request_payload", default: {}, null: false
-    t.jsonb "response_payload", default: {}, null: false
+    t.json "metadata", default: {}, null: false
+    t.json "request_payload", default: {}, null: false
+    t.json "response_payload", default: {}, null: false
     t.integer "status", default: 0, null: false
     t.string "trigger_source"
     t.integer "trigger_type", default: 0, null: false
@@ -176,7 +173,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_27_191216) do
     t.string "actor_type"
     t.bigint "company_id", null: false
     t.datetime "created_at", null: false
-    t.jsonb "metadata", default: {}, null: false
+    t.json "metadata", default: {}, null: false
     t.bigint "notifiable_id"
     t.string "notifiable_type"
     t.datetime "read_at"

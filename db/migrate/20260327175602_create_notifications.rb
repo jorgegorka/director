@@ -6,7 +6,7 @@ class CreateNotifications < ActiveRecord::Migration[8.1]
       t.references :actor, polymorphic: true, index: false                    # Who/what caused it (Agent, User, system)
       t.references :notifiable, polymorphic: true, index: false               # The related object (Agent for budget alerts)
       t.string :action, null: false                                           # e.g. "budget_alert", "budget_exhausted"
-      t.jsonb :metadata, default: {}, null: false                             # extra context (percentage, amounts, etc.)
+      t.json :metadata, default: {}, null: false                             # extra context (percentage, amounts, etc.)
       t.datetime :read_at                                                     # nil = unread
       t.timestamps
     end
