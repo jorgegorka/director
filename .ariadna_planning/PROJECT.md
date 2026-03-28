@@ -44,7 +44,17 @@ Users can organize AI agents into a functioning company structure and confidentl
 
 ### Active
 
-(No active milestone — planning next)
+## Current Milestone: v1.3 Agent Hooks
+
+**Goal:** Add a configurable agent hook system that fires at task lifecycle events, enabling agent-to-agent validation loops and webhook integrations.
+
+**Target features:**
+- AgentHook model with lifecycle event configuration per agent
+- HookExecution tracking with status, payloads, timing
+- Hookable concern detecting task status transitions
+- ExecuteHookService dispatching trigger_agent and webhook actions
+- Feedback loop: validation subtask → results → wake original agent
+- CRUD controller for managing hooks nested under agents
 
 ### Out of Scope
 
@@ -96,4 +106,4 @@ Users can organize AI agents into a functioning company structure and confidentl
 **Known tech debt:** None significant.
 
 ---
-*Last updated: 2026-03-28 after v1.2 milestone complete*
+*Last updated: 2026-03-28 after v1.3 milestone started*

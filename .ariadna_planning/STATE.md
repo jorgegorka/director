@@ -9,10 +9,10 @@ See: .ariadna_planning/PROJECT.md (updated 2026-03-28)
 
 ## Current Position
 
-Phase: --
+Phase: Not started (defining requirements)
 Plan: --
-Status: v1.2 milestone complete, archived
-Last activity: 2026-03-28 -- v1.2 Agent Skills milestone shipped (5 phases, 9 plans, 22 requirements, 742 tests)
+Status: Defining requirements
+Last activity: 2026-03-28 -- Milestone v1.3 started
 
 ## Performance Metrics
 
