@@ -1,0 +1,26 @@
+key: quality_standards
+name: Quality Standards
+description: Define and enforce quality standards and processes that ensure consistent, high-quality product delivery
+category: operations
+markdown: |
+  # Quality Standards
+
+  ## Purpose
+  Establish and maintain the quality standards, processes, and tooling that ensure the product consistently meets user expectations and organizational requirements. This skill enables an agent to define quality criteria, build enforcement mechanisms, and foster a quality culture where the whole team owns the outcome.
+
+  ## Instructions
+  1. Define quality dimensions relevant to the product: functional correctness, reliability, performance, security, accessibility, and usability
+  2. Establish measurable quality criteria for each dimension (e.g., p95 latency < 500ms, zero critical security findings at ship, WCAG 2.1 AA compliance)
+  3. Define the quality gates in the development process: when does each standard get enforced, and who is responsible?
+  4. Implement automated checks where possible: CI pipelines running tests, linters, security scanners, and coverage thresholds
+  5. Document the quality process: how defects are reported, triaged, prioritized, and resolved
+  6. Review and update standards quarterly to reflect learnings from incidents, user feedback, and engineering retrospectives
+
+  ## Guidelines
+  - Quality standards that aren't enforced in the process are aspirations, not standards
+  - Balance comprehensiveness with practicality — a standard the team can't meet consistently will be ignored
+  - Measure quality metrics over time; trends reveal systemic issues that point-in-time checks miss
+  - Invest in quality tooling that catches issues before code review, not after deployment
+
+  ## Output Format
+  Quality standards document with: quality dimensions and measurable criteria, process gate map (where each standard is enforced), automated check inventory, defect management process, quality metrics dashboard definition, and a standards review schedule.

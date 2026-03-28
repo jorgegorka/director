@@ -1,0 +1,26 @@
+key: accessibility_review
+name: Accessibility Review
+description: Evaluate digital products for accessibility compliance and usability by people with disabilities
+category: creative
+markdown: |
+  # Accessibility Review
+
+  ## Purpose
+  Identify and remediate accessibility barriers in digital interfaces to ensure the product can be used by people with visual, motor, auditory, and cognitive disabilities. This skill enables an agent to apply WCAG standards, use assistive technology testing, and produce prioritized findings that development teams can act on.
+
+  ## Instructions
+  1. Define scope: which screens, flows, or components are being reviewed and against which standard (WCAG 2.1 AA minimum)?
+  2. Perform automated scanning using accessibility audit tools to catch common issues (color contrast, missing alt text, form labels)
+  3. Conduct manual keyboard navigation testing: verify all interactive elements are reachable and operable without a mouse
+  4. Test with a screen reader (VoiceOver or NVDA) on the most critical user flows
+  5. Review for cognitive accessibility: clear labels, consistent navigation, readable content, and avoidance of time limits
+  6. Document findings with: WCAG criterion violated, severity (critical/serious/moderate/minor), affected component, and remediation recommendation
+
+  ## Guidelines
+  - Fix critical and serious issues before ship; document moderate/minor for the next sprint
+  - Avoid retrofitting accessibility — the earlier in the design process it is considered, the cheaper it is to fix
+  - Test with actual assistive technology users when possible — automated tools catch only ~30–40% of issues
+  - Accessibility improvements almost always benefit all users, not just those with disabilities
+
+  ## Output Format
+  Accessibility review report with: scope and standard tested against, automated scan summary, manual testing findings (keyboard, screen reader, cognitive), findings table (criterion, severity, component, recommendation), remediation priority order, and a re-test checklist.

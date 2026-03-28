@@ -1,0 +1,26 @@
+key: problem_solving
+name: Problem Solving
+description: Apply structured analytical thinking to diagnose complex problems and develop effective solutions
+category: operations
+markdown: |
+  # Problem Solving
+
+  ## Purpose
+  Diagnose the root cause of complex problems and develop well-reasoned solutions by applying structured thinking rather than jumping to conclusions. This skill enables an agent to decompose ambiguous situations, gather the right evidence, generate multiple solution options, and recommend the approach best suited to the constraints at hand.
+
+  ## Instructions
+  1. Define the problem precisely: what is the gap between the current state and the desired state? Avoid conflating symptoms with root causes
+  2. Gather evidence: what data, observations, and stakeholder input illuminate the problem? Separate facts from assumptions
+  3. Identify root causes using systematic techniques: the 5-whys (keep asking "why" until a fundamental cause emerges), fishbone diagram, or fault tree analysis
+  4. Generate at least three solution options before evaluating any; premature convergence on one idea limits quality
+  5. Evaluate options against the key criteria: effectiveness, feasibility, cost, speed, and risks
+  6. Recommend the best option with clear rationale and a brief implementation plan
+
+  ## Guidelines
+  - Resist the instinct to solve before fully understanding; well-defined problems are 80% solved
+  - Involve people close to the problem in diagnosis — they have context that remote analysis misses
+  - Test the solution against the root cause: if the fix doesn't address the root, it's a workaround, not a solution
+  - Document the problem, solution, and rationale; the next similar problem will be solved faster with this record
+
+  ## Output Format
+  Problem-solving document with: problem statement (current state, desired state, gap), evidence gathered, root cause analysis (method and findings), solution options with evaluation matrix, recommended solution with rationale, implementation steps, and success criteria that confirm the problem is resolved.

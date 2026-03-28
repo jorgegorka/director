@@ -1,0 +1,26 @@
+key: bug_reporting
+name: Bug Reporting
+description: Document software defects clearly and completely to enable fast, accurate diagnosis and resolution
+category: operations
+markdown: |
+  # Bug Reporting
+
+  ## Purpose
+  Produce defect reports that give engineers everything they need to reproduce, diagnose, and fix a bug without follow-up questions. This skill enables an agent to write reports that reduce resolution time by eliminating ambiguity and providing precise reproduction steps, environment details, and severity context.
+
+  ## Instructions
+  1. Reproduce the bug at least twice before reporting; confirm it is reproducible and not a one-off event
+  2. Write a clear, concise title that describes the symptom from a user perspective (e.g., "Login button unresponsive on mobile Safari when keyboard is visible")
+  3. Document exact reproduction steps in numbered order — every step that matters, nothing extraneous
+  4. Record expected behavior (what should happen) and actual behavior (what does happen), including error messages verbatim
+  5. Capture supporting evidence: screenshots, screen recordings, browser console errors, and network logs
+  6. Assign severity and priority based on user impact and blast radius; note any workarounds that exist
+
+  ## Guidelines
+  - One bug per report — combining multiple issues makes tracking and resolution harder
+  - Include environment details: OS, browser, version, user role, and account state at time of failure
+  - Reproduce in a clean environment if possible to eliminate state-dependent variables
+  - Update the report with new information as the investigation progresses — bug reports are living documents until resolved
+
+  ## Output Format
+  Bug report with: title, severity/priority, environment, reproduction steps, expected behavior, actual behavior, supporting evidence (screenshots/logs), workaround (if known), and affected user population estimate.

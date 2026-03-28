@@ -1,0 +1,26 @@
+key: decision_making
+name: Decision Making
+description: Evaluate options rigorously, weigh trade-offs, and reach well-reasoned decisions under uncertainty
+category: leadership
+markdown: |
+  # Decision Making
+
+  ## Purpose
+  Apply structured reasoning to choose the best course of action when faced with competing options, incomplete information, or high stakes. This skill enables an agent to frame problems clearly, gather relevant input efficiently, evaluate trade-offs transparently, and commit to a decision with documented rationale.
+
+  ## Instructions
+  1. Define the decision clearly: what question must be answered and by when?
+  2. Identify decision criteria (cost, speed, risk, alignment) and weight them by importance
+  3. Generate at least three distinct options — avoid framing choices as binary when a third path exists
+  4. Evaluate each option against the weighted criteria using available data
+  5. Identify the key assumptions and risks behind the preferred option; run a pre-mortem
+  6. Document the decision, rationale, trade-offs accepted, and conditions for revisiting it
+
+  ## Guidelines
+  - Separate data gathering from deliberation — making decisions in the same meeting they're framed leads to poor outcomes
+  - Name the person or role who owns the final call; committee decisions without an owner drift
+  - Distinguish reversible from irreversible decisions — irreversible ones warrant more rigor
+  - Record dissenting views so they can be revisited if circumstances change
+
+  ## Output Format
+  A decision record containing: decision statement, options considered, evaluation matrix, chosen option with rationale, key risks, and a review trigger (date or event that would prompt revisiting).

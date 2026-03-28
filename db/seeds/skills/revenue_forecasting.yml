@@ -1,0 +1,26 @@
+key: revenue_forecasting
+name: Revenue Forecasting
+description: Build and maintain revenue forecasts that help the business plan resources and manage expectations
+category: research
+markdown: |
+  # Revenue Forecasting
+
+  ## Purpose
+  Produce accurate, well-reasoned revenue projections by modeling the business's key drivers and translating them into expected financial outcomes. This skill enables an agent to maintain rolling forecasts, update them as new data arrives, and communicate confidence intervals that help leadership make sound resource allocation decisions.
+
+  ## Instructions
+  1. Identify revenue drivers: new customer acquisition, expansion, churn, pricing changes, and market growth
+  2. Build a bottom-up model: pipeline-based forecast (deals × conversion probability × deal size) combined with cohort-based retention modeling for recurring revenue
+  3. Construct a top-down sanity check using market share and growth rate assumptions
+  4. Run scenarios: base case, upside (top-quartile execution), and downside (meaningful miss on key driver)
+  5. Document key assumptions and their sensitivity — which input changes the forecast most?
+  6. Update the forecast monthly with actuals and revised expectations; track forecast accuracy over time
+
+  ## Guidelines
+  - Separate deterministic revenue (contracted, recurring) from probabilistic revenue (pipeline) in the model
+  - Avoid recency bias — a strong recent quarter can mask structural challenges
+  - Present confidence ranges, not point estimates; false precision erodes trust when actuals diverge
+  - Share forecast methodology with the board so they can challenge assumptions, not just the number
+
+  ## Output Format
+  Revenue forecast with: model methodology summary, driver assumptions table, base/upside/downside scenarios with P10/P50/P90 ranges, sensitivity analysis (top 3 drivers), actual-vs-forecast tracker, and a narrative explaining significant changes from prior forecast.

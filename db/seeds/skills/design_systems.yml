@@ -1,0 +1,26 @@
+key: design_systems
+name: Design Systems
+description: Build and maintain a shared design system that ensures consistency and speeds up product development
+category: creative
+markdown: |
+  # Design Systems
+
+  ## Purpose
+  Establish and maintain a shared vocabulary of design components, patterns, and standards that enables teams to build consistent user interfaces faster. This skill enables an agent to audit component libraries, identify gaps and inconsistencies, and evolve the design system as the product matures without breaking existing implementations.
+
+  ## Instructions
+  1. Audit the current UI: catalog all unique components, identify duplicates, and document where inconsistencies exist
+  2. Define design tokens: spacing scale, type scale, color palette, border radii, and shadow levels
+  3. Design or refine the component library: establish variants, states, and usage guidelines for each component
+  4. Document usage patterns with do/don't examples and decision criteria for when to use each component
+  5. Define a governance model: how are new components proposed, reviewed, and released?
+  6. Establish versioning and migration paths so consuming teams can adopt updates without breakage
+
+  ## Guidelines
+  - Design tokens are the foundation; components built without tokens will diverge the moment someone customizes a value
+  - Prioritize components by usage frequency — start with the most-used before creating specialized ones
+  - Design system adoption is a social problem as much as a technical one — involve consuming teams early
+  - Track component adoption metrics; an unused design system is a liability, not an asset
+
+  ## Output Format
+  Design system deliverable with: component catalog with usage guidelines, design token reference, governance process documentation, adoption metrics, versioning scheme, and a roadmap of planned components and deprecations.

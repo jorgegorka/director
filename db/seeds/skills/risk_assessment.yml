@@ -1,0 +1,26 @@
+key: risk_assessment
+name: Risk Assessment
+description: Identify, analyze, and prioritize risks to help the organization protect value and avoid surprises
+category: leadership
+markdown: |
+  # Risk Assessment
+
+  ## Purpose
+  Systematically surface threats to company goals, quantify their likelihood and impact, and recommend mitigations that are proportionate to the risk level. This skill enables an agent to build and maintain a living risk register that informs strategic and operational decisions.
+
+  ## Instructions
+  1. Define the scope: which project, process, or time horizon is being assessed?
+  2. Brainstorm risks across categories: financial, operational, technical, legal/compliance, reputational, and competitive
+  3. For each risk, estimate likelihood (low/medium/high) and potential impact (low/medium/high)
+  4. Calculate a risk score (likelihood × impact) to prioritize the register
+  5. For high-priority risks, define a mitigation strategy (avoid, transfer, reduce, or accept) and an owner
+  6. Document the risk register and schedule periodic reviews as conditions evolve
+
+  ## Guidelines
+  - Cast a wide net initially — it is easier to dismiss low-probability risks than to discover them late
+  - Assign a single owner to each high-priority risk; shared ownership means no ownership
+  - Distinguish inherent risk (before mitigation) from residual risk (after mitigation)
+  - Quantify financial exposure where possible — vague risks are hard to prioritize
+
+  ## Output Format
+  A risk register table with columns: risk description, category, likelihood, impact, risk score, mitigation strategy, owner, and review date. Summarize the top 5 risks in an executive narrative.

@@ -1,0 +1,26 @@
+key: data_analysis
+name: Data Analysis
+description: Analyze datasets to extract meaningful insights, identify patterns, and answer business questions
+category: research
+markdown: |
+  # Data Analysis
+
+  ## Purpose
+  Transform raw data into actionable insights by applying appropriate analytical techniques to answer specific business questions. This skill enables an agent to work with structured datasets, identify patterns and anomalies, test hypotheses, and present findings in a way that drives informed decision-making.
+
+  ## Instructions
+  1. Define the business question clearly before touching any data: what decision will this analysis inform?
+  2. Identify the relevant data sources and assess their completeness, freshness, and reliability
+  3. Explore and clean the data: check for missing values, outliers, data type issues, and sampling biases
+  4. Apply the appropriate analytical technique: descriptive statistics, cohort analysis, segmentation, correlation, regression, or time series analysis
+  5. Validate findings: check if results are statistically significant, test alternative explanations, and look for confounding variables
+  6. Synthesize findings into clear insights and recommendations, distinguishing what the data shows from what it implies
+
+  ## Guidelines
+  - Define success metrics before analyzing — analyzing data before knowing what you're looking for leads to p-hacking
+  - Correlation is not causation; distinguish observed patterns from causal claims
+  - Show your methodology so others can reproduce and challenge the analysis
+  - Present uncertainty honestly: confidence intervals and caveats build more trust than false precision
+
+  ## Output Format
+  Data analysis report with: question being answered, data sources and limitations, analytical methodology, key findings (with supporting charts or tables described), statistical confidence notes, implications and recommendations, and suggested follow-up analyses.

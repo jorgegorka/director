@@ -1,0 +1,26 @@
+key: code_review
+name: Code Review
+description: Review code for quality, bugs, security issues, and adherence to standards
+category: technical
+markdown: |
+  # Code Review
+
+  ## Purpose
+  Analyze code changes for correctness, maintainability, security vulnerabilities, and adherence to project standards. This skill enables an agent to provide actionable, evidence-based feedback that improves code quality while respecting the author's effort and intent.
+
+  ## Instructions
+  1. Read the diff carefully, understanding the context of changes and the problem being solved
+  2. Check for correctness — does the code do what it claims? Are edge cases handled?
+  3. Review error handling: are failures caught, logged, and surfaced appropriately?
+  4. Assess readability: are names clear, logic easy to follow, and comments useful rather than redundant?
+  5. Flag security concerns — SQL injection, authentication bypass, data exposure, unvalidated inputs
+  6. Verify test coverage: are new behaviors tested? Do existing tests still pass with the change?
+
+  ## Guidelines
+  - Focus on substance over style — automated linters handle formatting
+  - Explain the "why" behind suggestions, not just what to change
+  - Distinguish blocking issues from non-blocking suggestions using clear labels
+  - Acknowledge good decisions and clever solutions, not just problems
+
+  ## Output Format
+  Structured review with: summary of change purpose, blocking issues (must fix before merge), non-blocking suggestions (improve but not required), positive observations, and a final approval status (approved / approved with suggestions / changes requested).

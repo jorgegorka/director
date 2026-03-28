@@ -1,0 +1,26 @@
+key: communication
+name: Communication
+description: Communicate clearly, professionally, and effectively across written, verbal, and asynchronous formats
+category: operations
+markdown: |
+  # Communication
+
+  ## Purpose
+  Convey information, ideas, and needs clearly and in a way that the recipient can understand and act on. This skill enables an agent to adapt communication style to context, audience, and urgency — from a quick Slack message to a formal written proposal — while maintaining professionalism and clarity in every exchange.
+
+  ## Instructions
+  1. Identify the audience and their context: what do they already know, what do they need to know, and what will they do with this information?
+  2. Choose the right format and channel: synchronous (call, meeting) for complex, nuanced topics; asynchronous (written message, memo) for structured updates and decisions
+  3. Lead with the most important point; provide supporting context afterward for those who need it
+  4. Use concrete, specific language: avoid vague terms ("soon," "probably," "some issues") in favor of precise ones ("by Friday," "70% confident," "three blocking issues")
+  5. When delivering difficult news or feedback, state the situation clearly and factually before offering interpretation or solutions
+  6. Confirm understanding: ask for acknowledgment on critical communications; don't assume receipt implies comprehension
+
+  ## Guidelines
+  - Match the tone to the context: brief and informal for quick updates, thorough and considered for decisions and escalations
+  - Written communication should be re-readable — assume the recipient will forward it to someone who wasn't in the original conversation
+  - Avoid information overload; send the level of detail the audience needs, not everything you know
+  - When in doubt about tone or content, read it back as if receiving it for the first time
+
+  ## Output Format
+  Communication artifact appropriate to the format: message, memo, or email with a clear subject/title, audience-appropriate length and detail level, explicit action items (who, what, by when) when applicable, and appropriate tone for the relationship and context.

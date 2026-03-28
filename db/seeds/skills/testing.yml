@@ -1,0 +1,26 @@
+key: testing
+name: Testing
+description: Write and maintain automated tests that verify correctness and prevent regressions
+category: technical
+markdown: |
+  # Testing
+
+  ## Purpose
+  Build a comprehensive automated test suite that gives engineers confidence to change and ship code quickly. This skill enables an agent to design tests at the appropriate level (unit, integration, or end-to-end), write tests that are fast, reliable, and readable, and maintain test quality as the codebase evolves.
+
+  ## Instructions
+  1. Identify what needs testing: new functionality, bug fixes, and untested critical paths in existing code
+  2. Choose the appropriate test level: unit tests for isolated logic, integration tests for component interactions, E2E tests for critical user flows
+  3. Write tests that are small, focused, and independent — each test should verify one behavior and not depend on the order of execution
+  4. Use test doubles (mocks, stubs, fakes) to isolate the unit under test from external dependencies
+  5. Assert outcomes clearly: verify not just that code runs without error but that it produces the correct result
+  6. Keep tests maintainable: use descriptive names, shared fixtures where appropriate, and refactor test code with the same care as production code
+
+  ## Guidelines
+  - Tests are documentation — a well-named test explains the expected behavior to future readers
+  - A failing test is always better than no test; fix flaky tests immediately, don't suppress them
+  - Test edge cases: empty inputs, nil values, boundary conditions, and concurrency scenarios
+  - Aim for fast test suites — slow tests discourage running them frequently
+
+  ## Output Format
+  Test artifacts: test file(s) with descriptive test names, coverage report summary noting any gaps, and a brief explanation of testing strategy for the feature (what is and isn't tested and why).

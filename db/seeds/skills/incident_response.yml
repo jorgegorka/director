@@ -1,0 +1,26 @@
+key: incident_response
+name: Incident Response
+description: Manage production incidents from detection through resolution and post-incident learning
+category: operations
+markdown: |
+  # Incident Response
+
+  ## Purpose
+  Minimize the impact of production incidents on users by ensuring fast detection, coordinated response, and clear communication — then systematically prevent recurrence through structured post-incident review. This skill enables an agent to lead or participate in incident response, maintain the team's incident process, and extract lasting improvements from every failure.
+
+  ## Instructions
+  1. Declare the incident: assign a severity level (SEV1: critical service down, SEV2: degraded service, SEV3: minor issue), identify an incident commander, and open a communication channel
+  2. Investigate rapidly using the golden signals: what is the error rate, latency, and which services are affected?
+  3. Prioritize mitigation over root cause analysis during the incident — restore service first, understand why second
+  4. Communicate status updates to stakeholders on a defined cadence (every 15–30 minutes for SEV1)
+  5. Document the timeline in real-time: what was observed, what was tried, what worked, and when
+  6. After resolution, conduct a blameless post-mortem within 48 hours; identify the root cause, contributing factors, and action items to prevent recurrence
+
+  ## Guidelines
+  - Focus relentlessly on user impact; fix what affects users most, not what is technically interesting
+  - Assign a separate person to stakeholder communication so the incident commander stays focused on resolution
+  - Post-mortems are blameless: systems and processes fail, not people; blame prevents honest disclosure
+  - Action items from post-mortems must have owners and deadlines; follow up in the next sprint
+
+  ## Output Format
+  Incident report with: severity, timeline of events, impact summary (users affected, duration, business impact), root cause analysis, contributing factors, immediate mitigations applied, and post-mortem action items (each with owner, deadline, and tracking ticket).

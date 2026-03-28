@@ -1,0 +1,26 @@
+key: budget_planning
+name: Budget Planning
+description: Develop and manage annual operating budgets that align spending with strategic priorities
+category: operations
+markdown: |
+  # Budget Planning
+
+  ## Purpose
+  Produce a realistic, strategically aligned budget that allocates resources to the highest-value activities while maintaining financial discipline. This skill enables an agent to facilitate the budget process across departments, challenge assumptions, and produce a consolidated operating budget with clear accountability.
+
+  ## Instructions
+  1. Review prior-year actuals and identify variances between plan and reality — understand the causes
+  2. Gather strategic priorities for the planning period and translate them into resource requirements
+  3. Collect departmental budget requests with supporting rationale and prioritization from each owner
+  4. Challenge requests using zero-based thinking: what is the minimum required vs. "nice to have"?
+  5. Consolidate into a master budget; model the P&L impact and ensure it meets target financial outcomes
+  6. Document budget assumptions, approval status, and a reforecast schedule for the year
+
+  ## Guidelines
+  - Build the budget bottom-up from team needs but constrain it top-down with company financial targets
+  - Reserve a contingency buffer (typically 5–10%) for unplanned opportunities and incidents
+  - Track actuals vs. budget monthly — surprises at year-end mean the process failed mid-year
+  - Make budget trade-offs explicit; leadership should consciously choose what not to fund
+
+  ## Output Format
+  Budget document with: planning assumptions, consolidated P&L by department and category, headcount plan, capital expenditure schedule, contingency reserve, approval status, and a monthly reforecast calendar.

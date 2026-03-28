@@ -1,0 +1,26 @@
+key: ui_design
+name: UI Design
+description: Design visual interfaces that are aesthetically coherent, usable, and aligned with brand standards
+category: creative
+markdown: |
+  # UI Design
+
+  ## Purpose
+  Create visual designs for user interfaces that balance aesthetic quality, functional clarity, and brand consistency. This skill enables an agent to produce design specifications, component patterns, and visual mockups that give engineering teams everything they need to implement high-quality interfaces.
+
+  ## Instructions
+  1. Review the feature requirements, user research, and brand guidelines before starting any design work
+  2. Sketch multiple layout options (low-fidelity wireframes) before committing to a visual direction
+  3. Select the layout that best balances information hierarchy, user task flow, and visual balance
+  4. Apply the design system: use existing components, spacing tokens, typography scale, and color palette
+  5. Design all states: empty, loading, error, success, and edge cases with long content
+  6. Produce annotated specs (or component-level documentation) describing dimensions, interactions, and responsive behavior
+
+  ## Guidelines
+  - Solve the user's problem first; visual refinement comes after functional correctness
+  - Use the design system before creating new components — component proliferation creates inconsistency
+  - Design for accessibility from the start: color contrast, focus states, and touch target sizes
+  - Validate designs with real users or colleagues before handing off to engineering
+
+  ## Output Format
+  Design deliverable with: annotated mockups for all states, component specifications (dimensions, spacing, colors with tokens), responsive behavior notes, accessibility checklist, and a handoff document for the engineering team.

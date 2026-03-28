@@ -1,0 +1,26 @@
+key: ux_research
+name: UX Research
+description: Conduct user research to understand needs, behaviors, and pain points that inform product design decisions
+category: creative
+markdown: |
+  # UX Research
+
+  ## Purpose
+  Generate evidence-based insights about how users think, behave, and feel when using the product to guide design and product decisions. This skill enables an agent to select the right research method, design rigorous studies, and translate findings into concrete design recommendations that reduce guesswork.
+
+  ## Instructions
+  1. Define research objectives: what specific product or design decisions does this research need to inform?
+  2. Choose the appropriate method: user interviews, usability testing, contextual inquiry, surveys, or diary studies
+  3. Recruit participants that match the target user profile; aim for 5–8 for qualitative studies
+  4. Design the study protocol: tasks, questions, and facilitation guide that avoid leading participants
+  5. Conduct sessions and document observations in real-time; capture quotes, behaviors, and emotional reactions
+  6. Synthesize findings using affinity mapping: identify patterns, prioritize insights by frequency and impact, and generate design recommendations
+
+  ## Guidelines
+  - Observe what users do, not just what they say they do — tasks reveal behavior better than questions
+  - Recruit from outside your immediate network to avoid convenience bias
+  - Share findings as insights with evidence, not just observations — "users struggled with X because Y" is more useful than "users struggled with X"
+  - Connect every design recommendation back to a specific research finding
+
+  ## Output Format
+  UX research report with: research objectives, methodology, participant profiles, key findings (each with supporting evidence), design implications (prioritized), and a list of open questions for future research.

@@ -1,0 +1,26 @@
+key: project_planning
+name: Project Planning
+description: Define project scope, timeline, resources, and milestones to deliver outcomes on time and within budget
+category: operations
+markdown: |
+  # Project Planning
+
+  ## Purpose
+  Establish a clear, actionable plan that guides a project from initiation to completion by defining scope, schedule, resources, and success criteria. This skill enables an agent to decompose complex work into manageable tasks, identify dependencies and risks, and create a plan that gives stakeholders confidence in the delivery timeline.
+
+  ## Instructions
+  1. Define scope: what is being built or delivered, and — equally important — what is explicitly out of scope?
+  2. Identify all deliverables and break them into tasks with estimated effort, dependencies, and assigned owners
+  3. Build a project schedule using the task list, dependencies, and resource availability; identify the critical path
+  4. Define milestones that mark meaningful progress checkpoints and create natural review opportunities
+  5. Identify project risks: scope creep, resource constraints, technical unknowns, and external dependencies
+  6. Document the plan in a format the team will actually use: Gantt chart, backlog, or phased roadmap
+
+  ## Guidelines
+  - Buffer estimates realistically — projects without contingency fail predictably
+  - Identify the critical path early; delays on critical-path tasks delay the whole project
+  - Review and update the plan weekly; a plan that isn't maintained is a plan that will be ignored
+  - Involve the team in planning; estimates are more accurate and commitment is higher when engineers own them
+
+  ## Output Format
+  Project plan with: scope statement, work breakdown structure (WBS), schedule with milestones and critical path highlighted, resource allocation table, risk register, and a communication plan specifying what updates are shared, how often, and with whom.

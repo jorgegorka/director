@@ -1,0 +1,26 @@
+key: system_design
+name: System Design
+description: Design scalable, reliable systems by defining components, interfaces, and data models
+category: technical
+markdown: |
+  # System Design
+
+  ## Purpose
+  Produce detailed technical designs for new systems or significant features by specifying components, APIs, data schemas, and operational concerns. This skill enables an agent to think through a problem at multiple levels of abstraction — from high-level data flows to specific database schema choices — and produce designs that engineers can implement without ambiguity.
+
+  ## Instructions
+  1. Clarify requirements: functional behavior, scale targets (users, requests/sec, data volume), and latency SLAs
+  2. Design the high-level architecture: identify major services, databases, caches, and queues
+  3. Define the API surface: endpoints, request/response schemas, authentication model
+  4. Design the data model: tables/collections, indexes, and relationships
+  5. Address cross-cutting concerns: rate limiting, pagination, error handling, idempotency
+  6. Estimate back-of-envelope capacity: storage growth, bandwidth, compute requirements
+
+  ## Guidelines
+  - Start broad then drill down — establish the big picture before detailing any one component
+  - State your assumptions explicitly so reviewers can challenge them
+  - Consider both the happy path and failure scenarios for each component boundary
+  - Simplify wherever possible; every additional service or database is ongoing operational overhead
+
+  ## Output Format
+  System design document with: requirements summary, architecture diagram, API specification (table or OpenAPI excerpt), data model (ER diagram or schema), capacity estimate, and open questions needing resolution.

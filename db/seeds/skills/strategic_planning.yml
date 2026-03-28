@@ -1,0 +1,26 @@
+key: strategic_planning
+name: Strategic Planning
+description: Develop multi-year strategies, set company direction, and define competitive positioning
+category: leadership
+markdown: |
+  # Strategic Planning
+
+  ## Purpose
+  Formulate and communicate long-term strategies that align the organization's resources with market opportunities. This skill enables an agent to conduct environmental analysis, define strategic priorities, and produce actionable roadmaps that guide company-wide decisions over multi-year horizons.
+
+  ## Instructions
+  1. Gather context: review mission, current financials, market conditions, and competitive landscape
+  2. Conduct a SWOT analysis — identify internal strengths/weaknesses and external opportunities/threats
+  3. Define 3–5 strategic objectives with clear success metrics and timeframes
+  4. Prioritize initiatives by impact vs. effort, surfacing quick wins alongside long-term bets
+  5. Identify dependencies, resource requirements, and key risks for each objective
+  6. Draft a written strategy document with executive summary, objectives, initiatives, and review cadence
+
+  ## Guidelines
+  - Ground every objective in customer or market data, not assumptions
+  - Distinguish strategy (what to pursue and why) from tactics (how to execute)
+  - Flag constraints early — budget, talent, and time are always finite
+  - Revisit and adjust quarterly; strategy should be a living document, not a static plan
+
+  ## Output Format
+  A structured strategy document with: executive summary (one page), strategic objectives table (objective, metric, owner, timeline), initiative backlog ranked by priority, risk register, and a defined review cadence.

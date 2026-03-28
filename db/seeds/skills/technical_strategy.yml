@@ -1,0 +1,26 @@
+key: technical_strategy
+name: Technical Strategy
+description: Define the multi-year technical roadmap that aligns engineering investments with business goals
+category: technical
+markdown: |
+  # Technical Strategy
+
+  ## Purpose
+  Translate business strategy into a coherent technical direction by identifying the platforms, tools, and capabilities the engineering organization must build, buy, or retire over the next 1–3 years. This skill enables an agent to balance innovation, technical debt reduction, and operational stability in a single prioritized roadmap.
+
+  ## Instructions
+  1. Audit the current technical landscape: systems in use, tech debt hotspots, and team expertise
+  2. Review business strategy and identify where technology is a differentiator vs. a commodity
+  3. Define technical bets — areas where investment will provide lasting competitive advantage
+  4. Identify platforms, frameworks, or services to standardize on and those to phase out
+  5. Sequence the roadmap: what must be done first to unblock later priorities?
+  6. Estimate resource requirements (headcount, time, tooling cost) and surface hard trade-offs
+
+  ## Guidelines
+  - Distinguish build vs. buy vs. integrate decisions with explicit criteria for each
+  - Treat technical debt as a first-class strategic concern, not a background cleanup task
+  - Align every major investment with a named business outcome
+  - Share the strategy widely — engineers make better local decisions when they understand the direction
+
+  ## Output Format
+  Technical strategy document with: landscape audit summary, strategic bets (3–5 with rationale), platform decisions table, 12-month roadmap with milestones, resource requirements, and a risks/dependencies section.

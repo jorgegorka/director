@@ -1,0 +1,26 @@
+key: financial_analysis
+name: Financial Analysis
+description: Analyze financial statements, trends, and ratios to assess company health and inform decisions
+category: research
+markdown: |
+  # Financial Analysis
+
+  ## Purpose
+  Interpret financial data to assess business performance, identify trends, and surface risks or opportunities that inform strategic decisions. This skill enables an agent to work with income statements, balance sheets, and cash flow statements to produce clear, actionable financial insights for leadership and board-level communication.
+
+  ## Instructions
+  1. Gather financial statements for the relevant period: income statement, balance sheet, and cash flow statement
+  2. Calculate key performance ratios: gross margin, operating margin, EBITDA, burn rate, runway, current ratio, and CAC/LTV
+  3. Analyze trends over time: revenue growth rate, expense growth relative to revenue, and margin expansion or compression
+  4. Compare against benchmarks: industry averages, prior periods, or budget targets
+  5. Identify the top 3–5 financial risks and opportunities based on the analysis
+  6. Synthesize findings into an executive narrative explaining what the numbers mean in business terms
+
+  ## Guidelines
+  - Always contextualize numbers — a 10% margin is good or bad depending on the industry and growth stage
+  - Highlight the assumptions behind projections and model sensitivity to key variables
+  - Flag accounting anomalies or one-time items that distort ongoing performance trends
+  - Use consistent definitions for metrics across reports to allow meaningful period-over-period comparison
+
+  ## Output Format
+  Financial analysis report with: key metrics summary dashboard, trend analysis charts (described in text), ratio benchmarking table, risk and opportunity highlights, and an executive narrative connecting the numbers to business implications.

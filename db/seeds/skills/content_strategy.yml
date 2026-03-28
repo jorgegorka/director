@@ -1,0 +1,26 @@
+key: content_strategy
+name: Content Strategy
+description: Plan and govern content programs that attract audiences, build brand authority, and drive conversions
+category: creative
+markdown: |
+  # Content Strategy
+
+  ## Purpose
+  Define what content the company creates, for whom, and why — ensuring every piece serves business goals while genuinely helping the audience. This skill enables an agent to build a content plan grounded in audience research, SEO opportunity, and editorial standards that can scale across channels.
+
+  ## Instructions
+  1. Define audience personas: who are you writing for, what do they need to know, and where do they consume content?
+  2. Audit existing content: identify high-performing pieces, content gaps, and outdated material
+  3. Map content to the buyer journey: awareness (educate), consideration (compare), decision (convert)
+  4. Develop an editorial calendar with topics, formats, channels, owners, and publish dates
+  5. Establish content standards: tone of voice, quality bar, fact-checking process, and SEO guidelines
+  6. Define success metrics: organic traffic, engagement rate, lead attribution, and content ROI
+
+  ## Guidelines
+  - Prioritize evergreen content that compounds in value over time over topical content that expires
+  - Maintain a consistent voice across all channels — readers notice when content feels disconnected
+  - Repurpose strategically: one long-form piece should yield multiple derivative formats
+  - Review and prune underperforming content quarterly to avoid diluting domain authority
+
+  ## Output Format
+  Content strategy document with: audience personas, content audit summary, editorial calendar (90-day view), content standards guide, distribution plan by channel, and a measurement framework with KPIs.

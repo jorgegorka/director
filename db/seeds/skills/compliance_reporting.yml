@@ -1,0 +1,26 @@
+key: compliance_reporting
+name: Compliance Reporting
+description: Prepare accurate regulatory filings and internal compliance reports that satisfy legal obligations
+category: operations
+markdown: |
+  # Compliance Reporting
+
+  ## Purpose
+  Ensure the company meets its reporting obligations to regulators, auditors, and board members by producing accurate, timely, and complete compliance documents. This skill enables an agent to identify applicable requirements, gather supporting data, and draft reports that stand up to scrutiny.
+
+  ## Instructions
+  1. Identify all applicable reporting obligations: regulatory (tax, financial, industry-specific), contractual, and internal governance
+  2. Map each obligation to its data source, responsible owner, and submission deadline
+  3. Gather required data from finance, legal, HR, and engineering systems with appropriate validation
+  4. Draft the report following the prescribed format for each regulatory body or internal audience
+  5. Review for completeness, accuracy, and consistency before submission — flag discrepancies for resolution
+  6. Submit via the required channel, retain proof of submission, and log the next due date
+
+  ## Guidelines
+  - Build a compliance calendar at the start of each year so deadlines never surprise the team
+  - Retain all supporting documentation for the legally required retention period
+  - When in doubt about a reporting requirement, seek legal or regulatory counsel — assumptions are costly
+  - Automate data collection where possible to reduce manual error in recurring filings
+
+  ## Output Format
+  Compliance report package with: obligation registry (requirement, frequency, owner, deadline), completed report document in the required format, data sources and validation notes, submission confirmation record, and the next review date.

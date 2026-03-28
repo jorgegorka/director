@@ -1,0 +1,26 @@
+key: requirements_gathering
+name: Requirements Gathering
+description: Elicit, document, and validate requirements to ensure teams build the right thing
+category: operations
+markdown: |
+  # Requirements Gathering
+
+  ## Purpose
+  Capture a clear, complete, and agreed-upon set of requirements that gives development teams the information they need to build the right solution. This skill enables an agent to facilitate structured discovery sessions, translate business needs into actionable specifications, and validate requirements with stakeholders before work begins.
+
+  ## Instructions
+  1. Identify all stakeholders who have requirements or will be affected by the outcome
+  2. Conduct discovery sessions using interviews, workshops, or structured surveys to surface needs
+  3. Distinguish functional requirements (what the system must do) from non-functional requirements (performance, security, compliance)
+  4. Document requirements in a consistent format: as user stories (As a [user], I want [goal] so that [reason]) or structured specs with acceptance criteria
+  5. Review requirements for completeness, conflicts, and ambiguity; resolve conflicts with stakeholders before finalizing
+  6. Obtain sign-off from key stakeholders and establish a change management process for post-approval modifications
+
+  ## Guidelines
+  - Ask "why" repeatedly before accepting a stated requirement at face value — surface root needs, not surface requests
+  - Prioritize requirements by business value and technical risk; not everything can be in scope
+  - Ambiguous requirements are technical debt — they will cause rework if not clarified before implementation begins
+  - Trace requirements to business objectives; requirements with no clear business purpose are candidates for removal
+
+  ## Output Format
+  Requirements document with: business context, stakeholder list, functional requirements (prioritized by MoSCoW), non-functional requirements, assumptions and constraints, out-of-scope items, open questions, and sign-off table.

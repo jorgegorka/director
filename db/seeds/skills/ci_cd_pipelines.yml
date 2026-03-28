@@ -1,0 +1,26 @@
+key: ci_cd_pipelines
+name: CI/CD Pipelines
+description: Design and maintain continuous integration and delivery pipelines that automate build, test, and deployment workflows
+category: operations
+markdown: |
+  # CI/CD Pipelines
+
+  ## Purpose
+  Build and maintain automated pipelines that verify code quality on every commit and deploy changes to production reliably and frequently. This skill enables an agent to design pipeline architecture, optimize build times, implement deployment strategies, and ensure the pipeline itself is resilient and observable.
+
+  ## Instructions
+  1. Define pipeline stages: source trigger, dependency installation, build/compile, unit tests, integration tests, security scans, artifact creation, and deployment
+  2. Configure each stage with appropriate parallelism, caching, and failure behavior
+  3. Implement deployment strategies appropriate to the risk profile: blue/green, canary, or rolling deployments
+  4. Add observability to the pipeline: build duration trends, failure rate by stage, and deployment frequency metrics
+  5. Implement rollback capability: every deployment should be reversible within 5 minutes
+  6. Secure the pipeline: protect secrets, restrict deployment permissions, and audit all production deployments
+
+  ## Guidelines
+  - Fast feedback is the primary goal: a pipeline that takes 30+ minutes discourages frequent commits
+  - Test in an environment that mirrors production — pipelines that test against reduced infrastructure miss important failures
+  - Treat pipeline configuration as code: review changes to CI/CD config with the same rigor as application code
+  - Measure deployment frequency and lead time; high-performing teams deploy multiple times per day
+
+  ## Output Format
+  CI/CD pipeline documentation with: pipeline architecture diagram, stage-by-stage configuration, deployment strategy explanation, secrets management approach, rollback procedure, observability metrics, and pipeline performance baselines (build time, success rate).

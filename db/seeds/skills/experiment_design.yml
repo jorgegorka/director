@@ -1,0 +1,26 @@
+key: experiment_design
+name: Experiment Design
+description: Design rigorous experiments and A/B tests to generate causal evidence that informs product and business decisions
+category: research
+markdown: |
+  # Experiment Design
+
+  ## Purpose
+  Design experiments that generate reliable causal evidence rather than correlational observations, enabling confident product and business decisions. This skill enables an agent to define testable hypotheses, calculate required sample sizes, control for confounds, and plan analysis procedures before data collection begins.
+
+  ## Instructions
+  1. Define the hypothesis: what specific, measurable change do you expect, in which direction, for which population?
+  2. Identify the primary metric (the one variable that determines success) and secondary guardrail metrics
+  3. Calculate minimum sample size using statistical power analysis: define acceptable Type I error (alpha = 0.05), Type II error (power = 0.80), and minimum detectable effect
+  4. Design the treatment: what exactly changes between control and treatment? Minimize variables to isolate the effect
+  5. Define the randomization unit (user, session, company) and ensure proper traffic splitting
+  6. Plan the analysis: specify the statistical test, when analysis will run, and how you will handle early stopping and multiple comparisons
+
+  ## Guidelines
+  - Pre-register hypotheses and analysis plans before data collection to prevent HARKing (Hypothesizing After Results are Known)
+  - Power your experiments properly — underpowered experiments waste resources and produce ambiguous results
+  - Run experiments for full business cycles (at least 2 weeks) to account for day-of-week and novelty effects
+  - Resist the urge to call an experiment early — statistical significance at peek creates false positives
+
+  ## Output Format
+  Experiment design document with: hypothesis, primary and guardrail metrics, sample size calculation and power analysis, randomization strategy, treatment description, pre-planned analysis method, duration, success criteria, and rollout plan for winning variants.

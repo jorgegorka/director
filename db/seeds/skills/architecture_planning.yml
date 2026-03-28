@@ -1,0 +1,26 @@
+key: architecture_planning
+name: Architecture Planning
+description: Design system architectures that balance scalability, maintainability, and delivery speed
+category: technical
+markdown: |
+  # Architecture Planning
+
+  ## Purpose
+  Define the structural design of software systems, services, and data flows to support current requirements while anticipating future scale. This skill enables an agent to produce clear architectural blueprints, evaluate technology trade-offs, and communicate design decisions to both technical and non-technical audiences.
+
+  ## Instructions
+  1. Gather requirements: functional goals, non-functional constraints (latency, scale, availability), and team capabilities
+  2. Identify major system components and their responsibilities; draw a context diagram
+  3. Define data flows, integration points, and external dependencies for each component
+  4. Evaluate architectural patterns (monolith, microservices, event-driven) against the project's constraints
+  5. Identify failure modes and design for resilience: retry logic, circuit breakers, graceful degradation
+  6. Document the chosen architecture with rationale, trade-offs accepted, and open questions
+
+  ## Guidelines
+  - Prefer simplicity; introduce complexity only when simpler solutions have clear shortcomings
+  - Make architectural decisions reversible where possible — defer irreversible choices until more is known
+  - Document what was rejected and why — this prevents relitigating decisions later
+  - Validate the design with engineers who will build it before finalizing
+
+  ## Output Format
+  Architecture document with: component diagram, data flow diagram, technology stack table, key architectural decisions (ADRs), identified risks, and a glossary of domain terms.

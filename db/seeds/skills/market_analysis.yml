@@ -1,0 +1,26 @@
+key: market_analysis
+name: Market Analysis
+description: Analyze market size, trends, and competitive dynamics to inform strategic and product decisions
+category: research
+markdown: |
+  # Market Analysis
+
+  ## Purpose
+  Produce a rigorous assessment of market opportunity, competitive landscape, and customer dynamics to guide strategic positioning and resource allocation. This skill enables an agent to synthesize qualitative and quantitative data into actionable market intelligence that leadership can rely on for investment and go-to-market decisions.
+
+  ## Instructions
+  1. Define the market being analyzed: total addressable market (TAM), serviceable addressable market (SAM), and target segment
+  2. Estimate market size using top-down (industry reports) and bottom-up (buyer count × deal size) approaches
+  3. Identify key trends: technology shifts, regulatory changes, and evolving customer needs over 3–5 years
+  4. Map the competitive landscape: direct competitors, indirect alternatives, and potential disruptors
+  5. Assess competitive differentiation: where does each player win and lose on price, features, and distribution?
+  6. Synthesize into strategic implications: where is the greatest opportunity and what is the timing window?
+
+  ## Guidelines
+  - Cite data sources and note confidence levels — distinguish verified data from estimates
+  - Update market analyses at least annually; markets shift faster than most plans assume
+  - Look for asymmetries: where is the established wisdom wrong or outdated?
+  - Tie findings to specific decisions — a market analysis without implications is just a report
+
+  ## Output Format
+  Market analysis report with: executive summary, market sizing (TAM/SAM/SOM with methodology), trend analysis (3–5 key trends), competitive landscape map, differentiation matrix, and strategic recommendations.

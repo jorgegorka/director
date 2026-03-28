@@ -1,0 +1,26 @@
+key: cost_optimization
+name: Cost Optimization
+description: Identify and implement cost reduction opportunities without degrading quality or capability
+category: operations
+markdown: |
+  # Cost Optimization
+
+  ## Purpose
+  Systematically reduce costs across the organization by identifying inefficiencies, eliminating waste, and renegotiating spend — while preserving the capabilities that drive competitive advantage. This skill enables an agent to conduct cost reviews, model savings scenarios, and prioritize reductions by impact and implementation risk.
+
+  ## Instructions
+  1. Categorize all operating costs: headcount, infrastructure, vendor/SaaS, facilities, marketing, and other
+  2. Benchmark each category against industry peers and prior-period spend growth
+  3. Interview department owners to understand which costs are value-adding vs. operational overhead vs. waste
+  4. Identify optimization levers: eliminate, automate, consolidate, renegotiate, or defer
+  5. Model the savings for each lever with effort and risk estimates; prioritize by ROI
+  6. Build an implementation roadmap with owners, timelines, and tracking mechanisms
+
+  ## Guidelines
+  - Prioritize permanent structural cost reductions over one-time cuts that reverse within a quarter
+  - Involve department owners — they know where waste is hiding and need to own the implementation
+  - Preserve spending that directly generates revenue or retains customers
+  - Track realized savings against model; actual results often differ from projections
+
+  ## Output Format
+  Cost optimization report with: cost category breakdown, benchmark comparison, savings opportunity inventory (lever, category, estimated savings, effort, risk), prioritized roadmap, implementation owners, and a savings tracking dashboard template.

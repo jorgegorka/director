@@ -1,0 +1,26 @@
+key: prototyping
+name: Prototyping
+description: Build interactive prototypes to explore design ideas and validate concepts with users before development
+category: creative
+markdown: |
+  # Prototyping
+
+  ## Purpose
+  Create interactive representations of design concepts to test ideas quickly and cheaply before investing in engineering effort. This skill enables an agent to match prototype fidelity to the research or validation goal, produce clickable prototypes that simulate the real product experience, and extract learning efficiently from user testing sessions.
+
+  ## Instructions
+  1. Define the learning goal: what question does this prototype need to answer?
+  2. Choose prototype fidelity based on the goal: paper sketches for concept testing, wireframes for flow validation, high-fidelity for visual and interaction testing
+  3. Identify the key screens and interactions needed to simulate the scenario — prototype only what's necessary to answer the question
+  4. Build the prototype in a design tool with realistic content and clickable interactions
+  5. Define the test scenario: what task will users attempt with this prototype?
+  6. Run testing sessions, capture observations, and iterate on the prototype before drawing conclusions
+
+  ## Guidelines
+  - Don't over-invest in prototype fidelity before validating the core concept
+  - Use realistic content — lorem ipsum in a prototype creates testing artifacts that won't exist in the real product
+  - Prototype the riskiest assumptions first — the most uncertain elements deserve the earliest testing
+  - Document what the prototype validated, what it disproved, and what remains untested
+
+  ## Output Format
+  Prototype deliverable with: learning goal, fidelity rationale, prototype link or file, test script, findings summary (validated assumptions, invalidated assumptions, open questions), and recommended next steps.

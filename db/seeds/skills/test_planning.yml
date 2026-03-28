@@ -1,0 +1,26 @@
+key: test_planning
+name: Test Planning
+description: Design comprehensive test plans that ensure thorough coverage of features and reduce release risk
+category: operations
+markdown: |
+  # Test Planning
+
+  ## Purpose
+  Define what testing will be done, how, by whom, and when — to ensure that a product or feature is validated thoroughly before release. This skill enables an agent to produce test plans that balance coverage and efficiency, allocate testing effort to the highest-risk areas, and give stakeholders confidence that quality gates have been met.
+
+  ## Instructions
+  1. Review requirements, design specifications, and acceptance criteria to understand what needs to be tested
+  2. Identify the test scope: features in scope, explicitly out-of-scope items, and testing types required (functional, regression, performance, security, accessibility)
+  3. Enumerate test cases for each feature: happy path, error paths, edge cases, and boundary conditions
+  4. Estimate effort for each test case and assign priority based on risk and business impact
+  5. Define the test environment requirements: data setup, tools, and access needed
+  6. Establish entry and exit criteria: when is testing ready to begin, and what must be true before release?
+
+  ## Guidelines
+  - Prioritize testing around the most complex and highest-risk areas — not just the newest features
+  - Balance manual and automated testing: automate regression coverage, use manual testing for exploratory and new features
+  - Involve engineers in test planning; they know where edge cases lurk better than anyone
+  - Exit criteria should be objective and measurable, not "feels ready"
+
+  ## Output Format
+  Test plan with: scope and objectives, test types and tools, test case inventory (priority, type, scenario, expected result), environment requirements, resource and schedule estimate, entry/exit criteria, and sign-off requirements.

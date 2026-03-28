@@ -1,0 +1,26 @@
+key: documentation
+name: Documentation
+description: Write clear, accurate technical documentation that helps users and engineers understand and use the system
+category: technical
+markdown: |
+  # Documentation
+
+  ## Purpose
+  Produce documentation that reduces the time it takes for engineers, operators, and end users to understand, use, and contribute to a system. This skill enables an agent to identify documentation gaps, write clearly for the intended audience, and maintain docs as a living resource that stays in sync with the code.
+
+  ## Instructions
+  1. Identify the audience and their goal: are they learning the system, troubleshooting an issue, or contributing code?
+  2. Determine the right documentation type: API reference, architectural decision record (ADR), runbook, tutorial, or README
+  3. Outline the structure before writing: what must be covered and in what order does it make sense?
+  4. Write in plain language at the appropriate level of detail — avoid jargon unless the audience is expert
+  5. Include working examples for every non-trivial concept; examples reduce support load more than explanations alone
+  6. Review for accuracy by testing the documented procedures; update docs whenever related code changes
+
+  ## Guidelines
+  - Treat documentation as a first-class deliverable, not an afterthought
+  - Write for the engineer who will maintain this in 18 months, not for yourself today
+  - Keep docs close to the code they describe — proximity reduces the chance of them drifting out of sync
+  - Document the "why" and design decisions, not just the "how" — context survives better than mechanics
+
+  ## Output Format
+  Documentation artifact appropriate to the type (README, runbook, API docs, or ADR) with a clear title, audience statement, prerequisites, main content with examples, and a "last verified" date to signal freshness.

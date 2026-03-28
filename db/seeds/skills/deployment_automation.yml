@@ -1,0 +1,26 @@
+key: deployment_automation
+name: Deployment Automation
+description: Automate application deployment processes to reduce manual effort, deployment risk, and recovery time
+category: operations
+markdown: |
+  # Deployment Automation
+
+  ## Purpose
+  Eliminate manual deployment steps by automating the entire process from artifact build through production release, reducing human error and enabling more frequent, lower-risk deployments. This skill enables an agent to design deployment automation, implement zero-downtime strategies, and build the tooling that gives the team confidence to deploy at any time.
+
+  ## Instructions
+  1. Audit the current deployment process: document every manual step, its duration, who performs it, and what can go wrong
+  2. Identify automation candidates: environment provisioning, configuration management, artifact promotion, database migrations, and smoke testing
+  3. Design the automated deployment workflow: define the sequence of steps, approval gates, and failure handling
+  4. Implement pre-deployment checks: is the artifact healthy? Are dependent services ready? Is the environment in the expected state?
+  5. Implement post-deployment verification: run smoke tests, check error rates, and confirm the deployment succeeded before closing out
+  6. Document the rollback procedure and test it; automated forward deployment is only safe when backward deployment is equally reliable
+
+  ## Guidelines
+  - Automate idempotently — running a deployment twice should be safe and produce the same result
+  - Keep deployment steps small and verifiable; long deployment scripts with many steps are hard to debug when they fail
+  - Gate deployments on successful automated tests; never allow code that fails CI to reach production
+  - Log every deployment with: who triggered it, what was deployed, when, and the outcome — this is your audit trail
+
+  ## Output Format
+  Deployment automation documentation with: deployment workflow diagram, pre- and post-deployment checklist, rollback procedure, configuration management approach, deployment frequency target, audit log format, and a deployment health dashboard description.

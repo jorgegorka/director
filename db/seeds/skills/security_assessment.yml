@@ -1,0 +1,26 @@
+key: security_assessment
+name: Security Assessment
+description: Evaluate systems and code for security vulnerabilities and recommend hardening measures
+category: technical
+markdown: |
+  # Security Assessment
+
+  ## Purpose
+  Identify security weaknesses in code, architecture, and configuration before they can be exploited. This skill enables an agent to apply threat modeling, review common vulnerability patterns (OWASP Top 10), and produce prioritized findings with actionable remediation guidance.
+
+  ## Instructions
+  1. Define scope: what system, codebase, or feature is being assessed and what are the trust boundaries?
+  2. Perform threat modeling: identify assets, entry points, actors, and plausible attack vectors
+  3. Review authentication and authorization logic — check for missing checks, privilege escalation, and insecure defaults
+  4. Inspect input handling: look for injection flaws (SQL, command, template), path traversal, and deserialization issues
+  5. Check secrets management: hardcoded credentials, insecure storage, and overly broad IAM permissions
+  6. Assess data protection: encryption at rest and in transit, PII handling, and logging of sensitive data
+
+  ## Guidelines
+  - Prioritize findings by exploitability and impact — a theoretical flaw with no viable attack path is low priority
+  - Provide working remediation steps, not just descriptions of the problem
+  - Flag security debt separately from functional bugs so it gets dedicated attention
+  - Retest mitigations after implementation; security fixes can introduce new issues
+
+  ## Output Format
+  Security assessment report with: scope definition, threat model summary, findings table (severity: critical/high/medium/low, description, evidence, remediation), and a remediation priority order with estimated effort.

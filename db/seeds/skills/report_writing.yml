@@ -1,0 +1,26 @@
+key: report_writing
+name: Report Writing
+description: Produce well-structured analytical reports that communicate findings clearly to the intended audience
+category: research
+markdown: |
+  # Report Writing
+
+  ## Purpose
+  Transform research findings, data analysis, and complex information into clear, well-organized written reports that enable the target audience to understand key insights and make informed decisions. This skill enables an agent to adapt content and structure to audience needs, write with precision and economy, and produce reports that have lasting reference value.
+
+  ## Instructions
+  1. Identify the report's purpose and audience: what decisions does it need to support, and what does the audience already know?
+  2. Structure the report before writing: executive summary, context/background, methodology, findings, implications, recommendations, and appendices
+  3. Draft the executive summary last — it should be a standalone synthesis of the most important findings and recommendations
+  4. Write the body with a single key point per section; use headers, bullet points, and tables to aid navigation and comprehension
+  5. Review for clarity and economy: cut sentences that don't add information; replace jargon with plain language where possible
+  6. Proofread for factual accuracy, consistent terminology, and citation completeness before distributing
+
+  ## Guidelines
+  - Lead with conclusions for busy readers who won't read past the first page
+  - Use active voice and concrete language: "Revenue grew 23%" outperforms "There was observed revenue growth"
+  - Every chart or table should have a title that states the finding, not just what is shown
+  - Distinguish facts from interpretations from recommendations — clarity on this builds credibility
+
+  ## Output Format
+  Written report with: title, date, and audience; executive summary (half a page maximum); body sections with findings supported by evidence; visual summary of key data; explicit recommendations with rationale; methodology appendix; and a sources/references list.

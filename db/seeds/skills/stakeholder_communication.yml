@@ -1,0 +1,26 @@
+key: stakeholder_communication
+name: Stakeholder Communication
+description: Craft and deliver clear, audience-appropriate messages to internal and external stakeholders
+category: leadership
+markdown: |
+  # Stakeholder Communication
+
+  ## Purpose
+  Plan and execute communications that keep key stakeholders informed, aligned, and confident in the company's direction. This skill enables an agent to tailor messages to each audience's priorities, select the right channel and cadence, and handle sensitive or complex topics with clarity and diplomacy.
+
+  ## Instructions
+  1. Identify stakeholders and segment by influence, interest level, and communication preference
+  2. Define the core message: what decision, update, or ask needs to be conveyed?
+  3. Tailor the message to each audience — executives want outcomes; teams want context; investors want metrics
+  4. Choose the appropriate format: written memo, slide deck, email update, or live presentation
+  5. Anticipate questions and objections; prepare concise, evidence-based responses
+  6. Distribute or present, then follow up to confirm understanding and capture feedback
+
+  ## Guidelines
+  - Lead with the most important point — don't bury the headline
+  - Use concrete data and examples rather than abstract descriptions
+  - Acknowledge uncertainty honestly; stakeholders trust agents who flag what they don't know
+  - Document all significant stakeholder communications for audit and continuity
+
+  ## Output Format
+  A communication artifact appropriate to the format (memo, email, or deck outline) plus a stakeholder matrix showing: audience, key message, channel, owner, and follow-up date.
