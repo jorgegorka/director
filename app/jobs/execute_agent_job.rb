@@ -49,13 +49,15 @@ class ExecuteAgentJob < ApplicationJob
     session_id = agent.latest_session_id
     ctx[:resume_session_id] = session_id if session_id.present?
 
-    ctx[:documents] = build_document_context(agent, agent_run)
+    skills = agent.skills.to_a
+    ctx[:skills] = serialize_skills(skills)
+    ctx[:documents] = build_document_context(skills, agent, agent_run)
 
     ctx
   end
 
-  def build_document_context(agent, agent_run)
-    skill_doc_ids = SkillDocument.where(skill_id: agent.skill_ids).pluck(:document_id)
+  def build_document_context(skills, agent, agent_run)
+    skill_doc_ids = SkillDocument.where(skill_id: skills.map(&:id)).pluck(:document_id)
     agent_doc_ids = agent.agent_documents.pluck(:document_id)
     task_doc_ids = agent_run.task_id.present? ? TaskDocument.where(task_id: agent_run.task_id).pluck(:document_id) : []
 
@@ -64,6 +66,18 @@ class ExecuteAgentJob < ApplicationJob
       agent_documents: serialize_documents(Document.where(id: agent_doc_ids)),
       task_documents: serialize_documents(Document.where(id: task_doc_ids))
     }
+  end
+
+  def serialize_skills(skills)
+    skills.map do |skill|
+      {
+        key: skill.key,
+        name: skill.name,
+        description: skill.description,
+        category: skill.category,
+        markdown: skill.markdown
+      }
+    end
   end
 
   def serialize_documents(documents)

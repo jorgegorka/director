@@ -222,6 +222,40 @@ class HttpAdapterTest < ActiveSupport::TestCase
   end
 
   # ---------------------------------------------------------------------------
+  # Skill payload tests
+  # ---------------------------------------------------------------------------
+
+  test "payload includes skills when present in context" do
+    stub_request(:post, AGENT_URL).to_return(status: 200, body: '{"ok":true}')
+
+    @context[:skills] = [
+      { key: "code_review", name: "Code Review", description: "Review code", category: "technical", markdown: "# Code Review" }
+    ]
+
+    HttpAdapter.execute(@agent, @context)
+
+    assert_requested(:post, AGENT_URL) do |req|
+      body = JSON.parse(req.body)
+      body["skills"].is_a?(Array) &&
+        body["skills"].length == 1 &&
+        body["skills"][0]["key"] == "code_review"
+    end
+  end
+
+  test "payload omits skills when none present" do
+    stub_request(:post, AGENT_URL).to_return(status: 200, body: '{"ok":true}')
+
+    @context[:skills] = []
+
+    HttpAdapter.execute(@agent, @context)
+
+    assert_requested(:post, AGENT_URL) do |req|
+      body = JSON.parse(req.body)
+      !body.key?("skills")
+    end
+  end
+
+  # ---------------------------------------------------------------------------
   # Regression: class methods unchanged
   # ---------------------------------------------------------------------------
 

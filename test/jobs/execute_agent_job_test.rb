@@ -315,4 +315,51 @@ class ExecuteAgentJobTest < ActiveSupport::TestCase
 
     assert_equal [], ctx[:documents][:task_documents]
   end
+
+  # ---------------------------------------------------------------------------
+  # Skill context tests
+  # ---------------------------------------------------------------------------
+
+  test "build_context includes skills for the agent" do
+    agent = agents(:claude_agent)
+    agent_run = AgentRun.create!(
+      agent: agent,
+      company: agent.company,
+      status: :queued,
+      trigger_type: :scheduled
+    )
+
+    job = ExecuteAgentJob.new
+    ctx = job.send(:build_context, agent, agent_run)
+
+    assert ctx.key?(:skills)
+    skill_keys = ctx[:skills].map { |s| s[:key] }
+    assert_includes skill_keys, "strategic_planning"
+    assert_includes skill_keys, "code_review"
+
+    # Verify skill structure
+    skill = ctx[:skills].find { |s| s[:key] == "code_review" }
+    assert_equal "Code Review", skill[:name]
+    assert_equal "technical", skill[:category]
+    assert skill[:description].present?
+    assert skill[:markdown].present?
+  end
+
+  test "build_context includes empty skills when agent has none" do
+    agent = agents(:http_agent)
+    # Remove the one skill assignment http_agent has
+    agent.agent_skills.destroy_all
+
+    agent_run = AgentRun.create!(
+      agent: agent,
+      company: agent.company,
+      status: :queued,
+      trigger_type: :scheduled
+    )
+
+    job = ExecuteAgentJob.new
+    ctx = job.send(:build_context, agent, agent_run)
+
+    assert_equal [], ctx[:skills]
+  end
 end

@@ -341,6 +341,75 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
   end
 
   # ---------------------------------------------------------------------------
+  # Skill injection into system prompt
+  # ---------------------------------------------------------------------------
+
+  test "system prompt includes skill catalog when skills present" do
+    skills = [
+      { key: "code_review", name: "Code Review", description: "Review code for quality", category: "technical", markdown: "# Code Review\n\n## Instructions\n1. Read the diff" },
+      { key: "debugging", name: "Debugging", description: "Diagnose defects", category: "technical", markdown: "# Debugging\n\n## Instructions\n1. Reproduce the bug" }
+    ]
+
+    prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @agent, { skills: skills })
+
+    assert_includes prompt, "Code Review"
+    assert_includes prompt, "Debugging"
+    assert_includes prompt, "code_review"
+    assert_includes prompt, "debugging"
+    assert_includes prompt, "Your Skills"
+  end
+
+  test "system prompt omits skills section when no skills" do
+    @agent.adapter_config.delete("system_prompt")
+
+    prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @agent, { skills: [] })
+
+    assert_equal "", prompt
+  end
+
+  test "command includes --system-prompt flag when skills present" do
+    run = AgentRun.create!(
+      agent: @agent, task: @task, company: @company,
+      status: :queued, trigger_type: "task_assigned"
+    )
+    @context[:run_id] = run.id
+    @context[:skills] = [
+      { key: "code_review", name: "Code Review", description: "Review code", category: "technical", markdown: "# Code Review" }
+    ]
+
+    ClaudeLocalAdapter.execute(@agent, @context)
+
+    assert @spawn_calls.last.include?("--system-prompt"), "command should include --system-prompt flag"
+  end
+
+  test "command omits --system-prompt when no skills and no config prompt" do
+    run = AgentRun.create!(
+      agent: @agent, task: @task, company: @company,
+      status: :queued, trigger_type: "task_assigned"
+    )
+    @context[:run_id] = run.id
+    @context[:skills] = []
+    @agent.adapter_config.delete("system_prompt")
+
+    ClaudeLocalAdapter.execute(@agent, @context)
+
+    assert_not @spawn_calls.last.include?("--system-prompt"), "command should not include --system-prompt"
+  end
+
+  test "system prompt combines config system_prompt with skills" do
+    @agent.adapter_config["system_prompt"] = "You are a helpful assistant."
+    skills = [
+      { key: "testing", name: "Testing", description: "Write tests", category: "technical", markdown: "# Testing\n\n## Instructions\n1. Write tests" }
+    ]
+
+    prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @agent, { skills: skills })
+
+    assert_includes prompt, "You are a helpful assistant."
+    assert_includes prompt, "Testing"
+    assert_includes prompt, "Your Skills"
+  end
+
+  # ---------------------------------------------------------------------------
   # Regression: class methods unchanged
   # ---------------------------------------------------------------------------
 

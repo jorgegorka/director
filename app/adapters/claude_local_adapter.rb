@@ -103,10 +103,43 @@ class ClaudeLocalAdapter < BaseAdapter
     parts << "--bare"  # CLAUDE-07: mandatory, prevents session file corruption
     parts << "--model #{config['model'].shellescape}" if config["model"].present?
     parts << "--max-turns #{config['max_turns'].to_i}" if config["max_turns"].present?
-    parts << "--system-prompt #{config['system_prompt'].shellescape}" if config["system_prompt"].present?
+
+    system_prompt = compose_system_prompt(agent, context)
+    parts << "--system-prompt #{system_prompt.shellescape}" if system_prompt.present?
+
     parts << "--allowedTools #{config['allowed_tools'].shellescape}" if config["allowed_tools"].present?
     parts << "--resume #{context[:resume_session_id].shellescape}" if context[:resume_session_id].present?  # CLAUDE-04
     parts.join(" ")
+  end
+
+  private_class_method def self.compose_system_prompt(agent, context)
+    parts = []
+
+    base = agent.adapter_config["system_prompt"]
+    parts << base if base.present?
+
+    if context[:skills].present?
+      parts << build_skills_prompt(context[:skills])
+    end
+
+    parts.join("\n\n")
+  end
+
+  private_class_method def self.build_skills_prompt(skills)
+    catalog = skills.map { |s| "- **#{s[:name]}** (#{s[:key]}): #{s[:description]}" }.join("\n")
+    details = skills.map { |s| "<skill key=\"#{s[:key]}\">\n#{s[:markdown]}\n</skill>" }.join("\n\n")
+
+    <<~PROMPT.strip
+      ## Your Skills
+
+      You have the following skills. Before starting work, identify which skill is most relevant to the current task and follow its instructions.
+
+      #{catalog}
+
+      ### Skill Instructions
+
+      #{details}
+    PROMPT
   end
 
   private_class_method def self.poll_session(session_name, agent_run)

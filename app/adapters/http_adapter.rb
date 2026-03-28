@@ -56,6 +56,7 @@ class HttpAdapter < BaseAdapter
         title: context[:task_title],
         description: context[:task_description]
       } : nil,
+      skills: context[:skills].presence,
       resume_session_id: context[:resume_session_id],
       delivered_at: Time.current.iso8601
     }.compact
