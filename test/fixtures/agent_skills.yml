@@ -1,0 +1,11 @@
+claude_strategic_planning:
+  agent: claude_agent
+  skill: acme_strategic_planning
+
+claude_code_review:
+  agent: claude_agent
+  skill: acme_code_review
+
+http_data_analysis:
+  agent: http_agent
+  skill: acme_data_analysis

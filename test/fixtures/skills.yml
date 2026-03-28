@@ -1,0 +1,64 @@
+# Acme company skills
+acme_strategic_planning:
+  company: acme
+  key: strategic_planning
+  name: Strategic Planning
+  description: "Develop and evaluate strategic initiatives"
+  markdown: "# Strategic Planning\n\n## Purpose\nDevelop and evaluate strategic initiatives.\n\n## Instructions\n1. Analyze current position\n2. Identify opportunities\n3. Create action plans"
+  category: leadership
+  builtin: true
+
+acme_code_review:
+  company: acme
+  key: code_review
+  name: Code Review
+  description: "Review code for quality and correctness"
+  markdown: "# Code Review\n\n## Purpose\nAnalyze code changes for correctness and maintainability.\n\n## Instructions\n1. Read the diff carefully\n2. Check for correctness\n3. Review error handling"
+  category: technical
+  builtin: true
+
+acme_content_strategy:
+  company: acme
+  key: content_strategy
+  name: Content Strategy
+  description: "Plan and manage content creation"
+  markdown: "# Content Strategy\n\n## Purpose\nPlan and manage content creation workflows.\n\n## Instructions\n1. Define content goals\n2. Research audience\n3. Create editorial calendar"
+  category: creative
+  builtin: true
+
+acme_project_planning:
+  company: acme
+  key: project_planning
+  name: Project Planning
+  description: "Plan and coordinate project execution"
+  markdown: "# Project Planning\n\n## Purpose\nPlan and coordinate project execution.\n\n## Instructions\n1. Define scope\n2. Create timeline\n3. Assign resources"
+  category: operations
+  builtin: true
+
+acme_data_analysis:
+  company: acme
+  key: data_analysis
+  name: Data Analysis
+  description: "Analyze and interpret data sets"
+  markdown: "# Data Analysis\n\n## Purpose\nAnalyze and interpret data sets.\n\n## Instructions\n1. Clean data\n2. Run analysis\n3. Present findings"
+  category: research
+  builtin: true
+
+acme_custom_skill:
+  company: acme
+  key: custom_deployment
+  name: Custom Deployment
+  description: "Company-specific deployment procedures"
+  markdown: "# Custom Deployment\n\n## Steps\n1. Run deploy script\n2. Verify health check"
+  category: technical
+  builtin: false
+
+# Widgets company skill (same key as acme to test cross-company uniqueness)
+widgets_strategic_planning:
+  company: widgets
+  key: strategic_planning
+  name: Strategic Planning
+  description: "Widget-specific strategic planning"
+  markdown: "# Strategic Planning for Widgets\n\n## Instructions\n1. Analyze widget market"
+  category: leadership
+  builtin: true
