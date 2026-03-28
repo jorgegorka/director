@@ -10,14 +10,14 @@ See: .ariadna_planning/PROJECT.md (updated 2026-03-28)
 ## Current Position
 
 Phase: 16 - Skills CRUD
-Plan: 01
-Status: Complete (plan 01 done)
-Last activity: 2026-03-28 -- Plan 16-01 complete: Skills CRUD UI (routes, controller, helper, 6 view templates, CSS), 691 tests pass
+Plan: 02
+Status: Complete (plan 02 done -- phase complete)
+Last activity: 2026-03-28 -- Plan 16-02 complete: SkillsController tests (35 tests, all passing), 726 tests pass
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 30
+- Total plans completed: 31
 - Average duration: ~8 minutes
 - Total execution time: ~175 minutes
 
@@ -40,11 +40,11 @@ Last activity: 2026-03-28 -- Plan 16-01 complete: Skills CRUD UI (routes, contro
 | 13-skill-data-model | 2/2 | ~11 min | ~5.5 min |
 | 14-skill-catalog-seeding | 2/2 | ~12 min | ~6 min |
 | 15-role-auto-assignment | 1/1 | ~2 min | ~2 min |
-| 16-skills-crud | 1/? | ~8 min | ~8 min |
+| 16-skills-crud | 2/2 | ~13 min | ~6.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 14-01 (~10 min), 14-02 (~2 min), 15-01 (~2 min), 16-01 (~8 min)
-- Trend: consistent, stable. v1.0 COMPLETE. v1.1 COMPLETE. v1.2 in progress (Phase 16 plan 01 done).
+- Last 5 plans: 14-02 (~2 min), 15-01 (~2 min), 16-01 (~8 min), 16-02 (~5 min)
+- Trend: consistent, stable. v1.0 COMPLETE. v1.1 COMPLETE. v1.2 in progress (Phase 16 COMPLETE).
 
 *Updated after each plan completion*
 
@@ -167,6 +167,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-28
-Stopped at: Phase 16 plan 01 complete (Skills CRUD UI), 691 tests pass
-Resume file: .ariadna_planning/phases/16-skills-crud/16-01-SUMMARY.md
-Next step: Continue Phase 16 if more plans exist, or /ariadna:plan-phase 17
+Stopped at: Phase 16 plan 02 complete (SkillsController tests), 726 tests pass
+Resume file: .ariadna_planning/phases/16-skills-crud/16-02-SUMMARY.md
+Next step: /ariadna:plan-phase 17 (Agent Skill Management UI)
