@@ -10,9 +10,9 @@ See: .ariadna_planning/PROJECT.md (updated 2026-03-28)
 ## Current Position
 
 Phase: 14 - Skill Catalog & Seeding
-Plan: 01 complete
-Status: In progress (Plan 01 done, Plan 02 pending)
-Last activity: 2026-03-28 -- Plan 14-01 complete: 50 skill YAML files + config/default_skills.yml created
+Plan: 02 complete
+Status: Phase 14 complete (both plans done)
+Last activity: 2026-03-28 -- Plan 14-02 complete: Company#seed_default_skills!, after_create callback, skills:reseed rake task, 6 seeding tests
 
 ## Performance Metrics
 
@@ -38,11 +38,11 @@ Last activity: 2026-03-28 -- Plan 14-01 complete: 50 skill YAML files + config/d
 | 11-sqlite-migration | 2/2 | ~13 min | ~6.5 min |
 | 12-cleanup-verification | 1/1 | ~15 min | ~15 min |
 | 13-skill-data-model | 2/2 | ~11 min | ~5.5 min |
-| 14-skill-catalog-seeding | 1/? | ~10 min | ~10 min |
+| 14-skill-catalog-seeding | 2/2 | ~12 min | ~6 min |
 
 **Recent Trend:**
-- Last 5 plans: 10-04 (~3 min), 11-01 (~8 min), 11-02 (~5 min), 12-01 (~15 min)
-- Trend: consistent, stable. v1.0 COMPLETE. v1.1 COMPLETE.
+- Last 5 plans: 11-01 (~8 min), 11-02 (~5 min), 12-01 (~15 min), 14-01 (~10 min), 14-02 (~2 min)
+- Trend: consistent, stable. v1.0 COMPLETE. v1.1 COMPLETE. v1.2 Phase 14 COMPLETE.
 
 *Updated after each plan completion*
 
@@ -148,6 +148,8 @@ Recent decisions affecting current work:
 - [14-01]: 50 unique skill keys extracted from role mapping table (spec text says "44" but the actual table yields 50 distinct keys); authoritative count is 50
 - [14-01]: general role maps to 4 skills (task_execution, communication, documentation, problem_solving) exactly as specified in design spec table
 - [14-01]: task_execution, communication, problem_solving assigned to operations category per plan's explicit category assignment list
+- [14-02]: Company#seed_default_skills! uses find_or_create_by!(key:) -- the block only runs on create, so existing skills are never overwritten; method is idempotent by design
+- [14-02]: after_create callback does not fire during fixture loading (Rails fixtures use bulk INSERT bypassing AR callbacks) -- acme/widgets fixture companies unaffected by seeding logic
 
 ### Pending Todos
 
@@ -160,6 +162,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-28
-Stopped at: Phase 14 Plan 01 complete -- skill catalog YAML files and default_skills.yml config created
-Resume file: .ariadna_planning/phases/14-skill-catalog-seeding/14-01-SUMMARY.md
-Next step: Execute Plan 14-02 (seeding logic: Company#seed_default_skills!, rake task)
+Stopped at: Phase 14 Plan 02 complete -- Company seeding logic, after_create callback, rake task, tests
+Resume file: .ariadna_planning/phases/14-skill-catalog-seeding/14-02-SUMMARY.md
+Next step: Execute Phase 15 (auto-assignment of default skills to new agents based on role)
