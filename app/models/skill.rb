@@ -4,6 +4,9 @@ class Skill < ApplicationRecord
   has_many :agent_skills, dependent: :destroy, inverse_of: :skill
   has_many :agents, through: :agent_skills
 
+  has_many :skill_documents, dependent: :destroy, inverse_of: :skill
+  has_many :documents, through: :skill_documents
+
   validates :key, presence: true,
                   uniqueness: { scope: :company_id }
   validates :name, presence: true
