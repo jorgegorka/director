@@ -1,0 +1,27 @@
+<% content_for(:title, "Hooks - #{@agent.name}") %>
+
+<section class="hooks-page">
+  <div class="hooks-page__header">
+    <div>
+      <h1>Hooks</h1>
+      <p class="hooks-page__subtitle">
+        <%= link_to @agent.name, @agent %> &rsaquo; Hooks
+      </p>
+    </div>
+    <%= link_to "New Hook", new_agent_agent_hook_path(@agent), class: "btn btn--primary btn--sm" %>
+  </div>
+
+  <% if @agent_hooks.any? %>
+    <div class="hooks-list">
+      <% @agent_hooks.each do |agent_hook| %>
+        <%= render partial: "agent_hooks/agent_hook", locals: { agent_hook: agent_hook } %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="hooks-page__empty">
+      <p>No hooks configured for <%= @agent.name %>.</p>
+      <p>Hooks fire automatically when tasks change status, enabling agent-to-agent validation and webhook integrations.</p>
+      <%= link_to "Create first hook", new_agent_agent_hook_path(@agent), class: "btn btn--primary" %>
+    </div>
+  <% end %>
+</section>

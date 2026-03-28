@@ -1,0 +1,22 @@
+<div class="hook-card" id="<%= dom_id(agent_hook) %>">
+  <div class="hook-card__header">
+    <h3 class="hook-card__title">
+      <%= link_to (agent_hook.name.presence || "Unnamed Hook"), agent_agent_hook_path(@agent, agent_hook) %>
+    </h3>
+    <%= hook_status_badge(agent_hook) %>
+  </div>
+  <div class="hook-card__details">
+    <span class="hook-card__event"><%= lifecycle_event_label(agent_hook.lifecycle_event) %></span>
+    <span class="hook-card__separator">-></span>
+    <span class="hook-card__action-type"><%= action_type_label(agent_hook.action_type) %></span>
+    <% if agent_hook.trigger_agent? && agent_hook.target_agent %>
+      <span class="hook-card__target">(<%= agent_hook.target_agent.name %>)</span>
+    <% elsif agent_hook.webhook? && agent_hook.action_config&.dig("url") %>
+      <span class="hook-card__target">(<%= truncate(agent_hook.action_config["url"], length: 40) %>)</span>
+    <% end %>
+  </div>
+  <div class="hook-card__meta">
+    <span class="hook-card__position">Position: <%= agent_hook.position %></span>
+    <span class="hook-card__executions"><%= pluralize(agent_hook.hook_executions.count, "execution") %></span>
+  </div>
+</div>

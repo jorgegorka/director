@@ -194,6 +194,21 @@
       </div>
     </div>
 
+    <div class="agent-detail__section">
+      <h2>Hooks (<%= @agent.agent_hooks.count %>)</h2>
+      <% if @agent.agent_hooks.any? %>
+        <div class="hook-summary">
+          <p>
+            <%= pluralize(@agent.agent_hooks.enabled.count, "active hook") %> configured
+            (<%= @agent.agent_hooks.disabled.count %> disabled).
+          </p>
+        </div>
+        <%= link_to "Manage hooks", agent_agent_hooks_path(@agent), class: "btn btn--ghost btn--sm" %>
+      <% else %>
+        <p class="agent-detail__empty-note">No hooks configured. <%= link_to "Set up hooks", new_agent_agent_hook_path(@agent) %> to trigger agent validation or webhook notifications on task events.</p>
+      <% end %>
+    </div>
+
     <% if @agent.roles.any? %>
       <div class="agent-detail__section">
         <h2>Assigned Roles (<%= @agent.roles.size %>)</h2>
