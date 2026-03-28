@@ -10,7 +10,7 @@ Director transforms the chaos of managing multiple AI agents into a structured b
 ## Milestones
 
 - v1.0 Core Platform - Phases 1-10 (shipped 2026-03-28)
-- v1.1 SQLite Migration & Cleanup - Phases 11-12 (in progress)
+- v1.1 SQLite Migration & Cleanup - Phases 11-12 (shipped 2026-03-28)
 
 ## Phases
 
@@ -204,44 +204,15 @@ Plans:
 
 </details>
 
-### v1.1 SQLite Migration & Cleanup (In Progress)
-
-**Milestone Goal:** Replace PostgreSQL with SQLite for the primary database, unifying all databases on a single engine. Clean up v1.0 tech debt so the codebase is lean and docs match reality.
+<details>
+<summary>v1.1 SQLite Migration & Cleanup (Phases 11-12) - SHIPPED 2026-03-28</summary>
 
 - [x] **Phase 11: SQLite Migration** - Primary database switches from PostgreSQL to SQLite
 - [x] **Phase 12: Cleanup & Verification** - Docs, dead code, and test suite aligned with the new stack
 
-## Phase Details
+Full details: [v1.1-ROADMAP.md](milestones/v1.1-ROADMAP.md)
 
-### Phase 11: SQLite Migration
-**Goal**: The application runs entirely on SQLite -- primary database, queue, cache, and cable all use the same engine
-**Why this matters**: Developers who want to self-host Director currently need PostgreSQL running alongside SQLite (for Solid Queue/Cache/Cable). Unifying on SQLite eliminates that external dependency, making setup as simple as cloning the repo and running `bin/setup` -- no database server to install, configure, or maintain.
-**Depends on**: Phase 10 (v1.0 complete)
-**Requirements**: DB-01, DB-02, DB-03, DB-04, DB-05
-**Success Criteria** (what must be TRUE):
-  1. Developer can clone the repo, run `bin/setup`, and the app starts with zero external database dependencies -- no PostgreSQL installation required
-  2. All 8 jsonb columns function correctly as json columns under SQLite -- agent capabilities, adapter config, approval gates, config version snapshots, and other structured data read and write without error
-  3. `bin/rails test` passes in full with SQLite as the primary database -- no PostgreSQL-specific SQL or features cause failures
-  4. Docker build completes without PostgreSQL client libraries and the production container runs on SQLite only
-**Plans**: 2/2 complete
-
-Plans:
-- [x] 11-01: Database engine swap + column migration (Gemfile, database.yml, jsonb→json)
-- [x] 11-02: Docker/deploy cleanup + CI verification
-
-### Phase 12: Cleanup & Verification
-**Goal**: Project documentation, codebase, and test suite are fully aligned with the SQLite stack and free of v1.0 tech debt
-**Why this matters**: After 10 phases of rapid feature development, the codebase has accumulated rough edges -- dead helpers, leftover scaffolding, and docs that reference PostgreSQL. Developers evaluating or contributing to Director will judge it by these details. Clean code and accurate docs signal a mature project worth investing in.
-**Depends on**: Phase 11 (migration must be complete before docs can reflect it and tests can verify it)
-**Requirements**: CLN-01, CLN-02, CLN-03
-**Success Criteria** (what must be TRUE):
-  1. CLAUDE.md, PROJECT.md, and all planning docs reference SQLite as the primary database -- no stale PostgreSQL mentions remain in project guidance
-  2. Running a dead code audit finds no unused helpers, orphaned partials, or leftover scaffolding from v1.0 development
-  3. The full CI suite (`bin/ci` -- rubocop, brakeman, bundler-audit, and all tests) passes green with no warnings related to the database migration
-**Plans**: 1/1 complete
-
-Plans:
-- [x] 12-01: Documentation SQLite update, dead code removal, CI verification
+</details>
 
 ## Progress
 

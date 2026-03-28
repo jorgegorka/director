@@ -35,13 +35,12 @@ Users can organize AI agents into a functioning company structure and confidentl
 - Human governance — approval gates, override controls, audit logs — v1.0
 - Dashboard UI with org chart visualization, task boards, conversations — v1.0
 - Goal alignment — tasks trace back to company mission — v1.0
+- SQLite as sole database engine (primary + queue + cache + cable) — v1.1
+- Clean codebase: dead scaffolding removed, docs reflect SQLite stack — v1.1
 
 ### Active
 
-<!-- v1.1: SQLite Migration & Cleanup -->
-
-- [x] Migrate primary database to SQLite
-- [x] Clean up v1.0 tech debt and rough edges
+(None — define requirements for next milestone with `/ariadna:new-milestone`)
 
 ### Out of Scope
 
@@ -81,18 +80,16 @@ Users can organize AI agents into a functioning company structure and confidentl
 | Hotwire over React | Rails-native real-time UI — matches Turbo Streams for live updates (agent status, task changes, conversations) | — Pending |
 | Budget enforcement in v1 | Core safety feature — users won't trust autonomous agents without cost controls | — Pending |
 | Both heartbeat + event triggers | Matches Paperclip behavior — agents need both scheduled work and reactive responses | — Pending |
-| SQLite for all databases | Simplifies deployment (no external DB server), aligns all databases on one engine, Rails 8.1 has excellent SQLite support | — Done |
+| SQLite for all databases | Simplifies deployment (no external DB server), aligns all databases on one engine, Rails 8.1 has excellent SQLite support | ✓ Good |
 
-## Current Milestone: v1.1 SQLite Migration & Cleanup
+## Current State
 
-**Goal:** Migrated primary database to SQLite and cleaned up v1.0 tech debt.
+**Shipped:** v1.0 (Core Platform) + v1.1 (SQLite Migration & Cleanup)
+**Codebase:** ~10,193 LOC Ruby, 668 tests, 12 phases, 32 plans
+**Stack:** Rails 8, SQLite (all databases), Hotwire, modern CSS, Solid Queue/Cache/Cable
+**Status:** Fully functional platform — auth, multi-tenancy, org charts, agents, tasks, goals, heartbeats, budgets, governance, dashboard with real-time updates. Zero external database dependencies.
 
-**Target features:**
-- Replace pg gem with sqlite3 for primary database
-- Update database.yml for SQLite primary + SQLite solid gems
-- Fixed pg-specific column types (jsonb → json) for SQLite compatibility
-- Update deployment config (Dockerfile, Kamal) for SQLite
-- Clean up tech debt from rapid v1.0 development
+**Known tech debt:** None significant — v1.1 cleanup addressed scaffolding leftovers and stale docs.
 
 ---
-*Last updated: 2026-03-28 after v1.1 milestone start*
+*Last updated: 2026-03-28 after v1.1 milestone completion*

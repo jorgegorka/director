@@ -5,14 +5,14 @@
 See: .ariadna_planning/PROJECT.md (updated 2026-03-28)
 
 **Core value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
-**Current focus:** v1.1 -- SQLite Migration & Cleanup
+**Current focus:** Planning next milestone
 
 ## Current Position
 
-Phase: 12 - Cleanup & Verification - COMPLETE
-Plan: 01 - COMPLETE
-Status: Phase 12 done, v1.1 COMPLETE
-Last activity: 2026-03-28 -- 12-01 complete: docs updated (SQLite everywhere), dead code removed, bin/ci passes green (668 tests, 0 failures)
+Phase: All complete (v1.0 + v1.1)
+Plan: N/A
+Status: v1.1 milestone archived. No active milestone.
+Last activity: 2026-03-28 -- v1.1 milestone completed and archived
 
 ## Performance Metrics
 
@@ -147,6 +147,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-28
-Stopped at: 12-01 complete -- Phase 12 DONE: docs updated (SQLite everywhere), dead code removed, bin/ci green (668 tests)
-Resume file: .ariadna_planning/phases/12-cleanup-verification/12-01-SUMMARY.md
-Next step: v1.1 COMPLETE -- begin v2.0 planning if desired
+Stopped at: v1.1 milestone complete and archived
+Resume file: .ariadna_planning/MILESTONES.md
+Next step: /ariadna:new-milestone to start next version
