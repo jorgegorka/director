@@ -14,13 +14,7 @@ module AuditLogsHelper
   end
 
   def audit_actor_display(event)
-    if event.actor_type == "User"
-      event.actor&.email_address || "Unknown user"
-    elsif event.actor_type == "Agent"
-      event.actor&.name || "Unknown agent"
-    else
-      "System"
-    end
+    polymorphic_actor_label(event)
   end
 
   def audit_auditable_display(event)

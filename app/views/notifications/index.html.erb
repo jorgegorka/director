@@ -7,12 +7,14 @@
   <% end %>
 </div>
 
-<div class="notifications-list">
-  <% if @notifications.any? %>
-    <% @notifications.each do |notification| %>
-      <%= render "notification", notification: notification %>
+<%= turbo_frame_tag "notification_list" do %>
+  <div class="notifications-list">
+    <% if @notifications.any? %>
+      <% @notifications.each do |notification| %>
+        <%= render "notification", notification: notification %>
+      <% end %>
+    <% else %>
+      <p class="notification-dropdown__empty">No notifications yet.</p>
     <% end %>
-  <% else %>
-    <p class="notification-dropdown__empty">No notifications yet.</p>
-  <% end %>
-</div>
+  </div>
+<% end %>

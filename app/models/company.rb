@@ -11,4 +11,11 @@ class Company < ApplicationRecord
   has_many :audit_events, dependent: :delete_all
 
   validates :name, presence: true
+
+  def admin_recipients
+    memberships
+      .where(role: [ :owner, :admin ])
+      .includes(:user)
+      .map(&:user)
+  end
 end

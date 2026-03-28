@@ -38,16 +38,12 @@ class ConfigVersionsController < ApplicationController
 
     @version.restore!
 
-    # Record audit event for the rollback
     AuditEvent.create!(
       auditable: @versionable,
       actor: Current.user,
       action: "config_rollback",
       company: Current.company,
-      metadata: {
-        version_id: @version.id,
-        restored_snapshot: @version.snapshot
-      }
+      metadata: { version_id: @version.id }
     )
 
     redirect_to @versionable, notice: "Configuration rolled back to version from #{@version.created_at.strftime('%b %d, %Y %H:%M')}."

@@ -64,8 +64,6 @@ module ConfigVersioned
   end
 
   def version_changeset
-    saved_changes.except("updated_at", "created_at").transform_values do |change|
-      change # [old_value, new_value]
-    end
+    saved_changes.except("updated_at", "created_at")
   end
 end

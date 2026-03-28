@@ -157,7 +157,7 @@
       <h2>Approval Gates</h2>
       <% if @agent.has_any_gates? %>
         <div class="gate-list">
-          <% @agent.approval_gates.order(:action_type).each do |gate| %>
+          <% @agent.approval_gates.sort_by(&:action_type).each do |gate| %>
             <div class="gate-item <%= "gate-item--enabled" if gate.enabled? %> <%= "gate-item--disabled" unless gate.enabled? %>">
               <span class="gate-item__status"><%= gate.enabled? ? "Active" : "Disabled" %></span>
               <span class="gate-item__type"><%= gate.action_type.humanize %></span>
@@ -203,8 +203,9 @@
 
     <div class="agent-detail__section">
       <h2>Configuration History</h2>
-      <% if @agent.config_versions.any? %>
-        <p><%= pluralize(@agent.config_versions.count, "version") %> recorded.</p>
+      <% config_version_count = @agent.config_versions.count %>
+      <% if config_version_count > 0 %>
+        <p><%= pluralize(config_version_count, "version") %> recorded.</p>
         <%= link_to "View full history", version_history_path_for(@agent), class: "btn btn--ghost btn--sm" %>
       <% else %>
         <p class="agent-detail__empty-note">No configuration changes recorded yet.</p>

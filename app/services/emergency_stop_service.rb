@@ -46,7 +46,7 @@ class EmergencyStopService
   end
 
   def notify_emergency_stop!(paused_count)
-    company_recipients.each do |recipient_user|
+    company.admin_recipients.each do |recipient_user|
       Notification.create!(
         company: company,
         recipient: recipient_user,
@@ -59,12 +59,5 @@ class EmergencyStopService
         }
       )
     end
-  end
-
-  def company_recipients
-    company.memberships
-      .where(role: [ :owner, :admin ])
-      .includes(:user)
-      .map(&:user)
   end
 end

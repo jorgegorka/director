@@ -33,7 +33,7 @@ class GateCheckService
   end
 
   def notify_gate_triggered!(action = "gate_pending_approval")
-    company_recipients.each do |user|
+    agent.company.admin_recipients.each do |user|
       Notification.create!(
         company: agent.company,
         recipient: user,
@@ -62,12 +62,5 @@ class GateCheckService
         context: context
       }
     )
-  end
-
-  def company_recipients
-    agent.company.memberships
-      .where(role: [ :owner, :admin ])
-      .includes(:user)
-      .map(&:user)
   end
 end

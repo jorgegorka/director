@@ -57,7 +57,7 @@ class AgentsController < ApplicationController
       pause_reason: params[:reason].presence || "Manually paused by #{Current.user.email_address}",
       paused_at: Time.current
     )
-    record_agent_audit("agent_paused", { reason: @agent.pause_reason })
+    @agent.record_audit_event!(actor: Current.user, action: "agent_paused", metadata: { reason: @agent.pause_reason })
     redirect_to @agent, notice: "#{@agent.name} has been paused."
   end
 
@@ -72,7 +72,7 @@ class AgentsController < ApplicationController
       pause_reason: nil,
       paused_at: nil
     )
-    record_agent_audit("agent_resumed")
+    @agent.record_audit_event!(actor: Current.user, action: "agent_resumed")
     redirect_to @agent, notice: "#{@agent.name} has been resumed."
   end
 
@@ -83,7 +83,7 @@ class AgentsController < ApplicationController
     end
 
     @agent.update!(status: :terminated)
-    record_agent_audit("agent_terminated")
+    @agent.record_audit_event!(actor: Current.user, action: "agent_terminated")
     redirect_to @agent, notice: "#{@agent.name} has been terminated."
   end
 
@@ -98,9 +98,7 @@ class AgentsController < ApplicationController
       pause_reason: nil,
       paused_at: nil
     )
-    record_agent_audit("gate_approval", {
-      action_type: @agent.pause_reason&.match(/: (.+) gate/)&.captures&.first
-    })
+    @agent.record_audit_event!(actor: Current.user, action: "gate_approval")
     redirect_to @agent, notice: "#{@agent.name} has been approved and resumed."
   end
 
@@ -115,9 +113,7 @@ class AgentsController < ApplicationController
       pause_reason: "Approval rejected: #{params[:reason].presence || 'No reason given'}",
       paused_at: Time.current
     )
-    record_agent_audit("gate_rejection", {
-      reason: @agent.pause_reason
-    })
+    @agent.record_audit_event!(actor: Current.user, action: "gate_rejection", metadata: { reason: @agent.pause_reason })
     redirect_to @agent, notice: "#{@agent.name} approval has been rejected."
   end
 
@@ -147,19 +143,6 @@ class AgentsController < ApplicationController
         gate.update!(enabled: false)
       end
     end
-  end
-
-  def record_agent_audit(action, extra_metadata = {})
-    AuditEvent.create!(
-      auditable: @agent,
-      actor: Current.user,
-      action: action,
-      company: Current.company,
-      metadata: {
-        agent_name: @agent.name,
-        agent_id: @agent.id
-      }.merge(extra_metadata)
-    )
   end
 
   def agent_params

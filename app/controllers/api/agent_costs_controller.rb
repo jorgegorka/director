@@ -6,7 +6,7 @@ module Api
       task = find_agent_task
       return unless task
 
-      if @current_agent.paused? && @current_agent.pause_reason&.include?("Budget exhausted")
+      if @current_agent.paused? && @current_agent.pause_reason&.start_with?(BudgetEnforcementService::PAUSE_REASON_PREFIX)
         render json: { error: "Agent is paused due to budget exhaustion" }, status: :forbidden
         return
       end
@@ -18,11 +18,9 @@ module Api
         return
       end
 
-      # Accumulate cost (add to existing, not replace)
       new_cost = (task.cost_cents || 0) + cost_cents
       task.update!(cost_cents: new_cost)
 
-      # Record audit event for cost
       task.record_audit_event!(
         actor: @current_agent,
         action: "cost_recorded",
@@ -33,7 +31,6 @@ module Api
         }
       )
 
-      # Trigger budget enforcement check
       BudgetEnforcementService.check!(@current_agent)
 
       render json: {

@@ -77,16 +77,6 @@ class ApprovalGateTest < ActiveSupport::TestCase
     gates.each { |g| assert_equal "task_creation", g.action_type }
   end
 
-  # --- Methods ---
-
-  test "gate_active? returns true when enabled" do
-    assert @gate.gate_active?
-  end
-
-  test "gate_active? returns false when disabled" do
-    assert_not approval_gates(:claude_delegation_gate_disabled).gate_active?
-  end
-
   # --- Agent helper methods ---
 
   test "agent.gate_enabled? returns true for enabled gate" do

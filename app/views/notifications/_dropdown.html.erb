@@ -1,5 +1,5 @@
-<div class="notification-dropdown" data-controller="notification">
-  <button class="notification-dropdown__trigger" data-action="click->notification#toggle" aria-label="Notifications">
+<div class="notification-dropdown" data-controller="dropdown">
+  <button class="notification-dropdown__trigger" data-action="click->dropdown#toggle" aria-label="Notifications">
     <span class="notification-dropdown__bell">
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
         <path d="M10 2a6 6 0 00-6 6v3l-1.5 2.5h15L16 11V8a6 6 0 00-6-6z" stroke="currentColor" stroke-width="1.5" fill="none"/>
@@ -14,7 +14,7 @@
     <% end %>
   </button>
 
-  <div class="notification-dropdown__panel" data-notification-target="panel" hidden>
+  <div class="notification-dropdown__panel" data-dropdown-target="menu" hidden>
     <div class="notification-dropdown__header">
       <h3>Notifications</h3>
       <% if unread_count > 0 %>
@@ -22,13 +22,8 @@
       <% end %>
     </div>
     <div class="notification-dropdown__list">
-      <% notifications = Current.company.notifications.where(recipient: Current.user).recent.includes(:notifiable, :actor) %>
-      <% if notifications.any? %>
-        <% notifications.each do |notification| %>
-          <%= render "notifications/notification", notification: notification %>
-        <% end %>
-      <% else %>
-        <p class="notification-dropdown__empty">No notifications yet.</p>
+      <%= turbo_frame_tag "notification_list", src: notifications_path, loading: :lazy do %>
+        <p class="notification-dropdown__empty">Loading...</p>
       <% end %>
     </div>
   </div>

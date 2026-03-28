@@ -16,8 +16,4 @@ class ApprovalGate < ApplicationRecord
   scope :enabled, -> { where(enabled: true) }
   scope :disabled, -> { where(enabled: false) }
   scope :for_action, ->(action) { where(action_type: action) }
-
-  def gate_active?
-    enabled?
-  end
 end

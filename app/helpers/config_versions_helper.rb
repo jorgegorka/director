@@ -10,24 +10,21 @@ module ConfigVersionsHelper
   end
 
   def version_author_display(version)
-    if version.author_type == "User"
-      version.author&.email_address || "Unknown user"
-    else
-      version.author&.try(:name) || "System"
-    end
+    polymorphic_actor_label(version, type_method: :author_type, assoc: :author)
   end
 
   def version_diff_display(changeset)
     return "No changes recorded" if changeset.blank?
 
-    changeset.reject { |k, _| k.start_with?("_") }.map do |attr, values|
-      if values.is_a?(Array) && values.length == 2
-        content_tag(:div, class: "version-diff__item") do
-          content_tag(:span, attr.humanize, class: "version-diff__attr") +
-          content_tag(:span, "#{format_diff_value(values[0])} -> #{format_diff_value(values[1])}", class: "version-diff__change")
-        end
+    items = changeset.reject { |k, _| k.start_with?("_") }.filter_map do |attr, values|
+      next unless values.is_a?(Array) && values.length == 2
+
+      content_tag(:div, class: "version-diff__item") do
+        content_tag(:span, attr.humanize, class: "version-diff__attr") +
+        content_tag(:span, "#{format_diff_value(values[0])} -> #{format_diff_value(values[1])}", class: "version-diff__change")
       end
-    end.compact.join.html_safe
+    end
+    safe_join(items)
   end
 
   def version_history_path_for(record)
