@@ -123,4 +123,42 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "a[href='#{audit_logs_path}']"
   end
+
+  # Kanban board tests
+
+  test "tasks tab shows kanban columns" do
+    get dashboard_url
+    assert_response :success
+    assert_select ".kanban__column", 5
+  end
+
+  test "kanban shows tasks in correct columns" do
+    get dashboard_url
+    assert_response :success
+    assert_select ".kanban__column[data-status='in_progress'] .kanban-card", minimum: 1
+  end
+
+  test "kanban cards show task title" do
+    get dashboard_url
+    assert_response :success
+    assert_select ".kanban-card__title", text: /Design homepage/
+  end
+
+  test "kanban does not show other company tasks" do
+    get dashboard_url
+    assert_response :success
+    assert_select ".kanban-card__title", text: /Update widget catalog/, count: 0
+  end
+
+  test "kanban cards are draggable" do
+    get dashboard_url
+    assert_response :success
+    assert_select ".kanban-card[draggable='true']", minimum: 1
+  end
+
+  test "kanban shows new task link" do
+    get dashboard_url
+    assert_response :success
+    assert_select "a[href='#{new_task_path}']", text: "New Task"
+  end
 end
