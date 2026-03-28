@@ -10,9 +10,9 @@ See: .ariadna_planning/PROJECT.md (updated 2026-03-28)
 ## Current Position
 
 Phase: 11 - SQLite Migration
-Plan: --
-Status: Not started
-Last activity: 2026-03-28 -- v1.1 roadmap created (phases 11-12)
+Plan: 01 - COMPLETE
+Status: Plan 01 done, plan 02 pending
+Last activity: 2026-03-28 -- 11-01 complete: pg gem removed, database switched to SQLite, 8 jsonb columns converted to json, 674 tests pass
 
 ## Performance Metrics
 
@@ -37,8 +37,8 @@ Last activity: 2026-03-28 -- v1.1 roadmap created (phases 11-12)
 | 10-dashboard-real-time-ui | 4/4 | ~19 min | ~4.8 min |
 
 **Recent Trend:**
-- Last 5 plans: 09-04 (~11 min), 10-01 (~12 min), 10-02 (~4 min), 10-03 (~8 min), 10-04 (~3 min)
-- Trend: consistent, stable. v1.0 COMPLETE. v1.1 roadmap created.
+- Last 5 plans: 10-01 (~12 min), 10-02 (~4 min), 10-03 (~8 min), 10-04 (~3 min), 11-01 (~8 min)
+- Trend: consistent, stable. v1.0 COMPLETE. v1.1 in progress (11-01 done).
 
 *Updated after each plan completion*
 
@@ -125,6 +125,9 @@ Recent decisions affecting current work:
 - [10-04]: Stream name convention "dashboard_company_{company_id}" — simple string for company-scoped isolation
 - [10-04]: ApplicationCable::Channel base class created — was missing from app/channels/; required for Action Cable
 - [10-04]: after_create_commit (not after_commit) used on AuditEvent — readonly after persist so only initial create triggers broadcast
+- [11-01]: db:prepare fails when schema.rb has jsonb columns (SQLite rejects them at schema:load). Fix: manually update schema.rb then use db:create + db:migrate + db:schema:dump sequence
+- [11-01]: SQLite uses t.json (not t.jsonb) for hash/object columns — jsonb is PostgreSQL-only; json works identically for storing Ruby hashes in fixtures and AR operations
+- [11-01]: bigint declarations are preserved in SQLite schema.rb — cosmetic only; SQLite stores all integers natively regardless of declared size
 
 ### Pending Todos
 
@@ -137,6 +140,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-28
-Stopped at: v1.1 roadmap created (phases 11-12 covering 8 requirements)
-Resume file: .ariadna_planning/ROADMAP.md
-Next step: `/ariadna:plan-phase 11`
+Stopped at: 11-01 complete -- SQLite migration done, pg removed, jsonb->json, 674 tests pass
+Resume file: .ariadna_planning/phases/11-sqlite-migration/11-01-SUMMARY.md
+Next step: Execute plan 11-02 (cleanup: remove dead code, update docs, verify test coverage)
