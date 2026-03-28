@@ -23,8 +23,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 6: Goals & Alignment** - Users can define company mission and trace all work back to objectives
 - [x] **Phase 7: Heartbeats & Triggers** - Agents wake on schedule or in response to events
 - [x] **Phase 8: Budget & Cost Control** - Users can enforce per-agent spending limits with atomic enforcement
-- [ ] **Phase 9: Governance & Audit** - Users can gate high-impact actions, control agents, and audit everything
-- [ ] **Phase 10: Dashboard & Real-time UI** - Users get a unified command center with live updates
+- [x] **Phase 9: Governance & Audit** - Users can gate high-impact actions, control agents, and audit everything
+- [x] **Phase 10: Dashboard & Real-time UI** - Users get a unified command center with live updates
 
 ## Phase Details
 
@@ -170,12 +170,13 @@ Plans:
   2. User can pause, resume, or terminate any agent at any time from any page where the agent appears
   3. All actions across the system are recorded in an immutable audit log that the user can browse and filter
   4. Configuration changes (role edits, budget changes, gate modifications) are versioned and the user can roll back to a previous version
-**Plans**: TBD
+**Plans**: 4/4 complete
 
 Plans:
-- [ ] 09-01: TBD
-- [ ] 09-02: TBD
-- [ ] 09-03: TBD
+- [x] 09-01: Governance data layer (ApprovalGate, ConfigVersion, AuditEvent company scope, EmergencyStopService)
+- [x] 09-02: GateCheckService, approval flow, emergency stop, agent control actions
+- [x] 09-03: Governance UI (emergency stop button, gate fieldset, notification helper, gate sync)
+- [x] 09-04: Audit log page with filters and config version history with diff display and rollback
 
 ### Phase 10: Dashboard & Real-time UI
 **Goal**: Users get a unified command center with live updates showing company health at a glance
@@ -187,12 +188,13 @@ Plans:
   2. Task board view (kanban or list) lets the user manage all work in one place with drag-and-drop or status toggles
   3. Agent activity feed shows conversation threads and recent actions per agent
   4. Dashboard updates in real time via Turbo Streams -- agent status changes, new tasks, and budget alerts appear without page refresh
-**Plans**: TBD
+**Plans**: 4/4 complete
 
 Plans:
-- [ ] 10-01: TBD
-- [ ] 10-02: TBD
-- [ ] 10-03: TBD
+- [x] 10-01: Dashboard controller, tabbed layout, Overview tab with company stats and budget cards
+- [x] 10-02: Kanban task board with drag-and-drop between 5 status columns
+- [x] 10-03: Activity timeline with agent filter and audit event display
+- [x] 10-04: Real-time Turbo Stream broadcasts for live dashboard updates
 
 ## Progress
 
@@ -209,5 +211,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 6. Goals & Alignment | 2/2 | Complete | 2026-03-27 |
 | 7. Heartbeats & Triggers | 3/3 | Complete | 2026-03-27 |
 | 8. Budget & Cost Control | 4/4 | Complete | 2026-03-27 |
-| 9. Governance & Audit | 0/TBD | Not started | - |
-| 10. Dashboard & Real-time UI | 0/TBD | Not started | - |
+| 9. Governance & Audit | 4/4 | Complete | 2026-03-27 |
+| 10. Dashboard & Real-time UI | 4/4 | Complete | 2026-03-28 |
