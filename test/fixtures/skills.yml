@@ -53,6 +53,78 @@ acme_custom_skill:
   category: technical
   builtin: false
 
+acme_company_vision:
+  company: acme
+  key: company_vision
+  name: Company Vision
+  description: "Define and communicate company vision"
+  markdown: "# Company Vision\n\n## Purpose\nDefine and communicate company vision.\n\n## Instructions\n1. Articulate vision\n2. Align stakeholders\n3. Communicate clearly"
+  category: leadership
+  builtin: true
+
+acme_stakeholder_communication:
+  company: acme
+  key: stakeholder_communication
+  name: Stakeholder Communication
+  description: "Manage stakeholder relationships"
+  markdown: "# Stakeholder Communication\n\n## Purpose\nManage stakeholder relationships.\n\n## Instructions\n1. Identify stakeholders\n2. Plan communications\n3. Execute outreach"
+  category: leadership
+  builtin: true
+
+acme_decision_making:
+  company: acme
+  key: decision_making
+  name: Decision Making
+  description: "Structured decision analysis"
+  markdown: "# Decision Making\n\n## Purpose\nStructured decision analysis.\n\n## Instructions\n1. Gather data\n2. Evaluate options\n3. Decide and communicate"
+  category: leadership
+  builtin: true
+
+acme_risk_assessment:
+  company: acme
+  key: risk_assessment
+  name: Risk Assessment
+  description: "Identify and evaluate risks"
+  markdown: "# Risk Assessment\n\n## Purpose\nIdentify and evaluate risks.\n\n## Instructions\n1. Identify risks\n2. Assess impact\n3. Plan mitigation"
+  category: leadership
+  builtin: true
+
+acme_architecture_planning:
+  company: acme
+  key: architecture_planning
+  name: Architecture Planning
+  description: "Plan system architecture"
+  markdown: "# Architecture Planning\n\n## Purpose\nPlan system architecture.\n\n## Instructions\n1. Analyze requirements\n2. Design components\n3. Document decisions"
+  category: technical
+  builtin: true
+
+acme_technical_strategy:
+  company: acme
+  key: technical_strategy
+  name: Technical Strategy
+  description: "Define technical direction"
+  markdown: "# Technical Strategy\n\n## Purpose\nDefine technical direction.\n\n## Instructions\n1. Assess current state\n2. Define goals\n3. Plan execution"
+  category: technical
+  builtin: true
+
+acme_system_design:
+  company: acme
+  key: system_design
+  name: System Design
+  description: "Design scalable systems"
+  markdown: "# System Design\n\n## Purpose\nDesign scalable systems.\n\n## Instructions\n1. Gather requirements\n2. Design architecture\n3. Review and iterate"
+  category: technical
+  builtin: true
+
+acme_security_assessment:
+  company: acme
+  key: security_assessment
+  name: Security Assessment
+  description: "Evaluate security posture"
+  markdown: "# Security Assessment\n\n## Purpose\nEvaluate security posture.\n\n## Instructions\n1. Identify threats\n2. Assess vulnerabilities\n3. Recommend fixes"
+  category: technical
+  builtin: true
+
 # Widgets company skill (same key as acme to test cross-company uniqueness)
 widgets_strategic_planning:
   company: widgets
