@@ -6,6 +6,13 @@ None — planning next milestone.
 
 ## Completed
 
+### v1.4 -- Agent Execution
+**Completed:** 2026-03-28
+**Phases:** 22-25 (4 phases, 6 plans)
+**Summary:** Agents actually execute work. AgentRun persistence layer with state machine, HTTP adapter with real POST delivery and retry logic, Claude Local adapter spawning CLI via tmux with stream-JSON parsing and session resumption, live streaming UI with Turbo Streams, cancel button, tool-use indicators, broadcast batching, and API result/progress callback endpoints closing the autonomous execution loop.
+**Stats:** 26 requirements, 6 plans, 1124 tests, ~41 minutes total execution
+**Archive:** [v1.4-ROADMAP.md](milestones/v1.4-ROADMAP.md) | [v1.4-REQUIREMENTS.md](milestones/v1.4-REQUIREMENTS.md)
+
 ### v1.3 -- Agent Hooks
 **Completed:** 2026-03-28
 **Phases:** 18-21 (4 phases, 5 plans, 15 tasks)

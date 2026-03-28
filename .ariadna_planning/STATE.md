@@ -5,16 +5,15 @@
 See: .ariadna_planning/PROJECT.md (updated 2026-03-28)
 
 **Core value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
-**Current focus:** v1.4 Agent Execution -- COMPLETE (all 25 phases done, including 25-03 callbacks)
+**Current focus:** v1.4 Agent Execution SHIPPED. Planning next milestone.
 
 ## Current Position
 
-Phase: 25 of 25 (Live Streaming UI and Result Callbacks) -- COMPLETE
-Plan: 3 of 3 in current phase -- COMPLETE
-Status: Phase 25 Plan 03 done -- all 25 phases complete, v1.4 Agent Execution COMPLETE
-Last activity: 2026-03-28 -- Phase 25 Plan 02 complete (agent status broadcasting STREAM-02, tool-use indicators STREAM-03, cancel STREAM-04, broadcast batching STREAM-05, 1124 tests passing)
+Phase: All 25 phases complete across 4 milestones (v1.0-v1.4)
+Status: v1.4 shipped 2026-03-28. Ready for next milestone.
+Last activity: 2026-03-28 -- v1.4 milestone archived
 
-Progress: [██████████████████████████] 100% (25/25 phases complete)
+Progress: [██████████████████████████] 100% (25/25 phases, 47 plans complete)
 
 ## Performance Metrics
 
@@ -95,13 +94,12 @@ None.
 
 ### Blockers/Concerns
 
-- [Phase 24 pre-check]: Verify tmux is available in the Kamal Docker image before coding ClaudeExecutionService
-- [Phase 24 pre-check]: Confirm ANTHROPIC_API_KEY is available in the Kamal deployment environment (ENV or Rails credentials)
-- [Phase 22 pre-check]: Verify Solid Cable uses a separate SQLite DB file (config/cable.yml) -- must not share primary DB before adding execution log writes
+- Verify tmux is available in the Kamal Docker image (deployment dependency for ClaudeLocalAdapter)
+- Confirm ANTHROPIC_API_KEY is available in the Kamal deployment environment
 
 ## Session Continuity
 
 Last session: 2026-03-28
-Stopped at: Phase 25 Plan 02 complete -- agent status broadcasting on show page (STREAM-02), tool-use visual indicators in log output (STREAM-03), cancel! with tmux kill (STREAM-04), 100ms broadcast batching (STREAM-05), broadcast_flush! on terminal status. 30 new tests, 1124 total tests passing. ALL 25 PHASES COMPLETE (Plans 01-03 all done).
+Stopped at: v1.4 milestone archived. All 25 phases, 47 plans complete. 1124 tests passing.
 Resume file: --
-Next step: v1.4 complete. Consider v1.5 planning or production deployment review.
+Next step: `/ariadna:new-milestone` to plan v1.5

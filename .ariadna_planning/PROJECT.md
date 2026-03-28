@@ -47,18 +47,16 @@ Users can organize AI agents into a functioning company structure and confidentl
 - Webhook hooks POST JSON payloads to external URLs with headers and timeouts — v1.3
 - Validation feedback loop: subtask results posted back to parent task, original agent woken — v1.3
 - Hook management CRUD UI nested under agents with company scoping — v1.3
+- AgentRun persistence with state machine, session resumption, dedicated execution queue — v1.4
+- HTTP adapter with real POST delivery, error classification, exponential backoff retry — v1.4
+- Claude Local adapter with tmux session lifecycle, stream-JSON parsing, budget gate — v1.4
+- Live streaming UI with turbo_stream_from, tool-use indicators, broadcast batching — v1.4
+- Cancel button kills tmux sessions and marks runs cancelled — v1.4
+- API result/progress callbacks close autonomous execution loop with task status updates — v1.4
 
 ### Active
 
-## Current Milestone: v1.4 Agent Execution
-
-**Goal:** Make agents actually execute work — Claude CLI with live streaming output, HTTP wake delivery, full autonomous task runs with API callbacks.
-
-**Target features:**
-- Claude Local adapter: spawn `claude` CLI with streaming JSON output and session resumption
-- HTTP adapter: wire up real POST delivery in WakeAgentService
-- Live streaming UI: real-time agent output (thoughts, tool calls, results) in task view via Action Cable
-- Full autonomous execution: agent receives task, works on it, reports results back via API
+(None yet — planning next milestone)
 
 ### Out of Scope
 
@@ -95,22 +93,24 @@ Users can organize AI agents into a functioning company structure and confidentl
 | Modern CSS over Tailwind | User preference for semantic CSS with custom properties, container queries, and nesting | — Pending |
 | Integer IDs over UUIDs | Rails default, simpler, user preference — no need for distributed ID generation | — Pending |
 | Multi-tenant from day one | Core to the Paperclip model (multi-company support) — easier to build in from start than retrofit | — Pending |
-| Hotwire over React | Rails-native real-time UI — matches Turbo Streams for live updates (agent status, task changes, conversations) | — Pending |
-| Budget enforcement in v1 | Core safety feature — users won't trust autonomous agents without cost controls | — Pending |
-| Both heartbeat + event triggers | Matches Paperclip behavior — agents need both scheduled work and reactive responses | — Pending |
-| SQLite for all databases | Simplifies deployment (no external DB server), aligns all databases on one engine, Rails 8.1 has excellent SQLite support | ✓ Good |
+| Hotwire over React | Rails-native real-time UI — matches Turbo Streams for live updates (agent status, task changes, conversations) | ✓ Good — turbo_stream_from + broadcast_append_to powers live streaming with zero custom JS |
+| Budget enforcement in v1 | Core safety feature — users won't trust autonomous agents without cost controls | ✓ Good — budget gate blocks execution before tmux spawn |
+| Both heartbeat + event triggers | Matches Paperclip behavior — agents need both scheduled work and reactive responses | ✓ Good |
+| SQLite for all databases | Simplifies deployment (no external DB server), aligns all databases on one engine, Rails 8.1 has excellent SQLite support | ✓ Good — broadcast batching (100ms) protects SQLite from write pressure |
+| tmux for Claude subprocess management | Real TTY (solves stdout buffering), session persistence, zombie-free lifecycle, no new gems | ✓ Good — clean process isolation, session naming by run ID |
+| No new gems for v1.4 | Net::HTTP (stdlib), tmux (system dep), Turbo::StreamsChannel (already in Gemfile) | ✓ Good — zero dependency growth |
 
 ## Current State
 
-**Shipped:** v1.0 (Core Platform) + v1.1 (SQLite Migration) + v1.2 (Agent Skills) + v1.3 (Agent Hooks)
-**Codebase:** ~21,300 LOC (Ruby/ERB/CSS/JS), 878 tests, 21 phases, 41 plans
+**Shipped:** v1.0 (Core Platform) + v1.1 (SQLite Migration) + v1.2 (Agent Skills) + v1.3 (Agent Hooks) + v1.4 (Agent Execution)
+**Codebase:** ~17,700 LOC Ruby, 1124 tests, 25 phases, 47 plans
 **Stack:** Rails 8, SQLite (all databases), Hotwire, modern CSS, Solid Queue/Cache/Cable
-**Status:** Fully functional platform — auth, multi-tenancy, org charts, agents with skill management, tasks, goals, heartbeats, budgets, governance, dashboard with real-time updates. 50 builtin skills across 5 categories with role-based auto-assignment. Agent hooks with lifecycle triggers, agent-to-agent validation loops, webhook integrations, and feedback cycle.
-**Current work:** v1.4 Agent Execution — making adapters actually execute work
+**Status:** Fully functional orchestration platform with real agent execution. Auth, multi-tenancy, org charts, agents with skill management, tasks, goals, heartbeats, budgets, governance, dashboard with real-time updates. HTTP and Claude Local adapters execute real work. Live streaming UI shows agent output in real time. API callbacks close the autonomous execution loop.
 
 **Known tech debt:**
 - permit! on action_config params in AgentHooksController (mitigated by model validation)
 - N+1 COUNT query on hooks index page (negligible at expected cardinality)
+- tmux availability not verified in Docker image (deployment dependency)
 
 ---
-*Last updated: 2026-03-28 after v1.4 milestone start*
+*Last updated: 2026-03-28 after v1.4 milestone*
