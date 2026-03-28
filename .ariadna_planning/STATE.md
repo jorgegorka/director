@@ -5,14 +5,14 @@
 See: .ariadna_planning/PROJECT.md (updated 2026-03-28)
 
 **Core value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
-**Current focus:** v1.2 -- Agent Skills (Phase 15: Role Auto-Assignment)
+**Current focus:** v1.2 -- Agent Skills (Phase 16: Skills CRUD)
 
 ## Current Position
 
-Phase: 15 - Role Auto-Assignment
-Plan: 01 complete
-Status: In progress (1/1 plans done for phase, pending phase 02 if any)
-Last activity: 2026-03-28 -- Phase 15 Plan 01 complete: Role auto-assignment callback, 10 new tests (8 model + 2 controller), 691 tests pass
+Phase: 16 - Skills CRUD
+Plan: --
+Status: Not started
+Last activity: 2026-03-28 -- Phase 15 complete: Role auto-assignment callback with first_agent_assignment? guard, 10 new tests, 691 total pass
 
 ## Performance Metrics
 
@@ -39,11 +39,11 @@ Last activity: 2026-03-28 -- Phase 15 Plan 01 complete: Role auto-assignment cal
 | 12-cleanup-verification | 1/1 | ~15 min | ~15 min |
 | 13-skill-data-model | 2/2 | ~11 min | ~5.5 min |
 | 14-skill-catalog-seeding | 2/2 | ~12 min | ~6 min |
-| 15-role-auto-assignment | 1/? | ~2 min | ~2 min |
+| 15-role-auto-assignment | 1/1 | ~2 min | ~2 min |
 
 **Recent Trend:**
 - Last 5 plans: 12-01 (~15 min), 14-01 (~10 min), 14-02 (~2 min), 15-01 (~2 min)
-- Trend: consistent, stable. v1.0 COMPLETE. v1.1 COMPLETE. v1.2 Phase 15 Plan 01 COMPLETE.
+- Trend: consistent, stable. v1.0 COMPLETE. v1.1 COMPLETE. v1.2 Phase 15 COMPLETE.
 
 *Updated after each plan completion*
 
@@ -166,6 +166,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-28
-Stopped at: Phase 15 Plan 01 complete, 10 new tests pass, 691 total tests pass
-Resume file: .ariadna_planning/phases/15-role-auto-assignment/15-01-SUMMARY.md
-Next step: Execute Phase 15 Plan 02 (if exists) or plan next phase
+Stopped at: Phase 15 complete, verified (6/6 must-haves passed)
+Resume file: .ariadna_planning/ROADMAP.md
+Next step: /ariadna:plan-phase 16

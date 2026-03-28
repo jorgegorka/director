@@ -221,7 +221,7 @@ Full details: [v1.1-ROADMAP.md](milestones/v1.1-ROADMAP.md)
 
 - [x] **Phase 13: Skill Data Model** - Skills and agent_skills tables replace agent_capabilities with tenant-scoped validations
 - [x] **Phase 14: Skill Catalog & Seeding** - 50 builtin skill YAML files with company seeding on creation and backfill rake task
-- [ ] **Phase 15: Role Auto-Assignment** - First agent assignment to a role automatically attaches role-appropriate skills
+- [x] **Phase 15: Role Auto-Assignment** - First agent assignment to a role automatically attaches role-appropriate skills
 - [ ] **Phase 16: Skills CRUD** - Company skill library management with category filtering and builtin protection
 - [ ] **Phase 17: Agent Skill Management** - Per-agent skill assignment UI replacing capabilities throughout the application
 
@@ -267,10 +267,10 @@ Plans:
   1. Assigning an agent to a role for the first time (role had no agent before) automatically creates agent_skill records for that role's default skills
   2. Reassigning a role from one agent to another does not trigger auto-assignment on the new agent
   3. If a role title is not in the defaults mapping, or a mapped skill key does not exist in the company, the system proceeds silently without errors
-**Plans**: TBD
+**Plans**: 1/1 complete
 
 Plans:
-- [ ] 15-01: TBD
+- [x] 15-01: Role after_save callback, first_agent_assignment? guard, default skill auto-creation, tests
 
 #### Phase 16: Skills CRUD
 **Goal**: Full controller and views for managing the company's skill library with category filtering and builtin protection
@@ -324,6 +324,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 12. Cleanup & Verification | v1.1 | 1/1 | Complete | 2026-03-28 |
 | 13. Skill Data Model | v1.2 | 2/2 | Complete | 2026-03-28 |
 | 14. Skill Catalog & Seeding | v1.2 | 2/2 | Complete | 2026-03-28 |
-| 15. Role Auto-Assignment | v1.2 | 0/TBD | Not started | - |
+| 15. Role Auto-Assignment | v1.2 | 1/1 | Complete | 2026-03-28 |
 | 16. Skills CRUD | v1.2 | 0/TBD | Not started | - |
 | 17. Agent Skill Management | v1.2 | 0/TBD | Not started | - |
