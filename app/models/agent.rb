@@ -220,5 +220,4 @@ class Agent < ApplicationRecord
       errors.add(:adapter_config, "missing required keys: #{missing.join(', ')}")
     end
   end
-
 end
