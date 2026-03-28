@@ -598,6 +598,8 @@ end
 puts "  Created #{gate_count} approval gates"
 
 # Audit events — backdated for realistic activity timeline
+# AuditEvent#readonly? returns true for persisted records, blocking update_columns.
+# update_all on a relation executes SQL directly, bypassing the instance-level guard.
 def create_audit_event!(attrs)
   days_ago = attrs.delete(:days_ago) || 0
   event = AuditEvent.create!(attrs)
@@ -687,11 +689,11 @@ puts "  Created #{AuditEvent.where(company: company).count} audit events"
 # Notifications — mix of read and unread for the admin user
 def create_notification!(attrs)
   days_ago = attrs.delete(:days_ago) || 0
-  is_read = attrs.delete(:read) || false
+  mark_read = attrs.delete(:read) || false
   notif = Notification.create!(attrs)
   updates = {}
   updates[:created_at] = days_ago.days.ago if days_ago > 0
-  updates[:read_at] = (days_ago.days.ago + 1.hour) if is_read
+  updates[:read_at] = (days_ago.days.ago + 1.hour) if mark_read
   notif.update_columns(updates) if updates.any?
   notif
 end
