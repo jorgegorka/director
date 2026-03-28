@@ -5,23 +5,23 @@
 See: .ariadna_planning/PROJECT.md (updated 2026-03-28)
 
 **Core value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
-**Current focus:** v1.4 Agent Execution -- Phase 22: AgentRun Data Model and Job Dispatch
+**Current focus:** v1.4 Agent Execution -- Phase 22 complete, ready for Phase 23
 
 ## Current Position
 
-Phase: 22 of 25 (AgentRun Data Model and Job Dispatch)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-03-28 -- v1.4 roadmap defined (4 phases, 26 requirements mapped)
+Phase: 22 of 25 (AgentRun Data Model and Job Dispatch) -- COMPLETE
+Plan: 1 of 1 in current phase -- COMPLETE
+Status: Phase 22 done, move to Phase 23 (HTTP Adapter)
+Last activity: 2026-03-28 -- Phase 22 Plan 01 complete (AgentRun model + ExecuteAgentJob + WakeAgentService wiring)
 
-Progress: [████████████████████░░░░░] 84% (21/25 phases complete)
+Progress: [████████████████████░░░░░] 88% (22/25 phases complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 41
+- Total plans completed: 42
 - Average duration: ~7 minutes
-- Total execution time: ~224 minutes
+- Total execution time: ~228 minutes
 
 **By Phase:**
 
@@ -48,10 +48,11 @@ Progress: [████████████████████░░░
 | 19-hook-triggering-engine | 2/2 | ~6 min | ~3 min |
 | 20-validation-feedback-loop | 1/1 | ~3 min | ~3 min |
 | 21-hook-management-ui | 1/1 | ~4 min | ~4 min |
+| 22-agentrun-data-model-and-job-dispatch | 1/1 | ~4 min | ~4 min |
 
 **Recent Trend:**
-- Last 5 plans: 19-01 (~3 min), 19-02 (~3 min), 20-01 (~3 min), 21-01 (~4 min)
-- Trend: consistent, stable. v1.0 COMPLETE. v1.1 COMPLETE. v1.2 COMPLETE. v1.3 COMPLETE.
+- Last 5 plans: 19-01 (~3 min), 19-02 (~3 min), 20-01 (~3 min), 21-01 (~4 min), 22-01 (~4 min)
+- Trend: consistent, stable. v1.0 COMPLETE. v1.1 COMPLETE. v1.2 COMPLETE. v1.3 COMPLETE. v1.4 in progress.
 
 *Updated after each plan completion*
 
@@ -70,6 +71,8 @@ Recent decisions affecting current work:
 - [v1.4-Roadmap]: Execution model: `tmux new-session -d -s "agent_run_42" "claude -p --bare ..."` then capture output via tmux capture-pane
 - [v1.4-Roadmap]: No new gems for v1.4 -- Net::HTTP (stdlib), tmux (system dep), Turbo::StreamsChannel (already in Gemfile)
 - [21-01]: action_config["target_agent_id"] returns string from SQLite JSON storage (not integer) -- assert with .to_i in tests
+- [22-01]: NotImplementedError inherits from ScriptError, not StandardError -- rescue Exception in ExecuteAgentJob to catch adapter NotImplementedError and prevent agent getting stuck in running state
+- [22-01]: Task model needs has_many :agent_runs, dependent: :nullify -- task deletion with associated runs causes FK constraint failure without it
 
 ### Pending Todos
 
@@ -84,6 +87,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-28
-Stopped at: v1.4 roadmap created -- 4 phases (22-25), 26 requirements mapped, ready to plan Phase 22
+Stopped at: Phase 22 complete -- AgentRun model, ExecuteAgentJob, WakeAgentService wired. 952 tests passing.
 Resume file: --
-Next step: `/ariadna:plan-phase 22`
+Next step: `/ariadna:plan-phase 23` (HTTP Adapter implementation)
