@@ -84,8 +84,9 @@ class DocumentTest < ActiveSupport::TestCase
 
   test "destroying document destroys skill_documents" do
     doc = documents(:acme_coding_standards)
-    SkillDocument.create!(skill: skills(:acme_code_review), document: doc)
-    assert_difference("SkillDocument.count", -1) { doc.destroy }
+    # fixture already links acme_code_review -> acme_coding_standards
+    assert doc.skill_documents.any?
+    assert_difference("SkillDocument.count", -doc.skill_documents.count) { doc.destroy }
   end
 
   test "destroying document destroys agent_documents" do
@@ -96,8 +97,9 @@ class DocumentTest < ActiveSupport::TestCase
 
   test "destroying document destroys task_documents" do
     doc = documents(:acme_coding_standards)
-    TaskDocument.create!(task: tasks(:design_homepage), document: doc)
-    assert_difference("TaskDocument.count", -1) { doc.destroy }
+    # fixture already links design_homepage -> acme_coding_standards
+    assert doc.task_documents.any?
+    assert_difference("TaskDocument.count", -doc.task_documents.count) { doc.destroy }
   end
 
   test "destroying document destroys document_taggings" do
