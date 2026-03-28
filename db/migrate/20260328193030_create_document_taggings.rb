@@ -7,6 +7,6 @@ class CreateDocumentTaggings < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :document_taggings, [:document_id, :document_tag_id], unique: true
+    add_index :document_taggings, [ :document_id, :document_tag_id ], unique: true
   end
 end

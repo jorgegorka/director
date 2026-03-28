@@ -39,7 +39,7 @@ class CreateDocumentServiceTest < ActiveSupport::TestCase
       company: @company,
       title: "Tagged Doc",
       body: "# Content",
-      tag_names: ["policy", "new-tag"]
+      tag_names: [ "policy", "new-tag" ]
     )
 
     assert doc.persisted?
@@ -57,7 +57,7 @@ class CreateDocumentServiceTest < ActiveSupport::TestCase
         company: @company,
         title: "Doc with existing tag",
         body: "# Content",
-        tag_names: ["policy"]
+        tag_names: [ "policy" ]
       )
     end
   end

@@ -7,6 +7,6 @@ class CreateSkillDocuments < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :skill_documents, [:skill_id, :document_id], unique: true
+    add_index :skill_documents, [ :skill_id, :document_id ], unique: true
   end
 end

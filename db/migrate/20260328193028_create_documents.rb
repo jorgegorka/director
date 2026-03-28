@@ -12,7 +12,7 @@ class CreateDocuments < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :documents, [:author_type, :author_id]
-    add_index :documents, [:last_editor_type, :last_editor_id]
+    add_index :documents, [ :author_type, :author_id ]
+    add_index :documents, [ :last_editor_type, :last_editor_id ]
   end
 end
