@@ -187,6 +187,52 @@
         <% end %>
       </div>
 
+      <%# Goal %>
+      <% if @agent_goals.any? %>
+        <div class="agent-detail__card">
+          <h2 class="agent-detail__card-title">Goals (<%= @agent_goals.size %>)</h2>
+          <ul class="agent-detail__roles-list">
+            <% @agent_goals.each do |goal| %>
+              <li>
+                <%= link_to goal.title, goal_path(goal) %>
+                <% if goal.mission? %>
+                  <span class="goal-tree__label goal-tree__label--mission">Mission</span>
+                <% end %>
+              </li>
+            <% end %>
+          </ul>
+
+          <% if @eval_total && @eval_total > 0 %>
+            <h3 class="agent-detail__card-subtitle">Evaluation Summary</h3>
+            <dl class="agent-detail__kv">
+              <div class="agent-detail__kv-row">
+                <dt>Total evaluations</dt>
+                <dd><%= @eval_total %></dd>
+              </div>
+              <div class="agent-detail__kv-row">
+                <dt>Pass rate</dt>
+                <dd><%= (@eval_pass_count.to_f / @eval_total * 100).round %>%</dd>
+              </div>
+            </dl>
+
+            <h3 class="agent-detail__card-subtitle">Recent Evaluations</h3>
+            <div class="eval-list">
+              <% @recent_evaluations.each do |evaluation| %>
+                <div class="eval-item eval-item--<%= evaluation.result %>">
+                  <span class="eval-item__badge eval-item__badge--<%= evaluation.result %>">
+                    <%= evaluation.result.upcase %>
+                  </span>
+                  <span class="eval-item__task">
+                    <%= link_to evaluation.task.title, task_path(evaluation.task) %>
+                  </span>
+                  <time class="eval-item__time"><%= time_ago_in_words(evaluation.created_at) %> ago</time>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+
       <%# Budget %>
       <div class="agent-detail__card">
         <h2 class="agent-detail__card-title">Budget</h2>

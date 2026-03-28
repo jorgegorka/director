@@ -12,6 +12,12 @@ class AgentsController < ApplicationController
     @company_skills = Current.company.skills.order(:category, :name)
     @agent_skills_by_skill_id = @agent.agent_skills.index_by(&:skill_id)
     @agent_document_links = @agent.agent_documents.joins(:document).includes(:document).order("documents.title")
+    @agent_goals = @agent.goals.ordered
+    if @agent.goal_evaluations.any?
+      @eval_total = @agent.goal_evaluations.count
+      @eval_pass_count = @agent.goal_evaluations.passed.count
+      @recent_evaluations = @agent.goal_evaluations.order(created_at: :desc).limit(5).includes(:task, :goal)
+    end
   end
 
   def new
