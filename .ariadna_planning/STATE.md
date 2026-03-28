@@ -5,7 +5,7 @@
 See: .ariadna_planning/PROJECT.md (updated 2026-03-28)
 
 **Core value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
-**Current focus:** v1.2 -- Agent Skills (Phase 17: Agent Skill Management)
+**Current focus:** v1.2 -- Agent Skills (COMPLETE)
 
 ## Current Position
 

@@ -11,7 +11,7 @@ Director transforms the chaos of managing multiple AI agents into a structured b
 
 - v1.0 Core Platform - Phases 1-10 (shipped 2026-03-28)
 - v1.1 SQLite Migration & Cleanup - Phases 11-12 (shipped 2026-03-28)
-- v1.2 Agent Skills - Phases 13-17 (in progress)
+- v1.2 Agent Skills - Phases 13-17 (shipped 2026-03-28)
 
 ## Phases
 
@@ -215,7 +215,7 @@ Full details: [v1.1-ROADMAP.md](milestones/v1.1-ROADMAP.md)
 
 </details>
 
-### v1.2 Agent Skills (In Progress)
+### v1.2 Agent Skills (Complete)
 
 **Milestone Goal:** Add a company-level skill library with rich markdown instruction packages, role-based auto-assignment, and full CRUD -- replacing the existing agent_capabilities system.
 
@@ -223,7 +223,7 @@ Full details: [v1.1-ROADMAP.md](milestones/v1.1-ROADMAP.md)
 - [x] **Phase 14: Skill Catalog & Seeding** - 50 builtin skill YAML files with company seeding on creation and backfill rake task
 - [x] **Phase 15: Role Auto-Assignment** - First agent assignment to a role automatically attaches role-appropriate skills
 - [ ] **Phase 16: Skills CRUD** - Company skill library management with category filtering and builtin protection
-- [ ] **Phase 17: Agent Skill Management** - Per-agent skill assignment UI replacing capabilities throughout the application
+- [x] **Phase 17: Agent Skill Management** - Per-agent skill assignment UI replacing capabilities throughout the application
 
 #### Phase 13: Skill Data Model
 **Goal**: Create the skills and agent_skills tables, models with validations, and replace agent_capabilities associations on Agent
@@ -299,10 +299,11 @@ Plans:
   2. Agent show page displays the agent's assigned skills (with names and categories) instead of the old capabilities list
   3. Agent card/partial throughout the application shows skills instead of capabilities
   4. Nested agent skill routes (create/destroy) are active and RESTful
-**Plans**: TBD
+**Plans**: 2/2 complete
 
 Plans:
-- [ ] 17-01: TBD
+- [x] 17-01: AgentSkillsController with nested routes, checkbox UI, skill tags on agent cards
+- [x] 17-02: Controller tests for agent skills CRUD, isolation, auth, and UI assertions (16 tests)
 
 ## Progress
 
@@ -327,4 +328,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 14. Skill Catalog & Seeding | v1.2 | 2/2 | Complete | 2026-03-28 |
 | 15. Role Auto-Assignment | v1.2 | 1/1 | Complete | 2026-03-28 |
 | 16. Skills CRUD | v1.2 | 2/2 | Complete | 2026-03-28 |
-| 17. Agent Skill Management | v1.2 | 0/TBD | Not started | - |
+| 17. Agent Skill Management | v1.2 | 2/2 | Complete | 2026-03-28 |
