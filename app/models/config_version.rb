@@ -1,14 +1,12 @@
 class ConfigVersion < ApplicationRecord
   include Tenantable
+  include Chronological
 
   belongs_to :versionable, polymorphic: true
   belongs_to :author, polymorphic: true, optional: true
 
   validates :action, presence: true, inclusion: { in: %w[create update rollback] }
   validates :snapshot, presence: true
-
-  scope :chronological, -> { order(:created_at) }
-  scope :reverse_chronological, -> { order(created_at: :desc) }
   scope :for_versionable, ->(record) { where(versionable: record) }
 
   def restore!

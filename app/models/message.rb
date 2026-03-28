@@ -1,5 +1,6 @@
 class Message < ApplicationRecord
   include Triggerable
+  include Chronological
 
   belongs_to :task
   belongs_to :author, polymorphic: true
@@ -11,7 +12,6 @@ class Message < ApplicationRecord
   validate :parent_belongs_to_same_task
 
   scope :roots, -> { where(parent_id: nil) }
-  scope :chronological, -> { order(:created_at) }
 
   after_commit :trigger_mention_wake, on: :create
 

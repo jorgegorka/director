@@ -7,7 +7,7 @@ class ExecuteHookJob < ApplicationJob
   def perform(hook_execution_id)
     execution = HookExecution.find_by(id: hook_execution_id)
     return unless execution
-    return if execution.completed? || execution.failed?
+    return if execution.completed?
 
     ExecuteHookService.call(execution)
   end

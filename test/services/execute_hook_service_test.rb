@@ -10,8 +10,6 @@ class ExecuteHookServiceTest < ActiveSupport::TestCase
 
     # Create fresh queued execution for trigger_agent hook
     @trigger_hook = agent_hooks(:claude_validation_hook)
-    # Fix fixture target_agent_id to point to actual http_agent
-    @trigger_hook.update_columns(action_config: { "target_agent_id" => @http_agent.id, "prompt" => "Review the completed work." })
 
     @trigger_execution = HookExecution.create!(
       agent_hook: @trigger_hook,
@@ -48,7 +46,7 @@ class ExecuteHookServiceTest < ActiveSupport::TestCase
   test "trigger_agent subtask description includes hook prompt" do
     ExecuteHookService.call(@trigger_execution)
     subtask = Task.find_by(parent_task: @task, assignee: @http_agent)
-    assert_includes subtask.description, "Review the completed work."
+    assert_includes subtask.description, "Review the completed work for correctness and quality."
   end
 
   test "trigger_agent subtask description includes original task title" do

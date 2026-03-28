@@ -2,11 +2,11 @@ class AgentHook < ApplicationRecord
   include Tenantable
   include Auditable
   include ConfigVersioned
+  include Enableable
 
-  LIFECYCLE_EVENTS = %w[
-    after_task_start
-    after_task_complete
-  ].freeze
+  AFTER_TASK_START = "after_task_start".freeze
+  AFTER_TASK_COMPLETE = "after_task_complete".freeze
+  LIFECYCLE_EVENTS = [ AFTER_TASK_START, AFTER_TASK_COMPLETE ].freeze
 
   belongs_to :agent
   has_many :hook_executions, dependent: :destroy
@@ -19,16 +19,15 @@ class AgentHook < ApplicationRecord
   validates :position, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validate :validate_action_config_schema
 
-  scope :enabled, -> { where(enabled: true) }
-  scope :disabled, -> { where(enabled: false) }
   scope :for_event, ->(event) { where(lifecycle_event: event) }
   scope :ordered, -> { order(:position, :created_at) }
 
   def target_agent
-    return nil unless trigger_agent?
-    target_id = action_config&.dig("target_agent_id")
-    return nil unless target_id
-    Agent.find_by(id: target_id)
+    return @target_agent if defined?(@target_agent)
+    @target_agent = if trigger_agent?
+      target_id = action_config&.dig("target_agent_id")
+      target_id && Agent.find_by(id: target_id)
+    end
   end
 
   def governance_attributes

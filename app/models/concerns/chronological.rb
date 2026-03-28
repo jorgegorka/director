@@ -1,0 +1,8 @@
+module Chronological
+  extend ActiveSupport::Concern
+
+  included do
+    scope :chronological, -> { order(:created_at) }
+    scope :reverse_chronological, -> { order(created_at: :desc) }
+  end
+end

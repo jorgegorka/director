@@ -4,7 +4,7 @@ claude_validation_hook:
   lifecycle_event: after_task_complete
   action_type: 0  # trigger_agent
   action_config:
-    target_agent_id: 1
+    target_agent_id: <%= ActiveRecord::FixtureSet.identify(:http_agent) %>
     prompt: "Review the completed work for correctness and quality."
   enabled: true
   position: 0
@@ -29,7 +29,7 @@ disabled_hook:
   lifecycle_event: after_task_complete
   action_type: 0  # trigger_agent
   action_config:
-    target_agent_id: 1
+    target_agent_id: <%= ActiveRecord::FixtureSet.identify(:claude_agent) %>
   enabled: false
   position: 0
 
@@ -39,7 +39,7 @@ claude_start_validation_hook:
   lifecycle_event: after_task_start
   action_type: 0  # trigger_agent
   action_config:
-    target_agent_id: 1
+    target_agent_id: <%= ActiveRecord::FixtureSet.identify(:http_agent) %>
     prompt: "Review the task requirements before work begins."
   enabled: true
   position: 1

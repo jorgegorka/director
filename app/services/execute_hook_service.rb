@@ -11,12 +11,12 @@ class ExecuteHookService
 
   def call
     execution.mark_running!
-    dispatch
-    execution.mark_completed!(output: build_output)
+    output = dispatch
+    execution.mark_completed!(output: output)
     record_audit_event
     execution
   rescue StandardError => e
-    execution.mark_failed!(error_message: e.message) unless execution.failed?
+    execution.mark_failed!(error_message: e.message)
     raise  # Re-raise so ExecuteHookJob retry_on can catch it
   end
 
@@ -30,16 +30,17 @@ class ExecuteHookService
       dispatch_trigger_agent
     elsif agent_hook.webhook?
       dispatch_webhook
+    else
+      raise "Unknown action_type: #{agent_hook.action_type} for hook #{agent_hook.id}"
     end
   end
-
-  # --- trigger_agent: create validation subtask + wake target agent ---
 
   def dispatch_trigger_agent
     target = agent_hook.target_agent
     raise "Target agent not found for hook #{agent_hook.id}" unless target
+    raise "Target agent #{target.id} is terminated" if target.terminated?
 
-    @validation_task = Task.create!(
+    validation_task = Task.create!(
       title: "Validate: #{task.title}",
       description: build_validation_description,
       company_id: task.company_id,
@@ -56,11 +57,13 @@ class ExecuteHookService
       context: {
         hook_id: agent_hook.id,
         hook_name: agent_hook.name,
-        validation_task_id: @validation_task.id,
+        validation_task_id: validation_task.id,
         original_task_id: task.id,
         original_task_title: task.title
       }
     )
+
+    { result: "validation_created", validation_task_id: validation_task.id, target_agent_id: target.id }
   end
 
   def build_validation_description
@@ -71,8 +74,6 @@ class ExecuteHookService
     parts << prompt if prompt.present?
     parts.join("\n\n")
   end
-
-  # --- webhook: POST JSON payload to configured URL ---
 
   def dispatch_webhook
     url = agent_hook.action_config["url"]
@@ -91,11 +92,13 @@ class ExecuteHookService
     request = Net::HTTP::Post.new(uri.request_uri, headers)
     request.body = payload.to_json
 
-    @webhook_response = http.request(request)
+    response = http.request(request)
 
-    unless @webhook_response.is_a?(Net::HTTPSuccess)
-      raise "Webhook returned #{@webhook_response.code}: #{@webhook_response.body&.truncate(500)}"
+    unless response.is_a?(Net::HTTPSuccess)
+      raise "Webhook returned #{response.code}: #{response.body&.truncate(500)}"
     end
+
+    { result: "webhook_delivered", response_code: response.code, response_body: response.body&.truncate(1000) }
   end
 
   def build_webhook_headers
@@ -119,24 +122,6 @@ class ExecuteHookService
       },
       triggered_at: Time.current.iso8601
     }
-  end
-
-  # --- Output and audit ---
-
-  def build_output
-    if agent_hook.trigger_agent?
-      {
-        result: "validation_created",
-        validation_task_id: @validation_task&.id,
-        target_agent_id: agent_hook.target_agent&.id
-      }
-    elsif agent_hook.webhook?
-      {
-        result: "webhook_delivered",
-        response_code: @webhook_response&.code,
-        response_body: @webhook_response&.body&.truncate(1000)
-      }
-    end
   end
 
   def record_audit_event

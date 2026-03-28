@@ -1,5 +1,6 @@
 class Notification < ApplicationRecord
   include Tenantable
+  include Chronological
 
   belongs_to :recipient, polymorphic: true
   belongs_to :actor, polymorphic: true, optional: true
@@ -9,9 +10,7 @@ class Notification < ApplicationRecord
 
   scope :unread, -> { where(read_at: nil) }
   scope :read, -> { where.not(read_at: nil) }
-  scope :recent, -> { order(created_at: :desc).limit(20) }
-  scope :chronological, -> { order(:created_at) }
-  scope :reverse_chronological, -> { order(created_at: :desc) }
+  scope :recent, -> { reverse_chronological.limit(20) }
 
   def read?
     read_at.present?
