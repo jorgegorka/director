@@ -219,7 +219,7 @@ Full details: [v1.1-ROADMAP.md](milestones/v1.1-ROADMAP.md)
 
 **Milestone Goal:** Add a company-level skill library with rich markdown instruction packages, role-based auto-assignment, and full CRUD -- replacing the existing agent_capabilities system.
 
-- [ ] **Phase 13: Skill Data Model** - Skills and agent_skills tables replace agent_capabilities with tenant-scoped validations
+- [x] **Phase 13: Skill Data Model** - Skills and agent_skills tables replace agent_capabilities with tenant-scoped validations
 - [ ] **Phase 14: Skill Catalog & Seeding** - 44 builtin skill YAML files with company seeding on creation and backfill rake task
 - [ ] **Phase 15: Role Auto-Assignment** - First agent assignment to a role automatically attaches role-appropriate skills
 - [ ] **Phase 16: Skills CRUD** - Company skill library management with category filtering and builtin protection
@@ -236,10 +236,11 @@ Full details: [v1.1-ROADMAP.md](milestones/v1.1-ROADMAP.md)
   3. Key uniqueness is enforced per company -- two companies can have the same skill key, but one company cannot have duplicates
   4. Agent skill assignments are validated to prevent cross-company links (agent and skill must belong to the same company)
   5. The agent_capabilities table and AgentCapability model no longer exist
-**Plans**: TBD
+**Plans**: 2/2 complete
 
 Plans:
-- [ ] 13-01: TBD
+- [x] 13-01: Skills and AgentSkills tables, models, validations, scopes, fixtures, tests
+- [x] 13-02: Drop agent_capabilities, wire skill associations, update views/routes/tests
 
 #### Phase 14: Skill Catalog & Seeding
 **Goal**: Create 44 builtin skill YAML files with meaningful markdown instruction content, a role-to-skills mapping config, and seeding logic for new and existing companies
@@ -320,7 +321,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 10. Dashboard & Real-time UI | v1.0 | 4/4 | Complete | 2026-03-28 |
 | 11. SQLite Migration | v1.1 | 2/2 | Complete | 2026-03-28 |
 | 12. Cleanup & Verification | v1.1 | 1/1 | Complete | 2026-03-28 |
-| 13. Skill Data Model | v1.2 | 0/TBD | Not started | - |
+| 13. Skill Data Model | v1.2 | 2/2 | Complete | 2026-03-28 |
 | 14. Skill Catalog & Seeding | v1.2 | 0/TBD | Not started | - |
 | 15. Role Auto-Assignment | v1.2 | 0/TBD | Not started | - |
 | 16. Skills CRUD | v1.2 | 0/TBD | Not started | - |

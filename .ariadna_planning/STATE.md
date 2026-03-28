@@ -5,19 +5,19 @@
 See: .ariadna_planning/PROJECT.md (updated 2026-03-28)
 
 **Core value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
-**Current focus:** v1.2 -- Agent Skills (Phase 13: Skill Data Model)
+**Current focus:** v1.2 -- Agent Skills (Phase 14: Skill Catalog & Seeding)
 
 ## Current Position
 
-Phase: 13 - Skill Data Model
-Plan: 02 (complete)
-Status: In progress
-Last activity: 2026-03-28 -- Plan 13-02 complete: dropped agent_capabilities, wired skills associations, updated views/routes/tests
+Phase: 14 - Skill Catalog & Seeding
+Plan: --
+Status: Not started
+Last activity: 2026-03-28 -- Phase 13 complete: skills/agent_skills data model replaces agent_capabilities
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 26
+- Total plans completed: 27
 - Average duration: ~8 minutes
 - Total execution time: ~161 minutes
 
@@ -37,7 +37,7 @@ Last activity: 2026-03-28 -- Plan 13-02 complete: dropped agent_capabilities, wi
 | 10-dashboard-real-time-ui | 4/4 | ~19 min | ~4.8 min |
 | 11-sqlite-migration | 2/2 | ~13 min | ~6.5 min |
 | 12-cleanup-verification | 1/1 | ~15 min | ~15 min |
-| 13-skill-data-model | 2/? | ~11 min | ~5.5 min |
+| 13-skill-data-model | 2/2 | ~11 min | ~5.5 min |
 
 **Recent Trend:**
 - Last 5 plans: 10-04 (~3 min), 11-01 (~8 min), 11-02 (~5 min), 12-01 (~15 min)
@@ -156,6 +156,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-28
-Stopped at: Plan 13-02 complete -- agent_capabilities dropped, skills wired, views/routes/tests updated
-Resume file: .ariadna_planning/phases/13-skill-data-model/13-02-SUMMARY.md
-Next step: Execute plan 13-03 (if exists) or proceed to Phase 14
+Stopped at: Phase 13 complete, verified (12/12 must-haves passed)
+Resume file: .ariadna_planning/ROADMAP.md
+Next step: /ariadna:plan-phase 14
