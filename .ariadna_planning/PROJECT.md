@@ -50,7 +50,15 @@ Users can organize AI agents into a functioning company structure and confidentl
 
 ### Active
 
-None — planning next milestone.
+## Current Milestone: v1.4 Agent Execution
+
+**Goal:** Make agents actually execute work — Claude CLI with live streaming output, HTTP wake delivery, full autonomous task runs with API callbacks.
+
+**Target features:**
+- Claude Local adapter: spawn `claude` CLI with streaming JSON output and session resumption
+- HTTP adapter: wire up real POST delivery in WakeAgentService
+- Live streaming UI: real-time agent output (thoughts, tool calls, results) in task view via Action Cable
+- Full autonomous execution: agent receives task, works on it, reports results back via API
 
 ### Out of Scope
 
@@ -98,10 +106,11 @@ None — planning next milestone.
 **Codebase:** ~21,300 LOC (Ruby/ERB/CSS/JS), 878 tests, 21 phases, 41 plans
 **Stack:** Rails 8, SQLite (all databases), Hotwire, modern CSS, Solid Queue/Cache/Cable
 **Status:** Fully functional platform — auth, multi-tenancy, org charts, agents with skill management, tasks, goals, heartbeats, budgets, governance, dashboard with real-time updates. 50 builtin skills across 5 categories with role-based auto-assignment. Agent hooks with lifecycle triggers, agent-to-agent validation loops, webhook integrations, and feedback cycle.
+**Current work:** v1.4 Agent Execution — making adapters actually execute work
 
 **Known tech debt:**
 - permit! on action_config params in AgentHooksController (mitigated by model validation)
 - N+1 COUNT query on hooks index page (negligible at expected cardinality)
 
 ---
-*Last updated: 2026-03-28 after v1.3 milestone*
+*Last updated: 2026-03-28 after v1.4 milestone start*

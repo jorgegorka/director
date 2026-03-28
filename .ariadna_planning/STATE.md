@@ -5,14 +5,14 @@
 See: .ariadna_planning/PROJECT.md (updated 2026-03-28)
 
 **Core value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
-**Current focus:** Planning next milestone
+**Current focus:** v1.4 Agent Execution
 
 ## Current Position
 
-Phase: --
-Plan: --
-Status: Between milestones
-Last activity: 2026-03-28 -- v1.3 Agent Hooks milestone complete (4 phases, 5 plans, 878 tests)
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-28 — Milestone v1.4 started
 
 ## Performance Metrics
 
@@ -204,6 +204,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-28
-Stopped at: Phase 21 complete -- Hook Management UI verified (7/7 must-haves, 878 tests). v1.3 Agent Hooks milestone complete.
-Resume file: .ariadna_planning/phases/21-hook-management-ui/21-VERIFICATION.md
-Next step: /ariadna:complete-milestone to archive v1.3
+Stopped at: v1.4 milestone initialization — defining requirements
+Resume file: —
+Next step: Complete requirements and roadmap definition
