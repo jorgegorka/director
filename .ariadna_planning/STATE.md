@@ -5,14 +5,14 @@
 See: .ariadna_planning/PROJECT.md (updated 2026-03-28)
 
 **Core value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
-**Current focus:** Planning next milestone
+**Current focus:** v1.3 Agent Hooks -- Phase 18
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 18 - Hook Data Foundation
 Plan: --
-Status: Defining requirements
-Last activity: 2026-03-28 -- Milestone v1.3 started
+Status: Planning
+Last activity: 2026-03-28 -- v1.3 roadmap created (phases 18-21)
 
 ## Performance Metrics
 
@@ -65,6 +65,11 @@ Recent decisions affecting current work:
 - [v1.2-Roadmap]: Phase 13 (data model) is foundation -- all other phases depend on it
 - [v1.2-Roadmap]: Phase 14 (seeding) before Phase 15 (auto-assignment) because auto-assignment needs skills to exist in the company
 - [v1.2-Roadmap]: Phase 16 (skills CRUD) and Phase 17 (agent skill management) are the UI layer -- depend on data model but could theoretically parallelize; sequenced for simplicity
+- [v1.3-Roadmap]: 4 phases (18-21) derived from 15 requirements across 5 categories -- data foundation, triggering engine, feedback loop, management UI
+- [v1.3-Roadmap]: Phase 18 (data foundation) includes UI-03 (HeartbeatEvent enum extension) because it modifies an existing model alongside new model creation
+- [v1.3-Roadmap]: Phase 19 combines triggering (TRIG-01, TRIG-02) with actions (ACT-01, ACT-02, ACT-03) because the concern and service are tightly coupled -- Hookable detects transitions, ExecuteHookService dispatches them
+- [v1.3-Roadmap]: Phase 20 (feedback loop) depends on Phase 19 because validation subtasks must be created by trigger_agent hooks before feedback can be processed
+- [v1.3-Roadmap]: Phase 21 (management UI) is last because hooks should fire correctly before exposing CRUD to users
 - [01-01]: Rails 8 built-in authentication generator used (has_secure_password, Session model, Authentication concern)
 - [01-01]: `email_address` field name (not `email`) -- Rails 8 auth generator convention, keep throughout
 - [01-01]: PostgreSQL for primary database; sqlite3 retained for Solid Queue/Cache/Cable secondary connections
@@ -175,6 +180,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-28
-Stopped at: v1.2 milestone archived
-Resume file: .ariadna_planning/MILESTONES.md
-Next step: /ariadna:new-milestone
+Stopped at: v1.3 roadmap created (phases 18-21)
+Resume file: .ariadna_planning/ROADMAP.md
+Next step: /ariadna:plan-phase 18

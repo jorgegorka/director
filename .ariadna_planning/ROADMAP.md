@@ -12,6 +12,7 @@ Director transforms the chaos of managing multiple AI agents into a structured b
 - v1.0 Core Platform - Phases 1-10 (shipped 2026-03-28)
 - v1.1 SQLite Migration & Cleanup - Phases 11-12 (shipped 2026-03-28)
 - v1.2 Agent Skills - Phases 13-17 (shipped 2026-03-28)
+- v1.3 Agent Hooks - Phases 18-21 (in progress)
 
 ## Phases
 
@@ -228,10 +229,80 @@ Full details: [v1.2-ROADMAP.md](milestones/v1.2-ROADMAP.md)
 
 </details>
 
+### v1.3 Agent Hooks (In Progress)
+
+**Milestone Goal:** Configurable agent hook system that fires at task lifecycle events, enabling agent-to-agent validation loops and webhook integrations -- so agents can check each other's work automatically.
+
+- [ ] **Phase 18: Hook Data Foundation** - AgentHook and HookExecution models with lifecycle event configuration and execution tracking
+- [ ] **Phase 19: Hook Triggering Engine** - Hookable concern detects task transitions and dispatches hooks as background jobs
+- [ ] **Phase 20: Validation Feedback Loop** - Completed validation subtasks feed results back to the original agent for iterative improvement
+- [ ] **Phase 21: Hook Management UI** - CRUD controller for creating and managing hooks nested under agents
+
+### Phase 18: Hook Data Foundation
+**Goal**: Establish the data layer for agent hooks -- the AgentHook configuration model, the HookExecution tracking model, and updates to existing models that integrate with the hook system
+**Why this matters**: Users need to configure per-agent hooks that fire at specific task lifecycle moments. Without the data foundation, there is nothing to trigger, nothing to track, and no way to distinguish hook-originated agent wake calls from other triggers.
+**Depends on**: Phase 17 (agents, tasks, heartbeat events all exist)
+**Requirements**: DATA-01, DATA-02, DATA-03, UI-03
+**Success Criteria** (what must be TRUE):
+  1. User can create an AgentHook record for an agent specifying a lifecycle event (e.g., after_task_complete), action type (trigger_agent or webhook), and action configuration -- and it persists correctly
+  2. HookExecution records can be created with status tracking (queued/running/completed/failed), input/output payloads, timing fields, and error messages
+  3. Deleting an agent cascades to destroy all its hooks and their execution records
+  4. HeartbeatEvent trigger_type enum includes hook_triggered, distinguishing hook-originated wake calls from scheduled, task_assigned, and mention triggers
+**Plans**: TBD
+
+Plans:
+- [ ] 18-01: Migrations, AgentHook model, HookExecution model, existing model updates, fixtures, and tests
+
+### Phase 19: Hook Triggering Engine
+**Goal**: Hooks fire automatically when tasks change status -- the Hookable concern detects transitions, finds matching enabled hooks, and dispatches them as background jobs with retry logic
+**Why this matters**: This is the automation core. Users configure hooks so that agents validate each other's work or notify external systems automatically. Without the triggering engine, hooks are inert configuration that never fires.
+**Depends on**: Phase 18 (hook and execution models exist)
+**Requirements**: TRIG-01, TRIG-02, ACT-01, ACT-02, ACT-03
+**Success Criteria** (what must be TRUE):
+  1. When a task transitions to in_progress or completed, the system automatically enqueues ExecuteHookJob for each matching enabled hook on the assignee agent, ordered by position
+  2. trigger_agent hooks create a validation subtask assigned to the target agent and wake that agent via WakeAgentService with hook_triggered context
+  3. webhook hooks POST a JSON payload to the configured URL with custom headers and respect configured timeouts
+  4. Disabled hooks are skipped, and failed hook executions retry up to 3 times with polynomial backoff before recording a failure
+  5. Each hook execution is recorded as a HookExecution with status, payloads, timing, and an audit event for governance
+**Plans**: TBD
+
+Plans:
+- [ ] 19-01: Hookable concern with task status transition detection and hook enqueueing
+- [ ] 19-02: ExecuteHookService and ExecuteHookJob with trigger_agent and webhook dispatch
+
+### Phase 20: Validation Feedback Loop
+**Goal**: When a validation subtask completes, its results are automatically fed back to the original agent -- closing the loop so Agent A's work gets validated by Agent B and Agent A can iterate
+**Why this matters**: The feedback loop is what makes agent-to-agent validation useful rather than fire-and-forget. Without it, Agent B validates but Agent A never sees the results. This is the "iterative improvement" capability that lets users trust agent quality.
+**Depends on**: Phase 19 (validation subtasks are created by trigger_agent hooks)
+**Requirements**: TRIG-03, FEED-01, FEED-02, FEED-03
+**Success Criteria** (what must be TRUE):
+  1. When a validation subtask with a parent task completes, ProcessValidationResultJob is automatically enqueued
+  2. The service collects messages from the validation subtask and posts a feedback message on the parent task, so the original agent's conversation thread contains the validation results
+  3. The original agent is woken with review_validation context after feedback is posted, enabling it to read and act on the validation
+  4. Audit events are recorded for both hook_executed (from Phase 19) and validation_feedback_received, providing a complete governance trail for the entire hook-validate-feedback cycle
+**Plans**: TBD
+
+Plans:
+- [ ] 20-01: ProcessValidationResultService, ProcessValidationResultJob, feedback message posting, agent wake, and audit events
+
+### Phase 21: Hook Management UI
+**Goal**: Users can create, edit, and delete agent hooks through the web interface with proper company scoping
+**Why this matters**: Without a management UI, users would need console access to configure hooks. The CRUD controller lets any user set up validation workflows and webhook integrations from the agent page -- making hooks accessible to non-technical users.
+**Depends on**: Phase 18 (models), Phase 19 (hooks actually fire when configured)
+**Requirements**: UI-01, UI-02
+**Success Criteria** (what must be TRUE):
+  1. User can navigate to an agent's hooks page, create a new hook with lifecycle event and action configuration, and see it listed
+  2. User can edit an existing hook (change event, action type, enable/disable) and delete hooks they no longer need
+  3. Hooks are scoped to the owning company -- users cannot see or modify hooks belonging to agents in other companies
+**Plans**: TBD
+
+Plans:
+- [ ] 21-01: Routes, AgentHooksController CRUD, views, company scoping, and controller tests
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14 -> 15 -> 16 -> 17
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14 -> 15 -> 16 -> 17 -> 18 -> 19 -> 20 -> 21
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -252,3 +323,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 15. Role Auto-Assignment | v1.2 | 1/1 | Complete | 2026-03-28 |
 | 16. Skills CRUD | v1.2 | 2/2 | Complete | 2026-03-28 |
 | 17. Agent Skill Management | v1.2 | 2/2 | Complete | 2026-03-28 |
+| 18. Hook Data Foundation | v1.3 | 0/1 | Not started | - |
+| 19. Hook Triggering Engine | v1.3 | 0/2 | Not started | - |
+| 20. Validation Feedback Loop | v1.3 | 0/1 | Not started | - |
+| 21. Hook Management UI | v1.3 | 0/1 | Not started | - |
