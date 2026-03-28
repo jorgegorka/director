@@ -9,19 +9,19 @@ See: .ariadna_planning/PROJECT.md (updated 2026-03-26)
 
 ## Current Position
 
-Phase: 9 of 10 (Governance and Audit) — COMPLETE
-Plan: 4 of 4 complete (09-01, 09-02, 09-03, 09-04 done)
-Status: Phase 9 complete — audit log page with filters, config version history with rollback, 640 tests passing
-Last activity: 2026-03-27 -- 09-04 complete (2 tasks, 640 tests passing, 0 failures)
+Phase: 10 of 10 (Dashboard & Real-time UI) — IN PROGRESS
+Plan: 1 of 4 complete (10-01 done)
+Status: Plan 10-01 complete — Dashboard foundation with tabbed layout, Overview tab with stats/budget cards, Stimulus tabs controller, 647 tests passing
+Last activity: 2026-03-28 -- 10-01 complete (2 tasks, 647 tests passing, 0 failures)
 
-Progress: [████████░░] ~87%
+Progress: [█████████░] ~92%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 18
+- Total plans completed: 19
 - Average duration: ~8 minutes
-- Total execution time: ~145 minutes
+- Total execution time: ~157 minutes
 
 **By Phase:**
 
@@ -36,9 +36,10 @@ Progress: [████████░░] ~87%
 | 07-heartbeats-and-triggers | 3/3 | ~20 min | ~6.7 min |
 | 08-budget-cost-control | 4/4 | ~31 min | ~7.8 min |
 | 09-governance-audit | 4/4 | ~30 min | ~7.5 min |
+| 10-dashboard-real-time-ui | 1/4 | ~12 min | ~12 min |
 
 **Recent Trend:**
-- Last 5 plans: 08-04 (~11 min), 09-01 (~6 min), 09-02 (~3 min), 09-03 (~10 min), 09-04 (~11 min)
+- Last 5 plans: 09-01 (~6 min), 09-02 (~3 min), 09-03 (~10 min), 09-04 (~11 min), 10-01 (~12 min)
 - Trend: consistent, stable
 
 *Updated after each plan completion*
@@ -113,6 +114,8 @@ Recent decisions affecting current work:
 - [09-03]: sync_approval_gates uses ActionController::Parameters.new.permit! for all-unchecked case (empty permitted params with all-false gate checks)
 - [09-04]: AuditLogsController uses params[:action_filter] not params[:action] to avoid collision with Rails' own controller :action param
 - [09-04]: ConfigVersionsController find_versionable whitelist (Agent, Role only) prevents arbitrary model lookups; uses find_by (not find) so nil triggers graceful redirect instead of 404
+- [10-01]: `resource :dashboard` routes to `DashboardsController` (plural) by default — must add `controller: "dashboard"` to force singular controller; root route uses `dashboard#show` directly which is fine
+- [10-01]: tabs_controller.js uses `hidden` attribute (not CSS display:none) for panel toggling — semantically correct, accessible, consistent with existing dropdown_controller.js pattern
 - [09-04]: Plan CSS tokens (--text-secondary, --surface-secondary, --font-weight-medium, etc.) are planning placeholders — map to actual project tokens (--text-muted, --color-neutral-100, literal 500, etc.)
 
 ### Pending Todos
@@ -125,6 +128,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-27
-Stopped at: Phase 9, plan 09-04 complete — audit log UI and config version history UI (640 tests); Phase 9 fully complete
-Resume file: .ariadna_planning/phases/09-governance-audit/09-04-SUMMARY.md
+Last session: 2026-03-28
+Stopped at: Phase 10, plan 10-01 complete — Dashboard foundation (DashboardController, tabbed layout, Overview tab, Stimulus tabs controller, 647 tests)
+Resume file: .ariadna_planning/phases/10-dashboard-real-time-ui/10-01-SUMMARY.md
