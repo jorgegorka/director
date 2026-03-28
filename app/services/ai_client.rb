@@ -3,7 +3,6 @@ class AiClient
   MODEL = "claude-sonnet-4-20250514".freeze
   MAX_TOKENS = 1024
 
-  # Pricing per million tokens (Sonnet 4)
   INPUT_COST_PER_MILLION = 3.0
   OUTPUT_COST_PER_MILLION = 15.0
 
@@ -29,13 +28,13 @@ class AiClient
     }
 
     response = post_request(body)
-    parsed_body = JSON.parse(response.body)
 
     unless response.is_a?(Net::HTTPSuccess)
-      error_msg = parsed_body.dig("error", "message") || "API request failed with status #{response.code}"
+      error_msg = (JSON.parse(response.body).dig("error", "message") rescue nil) || "API request failed with status #{response.code}"
       raise ApiError, error_msg
     end
 
+    parsed_body = JSON.parse(response.body)
     text = parsed_body.dig("content", 0, "text")
     parsed_text = parse_json_response(text)
 

@@ -202,7 +202,7 @@
             <% end %>
           </ul>
 
-          <% if @eval_total && @eval_total > 0 %>
+          <% if @eval_total > 0 %>
             <h3 class="agent-detail__card-subtitle">Evaluation Summary</h3>
             <dl class="agent-detail__kv">
               <div class="agent-detail__kv-row">
@@ -211,7 +211,7 @@
               </div>
               <div class="agent-detail__kv-row">
                 <dt>Pass rate</dt>
-                <dd><%= (@eval_pass_count.to_f / @eval_total * 100).round %>%</dd>
+                <dd><%= eval_pass_rate(@eval_pass_count, @eval_total) %>%</dd>
               </div>
             </dl>
 

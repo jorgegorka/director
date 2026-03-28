@@ -10,9 +10,9 @@ class GoalsController < ApplicationController
   def show
     @children = @goal.children.ordered
     @tasks = @goal.tasks.includes(:assignee, :creator).by_priority
-    goal_ids = [ @goal.id ] + @goal.descendant_ids
-    @eval_total = GoalEvaluation.where(goal_id: goal_ids).count
-    @eval_pass_count = GoalEvaluation.where(goal_id: goal_ids).passed.count
+    evals = GoalEvaluation.where(goal_id: [ @goal.id ] + @goal.descendant_ids)
+    @eval_total = evals.count
+    @eval_pass_count = evals.passed.count
   end
 
   def new

@@ -38,12 +38,16 @@ class GoalEvaluationService
     @goal ||= task.goal
   end
 
+  def eval_count
+    @eval_count ||= task.goal_evaluations.count
+  end
+
   def attempt_number
-    @attempt_number ||= task.goal_evaluations.count + 1
+    eval_count + 1
   end
 
   def attempts_exhausted?
-    task.goal_evaluations.count >= GoalEvaluation::MAX_ATTEMPTS
+    eval_count >= GoalEvaluation::MAX_ATTEMPTS
   end
 
   def evaluate
@@ -73,7 +77,7 @@ class GoalEvaluationService
     parts << "Title: #{task.title}"
     parts << "Description: #{task.description}" if task.description.present?
 
-    work_output = task.messages.order(:created_at).pluck(:body)
+    work_output = task.messages.order(:created_at).limit(50).pluck(:body)
     if work_output.any?
       parts << ""
       parts << "## Work Output"
