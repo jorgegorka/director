@@ -27,6 +27,9 @@ Rails.application.routes.draw do
   resources :roles
   resource :org_chart, only: [ :show ]
 
+  # Skills (scoped to active company via Current.company)
+  resources :skills
+
   # Agents (scoped to active company via Current.company)
   resources :agents do
     resources :heartbeats, only: [ :index ]
