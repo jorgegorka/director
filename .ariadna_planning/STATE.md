@@ -5,23 +5,23 @@
 See: .ariadna_planning/PROJECT.md (updated 2026-03-26)
 
 **Core value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
-**Current focus:** Phase 10 in progress — dashboard foundation done (10-01), task board done (10-02), activity tab done (10-03); plan 10-04 (agent detail real-time) is next
+**Current focus:** Phase 10 in progress — dashboard foundation done (10-01), kanban task board done (10-02); plan 10-03 (activity tab) is next
 
 ## Current Position
 
 Phase: 10 of 10 (Dashboard & Real-time UI) — IN PROGRESS
-Plan: 3 of 4 complete (10-01, 10-02, 10-03 done)
-Status: Plan 10-03 complete — Activity tab with unified timeline, AuditEvent feed, agent filter, 661 tests passing
-Last activity: 2026-03-28 -- 10-03 complete (2 tasks, 661 tests passing, 0 failures)
+Plan: 2 of 4 complete (10-01, 10-02 done)
+Status: Plan 10-02 complete — Kanban task board with drag-and-drop, 5 status columns, Stimulus controller, 661 tests passing
+Last activity: 2026-03-28 -- 10-02 complete (2 tasks, 661 tests passing, 0 failures)
 
 Progress: [█████████░] ~92%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 21
+- Total plans completed: 20
 - Average duration: ~8 minutes
-- Total execution time: ~173 minutes
+- Total execution time: ~161 minutes
 
 **By Phase:**
 
@@ -36,10 +36,10 @@ Progress: [█████████░] ~92%
 | 07-heartbeats-and-triggers | 3/3 | ~20 min | ~6.7 min |
 | 08-budget-cost-control | 4/4 | ~31 min | ~7.8 min |
 | 09-governance-audit | 4/4 | ~30 min | ~7.5 min |
-| 10-dashboard-real-time-ui | 1/4 | ~12 min | ~12 min |
+| 10-dashboard-real-time-ui | 2/4 | ~16 min | ~8 min |
 
 **Recent Trend:**
-- Last 5 plans: 09-01 (~6 min), 09-02 (~3 min), 09-03 (~10 min), 09-04 (~11 min), 10-01 (~12 min)
+- Last 5 plans: 09-02 (~3 min), 09-03 (~10 min), 09-04 (~11 min), 10-01 (~12 min), 10-02 (~4 min)
 - Trend: consistent, stable
 
 *Updated after each plan completion*
@@ -117,8 +117,9 @@ Recent decisions affecting current work:
 - [10-01]: `resource :dashboard` routes to `DashboardsController` (plural) by default — must add `controller: "dashboard"` to force singular controller; root route uses `dashboard#show` directly which is fine
 - [10-01]: tabs_controller.js uses `hidden` attribute (not CSS display:none) for panel toggling — semantically correct, accessible, consistent with existing dropdown_controller.js pattern
 - [09-04]: Plan CSS tokens (--text-secondary, --surface-secondary, --font-weight-medium, etc.) are planning placeholders — map to actual project tokens (--text-muted, --color-neutral-100, literal 500, etc.)
-- [10-03]: data-tabs-active-tab-value uses params[:tab] || "overview" so agent filter form (which includes hidden tab=activity) preserves active tab on submit
-- [10-03]: @activity_events uses includes(:actor, :auditable) to avoid N+1 in timeline rendering of polymorphic associations
+- [10-02]: @all_tasks loaded once with includes(:assignee, :creator); in-memory grouping via @tasks_by_status avoids 5 separate status-filtered queries
+- [10-02]: kanban_controller.js auto-discovered by eagerLoadControllersFrom naming convention — no manual registration needed
+- [10-02]: PATCH on drop uses fetch with CSRF meta tag; page.reload() on failure to restore server-authoritative state
 
 ### Pending Todos
 
@@ -131,5 +132,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-28
-Stopped at: Phase 10, plan 10-03 complete — Activity tab (AuditEvent timeline, agent filter, 661 tests)
-Resume file: .ariadna_planning/phases/10-dashboard-real-time-ui/10-03-SUMMARY.md
+Stopped at: Phase 10, plan 10-02 complete — Kanban task board (drag-and-drop, 5 status columns, Stimulus controller, 661 tests)
+Resume file: .ariadna_planning/phases/10-dashboard-real-time-ui/10-02-SUMMARY.md
