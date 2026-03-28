@@ -5,14 +5,14 @@
 See: .ariadna_planning/PROJECT.md (updated 2026-03-28)
 
 **Core value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
-**Current focus:** v1.3 Agent Hooks -- Phase 20
+**Current focus:** v1.3 Agent Hooks -- Phase 21
 
 ## Current Position
 
-Phase: 20 - Validation Feedback Loop
-Plan: 01 COMPLETE
-Status: In Progress
-Last activity: 2026-03-28 -- Phase 20 Plan 01 complete (3/3 tasks, 852 tests, 0 failures)
+Phase: 21 - Hook Management UI
+Plan: --
+Status: Planning
+Last activity: 2026-03-28 -- Phase 20 complete (1/1 plans, verified 7/7)
 
 ## Performance Metrics
 
@@ -48,7 +48,7 @@ Last activity: 2026-03-28 -- Phase 20 Plan 01 complete (3/3 tasks, 852 tests, 0 
 
 **Recent Trend:**
 - Last 5 plans: 18-01 (~4 min), 19-01 (~3 min), 19-02 (~3 min), 20-01 (~3 min)
-- Trend: consistent, stable. v1.0 COMPLETE. v1.1 COMPLETE. v1.2 COMPLETE. v1.3 in progress (Phase 20 Plan 01 COMPLETE).
+- Trend: consistent, stable. v1.0 COMPLETE. v1.1 COMPLETE. v1.2 COMPLETE. v1.3 in progress (Phase 20 COMPLETE).
 
 *Updated after each plan completion*
 
@@ -202,6 +202,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-28
-Stopped at: Phase 20 Plan 01 complete -- Validation Feedback Loop (3/3 tasks, 852 tests, 0 failures)
-Resume file: .ariadna_planning/phases/20-validation-feedback-loop/20-01-SUMMARY.md
-Next step: Phase 21 (Hook Management UI)
+Stopped at: Phase 20 complete -- Validation Feedback Loop verified (7/7 must-haves, 852 tests)
+Resume file: .ariadna_planning/phases/20-validation-feedback-loop/20-VERIFICATION.md
+Next step: Plan Phase 21 (Hook Management UI)

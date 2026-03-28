@@ -280,10 +280,10 @@ Plans:
   2. The service collects messages from the validation subtask and posts a feedback message on the parent task, so the original agent's conversation thread contains the validation results
   3. The original agent is woken with review_validation context after feedback is posted, enabling it to read and act on the validation
   4. Audit events are recorded for both hook_executed (from Phase 19) and validation_feedback_received, providing a complete governance trail for the entire hook-validate-feedback cycle
-**Plans**: TBD
+**Plans**: 1/1 complete
 
 Plans:
-- [ ] 20-01: ProcessValidationResultService, ProcessValidationResultJob, feedback message posting, agent wake, and audit events
+- [x] 20-01: ProcessValidationResultService, ProcessValidationResultJob, feedback message posting, agent wake, and audit events
 
 ### Phase 21: Hook Management UI
 **Goal**: Users can create, edit, and delete agent hooks through the web interface with proper company scoping
@@ -325,5 +325,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 17. Agent Skill Management | v1.2 | 2/2 | Complete | 2026-03-28 |
 | 18. Hook Data Foundation | v1.3 | 1/1 | Complete | 2026-03-28 |
 | 19. Hook Triggering Engine | v1.3 | 2/2 | Complete | 2026-03-28 |
-| 20. Validation Feedback Loop | v1.3 | 0/1 | Not started | - |
+| 20. Validation Feedback Loop | v1.3 | 1/1 | Complete | 2026-03-28 |
 | 21. Hook Management UI | v1.3 | 0/1 | Not started | - |
