@@ -1,4 +1,5 @@
 require "test_helper"
+require "webmock/minitest"
 
 class ExecuteAgentJobTest < ActiveSupport::TestCase
   setup do
@@ -75,7 +76,7 @@ class ExecuteAgentJobTest < ActiveSupport::TestCase
     )
 
     job = ExecuteAgentJob.new
-    context = job.send(:build_context, run)
+    context = job.send(:build_context, @agent, run)
 
     assert_equal run.id, context[:run_id]
     assert_equal "task_assigned", context[:trigger_type]
@@ -98,7 +99,7 @@ class ExecuteAgentJobTest < ActiveSupport::TestCase
     )
 
     job = ExecuteAgentJob.new
-    context = job.send(:build_context, run)
+    context = job.send(:build_context, @agent, run)
 
     assert_equal "sess_prior_123", context[:resume_session_id]
   end
@@ -110,7 +111,7 @@ class ExecuteAgentJobTest < ActiveSupport::TestCase
     )
 
     job = ExecuteAgentJob.new
-    context = job.send(:build_context, run)
+    context = job.send(:build_context, agents(:http_agent), run)
 
     assert_nil context[:resume_session_id]
   end
@@ -129,5 +130,53 @@ class ExecuteAgentJobTest < ActiveSupport::TestCase
 
     ExecuteAgentJob.perform_now(run.id)
     assert_equal original_error, run.reload.error_message
+  end
+
+  # ---------------------------------------------------------------------------
+  # HTTP adapter end-to-end integration tests
+  # ---------------------------------------------------------------------------
+
+  test "executes HTTP agent run successfully through adapter" do
+    http_agent = agents(:http_agent)
+    stub_request(:post, "https://api.example.com/agent")
+      .to_return(status: 200, body: '{"status":"ok"}')
+    HttpAdapter.define_singleton_method(:backoff_sleep) { |_n| nil }
+
+    run = AgentRun.create!(
+      agent: http_agent, task: @task, company: @company,
+      status: :queued, trigger_type: "task_assigned"
+    )
+
+    ExecuteAgentJob.perform_now(run.id)
+    run.reload
+    http_agent.reload
+
+    assert run.completed?, "Run should be completed, got #{run.status}"
+    assert http_agent.idle?, "Agent should be idle, got #{http_agent.status}"
+    assert_equal 0, run.exit_code
+  ensure
+    HttpAdapter.singleton_class.remove_method(:backoff_sleep)
+  end
+
+  test "HTTP adapter 4xx marks run as failed" do
+    http_agent = agents(:http_agent)
+    stub_request(:post, "https://api.example.com/agent")
+      .to_return(status: 404, body: "Not Found")
+    HttpAdapter.define_singleton_method(:backoff_sleep) { |_n| nil }
+
+    run = AgentRun.create!(
+      agent: http_agent, task: @task, company: @company,
+      status: :queued, trigger_type: "task_assigned"
+    )
+
+    ExecuteAgentJob.perform_now(run.id)
+    run.reload
+    http_agent.reload
+
+    assert run.failed?, "Run should be failed, got #{run.status}"
+    assert_match(/404/, run.error_message)
+    assert http_agent.idle?, "Agent should return to idle, got #{http_agent.status}"
+  ensure
+    HttpAdapter.singleton_class.remove_method(:backoff_sleep)
   end
 end

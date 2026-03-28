@@ -40,6 +40,11 @@ class HttpAdapter < BaseAdapter
     }
   end
 
+  # Overridable hook for backoff sleep -- enables zero-sleep in tests.
+  def self.backoff_sleep(seconds)
+    sleep(seconds)
+  end
+
   private_class_method def self.build_payload(agent, context)
     {
       agent_id: agent.id,
@@ -68,8 +73,9 @@ class HttpAdapter < BaseAdapter
       http.read_timeout = [ config["timeout"].to_i, 120 ].min
     end
 
-    request = Net::HTTP::Post.new(uri.request_uri, "Content-Type" => "application/json")
-    request.merge!(config["headers"]) if config["headers"].present?
+    request = Net::HTTP::Post.new(uri.request_uri)
+    request["Content-Type"] = "application/json"
+    config["headers"]&.each { |k, v| request[k] = v }
     request["Authorization"] = "Bearer #{config["auth_token"]}" if config["auth_token"].present?
     request.body = payload.to_json
 
@@ -92,7 +98,7 @@ class HttpAdapter < BaseAdapter
         last_error = TransientError.new(e.message)
       end
 
-      sleep(BASE_BACKOFF * (2 ** attempt)) if attempt + 1 < MAX_RETRIES
+      backoff_sleep(BASE_BACKOFF * (2 ** attempt)) if attempt + 1 < MAX_RETRIES
     end
 
     raise last_error || TransientError.new("Delivery failed after #{MAX_RETRIES} attempts")
