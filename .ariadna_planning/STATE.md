@@ -5,14 +5,14 @@
 See: .ariadna_planning/PROJECT.md (updated 2026-03-28)
 
 **Core value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
-**Current focus:** v1.2 — Agent Skills
+**Current focus:** v1.2 -- Agent Skills (Phase 13: Skill Data Model)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-03-28 — Milestone v1.2 started
+Phase: 13 - Skill Data Model
+Plan: --
+Status: Not started
+Last activity: 2026-03-28 -- Roadmap created for v1.2 Agent Skills milestone
 
 ## Performance Metrics
 
@@ -40,7 +40,7 @@ Last activity: 2026-03-28 — Milestone v1.2 started
 
 **Recent Trend:**
 - Last 5 plans: 10-04 (~3 min), 11-01 (~8 min), 11-02 (~5 min), 12-01 (~15 min)
-- Trend: consistent, stable. v1.0 COMPLETE. v1.1 COMPLETE (Phase 11: SQLite migration, Phase 12: cleanup & verification).
+- Trend: consistent, stable. v1.0 COMPLETE. v1.1 COMPLETE.
 
 *Updated after each plan completion*
 
@@ -56,6 +56,10 @@ Recent decisions affecting current work:
 - [v1.1-Roadmap]: 2 phases (11-12) derived from 8 requirements across 2 categories -- DB migration then cleanup
 - [v1.1-Roadmap]: Phase 11 covers all 5 DB-* requirements as one coherent deliverable (gem swap + config + column migration + deploy)
 - [v1.1-Roadmap]: Phase 12 covers all 3 CLN-* requirements (docs + dead code + test verification) -- depends on Phase 11
+- [v1.2-Roadmap]: 5 phases (13-17) derived from 22 requirements across 6 categories -- data model, seeding, auto-assignment, CRUD, agent management
+- [v1.2-Roadmap]: Phase 13 (data model) is foundation -- all other phases depend on it
+- [v1.2-Roadmap]: Phase 14 (seeding) before Phase 15 (auto-assignment) because auto-assignment needs skills to exist in the company
+- [v1.2-Roadmap]: Phase 16 (skills CRUD) and Phase 17 (agent skill management) are the UI layer -- depend on data model but could theoretically parallelize; sequenced for simplicity
 - [01-01]: Rails 8 built-in authentication generator used (has_secure_password, Session model, Authentication concern)
 - [01-01]: `email_address` field name (not `email`) -- Rails 8 auth generator convention, keep throughout
 - [01-01]: PostgreSQL for primary database; sqlite3 retained for Solid Queue/Cache/Cable secondary connections
@@ -147,6 +151,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-28
-Stopped at: v1.1 milestone complete and archived
-Resume file: .ariadna_planning/MILESTONES.md
-Next step: /ariadna:new-milestone to start next version
+Stopped at: v1.2 roadmap created, ready to plan Phase 13
+Resume file: .ariadna_planning/ROADMAP.md
+Next step: /ariadna:plan-phase 13
