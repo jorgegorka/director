@@ -2,6 +2,7 @@ class Task < ApplicationRecord
   include Tenantable
   include Auditable
   include Triggerable
+  include Hookable
 
   belongs_to :creator, class_name: "User", optional: true
   belongs_to :assignee, class_name: "Agent", optional: true
@@ -29,6 +30,7 @@ class Task < ApplicationRecord
   after_commit :trigger_assignment_wake, on: [ :create, :update ], if: :agent_just_assigned?
   after_commit :broadcast_kanban_update, on: [ :create, :update ]
   after_commit :broadcast_kanban_remove, on: :destroy
+  after_commit :enqueue_hooks_for_transition, on: [ :create, :update ]
 
   def cost_in_dollars
     return nil unless cost_cents

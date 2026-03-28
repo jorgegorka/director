@@ -32,3 +32,15 @@ disabled_hook:
     target_agent_id: 1
   enabled: false
   position: 0
+
+claude_start_validation_hook:
+  agent: claude_agent
+  company: acme
+  lifecycle_event: after_task_start
+  action_type: 0  # trigger_agent
+  action_config:
+    target_agent_id: 1
+    prompt: "Review the task requirements before work begins."
+  enabled: true
+  position: 1
+  name: Start Validation
