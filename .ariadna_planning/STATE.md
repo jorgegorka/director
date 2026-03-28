@@ -10,9 +10,9 @@ See: .ariadna_planning/PROJECT.md (updated 2026-03-28)
 ## Current Position
 
 Phase: 14 - Skill Catalog & Seeding
-Plan: --
-Status: Not started
-Last activity: 2026-03-28 -- Phase 13 complete: skills/agent_skills data model replaces agent_capabilities
+Plan: 01 complete
+Status: In progress (Plan 01 done, Plan 02 pending)
+Last activity: 2026-03-28 -- Plan 14-01 complete: 50 skill YAML files + config/default_skills.yml created
 
 ## Performance Metrics
 
@@ -38,6 +38,7 @@ Last activity: 2026-03-28 -- Phase 13 complete: skills/agent_skills data model r
 | 11-sqlite-migration | 2/2 | ~13 min | ~6.5 min |
 | 12-cleanup-verification | 1/1 | ~15 min | ~15 min |
 | 13-skill-data-model | 2/2 | ~11 min | ~5.5 min |
+| 14-skill-catalog-seeding | 1/? | ~10 min | ~10 min |
 
 **Recent Trend:**
 - Last 5 plans: 10-04 (~3 min), 11-01 (~8 min), 11-02 (~5 min), 12-01 (~15 min)
@@ -144,6 +145,9 @@ Recent decisions affecting current work:
 - [13-01]: Skill uniqueness: unique index on [company_id, key] enforced at DB + model level; two companies can share a key, one company cannot duplicate it
 - [13-02]: Skills section in agent show view is read-only (no add/remove UI) -- Phase 17 adds agent skill management UI; this plan only wires associations and updates display
 - [13-02]: Company has_many :skills was already in place from Plan 01 Rule 3 auto-fix; no changes needed to company.rb in this plan
+- [14-01]: 50 unique skill keys extracted from role mapping table (spec text says "44" but the actual table yields 50 distinct keys); authoritative count is 50
+- [14-01]: general role maps to 4 skills (task_execution, communication, documentation, problem_solving) exactly as specified in design spec table
+- [14-01]: task_execution, communication, problem_solving assigned to operations category per plan's explicit category assignment list
 
 ### Pending Todos
 
@@ -156,6 +160,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-28
-Stopped at: Phase 13 complete, verified (12/12 must-haves passed)
-Resume file: .ariadna_planning/ROADMAP.md
-Next step: /ariadna:plan-phase 14
+Stopped at: Phase 14 Plan 01 complete -- skill catalog YAML files and default_skills.yml config created
+Resume file: .ariadna_planning/phases/14-skill-catalog-seeding/14-01-SUMMARY.md
+Next step: Execute Plan 14-02 (seeding logic: Company#seed_default_skills!, rake task)
