@@ -9,19 +9,19 @@ See: .ariadna_planning/PROJECT.md (updated 2026-03-28)
 
 ## Current Position
 
-Phase: 24 of 25 (Claude Local Adapter with tmux) -- COMPLETE
+Phase: 25 of 25 (Live Streaming UI and Result Callbacks) -- COMPLETE
 Plan: 1 of 1 in current phase -- COMPLETE
-Status: Phase 24 done, move to Phase 25 (Streaming UI + Callbacks)
-Last activity: 2026-03-28 -- Phase 24 Plan 01 complete (ClaudeLocalAdapter.execute with tmux, stream-JSON parsing, 19-test suite)
+Status: Phase 25 Plan 01 done -- all 25 phases complete, v1.4 Agent Execution COMPLETE
+Last activity: 2026-03-28 -- Phase 25 Plan 01 complete (AgentRun#broadcast_line!, AgentRunsController, live streaming views, 1094 tests passing)
 
-Progress: [█████████████████████████░] 96% (24/25 phases complete)
+Progress: [██████████████████████████] 100% (25/25 phases complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 43
+- Total plans completed: 44
 - Average duration: ~7 minutes
-- Total execution time: ~239 minutes
+- Total execution time: ~257 minutes
 
 **By Phase:**
 
@@ -51,10 +51,11 @@ Progress: [███████████████████████
 | 22-agentrun-data-model-and-job-dispatch | 1/1 | ~4 min | ~4 min |
 | 23-http-adapter-real-execution | 1/1 | ~6 min | ~6 min |
 | 24-claude-local-adapter-with-tmux | 1/1 | ~11 min | ~11 min |
+| 25-live-streaming-ui-and-result-callbacks | 1/1 | ~18 min | ~18 min |
 
 **Recent Trend:**
-- Last 5 plans: 21-01 (~4 min), 22-01 (~4 min), 23-01 (~6 min), 24-01 (~11 min)
-- Trend: consistent, stable. v1.0 COMPLETE. v1.1 COMPLETE. v1.2 COMPLETE. v1.3 COMPLETE. v1.4 in progress.
+- Last 5 plans: 21-01 (~4 min), 22-01 (~4 min), 23-01 (~6 min), 24-01 (~11 min), 25-01 (~18 min)
+- Trend: consistent, stable. v1.0 COMPLETE. v1.1 COMPLETE. v1.2 COMPLETE. v1.3 COMPLETE. v1.4 COMPLETE.
 
 *Updated after each plan completion*
 
@@ -81,6 +82,7 @@ Recent decisions affecting current work:
 - [24-01]: private_class_method on def self.method is not compatible with define_singleton_method test isolation -- both share the same singleton class slot, so remove_method permanently destroys the method. Hookable shell-out methods (spawn_session, session_exists?, capture_pane, kill_session, env_prefix) must be public class methods for test isolation to work correctly
 - [24-01]: define_singleton_method blocks run with self = the class, not the test instance -- use local variable closures (spawn_calls = @spawn_calls = []) to share state between define_singleton_method blocks and test assertions
 - [24-01]: ExecuteAgentJob loads a fresh AR object via agent_run.agent, so singleton method stubs on test @agent instances do not apply -- use real DB state to trigger budget exhaustion
+- [25-01]: assert_raises(ActiveRecord::RecordNotFound) does not work in Rails integration tests -- Rails catches the exception and converts to 404 response; use assert_response :not_found instead (established pattern in agents_controller_test.rb)
 
 ### Pending Todos
 
@@ -95,6 +97,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-28
-Stopped at: Phase 24 complete -- ClaudeLocalAdapter.execute with tmux session lifecycle, stream-JSON polling, budget gate, session ID and cost extraction. 991 tests passing.
+Stopped at: Phase 25 complete -- AgentRun#broadcast_line! for live streaming, AgentRunsController with index/show views, turbo_stream_from subscription, ClaudeLocalAdapter updated to broadcast_line!, agent show page Recent Runs section. 1094 tests passing. ALL 25 PHASES COMPLETE.
 Resume file: --
-Next step: `/ariadna:plan-phase 25` (Streaming UI + Callbacks)
+Next step: v1.4 complete. Consider v1.5 planning or production deployment review.
