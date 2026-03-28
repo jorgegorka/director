@@ -1,0 +1,20 @@
+<% agent_skill = agent_skills_by_skill_id[skill.id] %>
+<div class="skill-manager__item">
+  <% if agent_skill %>
+    <%= button_to agent_agent_skill_path(agent, agent_skill),
+          method: :delete,
+          class: "skill-manager__toggle skill-manager__toggle--assigned",
+          title: "Remove #{skill.name}" do %>
+      <span class="skill-manager__checkbox">&#10003;</span>
+      <span class="skill-manager__name"><%= skill.name %></span>
+    <% end %>
+  <% else %>
+    <%= button_to agent_agent_skills_path(agent),
+          params: { skill_id: skill.id },
+          class: "skill-manager__toggle",
+          title: "Assign #{skill.name}" do %>
+      <span class="skill-manager__checkbox"></span>
+      <span class="skill-manager__name"><%= skill.name %></span>
+    <% end %>
+  <% end %>
+</div>

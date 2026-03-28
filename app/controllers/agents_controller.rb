@@ -9,7 +9,7 @@ class AgentsController < ApplicationController
   def show
     @recent_heartbeats = @agent.heartbeat_events.reverse_chronological.limit(5)
     @company_skills = Current.company.skills.order(:category, :name)
-    @assigned_skill_ids = @agent.skill_ids.to_set
+    @agent_skills_by_skill_id = @agent.agent_skills.index_by(&:skill_id)
   end
 
   def new
@@ -122,7 +122,7 @@ class AgentsController < ApplicationController
   private
 
   def set_agent
-    @agent = Current.company.agents.includes(:skills, :roles, :approval_gates).find(params[:id])
+    @agent = Current.company.agents.includes(:skills, :roles, :approval_gates, :agent_skills).find(params[:id])
   end
 
   def sync_approval_gates
