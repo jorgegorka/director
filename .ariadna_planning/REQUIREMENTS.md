@@ -32,9 +32,9 @@ Requirements for SQLite migration and cleanup. Each maps to roadmap phases.
 
 ### Cleanup
 
-- [ ] **CLN-01**: CLAUDE.md and project docs updated to reflect SQLite stack -- *docs match reality*
-- [ ] **CLN-02**: Unused code, dead helpers, and leftover scaffolding removed -- *reduce maintenance surface*
-- [ ] **CLN-03**: All existing tests pass after migration -- *no regressions*
+- [x] **CLN-01**: CLAUDE.md and project docs updated to reflect SQLite stack -- *docs match reality*
+- [x] **CLN-02**: Unused code, dead helpers, and leftover scaffolding removed -- *reduce maintenance surface*
+- [x] **CLN-03**: All existing tests pass after migration -- *no regressions*
 
 ## v2 Requirements
 
@@ -92,9 +92,9 @@ All 38 requirements mapped to phases 1-10. Complete.
 | DB-03 | 11 - SQLite Migration | Complete |
 | DB-04 | 11 - SQLite Migration | Complete |
 | DB-05 | 11 - SQLite Migration | Complete |
-| CLN-01 | 12 - Cleanup & Verification | Pending |
-| CLN-02 | 12 - Cleanup & Verification | Pending |
-| CLN-03 | 12 - Cleanup & Verification | Pending |
+| CLN-01 | 12 - Cleanup & Verification | Complete |
+| CLN-02 | 12 - Cleanup & Verification | Complete |
+| CLN-03 | 12 - Cleanup & Verification | Complete |
 
 **Coverage:**
 - v1.1 requirements: 8 total

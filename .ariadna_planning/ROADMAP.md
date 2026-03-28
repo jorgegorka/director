@@ -209,7 +209,7 @@ Plans:
 **Milestone Goal:** Replace PostgreSQL with SQLite for the primary database, unifying all databases on a single engine. Clean up v1.0 tech debt so the codebase is lean and docs match reality.
 
 - [x] **Phase 11: SQLite Migration** - Primary database switches from PostgreSQL to SQLite
-- [ ] **Phase 12: Cleanup & Verification** - Docs, dead code, and test suite aligned with the new stack
+- [x] **Phase 12: Cleanup & Verification** - Docs, dead code, and test suite aligned with the new stack
 
 ## Phase Details
 
@@ -238,10 +238,10 @@ Plans:
   1. CLAUDE.md, PROJECT.md, and all planning docs reference SQLite as the primary database -- no stale PostgreSQL mentions remain in project guidance
   2. Running a dead code audit finds no unused helpers, orphaned partials, or leftover scaffolding from v1.0 development
   3. The full CI suite (`bin/ci` -- rubocop, brakeman, bundler-audit, and all tests) passes green with no warnings related to the database migration
-**Plans**: TBD
+**Plans**: 1/1 complete
 
 Plans:
-- [ ] 12-01: TBD
+- [x] 12-01: Documentation SQLite update, dead code removal, CI verification
 
 ## Progress
 
@@ -261,4 +261,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 9. Governance & Audit | v1.0 | 4/4 | Complete | 2026-03-27 |
 | 10. Dashboard & Real-time UI | v1.0 | 4/4 | Complete | 2026-03-28 |
 | 11. SQLite Migration | v1.1 | 2/2 | Complete | 2026-03-28 |
-| 12. Cleanup & Verification | v1.1 | 0/1 | Not started | - |
+| 12. Cleanup & Verification | v1.1 | 1/1 | Complete | 2026-03-28 |

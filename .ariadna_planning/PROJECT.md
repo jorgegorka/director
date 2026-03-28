@@ -41,7 +41,7 @@ Users can organize AI agents into a functioning company structure and confidentl
 <!-- v1.1: SQLite Migration & Cleanup -->
 
 - [x] Migrate primary database to SQLite
-- [ ] Clean up v1.0 tech debt and rough edges
+- [x] Clean up v1.0 tech debt and rough edges
 
 ### Out of Scope
 
