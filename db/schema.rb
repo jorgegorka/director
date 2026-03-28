@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_28_223017) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_28_223055) do
   create_table "agent_documents", force: :cascade do |t|
     t.integer "agent_id", null: false
     t.datetime "created_at", null: false
@@ -181,6 +181,24 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_28_223017) do
     t.index ["author_type", "author_id"], name: "index_documents_on_author_type_and_author_id"
     t.index ["company_id"], name: "index_documents_on_company_id"
     t.index ["last_editor_type", "last_editor_id"], name: "index_documents_on_last_editor_type_and_last_editor_id"
+  end
+
+  create_table "goal_evaluations", force: :cascade do |t|
+    t.integer "agent_id", null: false
+    t.integer "attempt_number", null: false
+    t.integer "company_id", null: false
+    t.integer "cost_cents"
+    t.datetime "created_at", null: false
+    t.text "feedback", null: false
+    t.integer "goal_id", null: false
+    t.integer "result", null: false
+    t.integer "task_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["agent_id"], name: "index_goal_evaluations_on_agent_id"
+    t.index ["company_id"], name: "index_goal_evaluations_on_company_id"
+    t.index ["goal_id"], name: "index_goal_evaluations_on_goal_id"
+    t.index ["task_id", "attempt_number"], name: "index_goal_evaluations_on_task_id_and_attempt_number", unique: true
+    t.index ["task_id"], name: "index_goal_evaluations_on_task_id"
   end
 
   create_table "goals", force: :cascade do |t|
@@ -400,6 +418,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_28_223017) do
   add_foreign_key "document_taggings", "documents"
   add_foreign_key "document_tags", "companies"
   add_foreign_key "documents", "companies"
+  add_foreign_key "goal_evaluations", "agents"
+  add_foreign_key "goal_evaluations", "companies"
+  add_foreign_key "goal_evaluations", "goals"
+  add_foreign_key "goal_evaluations", "tasks"
   add_foreign_key "goals", "companies"
   add_foreign_key "goals", "goals", column: "parent_id"
   add_foreign_key "heartbeat_events", "agents"
