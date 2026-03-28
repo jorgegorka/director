@@ -5,21 +5,21 @@
 See: .ariadna_planning/PROJECT.md (updated 2026-03-28)
 
 **Core value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
-**Current focus:** v1.2 -- Agent Skills (COMPLETE)
+**Current focus:** Planning next milestone
 
 ## Current Position
 
-Phase: 17 - Agent Skill Management
-Plan: 02
-Status: Plan 02 complete — Phase 17 COMPLETE
-Last activity: 2026-03-28 -- Phase 17-02 complete: controller tests for AgentSkillsController + skill UI tests in AgentsControllerTest, 742 tests pass
+Phase: --
+Plan: --
+Status: v1.2 milestone complete, archived
+Last activity: 2026-03-28 -- v1.2 Agent Skills milestone shipped (5 phases, 9 plans, 22 requirements, 742 tests)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 32
-- Average duration: ~8 minutes
-- Total execution time: ~175 minutes
+- Total plans completed: 38
+- Average duration: ~7 minutes
+- Total execution time: ~220 minutes
 
 **By Phase:**
 
@@ -44,8 +44,8 @@ Last activity: 2026-03-28 -- Phase 17-02 complete: controller tests for AgentSki
 | 17-agent-skill-management | 2/2 | ~7 min | ~3.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 16-01 (~8 min), 16-02 (~5 min), 17-01 (~2 min), 17-02 (~5 min)
-- Trend: consistent, stable. v1.0 COMPLETE. v1.1 COMPLETE. v1.2 COMPLETE (Phase 17 done).
+- Last 5 plans: 16-01 (~8 min), 16-02 (~5 min), 17-01 (~4 min), 17-02 (~3 min)
+- Trend: consistent, stable. v1.0 COMPLETE. v1.1 COMPLETE. v1.2 COMPLETE. All milestones shipped.
 
 *Updated after each plan completion*
 
@@ -175,6 +175,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-28
-Stopped at: Phase 17 plan 02 complete (AgentSkillsController + AgentsController skill UI tests), 742 tests pass
-Resume file: .ariadna_planning/phases/17-agent-skill-management/17-02-SUMMARY.md
-Next step: v1.2 is complete. Determine next roadmap phase.
+Stopped at: v1.2 milestone archived
+Resume file: .ariadna_planning/MILESTONES.md
+Next step: /ariadna:new-milestone

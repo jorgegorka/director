@@ -24,8 +24,6 @@ Users can organize AI agents into a functioning company structure and confidentl
 
 ### Validated
 
-<!-- Shipped in v1.0 and confirmed valuable. -->
-
 - Multi-tenant account system with isolated companies — v1.0
 - Org chart management with roles, hierarchy, and agent assignment — v1.0
 - BYOA (Bring Your Own Agent) — connect any agent via HTTP or bash — v1.0
@@ -37,19 +35,16 @@ Users can organize AI agents into a functioning company structure and confidentl
 - Goal alignment — tasks trace back to company mission — v1.0
 - SQLite as sole database engine (primary + queue + cache + cable) — v1.1
 - Clean codebase: dead scaffolding removed, docs reflect SQLite stack — v1.1
+- Company-level skill library with 50 builtin skills across 5 categories — v1.2
+- Agent skill assignments replacing agent_capabilities — v1.2
+- Role-based auto-assignment on first agent assignment — v1.2
+- Skills CRUD with category filtering and builtin protection — v1.2
+- Per-agent skill management UI with checkbox assignment — v1.2
+- Company seeding on creation + rake task for existing companies — v1.2
 
 ### Active
 
-#### Current Milestone: v1.2 — Agent Skills
-
-**Goal:** Add a company-level skill library with rich markdown instruction packages, role-based auto-assignment, and full CRUD — replacing agent_capabilities.
-
-**Target features:**
-- Company-level skill library (44 builtin skills across 11 roles)
-- Agent skill assignments replacing agent_capabilities
-- Role-based auto-assignment on first agent assignment
-- Skills CRUD with category filtering
-- Company seeding on creation + rake task for existing companies
+(No active milestone — planning next)
 
 ### Out of Scope
 
@@ -93,12 +88,12 @@ Users can organize AI agents into a functioning company structure and confidentl
 
 ## Current State
 
-**Shipped:** v1.0 (Core Platform) + v1.1 (SQLite Migration & Cleanup)
-**Codebase:** ~10,193 LOC Ruby, 668 tests, 12 phases, 32 plans
+**Shipped:** v1.0 (Core Platform) + v1.1 (SQLite Migration & Cleanup) + v1.2 (Agent Skills)
+**Codebase:** ~17,900 LOC (Ruby/ERB/CSS/JS), 742 tests, 17 phases, 38 plans
 **Stack:** Rails 8, SQLite (all databases), Hotwire, modern CSS, Solid Queue/Cache/Cable
-**Status:** Fully functional platform — auth, multi-tenancy, org charts, agents, tasks, goals, heartbeats, budgets, governance, dashboard with real-time updates. Zero external database dependencies.
+**Status:** Fully functional platform — auth, multi-tenancy, org charts, agents with skill management, tasks, goals, heartbeats, budgets, governance, dashboard with real-time updates. 50 builtin skills across 5 categories with role-based auto-assignment.
 
-**Known tech debt:** None significant — v1.1 cleanup addressed scaffolding leftovers and stale docs.
+**Known tech debt:** None significant.
 
 ---
-*Last updated: 2026-03-28 after v1.2 milestone started*
+*Last updated: 2026-03-28 after v1.2 milestone complete*

@@ -215,95 +215,18 @@ Full details: [v1.1-ROADMAP.md](milestones/v1.1-ROADMAP.md)
 
 </details>
 
-### v1.2 Agent Skills (Complete)
-
-**Milestone Goal:** Add a company-level skill library with rich markdown instruction packages, role-based auto-assignment, and full CRUD -- replacing the existing agent_capabilities system.
+<details>
+<summary>v1.2 Agent Skills (Phases 13-17) - SHIPPED 2026-03-28</summary>
 
 - [x] **Phase 13: Skill Data Model** - Skills and agent_skills tables replace agent_capabilities with tenant-scoped validations
 - [x] **Phase 14: Skill Catalog & Seeding** - 50 builtin skill YAML files with company seeding on creation and backfill rake task
 - [x] **Phase 15: Role Auto-Assignment** - First agent assignment to a role automatically attaches role-appropriate skills
-- [ ] **Phase 16: Skills CRUD** - Company skill library management with category filtering and builtin protection
+- [x] **Phase 16: Skills CRUD** - Company skill library management with category filtering and builtin protection
 - [x] **Phase 17: Agent Skill Management** - Per-agent skill assignment UI replacing capabilities throughout the application
 
-#### Phase 13: Skill Data Model
-**Goal**: Create the skills and agent_skills tables, models with validations, and replace agent_capabilities associations on Agent
-**Why this matters**: Skills are how agents know what they can do -- rich instruction packages instead of bare labels. This foundation replaces the placeholder capability system with a real skill library that agents can draw from when performing work.
-**Depends on**: Phase 4 (Agent model), Phase 2 (Company/tenancy)
-**Requirements**: DATA-01, DATA-02, DATA-03, DATA-04, DATA-05, DATA-06
-**Success Criteria** (what must be TRUE):
-  1. Skill records can be created for a company with key, name, description, markdown content, category, and builtin flag
-  2. Agent can be linked to skills through agent_skills join records, and the association is queryable (agent.skills returns Skill records)
-  3. Key uniqueness is enforced per company -- two companies can have the same skill key, but one company cannot have duplicates
-  4. Agent skill assignments are validated to prevent cross-company links (agent and skill must belong to the same company)
-  5. The agent_capabilities table and AgentCapability model no longer exist
-**Plans**: 2/2 complete
+Full details: [v1.2-ROADMAP.md](milestones/v1.2-ROADMAP.md)
 
-Plans:
-- [x] 13-01: Skills and AgentSkills tables, models, validations, scopes, fixtures, tests
-- [x] 13-02: Drop agent_capabilities, wire skill associations, update views/routes/tests
-
-#### Phase 14: Skill Catalog & Seeding
-**Goal**: Create 44 builtin skill YAML files with meaningful markdown instruction content, a role-to-skills mapping config, and seeding logic for new and existing companies
-**Why this matters**: A pre-built catalog of 44 curated skills is what makes Director immediately useful -- new companies start with a full skill library instead of building from scratch, and existing companies can backfill with a single command.
-**Depends on**: Phase 13 (Skill model and table)
-**Requirements**: SEED-01, SEED-02, SEED-03, SEED-04
-**Success Criteria** (what must be TRUE):
-  1. 44 individual YAML files exist in db/seeds/skills/, each containing key, name, description, category, and multi-paragraph markdown instructions
-  2. config/default_skills.yml maps 11 role titles to arrays of skill keys, covering all 44 skills
-  3. When a new company is created, all 44 builtin skills are automatically seeded into that company's skill library
-  4. Running `bin/rails skills:reseed` creates all missing builtin skills for every existing company without duplicating or overwriting already-present skills
-**Plans**: 2/2 complete
-
-Plans:
-- [x] 14-01: Skill YAML catalog (50 files in db/seeds/skills/) and config/default_skills.yml role mapping
-- [x] 14-02: Company#seed_default_skills! method, after_create callback, skills:reseed rake task, tests
-
-#### Phase 15: Role Auto-Assignment
-**Goal**: When an agent is first assigned to a role, the system automatically attaches that role's default skills to the agent
-**Why this matters**: Auto-assignment removes a tedious manual step -- when a user assigns an agent to a CTO role, the agent immediately gains code review, architecture planning, and technical strategy skills without the user having to configure each one.
-**Depends on**: Phase 13 (AgentSkill model), Phase 14 (seeded skills and default_skills.yml mapping)
-**Requirements**: AUTO-01, AUTO-02, AUTO-03
-**Success Criteria** (what must be TRUE):
-  1. Assigning an agent to a role for the first time (role had no agent before) automatically creates agent_skill records for that role's default skills
-  2. Reassigning a role from one agent to another does not trigger auto-assignment on the new agent
-  3. If a role title is not in the defaults mapping, or a mapped skill key does not exist in the company, the system proceeds silently without errors
-**Plans**: 1/1 complete
-
-Plans:
-- [x] 15-01: Role after_save callback, first_agent_assignment? guard, default skill auto-creation, tests
-
-#### Phase 16: Skills CRUD
-**Goal**: Full controller and views for managing the company's skill library with category filtering and builtin protection
-**Why this matters**: Companies need to browse, customize, and extend their skill catalog -- editing builtin skill instructions to match their specific workflows, and creating entirely new custom skills for capabilities unique to their operation.
-**Depends on**: Phase 13 (Skill model)
-**Requirements**: CRUD-01, CRUD-02, CRUD-03, CRUD-04, ROUT-01
-**Success Criteria** (what must be TRUE):
-  1. User can browse all skills in the company library, with the list filterable by category (leadership, technical, creative, operations, research)
-  2. User can view a skill's full markdown content and see which agents have that skill assigned
-  3. User can edit any skill (including builtin skills) to customize the instruction content for their company
-  4. User can create new custom skills (marked builtin: false) and destroy custom skills, but cannot destroy builtin skills
-  5. Skill routes are active and capability routes are removed from the application
-**Plans**: 2/2 complete
-
-Plans:
-- [x] 16-01: Skills controller CRUD, routes, views with category filtering and builtin protection
-- [x] 16-02: Comprehensive controller tests (35 tests) covering all actions, filtering, isolation, auth
-
-#### Phase 17: Agent Skill Management
-**Goal**: Per-agent skill assignment and removal UI, with agent views updated to show skills instead of capabilities
-**Why this matters**: This is the hands-on interface where users fine-tune which skills each agent has -- adding specialized skills beyond the auto-assigned defaults, or removing skills that do not apply to a particular agent's work.
-**Depends on**: Phase 13 (AgentSkill model), Phase 16 (skill routes and views)
-**Requirements**: ASKL-01, ASKL-02, ASKL-03, ROUT-02
-**Success Criteria** (what must be TRUE):
-  1. User can assign a skill from the company library to an agent, and remove a skill from an agent, via the agent's page
-  2. Agent show page displays the agent's assigned skills (with names and categories) instead of the old capabilities list
-  3. Agent card/partial throughout the application shows skills instead of capabilities
-  4. Nested agent skill routes (create/destroy) are active and RESTful
-**Plans**: 2/2 complete
-
-Plans:
-- [x] 17-01: AgentSkillsController with nested routes, checkbox UI, skill tags on agent cards
-- [x] 17-02: Controller tests for agent skills CRUD, isolation, auth, and UI assertions (16 tests)
+</details>
 
 ## Progress
 
