@@ -4,6 +4,8 @@ class Goal < ApplicationRecord
 
   has_many :children, class_name: "Goal", foreign_key: :parent_id, inverse_of: :parent, dependent: :destroy
   has_many :tasks, dependent: :nullify
+  has_many :agents, dependent: :nullify
+  has_many :goal_evaluations, dependent: :destroy
 
   validates :title, presence: true,
                     uniqueness: { scope: [ :company_id, :parent_id ], message: "already exists under this parent" }

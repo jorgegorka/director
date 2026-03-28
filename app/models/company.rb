@@ -11,6 +11,7 @@ class Company < ApplicationRecord
   has_many :config_versions, dependent: :destroy
   has_many :documents, dependent: :destroy
   has_many :document_tags, dependent: :destroy
+  has_many :goal_evaluations, dependent: :destroy
   has_many :audit_events, dependent: :delete_all
 
   after_create :seed_default_skills!

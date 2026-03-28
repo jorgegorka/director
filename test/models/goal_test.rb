@@ -184,13 +184,13 @@ class GoalTest < ActiveSupport::TestCase
   end
 
   test "progress rolls up through children" do
-    # acme_objective_one: 2 direct tasks (0 completed) + sub_objective 2 tasks (1 completed) = 1/4 = 0.25
-    assert_equal 0.25, @objective_one.progress
+    # acme_objective_one: 3 direct tasks (1 completed) + sub_objective 2 tasks (1 completed) = 2/5 = 0.4
+    assert_equal 0.4, @objective_one.progress
   end
 
   test "progress of mission rolls up entire tree" do
-    # acme_mission subtree: 4 goal-linked tasks, 1 completed = 0.25
-    assert_equal 0.25, @mission.progress
+    # acme_mission subtree: 5 goal-linked tasks, 2 completed = 0.4
+    assert_equal 0.4, @mission.progress
   end
 
   test "progress_percentage returns integer 0-100" do
@@ -198,7 +198,7 @@ class GoalTest < ActiveSupport::TestCase
   end
 
   test "progress_percentage rounds correctly" do
-    assert_equal 25, @objective_one.progress_percentage
+    assert_equal 40, @objective_one.progress_percentage
   end
 
   # --- Task-Goal association ---

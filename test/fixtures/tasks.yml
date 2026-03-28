@@ -50,6 +50,18 @@ subtask_one:
   status: 0  # open
   priority: 1  # medium
 
+eval_ready_task:
+  title: Implement search feature
+  description: "Add full-text search to the product catalog"
+  company: acme
+  creator: one
+  assignee: claude_agent
+  status: 3  # completed
+  priority: 1  # medium
+  goal: acme_objective_one
+  cost_cents: 1000
+  completed_at: <%= 1.hour.ago.to_fs(:db) %>
+
 widgets_task:
   title: Update widget catalog
   description: "Refresh the product catalog with new widgets"

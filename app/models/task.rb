@@ -13,6 +13,7 @@ class Task < ApplicationRecord
   has_many :messages, dependent: :destroy
   has_many :hook_executions, dependent: :destroy
   has_many :agent_runs, dependent: :nullify
+  has_many :goal_evaluations, dependent: :destroy
 
   has_many :task_documents, dependent: :destroy, inverse_of: :task
   has_many :documents, through: :task_documents

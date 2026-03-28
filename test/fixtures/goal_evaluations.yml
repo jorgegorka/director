@@ -1,0 +1,19 @@
+passing_eval:
+  company: acme
+  task: eval_ready_task
+  goal: acme_objective_one
+  agent: claude_agent
+  result: 0  # pass
+  feedback: "Task directly advances the MVP launch objective by adding a core feature."
+  attempt_number: 1
+  cost_cents: 50
+
+failed_eval:
+  company: acme
+  task: completed_task
+  goal: acme_sub_objective
+  agent: claude_agent
+  result: 1  # fail
+  feedback: "CI pipeline setup does not directly advance the authentication module completion."
+  attempt_number: 1
+  cost_cents: 45
