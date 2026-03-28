@@ -1,14 +1,13 @@
 class HeartbeatEvent < ApplicationRecord
+  include Chronological
+
   belongs_to :agent
 
-  enum :trigger_type, { scheduled: 0, task_assigned: 1, mention: 2, hook_triggered: 3 }
+  enum :trigger_type, { scheduled: 0, task_assigned: 1, mention: 2, hook_triggered: 3, review_validation: 4 }
   enum :status, { queued: 0, delivered: 1, failed: 2 }
 
   validates :trigger_type, presence: true
   validates :status, presence: true
-
-  scope :chronological, -> { order(:created_at) }
-  scope :reverse_chronological, -> { order(created_at: :desc) }
   scope :by_trigger, ->(type) { where(trigger_type: type) }
   scope :recent, -> { where("created_at > ?", 24.hours.ago) }
   scope :for_agent, ->(agent) { where(agent: agent) }
