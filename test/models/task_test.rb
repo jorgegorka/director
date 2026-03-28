@@ -284,4 +284,16 @@ class TaskTest < ActiveSupport::TestCase
     task.cost_cents = nil
     assert_nil task.cost_in_dollars
   end
+
+  # --- Real-time broadcasts ---
+
+  test "task has broadcast_kanban_update private method" do
+    assert @task.respond_to?(:broadcast_kanban_update, true)
+  end
+
+  test "task status change does not error" do
+    assert_nothing_raised do
+      @task.update!(status: :completed)
+    end
+  end
 end

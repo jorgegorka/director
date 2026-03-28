@@ -368,4 +368,16 @@ class AgentTest < ActiveSupport::TestCase
   test "current_budget_period_end returns end of month" do
     assert_equal @claude_agent.current_budget_period_start.end_of_month, @claude_agent.current_budget_period_end
   end
+
+  # --- Real-time broadcasts ---
+
+  test "agent has broadcast_dashboard_update private method" do
+    assert @claude_agent.respond_to?(:broadcast_dashboard_update, true)
+  end
+
+  test "agent status change does not error" do
+    assert_nothing_raised do
+      @claude_agent.update!(status: :running)
+    end
+  end
 end

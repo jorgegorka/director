@@ -124,6 +124,38 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{audit_logs_path}']"
   end
 
+  # Real-time broadcast target tests
+
+  test "dashboard page includes turbo stream subscription" do
+    get dashboard_url
+    assert_response :success
+    assert_select "turbo-cable-stream-source"
+  end
+
+  test "kanban cards have turbo stream target ids" do
+    get dashboard_url
+    assert_response :success
+    assert_select "[id^='kanban-task-']", minimum: 1
+  end
+
+  test "activity events have turbo stream target ids" do
+    get root_url
+    assert_response :success
+    assert_select "[id^='activity-event-']", minimum: 1
+  end
+
+  test "overview stats have turbo stream target id" do
+    get dashboard_url
+    assert_response :success
+    assert_select "#dashboard-overview-stats"
+  end
+
+  test "kanban column bodies have target ids" do
+    get dashboard_url
+    assert_response :success
+    assert_select "[id^='kanban-column-body-']", 5
+  end
+
   # Kanban board tests
 
   test "tasks tab shows kanban columns" do
