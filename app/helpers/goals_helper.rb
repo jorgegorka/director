@@ -1,7 +1,7 @@
 module GoalsHelper
   def options_for_goal_select(exclude: nil)
     goals = Current.company.goals.roots.ordered
-    excluded_ids = exclude ? Set.new([ exclude.id ] + exclude.descendants.map(&:id)) : Set.new
+    excluded_ids = exclude ? Set.new([ exclude.id ] + exclude.descendant_ids) : Set.new
     build_goal_options(goals, excluded_ids, 0)
   end
 

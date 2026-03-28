@@ -23,7 +23,17 @@ module TreeHierarchy
   end
 
   def descendants
-    children.flat_map { |child| [ child ] + child.descendants }
+    self.class.where(id: descendant_ids)
+  end
+
+  def descendant_ids
+    result = []
+    queue = self.class.where(parent_id: id).pluck(:id)
+    while queue.any?
+      result.concat(queue)
+      queue = self.class.where(parent_id: queue).pluck(:id)
+    end
+    result
   end
 
   def root?
@@ -49,7 +59,7 @@ module TreeHierarchy
   end
 
   def parent_is_not_descendant
-    if parent_id.present? && id.present? && descendants.map(&:id).include?(parent_id)
+    if parent_id.present? && id.present? && descendant_ids.include?(parent_id)
       errors.add(:parent, "cannot be a descendant of this #{model_name.human.downcase}")
     end
   end

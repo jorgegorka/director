@@ -17,6 +17,7 @@ module Triggerable
   # Uses substring matching to support multi-word agent names (e.g. "@API Bot")
   def detect_mentions(text, company)
     return [] if text.blank? || company.nil?
+    return [] unless text.include?("@")
 
     text_downcased = text.downcase
     company.agents.active.select do |agent|

@@ -17,9 +17,18 @@ class DashboardController < ApplicationController
     @total_agents = @agents.count
     @agents_online = @agents.where(status: [ :idle, :running ]).count
     @total_budget_cents = @agents.where.not(budget_cents: nil).sum(:budget_cents)
-    @total_spend_cents = @agents.sum(&:monthly_spend_cents)
-    @mission = Current.company.goals.roots.ordered.first
     @budget_agents = @agents.where.not(budget_cents: nil).order(:name)
+
+    period_start = Date.current.beginning_of_month.beginning_of_day
+    spend_by_agent = Task.where(assignee_id: @budget_agents.select(:id))
+      .where.not(cost_cents: nil)
+      .where(created_at: period_start..)
+      .group(:assignee_id)
+      .sum(:cost_cents)
+    @budget_agents.each { |a| a.preloaded_monthly_spend_cents = spend_by_agent[a.id] || 0 }
+    @total_spend_cents = spend_by_agent.values.sum
+
+    @mission = Current.company.goals.roots.ordered.first
 
     @activity_events = AuditEvent.for_company(Current.company)
     if params[:agent_filter].present?

@@ -2,12 +2,12 @@ class CreateNotifications < ActiveRecord::Migration[8.1]
   def change
     create_table :notifications do |t|
       t.references :company, null: false, foreign_key: true
-      t.references :recipient, polymorphic: true, null: false, index: false  # User who receives notification
-      t.references :actor, polymorphic: true, index: false                    # Who/what caused it (Agent, User, system)
-      t.references :notifiable, polymorphic: true, index: false               # The related object (Agent for budget alerts)
-      t.string :action, null: false                                           # e.g. "budget_alert", "budget_exhausted"
-      t.json :metadata, default: {}, null: false                             # extra context (percentage, amounts, etc.)
-      t.datetime :read_at                                                     # nil = unread
+      t.references :recipient, polymorphic: true, null: false, index: false
+      t.references :actor, polymorphic: true, index: false
+      t.references :notifiable, polymorphic: true, index: false
+      t.string :action, null: false
+      t.json :metadata, default: {}, null: false
+      t.datetime :read_at
       t.timestamps
     end
 

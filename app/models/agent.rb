@@ -23,6 +23,8 @@ class Agent < ApplicationRecord
 
   scope :active, -> { where.not(status: [ :terminated ]) }
 
+  attr_writer :preloaded_monthly_spend_cents
+
   before_create :generate_api_token
   after_commit :sync_heartbeat_schedule, if: :heartbeat_config_changed?
   after_commit :broadcast_dashboard_update, if: :saved_change_to_status?
@@ -94,11 +96,13 @@ class Agent < ApplicationRecord
 
   def reload(*)
     @monthly_spend_cents = nil
+    remove_instance_variable(:@preloaded_monthly_spend_cents) if defined?(@preloaded_monthly_spend_cents)
     super
   end
 
   def monthly_spend_cents
     return 0 unless budget_configured?
+    return @preloaded_monthly_spend_cents if defined?(@preloaded_monthly_spend_cents)
 
     @monthly_spend_cents ||= begin
       period_start = current_budget_period_start

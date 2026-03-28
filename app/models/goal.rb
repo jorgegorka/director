@@ -34,7 +34,7 @@ class Goal < ApplicationRecord
   private
 
   def subtree_task_ids
-    goal_ids = [ id ] + descendants.map(&:id)
+    goal_ids = [ id ] + descendant_ids
     Task.where(goal_id: goal_ids).pluck(:id)
   end
 end
