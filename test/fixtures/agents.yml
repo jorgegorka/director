@@ -9,7 +9,6 @@ claude_agent:
   api_token: "test_token_claude_agent_abc1"
   budget_cents: 50000
   budget_period_start: <%= Date.current.beginning_of_month.to_fs(:db) %>
-  goal: acme_objective_one
 
 http_agent:
   name: API Bot

@@ -16,6 +16,7 @@ acme_objective_one:
   company: acme
   parent: acme_mission
   position: 0
+  agent: claude_agent
 
 acme_objective_two:
   title: "Achieve 99.9% uptime"

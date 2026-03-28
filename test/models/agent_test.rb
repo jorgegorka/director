@@ -438,4 +438,27 @@ class AgentTest < ActiveSupport::TestCase
     coding_standards_count = docs.select { |d| d.id == documents(:acme_coding_standards).id }.count
     assert_equal 1, coding_standards_count
   end
+
+  # --- Goals association ---
+
+  test "agent can have many goals" do
+    agent = agents(:claude_agent)
+    assert_includes agent.goals, goals(:acme_objective_one)
+  end
+
+  test "agent with no goals is still valid" do
+    agent = agents(:http_agent)
+    assert_empty agent.goals
+    assert agent.valid?
+  end
+
+  test "destroying agent nullifies goal agent_id" do
+    agent = agents(:claude_agent)
+    goal = goals(:acme_objective_one)
+    assert_equal agent, goal.agent
+
+    agent.destroy
+    goal.reload
+    assert_nil goal.agent_id
+  end
 end
