@@ -9,15 +9,15 @@ See: .ariadna_planning/PROJECT.md (updated 2026-03-28)
 
 ## Current Position
 
-Phase: 11 - SQLite Migration - COMPLETE
-Plan: 02 - COMPLETE
-Status: Phase 11 done, phase 12 pending
-Last activity: 2026-03-28 -- 11-02 complete: deploy.yml cleaned, Dockerfile verified SQLite-clean, bin/ci passes green (674 tests, 0 failures)
+Phase: 12 - Cleanup & Verification - COMPLETE
+Plan: 01 - COMPLETE
+Status: Phase 12 done, v1.1 COMPLETE
+Last activity: 2026-03-28 -- 12-01 complete: docs updated (SQLite everywhere), dead code removed, bin/ci passes green (668 tests, 0 failures)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 22
+- Total plans completed: 25
 - Average duration: ~8 minutes
 - Total execution time: ~161 minutes
 
@@ -35,10 +35,12 @@ Last activity: 2026-03-28 -- 11-02 complete: deploy.yml cleaned, Dockerfile veri
 | 08-budget-cost-control | 4/4 | ~31 min | ~7.8 min |
 | 09-governance-audit | 4/4 | ~30 min | ~7.5 min |
 | 10-dashboard-real-time-ui | 4/4 | ~19 min | ~4.8 min |
+| 11-sqlite-migration | 2/2 | ~13 min | ~6.5 min |
+| 12-cleanup-verification | 1/1 | ~15 min | ~15 min |
 
 **Recent Trend:**
-- Last 5 plans: 10-03 (~8 min), 10-04 (~3 min), 11-01 (~8 min), 11-02 (~5 min)
-- Trend: consistent, stable. v1.0 COMPLETE. v1.1 Phase 11 COMPLETE (SQLite migration done).
+- Last 5 plans: 10-04 (~3 min), 11-01 (~8 min), 11-02 (~5 min), 12-01 (~15 min)
+- Trend: consistent, stable. v1.0 COMPLETE. v1.1 COMPLETE (Phase 11: SQLite migration, Phase 12: cleanup & verification).
 
 *Updated after each plan completion*
 
@@ -130,6 +132,9 @@ Recent decisions affecting current work:
 - [11-01]: bigint declarations are preserved in SQLite schema.rb — cosmetic only; SQLite stores all integers natively regardless of declared size
 - [11-02]: Dockerfile was already SQLite-clean (Rails 8 generator defaults); only deploy.yml needed cleanup (DB_HOST comment block + mysql/db accessory removed)
 - [11-02]: No SQLite-specific test failures in full CI run — json column migration from 11-01 was sufficient for all 674 tests
+- [12-01]: Rephrase (not just checkbox) PostgreSQL references to achieve zero grep matches: requirement text and key decision table entry renamed
+- [12-01]: Removing :test group from Gemfile leaves trailing blank line — rubocop auto-fix required; stage Gemfile before committing
+- [12-01]: Test count after removing 7 home_controller tests: landed at 668 (not 667 as predicted), all passing with 0 failures
 
 ### Pending Todos
 
@@ -142,6 +147,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-28
-Stopped at: 11-02 complete -- Phase 11 DONE: deploy.yml cleaned, Dockerfile verified, bin/ci green (674 tests)
-Resume file: .ariadna_planning/phases/11-sqlite-migration/11-02-SUMMARY.md
-Next step: Execute Phase 12 (CLN-* cleanup: dead code removal, docs update, test coverage verification)
+Stopped at: 12-01 complete -- Phase 12 DONE: docs updated (SQLite everywhere), dead code removed, bin/ci green (668 tests)
+Resume file: .ariadna_planning/phases/12-cleanup-verification/12-01-SUMMARY.md
+Next step: v1.1 COMPLETE -- begin v2.0 planning if desired
