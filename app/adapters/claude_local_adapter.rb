@@ -40,7 +40,9 @@ class ClaudeLocalAdapter < BaseAdapter
     session_name = "#{SESSION_PREFIX}_#{context[:run_id]}"
     claude_cmd   = build_claude_command(agent, context)
     prefix       = env_prefix
-    spawn_cmd    = "tmux new-session -d -s #{session_name.shellescape} -e #{prefix} #{claude_cmd.shellescape}"
+    # -e sets an environment variable in the session; the last arg is the shell command to run.
+    # claude_cmd already has its individual args shellescape-d, so just double-quote the whole string.
+    spawn_cmd    = "tmux new-session -d -s #{session_name.shellescape} -e #{prefix} \"#{claude_cmd}\""
 
     unless spawn_session(spawn_cmd)
       raise ExecutionError, "Failed to create tmux session: #{session_name}"
@@ -52,9 +54,43 @@ class ClaudeLocalAdapter < BaseAdapter
     cleanup_session(session_name) if defined?(session_name) && session_name
   end
 
+  # ---------------------------------------------------------------------------
+  # Overridable hooks -- public so define_singleton_method can shadow them in tests
+  # without permanently removing the original method.
+  # Same pattern as HttpAdapter.backoff_sleep.
+  # ---------------------------------------------------------------------------
+
   # Overridable hook for poll sleep -- enables zero-sleep in tests.
   def self.poll_sleep(seconds)
     sleep(seconds)
+  end
+
+  # Builds the ANTHROPIC_API_KEY environment prefix for the tmux command.
+  # Public so tests can override it to simulate missing API key.
+  def self.env_prefix
+    api_key = ENV.fetch("ANTHROPIC_API_KEY") { Rails.application.credentials.dig(:anthropic, :api_key) }
+    raise ExecutionError, "ANTHROPIC_API_KEY not configured" if api_key.blank?
+    "ANTHROPIC_API_KEY=#{api_key.shellescape}"
+  end
+
+  # Spawns a tmux session with the given command string. Returns true on success.
+  def self.spawn_session(cmd)
+    system(cmd)
+  end
+
+  # Returns true if the named tmux session currently exists.
+  def self.session_exists?(name)
+    system("tmux has-session -t #{name.shellescape} 2>/dev/null")
+  end
+
+  # Captures the current pane output of the named tmux session from scrollback start.
+  def self.capture_pane(name)
+    `tmux capture-pane -t #{name.shellescape} -p -S - 2>/dev/null`
+  end
+
+  # Kills the named tmux session, silently ignoring errors.
+  def self.kill_session(name)
+    system("tmux kill-session -t #{name.shellescape} 2>/dev/null")
   end
 
   private_class_method def self.build_claude_command(agent, context)
@@ -71,12 +107,6 @@ class ClaudeLocalAdapter < BaseAdapter
     parts << "--allowedTools #{config['allowed_tools'].shellescape}" if config["allowed_tools"].present?
     parts << "--resume #{context[:resume_session_id].shellescape}" if context[:resume_session_id].present?  # CLAUDE-04
     parts.join(" ")
-  end
-
-  private_class_method def self.env_prefix
-    api_key = ENV.fetch("ANTHROPIC_API_KEY") { Rails.application.credentials.dig(:anthropic, :api_key) }
-    raise ExecutionError, "ANTHROPIC_API_KEY not configured" if api_key.blank?
-    "ANTHROPIC_API_KEY=#{api_key.shellescape}"
   end
 
   private_class_method def self.poll_session(session_name, agent_run)
@@ -146,30 +176,6 @@ class ClaudeLocalAdapter < BaseAdapter
     end
 
     { exit_code: exit_code, session_id: session_id, cost_cents: cost_cents }
-  end
-
-  # ---------------------------------------------------------------------------
-  # Hookable shell-out methods (overridable in tests via define_singleton_method)
-  # ---------------------------------------------------------------------------
-
-  # Spawns a tmux session with the given command string. Returns true on success.
-  private_class_method def self.spawn_session(cmd)
-    system(cmd)
-  end
-
-  # Returns true if the named tmux session currently exists.
-  private_class_method def self.session_exists?(name)
-    system("tmux has-session -t #{name.shellescape} 2>/dev/null")
-  end
-
-  # Captures the current pane output of the named tmux session from scrollback start.
-  private_class_method def self.capture_pane(name)
-    `tmux capture-pane -t #{name.shellescape} -p -S - 2>/dev/null`
-  end
-
-  # Kills the named tmux session, silently ignoring errors.
-  private_class_method def self.kill_session(name)
-    system("tmux kill-session -t #{name.shellescape} 2>/dev/null")
   end
 
   private_class_method def self.cleanup_session(name)

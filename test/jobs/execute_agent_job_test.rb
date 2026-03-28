@@ -31,14 +31,14 @@ class ExecuteAgentJobTest < ActiveSupport::TestCase
       status: :queued, trigger_type: "task_assigned"
     )
 
-    # Will fail because adapter raises NotImplementedError, but
-    # the mark_running! call happens before dispatch
+    # Will fail because ClaudeLocalAdapter raises ExecutionError (missing API key),
+    # but mark_running! is called before dispatch so the run transitions through running.
     ExecuteAgentJob.perform_now(run.id)
     run.reload
 
-    # Run should be failed (adapter not implemented yet)
+    # Run should be failed (adapter raises ExecutionError about missing API key)
     assert run.failed?
-    assert_match(/NotImplementedError|must implement/, run.error_message)
+    assert run.error_message.present?
   end
 
   test "agent returns to idle after execution failure" do
@@ -178,5 +178,70 @@ class ExecuteAgentJobTest < ActiveSupport::TestCase
     assert http_agent.idle?, "Agent should return to idle, got #{http_agent.status}"
   ensure
     HttpAdapter.singleton_class.remove_method(:backoff_sleep)
+  end
+
+  # ---------------------------------------------------------------------------
+  # Claude Local adapter end-to-end integration tests
+  # ---------------------------------------------------------------------------
+
+  test "executes Claude Local agent run successfully through adapter" do
+    ENV["ANTHROPIC_API_KEY"] = "test_key_job"
+    ClaudeLocalAdapter.define_singleton_method(:poll_sleep) { |_n| nil }
+
+    poll_count = 0
+    result_event = '{"type":"result","subtype":"success","session_id":"sess_job_abc","total_cost_usd":0.05,"result":"Done"}'
+    pane_output = '{"type":"assistant","message":{"content":[{"type":"text","text":"Hi"}]}}' + "\n" + result_event
+
+    ClaudeLocalAdapter.define_singleton_method(:spawn_session) { |_cmd| true }
+    ClaudeLocalAdapter.define_singleton_method(:session_exists?) do |_name|
+      poll_count += 1
+      poll_count <= 1
+    end
+    ClaudeLocalAdapter.define_singleton_method(:capture_pane) { |_name| pane_output }
+    ClaudeLocalAdapter.define_singleton_method(:kill_session) { |_name| true }
+
+    run = AgentRun.create!(
+      agent: @agent, task: @task, company: @company,
+      status: :queued, trigger_type: "task_assigned"
+    )
+
+    ExecuteAgentJob.perform_now(run.id)
+    run.reload
+    @agent.reload
+
+    assert run.completed?, "Run should be completed, got #{run.status}"
+    assert_equal "sess_job_abc", run.claude_session_id
+    assert_equal 5, run.cost_cents  # 0.05 * 100 = 5
+    assert @agent.idle?, "Agent should be idle, got #{@agent.status}"
+  ensure
+    ENV.delete("ANTHROPIC_API_KEY")
+    %i[poll_sleep spawn_session session_exists? capture_pane kill_session].each do |m|
+      if ClaudeLocalAdapter.singleton_class.method_defined?(m, false)
+        ClaudeLocalAdapter.singleton_class.remove_method(m)
+      end
+    end
+  end
+
+  test "Claude Local adapter budget exhausted marks run as failed" do
+    # Exhaust the agent's budget (budget_cents: 50000) by creating a costly task assigned to it.
+    Task.create!(
+      company: @company, assignee: @agent,
+      title: "Prior expensive task", status: :open,
+      cost_cents: @agent.budget_cents,
+      created_at: Date.current.beginning_of_month + 1.hour
+    )
+
+    run = AgentRun.create!(
+      agent: @agent, task: @task, company: @company,
+      status: :queued, trigger_type: "task_assigned"
+    )
+
+    ExecuteAgentJob.perform_now(run.id)
+    run.reload
+    @agent.reload
+
+    assert run.failed?, "Run should be failed, got #{run.status}"
+    assert_match(/budget/i, run.error_message)
+    assert @agent.idle?, "Agent should return to idle, got #{@agent.status}"
   end
 end
