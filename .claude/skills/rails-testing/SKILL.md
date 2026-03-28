@@ -1,6 +1,6 @@
 ---
 name: rails-testing
-description: Ruby on Rails testing conventions — Minitest strategy, fixtures, system tests. Use when writing tests, setting up test data, or running test suites.
+description: Ruby on Rails testing conventions — Minitest strategy, fixtures, controller tests. Use when writing tests, setting up test data, or running test suites.
 ---
 
 # Rails Testing Skill
@@ -9,7 +9,6 @@ Testing strategy for Rails applications using **Minitest** and **fixtures**. Not
 
 **Sub-files:**
 - [FIXTURES.md](FIXTURES.md) — Fixture patterns and test data management
-- [SYSTEM-TESTS.md](SYSTEM-TESTS.md) — System and integration test conventions
 
 ---
 

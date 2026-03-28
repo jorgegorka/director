@@ -13,7 +13,7 @@
 ### 1.1 Bootstrap
 
 ```bash
-rails new director --database=sqlite3 --css=tailwind --skip-jbuilder --asset-pipeline=propshaft
+rails new director --database=sqlite3 --skip-jbuilder --asset-pipeline=propshaft
 ```
 
 **Key gems:**
@@ -276,16 +276,16 @@ monthly_spend_reset:
 - **Authorization**: Company membership required. Role-based (owner/admin/member) for destructive ops.
 - **Concern `CompanyScoped`**: All models scoped via `belongs_to :company`, controllers use `@company.agents` etc.
 - **Concern `Trackable`**: After create/update callbacks for activity logging
-- **UUID PKs everywhere**:  Nope, use rails ids.
-- **JSONB columns**: `adapter_config`, `runtime_config`, `permissions`, `metadata`, `payload` — Let's use standard rails models not jsonb for these.
-- **Database-level locking**: Budget spend uses `UPDATE SET col = col + N`, budget evaluation uses `SELECT...FOR UPDATE`
+- **Integer PKs**: Standard Rails auto-increment IDs (no UUIDs).
+- **JSON columns**: `adapter_config`, `runtime_config`, `permissions`, `metadata`, `payload` — standard JSON columns for SQLite compatibility.
+- **Database-level locking**: Budget spend uses `UPDATE SET col = col + N`
 
 ---
 
 ## Verification
 
 After each phase:
-1. Run `rails test` / `rspec` — all tests pass
+1. Run `rails test` — all tests pass
 2. Run `rails db:migrate:status` — all migrations up
 3. Manual smoke test: create company, hire agent, create project/goals/issues, trigger heartbeat, verify cost tracking, approve actions, set up routine
 4. Check real-time: open two browser tabs, verify Turbo Stream updates propagate

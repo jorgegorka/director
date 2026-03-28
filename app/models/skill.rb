@@ -1,7 +1,7 @@
 class Skill < ApplicationRecord
   include Tenantable
 
-  has_many :agent_skills, dependent: :destroy
+  has_many :agent_skills, dependent: :destroy, inverse_of: :skill
   has_many :agents, through: :agent_skills
 
   validates :key, presence: true,

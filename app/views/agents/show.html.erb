@@ -171,9 +171,10 @@
     </div>
 
     <div class="agent-detail__section">
-      <h2>Skills (<%= @agent.skills.size %>)</h2>
+      <% sorted_skills = @agent.skills.sort_by(&:name) %>
+      <h2>Skills (<%= sorted_skills.size %>)</h2>
       <div class="agent-detail__skills">
-        <% @agent.skills.order(:name).each do |skill| %>
+        <% sorted_skills.each do |skill| %>
           <div class="skill-badge" title="<%= skill.description %>">
             <span><%= skill.name %></span>
             <% if skill.category.present? %>
@@ -182,7 +183,7 @@
           </div>
         <% end %>
       </div>
-      <% if @agent.skills.empty? %>
+      <% if sorted_skills.empty? %>
         <p class="empty-state">No skills assigned yet.</p>
       <% end %>
     </div>
@@ -191,7 +192,7 @@
       <div class="agent-detail__section">
         <h2>Assigned Roles (<%= @agent.roles.size %>)</h2>
         <ul class="agent-detail__roles-list">
-          <% @agent.roles.order(:title).each do |role| %>
+          <% @agent.roles.sort_by(&:title).each do |role| %>
             <li><%= link_to role.title, role %></li>
           <% end %>
         </ul>

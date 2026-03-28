@@ -16,9 +16,7 @@ class Company < ApplicationRecord
   validates :name, presence: true
 
   def seed_default_skills!
-    skill_files = Dir[Rails.root.join("db/seeds/skills/*.yml")]
-    skill_files.each do |file|
-      data = YAML.load_file(file)
+    self.class.default_skill_definitions.each do |data|
       skills.find_or_create_by!(key: data.fetch("key")) do |skill|
         skill.name = data.fetch("name")
         skill.description = data["description"]
@@ -27,6 +25,10 @@ class Company < ApplicationRecord
         skill.builtin = true
       end
     end
+  end
+
+  def self.default_skill_definitions
+    @default_skill_definitions ||= Dir[Rails.root.join("db/seeds/skills/*.yml")].map { |file| YAML.load_file(file) }.freeze
   end
 
   def admin_recipients

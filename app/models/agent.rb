@@ -4,7 +4,7 @@ class Agent < ApplicationRecord
   include Auditable
   include ConfigVersioned
 
-  has_many :agent_skills, dependent: :destroy
+  has_many :agent_skills, dependent: :destroy, inverse_of: :agent
   has_many :skills, through: :agent_skills
   has_many :roles, dependent: :nullify
   has_many :assigned_tasks, class_name: "Task", foreign_key: :assignee_id, inverse_of: :assignee, dependent: :nullify

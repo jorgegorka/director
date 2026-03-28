@@ -1,7 +1,7 @@
 namespace :skills do
   desc "Seed missing builtin skills for all existing companies"
   task reseed: :environment do
-    skill_count = Dir[Rails.root.join("db/seeds/skills/*.yml")].size
+    skill_count = Company.default_skill_definitions.size
     puts "Reseeding #{skill_count} builtin skills for all companies..."
 
     Company.find_each do |company|

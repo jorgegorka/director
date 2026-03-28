@@ -69,13 +69,13 @@ Append `?pp=flamegraph` for CPU flamegraph. Use `?pp=profile-memory` for allocat
 # rails console
 puts Order.where(user_id: 1, status: "pending").order(:created_at).explain
 
-# PostgreSQL — actual execution stats
+# SQLite — query plan details
 ActiveRecord::Base.connection.execute(
-  "EXPLAIN (ANALYZE, BUFFERS) #{Order.where(user_id: 1).to_sql}"
-).each { |r| puts r["QUERY PLAN"] }
+  "EXPLAIN QUERY PLAN #{Order.where(user_id: 1).to_sql}"
+).each { |r| puts r.values.join(" | ") }
 ```
 
-Warning signs: `Seq Scan` on large tables (missing index), `rows=` estimate vs actual mismatch (run `ANALYZE`), `Sort` without an index.
+Warning signs: `SCAN TABLE` (full table scan, missing index), `USE TEMP B-TREE` (sort without index), `AUTOMATIC INDEX` (SQLite creating a temporary index).
 
 ---
 
