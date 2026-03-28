@@ -5,21 +5,21 @@
 See: .ariadna_planning/PROJECT.md (updated 2026-03-28)
 
 **Core value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
-**Current focus:** v1.2 -- Agent Skills (Phase 14: Skill Catalog & Seeding)
+**Current focus:** v1.2 -- Agent Skills (Phase 15: Role Auto-Assignment)
 
 ## Current Position
 
-Phase: 14 - Skill Catalog & Seeding
-Plan: 02 complete
-Status: Phase 14 complete (both plans done)
-Last activity: 2026-03-28 -- Plan 14-02 complete: Company#seed_default_skills!, after_create callback, skills:reseed rake task, 6 seeding tests
+Phase: 15 - Role Auto-Assignment
+Plan: --
+Status: Not started
+Last activity: 2026-03-28 -- Phase 14 complete: 50 skill YAML catalog, role mapping config, company seeding logic, rake task
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 27
+- Total plans completed: 29
 - Average duration: ~8 minutes
-- Total execution time: ~161 minutes
+- Total execution time: ~173 minutes
 
 **By Phase:**
 
@@ -162,6 +162,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-28
-Stopped at: Phase 14 Plan 02 complete -- Company seeding logic, after_create callback, rake task, tests
-Resume file: .ariadna_planning/phases/14-skill-catalog-seeding/14-02-SUMMARY.md
-Next step: Execute Phase 15 (auto-assignment of default skills to new agents based on role)
+Stopped at: Phase 14 complete, verified (10/10 must-haves passed)
+Resume file: .ariadna_planning/ROADMAP.md
+Next step: /ariadna:plan-phase 15

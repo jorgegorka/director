@@ -220,7 +220,7 @@ Full details: [v1.1-ROADMAP.md](milestones/v1.1-ROADMAP.md)
 **Milestone Goal:** Add a company-level skill library with rich markdown instruction packages, role-based auto-assignment, and full CRUD -- replacing the existing agent_capabilities system.
 
 - [x] **Phase 13: Skill Data Model** - Skills and agent_skills tables replace agent_capabilities with tenant-scoped validations
-- [ ] **Phase 14: Skill Catalog & Seeding** - 44 builtin skill YAML files with company seeding on creation and backfill rake task
+- [x] **Phase 14: Skill Catalog & Seeding** - 50 builtin skill YAML files with company seeding on creation and backfill rake task
 - [ ] **Phase 15: Role Auto-Assignment** - First agent assignment to a role automatically attaches role-appropriate skills
 - [ ] **Phase 16: Skills CRUD** - Company skill library management with category filtering and builtin protection
 - [ ] **Phase 17: Agent Skill Management** - Per-agent skill assignment UI replacing capabilities throughout the application
@@ -252,10 +252,11 @@ Plans:
   2. config/default_skills.yml maps 11 role titles to arrays of skill keys, covering all 44 skills
   3. When a new company is created, all 44 builtin skills are automatically seeded into that company's skill library
   4. Running `bin/rails skills:reseed` creates all missing builtin skills for every existing company without duplicating or overwriting already-present skills
-**Plans**: TBD
+**Plans**: 2/2 complete
 
 Plans:
-- [ ] 14-01: TBD
+- [x] 14-01: Skill YAML catalog (50 files in db/seeds/skills/) and config/default_skills.yml role mapping
+- [x] 14-02: Company#seed_default_skills! method, after_create callback, skills:reseed rake task, tests
 
 #### Phase 15: Role Auto-Assignment
 **Goal**: When an agent is first assigned to a role, the system automatically attaches that role's default skills to the agent
@@ -322,7 +323,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 11. SQLite Migration | v1.1 | 2/2 | Complete | 2026-03-28 |
 | 12. Cleanup & Verification | v1.1 | 1/1 | Complete | 2026-03-28 |
 | 13. Skill Data Model | v1.2 | 2/2 | Complete | 2026-03-28 |
-| 14. Skill Catalog & Seeding | v1.2 | 0/TBD | Not started | - |
+| 14. Skill Catalog & Seeding | v1.2 | 2/2 | Complete | 2026-03-28 |
 | 15. Role Auto-Assignment | v1.2 | 0/TBD | Not started | - |
 | 16. Skills CRUD | v1.2 | 0/TBD | Not started | - |
 | 17. Agent Skill Management | v1.2 | 0/TBD | Not started | - |
