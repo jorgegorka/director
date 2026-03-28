@@ -31,8 +31,16 @@
       <%= render "shared/progress_bar", percentage: percentage, large: true %>
       <div class="goal-detail__progress-stats">
         <span><%= percentage %>% complete &middot; <%= @tasks.count { |t| t.status == "completed" } %> of <%= @tasks.size %> tasks done</span>
+        <% if @eval_total > 0 %>
+          <span class="goal-detail__eval-stats">&middot; <%= @eval_pass_count %>/<%= @eval_total %> evaluations passed (<%= (@eval_pass_count.to_f / @eval_total * 100).round %>%)</span>
+        <% end %>
       </div>
     </div>
+    <% if @goal.agent.present? %>
+      <div class="goal-detail__agent">
+        <span>Assigned to: <%= link_to @goal.agent.name, agent_path(@goal.agent) %></span>
+      </div>
+    <% end %>
   </div>
 
   <div class="goal-detail__body">
