@@ -89,6 +89,9 @@ Rails.application.routes.draw do
     end
   end
 
+  # Dashboard (company command center — root landing page)
+  resource :dashboard, only: [ :show ], controller: "dashboard"
+
   # Health check - used by load balancers and uptime monitors
   get "up" => "rails/health#show", as: :rails_health_check
 
@@ -96,5 +99,5 @@ Rails.application.routes.draw do
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
-  root "home#show"
+  root "dashboard#show"
 end

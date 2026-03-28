@@ -1,5 +1,7 @@
 require "test_helper"
 
+# HomeController is now superseded by DashboardController as the root page.
+# These tests verify root route behavior which now serves the dashboard.
 class HomeControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:one)
@@ -10,7 +12,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_session_url
   end
 
-  test "should show home page with active company for authenticated user" do
+  test "should show dashboard with active company for authenticated user" do
     sign_in_as(@user)
     get root_url
     assert_response :success
@@ -26,26 +28,25 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_company_url
   end
 
-  test "home page shows mission when present" do
+  test "root page shows mission when present" do
     sign_in_as(@user)
     post company_switch_url(companies(:acme))
     get root_url
     assert_response :success
-    assert_select ".home-mission"
-    assert_select ".home-mission__title", text: /Build the best AI platform/
+    assert_select ".dashboard-mission"
+    assert_select ".dashboard-mission__title", text: /Build the best AI platform/
     assert_select ".progress-bar"
   end
 
-  test "home page shows goals link" do
+  test "root page shows goals link" do
     sign_in_as(@user)
     get root_url
     assert_response :success
     assert_select "a[href='#{goals_path}']", text: "Goals"
   end
 
-  test "home page works without mission" do
-    # Switch to widgets company which has a mission (widgets_mission), but we want
-    # a company with no goals — create a fresh company
+  test "root page works without mission" do
+    # Switch to a company with no goals
     no_goals_company = Company.create!(name: "No Goals Co")
     no_goals_company.memberships.create!(user: @user, role: :owner)
 
@@ -53,7 +54,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     post company_switch_url(no_goals_company)
     get root_url
     assert_response :success
-    assert_select ".home-mission", count: 0
+    assert_select ".dashboard-mission", count: 0
     assert_select "h1", "No Goals Co"
   end
 end
