@@ -10,9 +10,9 @@ See: .ariadna_planning/PROJECT.md (updated 2026-03-28)
 ## Current Position
 
 Phase: 19 - Hook Triggering Engine
-Plan: --
-Status: Planning
-Last activity: 2026-03-28 -- Phase 18 complete (1/1 plans, verified)
+Plan: 01 complete
+Status: In Progress
+Last activity: 2026-03-28 -- 19-01 complete (Hookable concern + ExecuteHookJob + tests)
 
 ## Performance Metrics
 
@@ -43,9 +43,10 @@ Last activity: 2026-03-28 -- Phase 18 complete (1/1 plans, verified)
 | 16-skills-crud | 2/2 | ~13 min | ~6.5 min |
 | 17-agent-skill-management | 2/2 | ~7 min | ~3.5 min |
 | 18-hook-data-foundation | 1/1 | ~4 min | ~4 min |
+| 19-hook-triggering-engine | 1/? | ~3 min | ~3 min |
 
 **Recent Trend:**
-- Last 5 plans: 16-02 (~5 min), 17-01 (~4 min), 17-02 (~3 min), 18-01 (~4 min)
+- Last 5 plans: 17-01 (~4 min), 17-02 (~3 min), 18-01 (~4 min), 19-01 (~3 min)
 - Trend: consistent, stable. v1.0 COMPLETE. v1.1 COMPLETE. v1.2 COMPLETE. v1.3 in progress.
 
 *Updated after each plan completion*
@@ -174,6 +175,10 @@ Recent decisions affecting current work:
 - [18-01]: Task model needs has_many :hook_executions, dependent: :destroy -- FK constraint on hook_executions.task_id blocks task destroy tests without it
 - [18-01]: AgentHook lifecycle_event uses LIFECYCLE_EVENTS string constant (not integer enum) -- allows future extension without migration, same pattern as ApprovalGate GATABLE_ACTIONS
 - [18-01]: target_agent is a convenience method reading action_config JSON (not a belongs_to) -- target is stored in JSON config, not a direct FK column
+- [19-01]: Hookable concern uses saved_change_to_status? in after_commit -- consistent with Task's existing saved_change_to_assignee_id? pattern; works for creates and updates
+- [19-01]: HOOKABLE_TRANSITIONS maps only in_progress/completed -- all other status values return nil and are silently ignored, no explicit rejection needed
+- [19-01]: ExecuteHookJob must exist before hookable.rb is used in tests -- NameError raised on first after_commit trigger; created job in Task 1 as Rule 3 fix
+- [19-01]: claude_agent has 2 after_task_start hooks (claude_webhook_hook pos 0, claude_start_validation_hook pos 1) -- direct in_progress creation test expects 2 HookExecutions not 1
 
 ### Pending Todos
 
@@ -186,6 +191,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-28
-Stopped at: 18-01 complete -- AgentHook + HookExecution data layer with migrations, models, fixtures, tests
-Resume file: .ariadna_planning/phases/18-hook-data-foundation/18-01-SUMMARY.md
-Next step: Execute 18-02 (if exists) or plan Phase 19
+Stopped at: 19-01 complete -- Hookable concern + ExecuteHookJob + comprehensive tests (809 tests, 0 failures)
+Resume file: .ariadna_planning/phases/19-hook-triggering-engine/19-01-SUMMARY.md
+Next step: Execute 19-02 (ExecuteHookService dispatch logic)
