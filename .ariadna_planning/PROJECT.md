@@ -24,19 +24,24 @@ Users can organize AI agents into a functioning company structure and confidentl
 
 ### Validated
 
-(None yet — ship to validate)
+<!-- Shipped in v1.0 and confirmed valuable. -->
+
+- Multi-tenant account system with isolated companies — v1.0
+- Org chart management with roles, hierarchy, and agent assignment — v1.0
+- BYOA (Bring Your Own Agent) — connect any agent via HTTP or bash — v1.0
+- Task/ticket system with conversation threads and delegation — v1.0
+- Heartbeat system (scheduled + event-driven agent triggers) — v1.0
+- Atomic per-agent budget enforcement with cost tracking — v1.0
+- Human governance — approval gates, override controls, audit logs — v1.0
+- Dashboard UI with org chart visualization, task boards, conversations — v1.0
+- Goal alignment — tasks trace back to company mission — v1.0
 
 ### Active
 
-- [ ] Multi-tenant account system with isolated companies
-- [ ] Org chart management with roles, hierarchy, and agent assignment
-- [ ] BYOA (Bring Your Own Agent) — connect any agent via HTTP or bash
-- [ ] Task/ticket system with conversation threads and delegation
-- [ ] Heartbeat system (scheduled + event-driven agent triggers)
-- [ ] Atomic per-agent budget enforcement with cost tracking
-- [ ] Human governance — approval gates, override controls, audit logs
-- [ ] Dashboard UI with org chart visualization, task boards, conversations
-- [ ] Goal alignment — tasks trace back to company mission
+<!-- v1.1: SQLite Migration & Cleanup -->
+
+- [ ] Replace PostgreSQL with SQLite for primary database
+- [ ] Clean up v1.0 tech debt and rough edges
 
 ### Out of Scope
 
@@ -57,13 +62,13 @@ Users can organize AI agents into a functioning company structure and confidentl
 
 ## Constraints
 
-- **Tech stack**: Rails 8, PostgreSQL, Hotwire (Turbo + Stimulus), modern CSS, Solid Queue, Solid Cache, Solid Cable — no Tailwind, no React, no UUIDs
+- **Tech stack**: Rails 8, SQLite (primary + solid gems), Hotwire (Turbo + Stimulus), modern CSS, Solid Queue, Solid Cache, Solid Cable — no Tailwind, no React, no UUIDs
 - **Auth**: Rails 8 built-in authentication (`has_secure_password` + auth generator) — no Devise
 - **Multi-tenancy**: `Current.account` scoping pattern — no acts_as_tenant gem
 - **Testing**: Minitest + fixtures — no RSpec, no FactoryBot. No system/integration tests. Focus on unit tests.
 - **IDs**: Standard integer auto-increment primary keys
 - **Frontend**: Hotwire + modern CSS only — no JavaScript frameworks, no Tailwind CSS
-- **Deployment**: Standard Rails deployment via Kamal (PostgreSQL, Puma, Solid Queue)
+- **Deployment**: Standard Rails deployment via Kamal (SQLite, Puma, Solid Queue)
 
 ## Key Decisions
 
@@ -76,6 +81,18 @@ Users can organize AI agents into a functioning company structure and confidentl
 | Hotwire over React | Rails-native real-time UI — matches Turbo Streams for live updates (agent status, task changes, conversations) | — Pending |
 | Budget enforcement in v1 | Core safety feature — users won't trust autonomous agents without cost controls | — Pending |
 | Both heartbeat + event triggers | Matches Paperclip behavior — agents need both scheduled work and reactive responses | — Pending |
+| SQLite over PostgreSQL | Simplifies deployment (no external DB server), aligns all databases on one engine, Rails 8.1 has excellent SQLite support | — Pending |
+
+## Current Milestone: v1.1 SQLite Migration & Cleanup
+
+**Goal:** Replace PostgreSQL with SQLite for the primary database and clean up v1.0 tech debt.
+
+**Target features:**
+- Replace pg gem with sqlite3 for primary database
+- Update database.yml for SQLite primary + SQLite solid gems
+- Fix any PostgreSQL-specific SQL, column types, or features (jsonb → json)
+- Update deployment config (Dockerfile, Kamal) for SQLite
+- Clean up tech debt from rapid v1.0 development
 
 ---
-*Last updated: 2026-03-26 after initialization*
+*Last updated: 2026-03-28 after v1.1 milestone start*

@@ -5,16 +5,14 @@
 See: .ariadna_planning/PROJECT.md (updated 2026-03-26)
 
 **Core value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
-**Current focus:** Phase 10 COMPLETE — all 4 plans done (10-01 dashboard, 10-02 kanban, 10-03 activity tab, 10-04 real-time Turbo Streams)
+**Current focus:** v1.1 — SQLite Migration & Cleanup
 
 ## Current Position
 
-Phase: 10 of 10 (Dashboard & Real-time UI) — COMPLETE
-Plan: 4 of 4 complete (10-01, 10-02, 10-03, 10-04 done)
-Status: Plan 10-04 complete — Turbo Streams real-time broadcasts, 674 tests passing
-Last activity: 2026-03-28 -- 10-04 complete (2 tasks, 674 tests passing, 0 failures)
-
-Progress: [██████████] 100%
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-28 — Milestone v1.1 started
 
 ## Performance Metrics
 
