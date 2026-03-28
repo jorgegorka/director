@@ -139,4 +139,40 @@ class HookableTest < ActiveSupport::TestCase
       )
     end
   end
+
+  # --- Validation feedback detection ---
+
+  test "completing a subtask with parent_task enqueues ProcessValidationResultJob" do
+    subtask = tasks(:subtask_one)  # has parent_task: design_homepage, status: open
+    subtask.update_columns(assignee_id: @http_agent.id)
+    subtask.reload
+
+    assert_enqueued_with(job: ProcessValidationResultJob, args: [ subtask.id ]) do
+      subtask.update!(status: :completed)
+    end
+  end
+
+  test "completing a root task does not enqueue ProcessValidationResultJob" do
+    # design_homepage has no parent_task
+    assert_no_enqueued_jobs(only: ProcessValidationResultJob) do
+      @task.update!(status: :completed)
+    end
+  end
+
+  test "completing a subtask without parent_task does not enqueue ProcessValidationResultJob" do
+    task = tasks(:write_tests)  # no assignee, no parent
+    assert_no_enqueued_jobs(only: ProcessValidationResultJob) do
+      task.update!(status: :completed)
+    end
+  end
+
+  test "transitioning subtask to in_progress does not enqueue ProcessValidationResultJob" do
+    subtask = tasks(:subtask_one)
+    subtask.update_columns(assignee_id: @http_agent.id)
+    subtask.reload
+
+    assert_no_enqueued_jobs(only: ProcessValidationResultJob) do
+      subtask.update!(status: :in_progress)
+    end
+  end
 end
