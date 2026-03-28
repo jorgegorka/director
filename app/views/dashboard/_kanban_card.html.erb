@@ -1,0 +1,20 @@
+<div class="kanban-card"
+     draggable="true"
+     data-kanban-target="card"
+     data-task-id="<%= task.id %>"
+     data-action="dragstart->kanban#dragStart dragend->kanban#dragEnd">
+  <div class="kanban-card__title">
+    <%= link_to task.title, task_path(task) %>
+  </div>
+  <div class="kanban-card__meta">
+    <%= task_priority_badge(task) %>
+    <% if task.assignee.present? %>
+      <span class="kanban-card__assignee"><%= task.assignee.name %></span>
+    <% else %>
+      <span class="kanban-card__unassigned">Unassigned</span>
+    <% end %>
+    <% if task.cost_cents.present? %>
+      <span class="kanban-card__cost"><%= format_cents_as_dollars(task.cost_cents) %></span>
+    <% end %>
+  </div>
+</div>
