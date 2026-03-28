@@ -34,6 +34,7 @@ Rails.application.routes.draw do
   resources :agents do
     resources :agent_skills, only: [ :create, :destroy ]
     resources :heartbeats, only: [ :index ]
+    resources :agent_hooks
     member do
       post :pause
       post :resume
