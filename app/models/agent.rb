@@ -13,6 +13,9 @@ class Agent < ApplicationRecord
   has_many :agent_hooks, dependent: :destroy
   has_many :agent_runs, dependent: :destroy
 
+  has_many :agent_documents, dependent: :destroy, inverse_of: :agent
+  has_many :documents, through: :agent_documents
+
   enum :adapter_type, { http: 0, process: 1, claude_local: 2 }
   enum :status, { idle: 0, running: 1, paused: 2, error: 3, terminated: 4, pending_approval: 5 }
 
@@ -141,6 +144,14 @@ class Agent < ApplicationRecord
     agent_runs.where.not(claude_session_id: nil)
               .order(created_at: :desc)
               .pick(:claude_session_id)
+  end
+
+  def all_documents
+    skill_doc_ids = SkillDocument.where(skill_id: skill_ids).select(:document_id)
+
+    Document.for_current_company
+      .where(id: documents.select(:id))
+      .or(Document.for_current_company.where(id: skill_doc_ids))
   end
 
   def gate_enabled?(action_type)
