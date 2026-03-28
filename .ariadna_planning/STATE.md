@@ -10,14 +10,14 @@ See: .ariadna_planning/PROJECT.md (updated 2026-03-28)
 ## Current Position
 
 Phase: 17 - Agent Skill Management
-Plan: --
-Status: Not started
-Last activity: 2026-03-28 -- Phase 16 complete: Skills CRUD with full controller, views, category filtering, builtin protection, nav link, 35 new tests, 726 total pass
+Plan: 01
+Status: Plan 01 complete
+Last activity: 2026-03-28 -- Phase 17-01 complete: AgentSkillsController + interactive skill management UI on agent show + skill name tags on agent card, 726 tests pass
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 31
+- Total plans completed: 32
 - Average duration: ~8 minutes
 - Total execution time: ~175 minutes
 
@@ -41,10 +41,11 @@ Last activity: 2026-03-28 -- Phase 16 complete: Skills CRUD with full controller
 | 14-skill-catalog-seeding | 2/2 | ~12 min | ~6 min |
 | 15-role-auto-assignment | 1/1 | ~2 min | ~2 min |
 | 16-skills-crud | 2/2 | ~13 min | ~6.5 min |
+| 17-agent-skill-management | 1/? | ~2 min | ~2 min |
 
 **Recent Trend:**
-- Last 5 plans: 14-02 (~2 min), 15-01 (~2 min), 16-01 (~8 min), 16-02 (~5 min)
-- Trend: consistent, stable. v1.0 COMPLETE. v1.1 COMPLETE. v1.2 in progress (Phase 16 COMPLETE).
+- Last 5 plans: 15-01 (~2 min), 16-01 (~8 min), 16-02 (~5 min), 17-01 (~2 min)
+- Trend: consistent, stable. v1.0 COMPLETE. v1.1 COMPLETE. v1.2 in progress (Phase 17-01 COMPLETE).
 
 *Updated after each plan completion*
 
@@ -155,6 +156,10 @@ Recent decisions affecting current work:
 - [15-01]: Role uses saved_change_to_agent_id? and agent_id_before_last_save for post-save dirty tracking -- correct pattern for after_save callbacks (vs will_save_change_to_* which is pre-save)
 - [15-01]: after_save with :if guard is more idiomatic than checking conditions inside the callback method; guard is a pure predicate method
 - [15-01]: default_skills_config memoized at class level (@default_skills_config ||=) -- YAML file read once per process, not on every role save
+- [17-01]: AgentSkillsController create uses find_or_create_by!(skill:) for idempotency -- assigning an already-assigned skill is a safe no-op
+- [17-01]: @assigned_skill_ids = @agent.skill_ids.to_set in AgentsController#show -- Set membership for O(1) lookup per skill in checkbox loop
+- [17-01]: Checkbox toggle UI pattern: button_to DELETE for checked (assigned) skills, button_to POST with skill_id param for unchecked -- no JS required
+- [17-01]: AgentSkill lookup for destroy path uses in-memory find on @agent.agent_skills (already loaded via includes) -- no extra DB query per skill row
 
 ### Pending Todos
 
@@ -167,6 +172,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-28
-Stopped at: Phase 16 plan 02 complete (SkillsController tests), 726 tests pass
-Resume file: .ariadna_planning/phases/16-skills-crud/16-02-SUMMARY.md
-Next step: /ariadna:plan-phase 17 (Agent Skill Management UI)
+Stopped at: Phase 17 plan 01 complete (AgentSkillsController + skill management UI), 726 tests pass
+Resume file: .ariadna_planning/phases/17-agent-skill-management/17-01-SUMMARY.md
+Next step: Phase 17 plan 02 (if exists) or complete phase 17
