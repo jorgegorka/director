@@ -141,9 +141,11 @@ has_many :agent_documents, dependent: :destroy
 has_many :documents, through: :agent_documents
 
 def all_documents
+  skill_doc_ids = SkillDocument.where(skill_id: skill_ids).select(:document_id)
+
   Document.for_current_company
     .where(id: documents.select(:id))
-    .or(Document.for_current_company.where(id: skill_document_ids))
+    .or(Document.for_current_company.where(id: skill_doc_ids))
 end
 ```
 
