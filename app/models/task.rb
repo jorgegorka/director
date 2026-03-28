@@ -26,6 +26,8 @@ class Task < ApplicationRecord
 
   before_save :set_completed_at
   after_commit :trigger_assignment_wake, on: [ :create, :update ], if: :agent_just_assigned?
+  after_commit :broadcast_kanban_update, on: [ :create, :update ]
+  after_commit :broadcast_kanban_remove, on: :destroy
 
   def cost_in_dollars
     return nil unless cost_cents
@@ -33,6 +35,28 @@ class Task < ApplicationRecord
   end
 
   private
+
+  def broadcast_kanban_update
+    return unless company_id
+    Turbo::StreamsChannel.broadcast_remove_to(
+      "dashboard_company_#{company_id}",
+      target: "kanban-task-#{id}"
+    )
+    Turbo::StreamsChannel.broadcast_append_to(
+      "dashboard_company_#{company_id}",
+      target: "kanban-column-body-#{status}",
+      partial: "dashboard/kanban_card",
+      locals: { task: self }
+    )
+  end
+
+  def broadcast_kanban_remove
+    return unless company_id
+    Turbo::StreamsChannel.broadcast_remove_to(
+      "dashboard_company_#{company_id}",
+      target: "kanban-task-#{id}"
+    )
+  end
 
   def assignee_belongs_to_same_company
     if assignee.present? && assignee.company_id != company_id

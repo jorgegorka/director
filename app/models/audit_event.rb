@@ -5,6 +5,8 @@ class AuditEvent < ApplicationRecord
 
   validates :action, presence: true
 
+  after_create_commit :broadcast_activity_event
+
   scope :chronological, -> { order(:created_at) }
   scope :reverse_chronological, -> { order(created_at: :desc) }
   scope :for_action, ->(action_name) { where(action: action_name) }
@@ -16,6 +18,7 @@ class AuditEvent < ApplicationRecord
   GOVERNANCE_ACTIONS = %w[
     gate_approval
     gate_rejection
+    gate_blocked
     emergency_stop
     emergency_resume
     agent_paused
@@ -32,5 +35,17 @@ class AuditEvent < ApplicationRecord
 
   def governance_action?
     GOVERNANCE_ACTIONS.include?(action)
+  end
+
+  private
+
+  def broadcast_activity_event
+    return unless company_id
+    Turbo::StreamsChannel.broadcast_prepend_to(
+      "dashboard_company_#{company_id}",
+      target: "activity-timeline",
+      partial: "dashboard/activity_event",
+      locals: { event: self }
+    )
   end
 end

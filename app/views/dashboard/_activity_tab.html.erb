@@ -18,7 +18,7 @@
   </div>
 
   <% if @activity_events.any? %>
-    <div class="activity-timeline">
+    <div class="activity-timeline" id="activity-timeline">
       <% @activity_events.each do |event| %>
         <%= render "dashboard/activity_event", event: event %>
       <% end %>

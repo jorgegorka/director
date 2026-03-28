@@ -1,6 +1,7 @@
 class Agent < ApplicationRecord
   include Tenantable
   include Notifiable
+  include Auditable
   include ConfigVersioned
 
   has_many :agent_capabilities, dependent: :destroy
@@ -24,6 +25,7 @@ class Agent < ApplicationRecord
 
   before_create :generate_api_token
   after_commit :sync_heartbeat_schedule, if: :heartbeat_config_changed?
+  after_commit :broadcast_dashboard_update, if: :saved_change_to_status?
 
   def regenerate_api_token!
     update!(api_token: self.class.generate_unique_api_token)
@@ -129,11 +131,11 @@ class Agent < ApplicationRecord
   end
 
   def gate_enabled?(action_type)
-    approval_gates.enabled.exists?(action_type: action_type)
+    approval_gates.any? { |g| g.enabled? && g.action_type == action_type.to_s }
   end
 
   def has_any_gates?
-    approval_gates.enabled.any?
+    approval_gates.any?(&:enabled?)
   end
 
   def governance_attributes
@@ -141,6 +143,26 @@ class Agent < ApplicationRecord
   end
 
   private
+
+  def broadcast_dashboard_update
+    broadcast_overview_stats
+  end
+
+  def broadcast_overview_stats
+    company = Company.find(company_id)
+    agents = company.agents.active
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "dashboard_company_#{company_id}",
+      target: "dashboard-overview-stats",
+      partial: "dashboard/overview_stats",
+      locals: {
+        total_agents: agents.count,
+        agents_online: agents.where(status: [ :idle, :running ]).count,
+        tasks_active: company.tasks.active.count,
+        tasks_completed: company.tasks.completed.count
+      }
+    )
+  end
 
   def generate_api_token
     self.api_token ||= self.class.generate_unique_api_token

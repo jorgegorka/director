@@ -13,7 +13,7 @@
           <span class="kanban__column-title"><%= status.humanize %></span>
           <span class="kanban__column-count"><%= @tasks_by_status[status].size %></span>
         </div>
-        <div class="kanban__column-body">
+        <div class="kanban__column-body" id="kanban-column-body-<%= status %>">
           <% @tasks_by_status[status].each do |task| %>
             <%= render "dashboard/kanban_card", task: task %>
           <% end %>
