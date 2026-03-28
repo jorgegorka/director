@@ -10,9 +10,9 @@ See: .ariadna_planning/PROJECT.md (updated 2026-03-28)
 ## Current Position
 
 Phase: 13 - Skill Data Model
-Plan: --
-Status: Not started
-Last activity: 2026-03-28 -- Roadmap created for v1.2 Agent Skills milestone
+Plan: 01 (complete)
+Status: In progress
+Last activity: 2026-03-28 -- Plan 13-01 complete: skills/agent_skills tables, models, and tests
 
 ## Performance Metrics
 
@@ -37,6 +37,7 @@ Last activity: 2026-03-28 -- Roadmap created for v1.2 Agent Skills milestone
 | 10-dashboard-real-time-ui | 4/4 | ~19 min | ~4.8 min |
 | 11-sqlite-migration | 2/2 | ~13 min | ~6.5 min |
 | 12-cleanup-verification | 1/1 | ~15 min | ~15 min |
+| 13-skill-data-model | 1/? | ~3 min | ~3 min |
 
 **Recent Trend:**
 - Last 5 plans: 10-04 (~3 min), 11-01 (~8 min), 11-02 (~5 min), 12-01 (~15 min)
@@ -139,6 +140,8 @@ Recent decisions affecting current work:
 - [12-01]: Rephrase (not just checkbox) PostgreSQL references to achieve zero grep matches: requirement text and key decision table entry renamed
 - [12-01]: Removing :test group from Gemfile leaves trailing blank line — rubocop auto-fix required; stage Gemfile before committing
 - [12-01]: Test count after removing 7 home_controller tests: landed at 668 (not 667 as predicted), all passing with 0 failures
+- [13-01]: Agent needs has_many :agent_skills, dependent: :destroy and Company needs has_many :skills, dependent: :destroy -- FK cascade constraints block destroy tests otherwise
+- [13-01]: Skill uniqueness: unique index on [company_id, key] enforced at DB + model level; two companies can share a key, one company cannot duplicate it
 
 ### Pending Todos
 
@@ -151,6 +154,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-28
-Stopped at: v1.2 roadmap created, ready to plan Phase 13
-Resume file: .ariadna_planning/ROADMAP.md
-Next step: /ariadna:plan-phase 13
+Stopped at: Plan 13-01 complete -- skills/agent_skills data model with tests
+Resume file: .ariadna_planning/phases/13-skill-data-model/13-01-SUMMARY.md
+Next step: Execute plan 13-02 (agent_capabilities migration and skill auto-assignment)
