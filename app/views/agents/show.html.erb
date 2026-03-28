@@ -171,22 +171,19 @@
     </div>
 
     <div class="agent-detail__section">
-      <h2>Capabilities (<%= @agent.agent_capabilities.size %>)</h2>
-      <div class="agent-detail__capabilities">
-        <% @agent.agent_capabilities.by_name.each do |cap| %>
-          <div class="capability-badge" title="<%= cap.description %>">
-            <span><%= cap.name %></span>
-            <%= button_to "×", agent_capability_path(@agent, cap), method: :delete,
-                  class: "capability-badge__remove",
-                  data: { turbo_confirm: "Remove '#{cap.name}' capability?" } %>
+      <h2>Skills (<%= @agent.skills.size %>)</h2>
+      <div class="agent-detail__skills">
+        <% @agent.skills.order(:name).each do |skill| %>
+          <div class="skill-badge" title="<%= skill.description %>">
+            <span><%= skill.name %></span>
+            <% if skill.category.present? %>
+              <span class="skill-badge__category"><%= skill.category %></span>
+            <% end %>
           </div>
         <% end %>
       </div>
-      <%= form_with(url: agent_capabilities_path(@agent), class: "form form--inline") do |f| %>
-        <div class="form__field form__field--inline">
-          <%= f.text_field "agent_capability[name]", placeholder: "Add a capability (e.g. coding, analysis, data_processing)", required: true %>
-          <%= f.submit "Add", class: "btn btn--primary btn--sm" %>
-        </div>
+      <% if @agent.skills.empty? %>
+        <p class="empty-state">No skills assigned yet.</p>
       <% end %>
     </div>
 

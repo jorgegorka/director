@@ -10,8 +10,8 @@
     <% end %>
   </div>
   <div class="agent-card__footer">
-    <% if agent.agent_capabilities.any? %>
-      <span class="agent-card__capabilities"><%= pluralize(agent.agent_capabilities.size, "capability") %></span>
+    <% if agent.skills.any? %>
+      <span class="agent-card__skills"><%= pluralize(agent.skills.size, "skill") %></span>
     <% end %>
     <% if agent.roles.any? %>
       <span class="agent-card__roles"><%= pluralize(agent.roles.size, "role") %></span>

@@ -4,7 +4,6 @@ class Agent < ApplicationRecord
   include Auditable
   include ConfigVersioned
 
-  has_many :agent_capabilities, dependent: :destroy
   has_many :agent_skills, dependent: :destroy
   has_many :skills, through: :agent_skills
   has_many :roles, dependent: :nullify

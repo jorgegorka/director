@@ -3,7 +3,7 @@ class AgentsController < ApplicationController
   before_action :set_agent, only: [ :show, :edit, :update, :destroy, :pause, :resume, :terminate, :approve, :reject ]
 
   def index
-    @agents = Current.company.agents.includes(:agent_capabilities, :roles).order(:name)
+    @agents = Current.company.agents.includes(:skills, :roles).order(:name)
   end
 
   def show
@@ -120,7 +120,7 @@ class AgentsController < ApplicationController
   private
 
   def set_agent
-    @agent = Current.company.agents.includes(:agent_capabilities, :roles, :approval_gates).find(params[:id])
+    @agent = Current.company.agents.includes(:skills, :roles, :approval_gates).find(params[:id])
   end
 
   def sync_approval_gates

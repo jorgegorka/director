@@ -121,9 +121,14 @@ class AgentTest < ActiveSupport::TestCase
     assert_equal @company, @claude_agent.company
   end
 
-  test "has many agent_capabilities" do
-    capabilities = @claude_agent.agent_capabilities
-    assert_equal 2, capabilities.count
+  test "has many skills through agent_skills" do
+    skills = @claude_agent.skills
+    assert_equal 2, skills.count
+    assert skills.all? { |s| s.is_a?(Skill) }
+  end
+
+  test "has many agent_skills" do
+    assert_equal 2, @claude_agent.agent_skills.count
   end
 
   test "has many roles" do
@@ -209,10 +214,10 @@ class AgentTest < ActiveSupport::TestCase
     assert_nil cto.agent_id
   end
 
-  test "destroying agent destroys its capabilities" do
-    cap_count = @claude_agent.agent_capabilities.count
-    assert cap_count > 0
-    assert_difference "AgentCapability.count", -cap_count do
+  test "destroying agent destroys its agent_skills" do
+    skill_count = @claude_agent.agent_skills.count
+    assert skill_count > 0
+    assert_difference "AgentSkill.count", -skill_count do
       @claude_agent.destroy
     end
   end
