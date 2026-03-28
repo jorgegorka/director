@@ -12,7 +12,7 @@ See: .ariadna_planning/PROJECT.md (updated 2026-03-28)
 Phase: 25 of 25 (Live Streaming UI and Result Callbacks) -- COMPLETE
 Plan: 3 of 3 in current phase -- COMPLETE
 Status: Phase 25 Plan 03 done -- all 25 phases complete, v1.4 Agent Execution COMPLETE
-Last activity: 2026-03-28 -- Phase 25 Plan 03 complete (Api::AgentRunsController result+progress callbacks, CALLBACK-01 through CALLBACK-04, 1116 tests passing)
+Last activity: 2026-03-28 -- Phase 25 Plan 02 complete (agent status broadcasting STREAM-02, tool-use indicators STREAM-03, cancel STREAM-04, broadcast batching STREAM-05, 1124 tests passing)
 
 Progress: [██████████████████████████] 100% (25/25 phases complete)
 
@@ -83,6 +83,9 @@ Recent decisions affecting current work:
 - [24-01]: define_singleton_method blocks run with self = the class, not the test instance -- use local variable closures (spawn_calls = @spawn_calls = []) to share state between define_singleton_method blocks and test assertions
 - [24-01]: ExecuteAgentJob loads a fresh AR object via agent_run.agent, so singleton method stubs on test @agent instances do not apply -- use real DB state to trigger budget exhaustion
 - [25-01]: assert_raises(ActiveRecord::RecordNotFound) does not work in Rails integration tests -- Rails catches the exception and converts to 404 response; use assert_response :not_found instead (established pattern in agents_controller_test.rb)
+- [25-02]: assert_response :not_found used for cancel scoping test -- same pattern as 25-01; Rails integration tests return 404 not raise RecordNotFound
+- [25-02]: cancel! checks terminal? (all 3 states) not just completed?/failed? -- defensive, consistent guard
+- [25-02]: broadcast_flush! via after_commit not inside mark_completed!/mark_failed! -- fires after DB commit, prevents race
 - [25-03]: Agent run callbacks placed outside scope :agent block in routes -- runs are identified by their integer ID, not by agent token scope; Bearer token auth still enforced via AgentApiAuthenticatable
 - [25-03]: update_task_on_completion and record_cost_on_task are private controller helpers delegating to existing model methods (mark_completed!, broadcast_line!) and BudgetEnforcementService -- thin controller pattern maintained
 
@@ -99,6 +102,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-28
-Stopped at: Phase 25 Plan 03 complete -- Api::AgentRunsController with result/progress callbacks, all four CALLBACK requirements implemented (CALLBACK-01 through CALLBACK-04), 18 new tests, 1116 total tests passing. ALL 25 PHASES COMPLETE.
+Stopped at: Phase 25 Plan 02 complete -- agent status broadcasting on show page (STREAM-02), tool-use visual indicators in log output (STREAM-03), cancel! with tmux kill (STREAM-04), 100ms broadcast batching (STREAM-05), broadcast_flush! on terminal status. 30 new tests, 1124 total tests passing. ALL 25 PHASES COMPLETE (Plans 01-03 all done).
 Resume file: --
 Next step: v1.4 complete. Consider v1.5 planning or production deployment review.
