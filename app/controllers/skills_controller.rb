@@ -11,7 +11,7 @@ class SkillsController < ApplicationController
 
   def show
     @agents = @skill.agents.order(:name)
-    @skill_document_links = @skill.skill_documents.includes(:document).order("documents.title")
+    @skill_document_links = @skill.skill_documents.joins(:document).includes(:document).order("documents.title")
   end
 
   def new

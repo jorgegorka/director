@@ -5,7 +5,7 @@ class DocumentsController < ApplicationController
   def index
     @documents = Current.company.documents.includes(:author, :tags).order(:title)
     @documents = @documents.tagged_with(params[:tag]) if params[:tag].present?
-    @documents = @documents.where("title LIKE ?", "%#{params[:q]}%") if params[:q].present?
+    @documents = @documents.search_by_title(params[:q]) if params[:q].present?
     @tags = Current.company.document_tags.order(:name)
     @current_tag = params[:tag]
   end

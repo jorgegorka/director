@@ -15,7 +15,7 @@ class TasksController < ApplicationController
     @messages = @task.messages.includes(:author, replies: :author).roots.chronological
     @audit_events = @task.audit_events.includes(:actor).reverse_chronological
     @message = Message.new
-    @task_document_links = @task.task_documents.includes(:document).order("documents.title")
+    @task_document_links = @task.task_documents.joins(:document).includes(:document).order("documents.title")
   end
 
   def new

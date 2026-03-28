@@ -72,7 +72,7 @@ class ExecuteAgentJob < ApplicationJob
         id: doc.id,
         title: doc.title,
         body: doc.body,
-        tags: doc.tags.pluck(:name)
+        tags: doc.tags.map(&:name)
       }
     end
   end

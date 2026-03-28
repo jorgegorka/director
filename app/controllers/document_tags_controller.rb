@@ -2,7 +2,11 @@ class DocumentTagsController < ApplicationController
   before_action :require_company!
 
   def index
-    @tags = Current.company.document_tags.order(:name)
+    @tags = Current.company.document_tags
+              .left_joins(:document_taggings)
+              .select("document_tags.*, COUNT(document_taggings.id) AS documents_count")
+              .group("document_tags.id")
+              .order(:name)
   end
 
   def create
@@ -11,7 +15,7 @@ class DocumentTagsController < ApplicationController
     if @tag.save
       redirect_to document_tags_path, notice: "Tag '#{@tag.name}' created."
     else
-      @tags = Current.company.document_tags.order(:name)
+      index
       render :index, status: :unprocessable_entity
     end
   end

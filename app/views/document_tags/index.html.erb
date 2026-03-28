@@ -18,7 +18,7 @@
       <% @tags.each do |tag| %>
         <div class="document-tag">
           <span class="document-tag__name"><%= tag.name %></span>
-          <span class="document-tag__count"><%= tag.documents.count %></span>
+          <span class="document-tag__count"><%= tag.documents_count %></span>
           <%= button_to document_tag_path(tag), method: :delete,
                 class: "document-tag__remove",
                 title: "Delete tag '#{tag.name}'",

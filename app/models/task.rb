@@ -14,7 +14,7 @@ class Task < ApplicationRecord
   has_many :hook_executions, dependent: :destroy
   has_many :agent_runs, dependent: :nullify
 
-  has_many :task_documents, dependent: :destroy
+  has_many :task_documents, dependent: :destroy, inverse_of: :task
   has_many :documents, through: :task_documents
 
   enum :status, { open: 0, in_progress: 1, blocked: 2, completed: 3, cancelled: 4 }
