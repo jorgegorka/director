@@ -5,6 +5,8 @@ class Agent < ApplicationRecord
   include ConfigVersioned
 
   has_many :agent_capabilities, dependent: :destroy
+  has_many :agent_skills, dependent: :destroy
+  has_many :skills, through: :agent_skills
   has_many :roles, dependent: :nullify
   has_many :assigned_tasks, class_name: "Task", foreign_key: :assignee_id, inverse_of: :assignee, dependent: :nullify
   has_many :heartbeat_events, dependent: :destroy

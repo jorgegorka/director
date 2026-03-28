@@ -4,6 +4,7 @@ class Company < ApplicationRecord
   has_many :invitations, dependent: :destroy
   has_many :roles, dependent: :destroy
   has_many :agents, dependent: :destroy
+  has_many :skills, dependent: :destroy
   has_many :tasks, dependent: :destroy
   has_many :goals, dependent: :destroy
   has_many :notifications, dependent: :destroy
