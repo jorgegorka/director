@@ -1,0 +1,38 @@
+<div class="activity-feed">
+  <div class="activity-feed__header">
+    <h2>Activity Timeline</h2>
+    <div class="activity-feed__filter">
+      <%= form_with url: root_path, method: :get, class: "form--inline", data: { turbo_frame: "_top" } do |f| %>
+        <input type="hidden" name="tab" value="activity">
+        <%= f.select :agent_filter,
+            options_for_select(
+              [["All activity", ""], ["All agents", "agents_only"]] +
+              @filter_agents.map { |a| [a.name, a.id] },
+              params[:agent_filter]
+            ),
+            {},
+            class: "form__select form__select--sm",
+            onchange: "this.form.requestSubmit()" %>
+      <% end %>
+    </div>
+  </div>
+
+  <% if @activity_events.any? %>
+    <div class="activity-timeline">
+      <% @activity_events.each do |event| %>
+        <%= render "dashboard/activity_event", event: event %>
+      <% end %>
+    </div>
+
+    <% if @activity_events.size >= 50 %>
+      <p class="activity-feed__more">
+        Showing 50 most recent events.
+        <%= link_to "View full audit log", audit_logs_path %>
+      </p>
+    <% end %>
+  <% else %>
+    <div class="activity-feed__empty">
+      <p>No activity recorded yet<%= " for this filter" if params[:agent_filter].present? %>.</p>
+    </div>
+  <% end %>
+</div>

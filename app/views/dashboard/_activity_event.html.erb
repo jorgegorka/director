@@ -1,0 +1,22 @@
+<div class="activity-event">
+  <div class="activity-event__dot"></div>
+  <div class="activity-event__content">
+    <div class="activity-event__header">
+      <%= audit_action_badge(event.action) %>
+      <span class="activity-event__actor"><%= audit_actor_display(event) %></span>
+      <time class="activity-event__time"
+            datetime="<%= event.created_at.iso8601 %>"
+            title="<%= event.created_at.strftime("%B %d, %Y at %I:%M %p") %>">
+        <%= time_ago_in_words(event.created_at) %> ago
+      </time>
+    </div>
+    <div class="activity-event__target">
+      <%= audit_auditable_display(event) %>
+    </div>
+    <% if event.metadata.present? %>
+      <div class="activity-event__metadata">
+        <%= audit_metadata_display(event.metadata) %>
+      </div>
+    <% end %>
+  </div>
+</div>

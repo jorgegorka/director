@@ -1,5 +1,5 @@
 <% content_for(:title, "Dashboard") %>
-<section class="dashboard" data-controller="tabs" data-tabs-active-tab-value="overview">
+<section class="dashboard" data-controller="tabs" data-tabs-active-tab-value="<%= params[:tab] || "overview" %>">
   <div class="dashboard__header">
     <h1><%= @company.name %></h1>
     <p class="dashboard__subtitle">Company command center</p>
@@ -20,7 +20,7 @@
   <% end %>
 
   <nav class="dashboard-tabs" role="tablist">
-    <button class="dashboard-tab dashboard-tab--active"
+    <button class="dashboard-tab"
             data-tabs-target="tab" data-tab="overview"
             data-action="click->tabs#switch" role="tab">
       Overview
@@ -41,9 +41,9 @@
     <%= render "dashboard/overview_tab" %>
   </div>
   <div data-tabs-target="panel" data-tab-name="tasks" hidden>
-    <p class="dashboard-placeholder">Task board loading in next update...</p>
+    <%= render "dashboard/tasks_tab" %>
   </div>
   <div data-tabs-target="panel" data-tab-name="activity" hidden>
-    <p class="dashboard-placeholder">Activity feed loading in next update...</p>
+    <%= render "dashboard/activity_tab" %>
   </div>
 </section>
