@@ -11,7 +11,23 @@ class Company < ApplicationRecord
   has_many :config_versions, dependent: :destroy
   has_many :audit_events, dependent: :delete_all
 
+  after_create :seed_default_skills!
+
   validates :name, presence: true
+
+  def seed_default_skills!
+    skill_files = Dir[Rails.root.join("db/seeds/skills/*.yml")]
+    skill_files.each do |file|
+      data = YAML.load_file(file)
+      skills.find_or_create_by!(key: data.fetch("key")) do |skill|
+        skill.name = data.fetch("name")
+        skill.description = data["description"]
+        skill.markdown = data.fetch("markdown")
+        skill.category = data["category"]
+        skill.builtin = true
+      end
+    end
+  end
 
   def admin_recipients
     memberships
