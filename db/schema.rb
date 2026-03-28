@@ -10,7 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_28_181016) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_28_193033) do
+  create_table "agent_documents", force: :cascade do |t|
+    t.integer "agent_id", null: false
+    t.datetime "created_at", null: false
+    t.integer "document_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["agent_id", "document_id"], name: "index_agent_documents_on_agent_id_and_document_id", unique: true
+    t.index ["agent_id"], name: "index_agent_documents_on_agent_id"
+    t.index ["document_id"], name: "index_agent_documents_on_document_id"
+  end
+
   create_table "agent_hooks", force: :cascade do |t|
     t.json "action_config", default: {}, null: false
     t.integer "action_type", default: 0, null: false
@@ -135,6 +145,40 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_28_181016) do
     t.index ["company_id"], name: "index_config_versions_on_company_id"
     t.index ["versionable_type", "versionable_id", "created_at"], name: "index_config_versions_on_versionable_and_time"
     t.index ["versionable_type", "versionable_id"], name: "index_config_versions_on_versionable"
+  end
+
+  create_table "document_taggings", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "document_id", null: false
+    t.integer "document_tag_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["document_id", "document_tag_id"], name: "index_document_taggings_on_document_id_and_document_tag_id", unique: true
+    t.index ["document_id"], name: "index_document_taggings_on_document_id"
+    t.index ["document_tag_id"], name: "index_document_taggings_on_document_tag_id"
+  end
+
+  create_table "document_tags", force: :cascade do |t|
+    t.integer "company_id", null: false
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["company_id", "name"], name: "index_document_tags_on_company_id_and_name", unique: true
+    t.index ["company_id"], name: "index_document_tags_on_company_id"
+  end
+
+  create_table "documents", force: :cascade do |t|
+    t.integer "author_id", null: false
+    t.string "author_type", null: false
+    t.text "body", null: false
+    t.integer "company_id", null: false
+    t.datetime "created_at", null: false
+    t.integer "last_editor_id"
+    t.string "last_editor_type"
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.index ["author_type", "author_id"], name: "index_documents_on_author_type_and_author_id"
+    t.index ["company_id"], name: "index_documents_on_company_id"
+    t.index ["last_editor_type", "last_editor_id"], name: "index_documents_on_last_editor_type_and_last_editor_id"
   end
 
   create_table "goals", force: :cascade do |t|
@@ -269,6 +313,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_28_181016) do
     t.index ["user_id"], name: "index_sessions_on_user_id"
   end
 
+  create_table "skill_documents", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "document_id", null: false
+    t.integer "skill_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["document_id"], name: "index_skill_documents_on_document_id"
+    t.index ["skill_id", "document_id"], name: "index_skill_documents_on_skill_id_and_document_id", unique: true
+    t.index ["skill_id"], name: "index_skill_documents_on_skill_id"
+  end
+
   create_table "skills", force: :cascade do |t|
     t.boolean "builtin", default: true, null: false
     t.string "category"
@@ -282,6 +336,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_28_181016) do
     t.index ["company_id", "category"], name: "index_skills_on_company_id_and_category"
     t.index ["company_id", "key"], name: "index_skills_on_company_id_and_key", unique: true
     t.index ["company_id"], name: "index_skills_on_company_id"
+  end
+
+  create_table "task_documents", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "document_id", null: false
+    t.integer "task_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["document_id"], name: "index_task_documents_on_document_id"
+    t.index ["task_id", "document_id"], name: "index_task_documents_on_task_id_and_document_id", unique: true
+    t.index ["task_id"], name: "index_task_documents_on_task_id"
   end
 
   create_table "tasks", force: :cascade do |t|
@@ -316,6 +380,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_28_181016) do
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
   end
 
+  add_foreign_key "agent_documents", "agents"
+  add_foreign_key "agent_documents", "documents"
   add_foreign_key "agent_hooks", "agents"
   add_foreign_key "agent_hooks", "companies"
   add_foreign_key "agent_runs", "agents"
@@ -327,6 +393,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_28_181016) do
   add_foreign_key "approval_gates", "agents"
   add_foreign_key "audit_events", "companies"
   add_foreign_key "config_versions", "companies"
+  add_foreign_key "document_taggings", "document_tags"
+  add_foreign_key "document_taggings", "documents"
+  add_foreign_key "document_tags", "companies"
+  add_foreign_key "documents", "companies"
   add_foreign_key "goals", "companies"
   add_foreign_key "goals", "goals", column: "parent_id"
   add_foreign_key "heartbeat_events", "agents"
@@ -344,7 +414,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_28_181016) do
   add_foreign_key "roles", "companies"
   add_foreign_key "roles", "roles", column: "parent_id"
   add_foreign_key "sessions", "users"
+  add_foreign_key "skill_documents", "documents"
+  add_foreign_key "skill_documents", "skills"
   add_foreign_key "skills", "companies"
+  add_foreign_key "task_documents", "documents"
+  add_foreign_key "task_documents", "tasks"
   add_foreign_key "tasks", "agents", column: "assignee_id"
   add_foreign_key "tasks", "companies"
   add_foreign_key "tasks", "goals"
