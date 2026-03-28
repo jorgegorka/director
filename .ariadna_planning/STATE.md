@@ -10,14 +10,14 @@ See: .ariadna_planning/PROJECT.md (updated 2026-03-28)
 ## Current Position
 
 Phase: 13 - Skill Data Model
-Plan: 01 (complete)
+Plan: 02 (complete)
 Status: In progress
-Last activity: 2026-03-28 -- Plan 13-01 complete: skills/agent_skills tables, models, and tests
+Last activity: 2026-03-28 -- Plan 13-02 complete: dropped agent_capabilities, wired skills associations, updated views/routes/tests
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 25
+- Total plans completed: 26
 - Average duration: ~8 minutes
 - Total execution time: ~161 minutes
 
@@ -37,7 +37,7 @@ Last activity: 2026-03-28 -- Plan 13-01 complete: skills/agent_skills tables, mo
 | 10-dashboard-real-time-ui | 4/4 | ~19 min | ~4.8 min |
 | 11-sqlite-migration | 2/2 | ~13 min | ~6.5 min |
 | 12-cleanup-verification | 1/1 | ~15 min | ~15 min |
-| 13-skill-data-model | 1/? | ~3 min | ~3 min |
+| 13-skill-data-model | 2/? | ~11 min | ~5.5 min |
 
 **Recent Trend:**
 - Last 5 plans: 10-04 (~3 min), 11-01 (~8 min), 11-02 (~5 min), 12-01 (~15 min)
@@ -142,6 +142,8 @@ Recent decisions affecting current work:
 - [12-01]: Test count after removing 7 home_controller tests: landed at 668 (not 667 as predicted), all passing with 0 failures
 - [13-01]: Agent needs has_many :agent_skills, dependent: :destroy and Company needs has_many :skills, dependent: :destroy -- FK cascade constraints block destroy tests otherwise
 - [13-01]: Skill uniqueness: unique index on [company_id, key] enforced at DB + model level; two companies can share a key, one company cannot duplicate it
+- [13-02]: Skills section in agent show view is read-only (no add/remove UI) -- Phase 17 adds agent skill management UI; this plan only wires associations and updates display
+- [13-02]: Company has_many :skills was already in place from Plan 01 Rule 3 auto-fix; no changes needed to company.rb in this plan
 
 ### Pending Todos
 
@@ -154,6 +156,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-28
-Stopped at: Plan 13-01 complete -- skills/agent_skills data model with tests
-Resume file: .ariadna_planning/phases/13-skill-data-model/13-01-SUMMARY.md
-Next step: Execute plan 13-02 (agent_capabilities migration and skill auto-assignment)
+Stopped at: Plan 13-02 complete -- agent_capabilities dropped, skills wired, views/routes/tests updated
+Resume file: .ariadna_planning/phases/13-skill-data-model/13-02-SUMMARY.md
+Next step: Execute plan 13-03 (if exists) or proceed to Phase 14
