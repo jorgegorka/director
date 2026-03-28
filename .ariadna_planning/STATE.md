@@ -5,21 +5,21 @@
 See: .ariadna_planning/PROJECT.md (updated 2026-03-28)
 
 **Core value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
-**Current focus:** v1.4 Agent Execution -- Phase 24 complete, ready for Phase 25
+**Current focus:** v1.4 Agent Execution -- COMPLETE (all 25 phases done, including 25-03 callbacks)
 
 ## Current Position
 
 Phase: 25 of 25 (Live Streaming UI and Result Callbacks) -- COMPLETE
-Plan: 1 of 1 in current phase -- COMPLETE
-Status: Phase 25 Plan 01 done -- all 25 phases complete, v1.4 Agent Execution COMPLETE
-Last activity: 2026-03-28 -- Phase 25 Plan 01 complete (AgentRun#broadcast_line!, AgentRunsController, live streaming views, 1094 tests passing)
+Plan: 3 of 3 in current phase -- COMPLETE
+Status: Phase 25 Plan 03 done -- all 25 phases complete, v1.4 Agent Execution COMPLETE
+Last activity: 2026-03-28 -- Phase 25 Plan 03 complete (Api::AgentRunsController result+progress callbacks, CALLBACK-01 through CALLBACK-04, 1116 tests passing)
 
 Progress: [██████████████████████████] 100% (25/25 phases complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 44
+- Total plans completed: 45
 - Average duration: ~7 minutes
 - Total execution time: ~257 minutes
 
@@ -51,10 +51,10 @@ Progress: [███████████████████████
 | 22-agentrun-data-model-and-job-dispatch | 1/1 | ~4 min | ~4 min |
 | 23-http-adapter-real-execution | 1/1 | ~6 min | ~6 min |
 | 24-claude-local-adapter-with-tmux | 1/1 | ~11 min | ~11 min |
-| 25-live-streaming-ui-and-result-callbacks | 1/1 | ~18 min | ~18 min |
+| 25-live-streaming-ui-and-result-callbacks | 3/3 | ~22 min | ~7.3 min |
 
 **Recent Trend:**
-- Last 5 plans: 21-01 (~4 min), 22-01 (~4 min), 23-01 (~6 min), 24-01 (~11 min), 25-01 (~18 min)
+- Last 5 plans: 22-01 (~4 min), 23-01 (~6 min), 24-01 (~11 min), 25-01 (~18 min), 25-03 (~2 min)
 - Trend: consistent, stable. v1.0 COMPLETE. v1.1 COMPLETE. v1.2 COMPLETE. v1.3 COMPLETE. v1.4 COMPLETE.
 
 *Updated after each plan completion*
@@ -83,6 +83,8 @@ Recent decisions affecting current work:
 - [24-01]: define_singleton_method blocks run with self = the class, not the test instance -- use local variable closures (spawn_calls = @spawn_calls = []) to share state between define_singleton_method blocks and test assertions
 - [24-01]: ExecuteAgentJob loads a fresh AR object via agent_run.agent, so singleton method stubs on test @agent instances do not apply -- use real DB state to trigger budget exhaustion
 - [25-01]: assert_raises(ActiveRecord::RecordNotFound) does not work in Rails integration tests -- Rails catches the exception and converts to 404 response; use assert_response :not_found instead (established pattern in agents_controller_test.rb)
+- [25-03]: Agent run callbacks placed outside scope :agent block in routes -- runs are identified by their integer ID, not by agent token scope; Bearer token auth still enforced via AgentApiAuthenticatable
+- [25-03]: update_task_on_completion and record_cost_on_task are private controller helpers delegating to existing model methods (mark_completed!, broadcast_line!) and BudgetEnforcementService -- thin controller pattern maintained
 
 ### Pending Todos
 
@@ -97,6 +99,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-28
-Stopped at: Phase 25 complete -- AgentRun#broadcast_line! for live streaming, AgentRunsController with index/show views, turbo_stream_from subscription, ClaudeLocalAdapter updated to broadcast_line!, agent show page Recent Runs section. 1094 tests passing. ALL 25 PHASES COMPLETE.
+Stopped at: Phase 25 Plan 03 complete -- Api::AgentRunsController with result/progress callbacks, all four CALLBACK requirements implemented (CALLBACK-01 through CALLBACK-04), 18 new tests, 1116 total tests passing. ALL 25 PHASES COMPLETE.
 Resume file: --
 Next step: v1.4 complete. Consider v1.5 planning or production deployment review.
