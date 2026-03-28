@@ -8,6 +8,7 @@ class AgentsController < ApplicationController
 
   def show
     @recent_heartbeats = @agent.heartbeat_events.reverse_chronological.limit(5)
+    @recent_runs = @agent.agent_runs.order(created_at: :desc).limit(5)
     @company_skills = Current.company.skills.order(:category, :name)
     @agent_skills_by_skill_id = @agent.agent_skills.index_by(&:skill_id)
     @agent_document_links = @agent.agent_documents.joins(:document).includes(:document).order("documents.title")

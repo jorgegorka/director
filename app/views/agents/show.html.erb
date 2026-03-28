@@ -93,6 +93,36 @@
         <% end %>
       </div>
 
+      <%# Recent Runs %>
+      <div class="agent-detail__card">
+        <h2 class="agent-detail__card-title">Recent Runs</h2>
+        <% if @recent_runs.any? %>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Run</th>
+                <th>Status</th>
+                <th>Duration</th>
+                <th>Started</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @recent_runs.each do |run| %>
+                <tr>
+                  <td><%= link_to "##{run.id}", agent_agent_run_path(@agent, run) %></td>
+                  <td><%= agent_run_status_badge(run) %></td>
+                  <td><%= agent_run_duration(run) %></td>
+                  <td><%= run.started_at ? time_ago_in_words(run.started_at) + " ago" : "Queued" %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+          <%= link_to "View all runs", agent_agent_runs_path(@agent), class: "btn btn--ghost btn--sm" %>
+        <% else %>
+          <p class="agent-detail__empty-note">No execution runs yet. Runs appear when the agent is triggered.</p>
+        <% end %>
+      </div>
+
       <%# Skills %>
       <div class="agent-detail__card">
         <h2 class="agent-detail__card-title">Skills</h2>

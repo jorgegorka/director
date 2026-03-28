@@ -1,0 +1,40 @@
+<% content_for(:title, "#{@agent.name} - Runs") %>
+
+<section class="agent-runs">
+  <header class="agent-runs__header">
+    <div>
+      <h1>Execution Runs</h1>
+      <p class="agent-runs__subtitle"><%= link_to @agent.name, agent_path(@agent) %></p>
+    </div>
+    <%= link_to "Back to Agent", agent_path(@agent), class: "btn btn--ghost btn--sm" %>
+  </header>
+
+  <% if @agent_runs.any? %>
+    <table class="table agent-runs__table">
+      <thead>
+        <tr>
+          <th>Run</th>
+          <th>Status</th>
+          <th>Trigger</th>
+          <th>Duration</th>
+          <th>Cost</th>
+          <th>Started</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @agent_runs.each do |run| %>
+          <tr>
+            <td><%= link_to "##{run.id}", agent_agent_run_path(@agent, run) %></td>
+            <td><%= agent_run_status_badge(run) %></td>
+            <td><%= run.trigger_type&.humanize || "---" %></td>
+            <td><%= agent_run_duration(run) %></td>
+            <td><%= run.cost_cents ? format_cents_as_dollars(run.cost_cents) : "---" %></td>
+            <td><%= run.started_at ? time_ago_in_words(run.started_at) + " ago" : "Queued" %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p class="agent-runs__empty">No execution runs yet. Runs appear when the agent is triggered.</p>
+  <% end %>
+</section>
