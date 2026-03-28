@@ -272,10 +272,10 @@ Plans:
   2. If the agent URL returns a 4xx response, Director marks the run as permanently failed and does not retry
   3. If the agent URL returns a 5xx or times out, Director retries with exponential backoff and marks failed only after exhausting retries
   4. HTTP requests use explicit timeouts (5s connect, 30s read) so a slow or unresponsive agent URL never blocks a thread indefinitely
-**Plans**: TBD
+**Plans**: 1/1 complete
 
 Plans:
-- [ ] 23-01: HttpExecutionService with Net::HTTP delivery, timeout config, failure classification, and retry delegation
+- [x] 23-01: HttpAdapter.execute with Net::HTTP delivery, error classification, retry, and 18-test coverage
 
 ### Phase 24: Claude Local Adapter with Tmux
 **Goal**: Agents configured as Claude Local spawn a real claude CLI process via tmux and accumulate the full stream-JSON output with session resumption across runs
@@ -341,6 +341,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 20. Validation Feedback Loop | v1.3 | 1/1 | Complete | 2026-03-28 |
 | 21. Hook Management UI | v1.3 | 1/1 | Complete | 2026-03-28 |
 | 22. AgentRun Data Model and Job Dispatch | v1.4 | 1/1 | Complete | 2026-03-28 |
-| 23. HTTP Adapter Real Execution | v1.4 | 0/TBD | Not started | - |
+| 23. HTTP Adapter Real Execution | v1.4 | 1/1 | Complete | 2026-03-28 |
 | 24. Claude Local Adapter with Tmux | v1.4 | 0/TBD | Not started | - |
 | 25. Live Streaming UI and Result Callbacks | v1.4 | 0/TBD | Not started | - |
