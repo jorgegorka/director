@@ -248,10 +248,10 @@ Full details: [v1.2-ROADMAP.md](milestones/v1.2-ROADMAP.md)
   2. HookExecution records can be created with status tracking (queued/running/completed/failed), input/output payloads, timing fields, and error messages
   3. Deleting an agent cascades to destroy all its hooks and their execution records
   4. HeartbeatEvent trigger_type enum includes hook_triggered, distinguishing hook-originated wake calls from scheduled, task_assigned, and mention triggers
-**Plans**: TBD
+**Plans**: 1/1 complete
 
 Plans:
-- [ ] 18-01: Migrations, AgentHook model, HookExecution model, existing model updates, fixtures, and tests
+- [x] 18-01: Migrations, AgentHook model, HookExecution model, existing model updates, fixtures, and tests
 
 ### Phase 19: Hook Triggering Engine
 **Goal**: Hooks fire automatically when tasks change status -- the Hookable concern detects transitions, finds matching enabled hooks, and dispatches them as background jobs with retry logic
@@ -323,7 +323,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 15. Role Auto-Assignment | v1.2 | 1/1 | Complete | 2026-03-28 |
 | 16. Skills CRUD | v1.2 | 2/2 | Complete | 2026-03-28 |
 | 17. Agent Skill Management | v1.2 | 2/2 | Complete | 2026-03-28 |
-| 18. Hook Data Foundation | v1.3 | 0/1 | Not started | - |
+| 18. Hook Data Foundation | v1.3 | 1/1 | Complete | 2026-03-28 |
 | 19. Hook Triggering Engine | v1.3 | 0/2 | Not started | - |
 | 20. Validation Feedback Loop | v1.3 | 0/1 | Not started | - |
 | 21. Hook Management UI | v1.3 | 0/1 | Not started | - |
