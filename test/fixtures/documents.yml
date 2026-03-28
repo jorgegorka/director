@@ -1,0 +1,27 @@
+acme_refund_policy:
+  company: acme
+  title: Refund Policy
+  body: "# Refund Policy\n\nAll refunds must be processed within 30 days.\n\n## Eligibility\n- Item must be unused\n- Receipt required"
+  author_type: User
+  author_id: <%= ActiveRecord::FixtureSet.identify(:one) %>
+
+acme_coding_standards:
+  company: acme
+  title: Coding Standards
+  body: "# Coding Standards\n\nFollow these guidelines for all code changes.\n\n## Rules\n- Use descriptive variable names\n- Write tests first"
+  author_type: User
+  author_id: <%= ActiveRecord::FixtureSet.identify(:one) %>
+
+acme_agent_created_doc:
+  company: acme
+  title: Process Documentation
+  body: "# Discovered Process\n\nThis process was documented by an agent during task execution."
+  author_type: Agent
+  author_id: <%= ActiveRecord::FixtureSet.identify(:claude_agent) %>
+
+widgets_doc:
+  company: widgets
+  title: Widget Specs
+  body: "# Widget Specifications\n\nAll widgets must meet quality standards."
+  author_type: User
+  author_id: <%= ActiveRecord::FixtureSet.identify(:one) %>

@@ -1,0 +1,7 @@
+refund_policy_tagged_policy:
+  document: acme_refund_policy
+  document_tag: acme_policy_tag
+
+coding_standards_tagged_technical:
+  document: acme_coding_standards
+  document_tag: acme_technical_tag

@@ -1,0 +1,15 @@
+acme_policy_tag:
+  company: acme
+  name: policy
+
+acme_technical_tag:
+  company: acme
+  name: technical
+
+acme_process_tag:
+  company: acme
+  name: process
+
+widgets_general_tag:
+  company: widgets
+  name: general
