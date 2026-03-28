@@ -37,4 +37,47 @@ class ExecuteHookJobTest < ActiveSupport::TestCase
   test "job is enqueued to default queue" do
     assert_equal "default", ExecuteHookJob.new.queue_name
   end
+
+  test "calls ExecuteHookService for queued execution" do
+    hook = agent_hooks(:claude_validation_hook)
+    # Fix target_agent_id to point to actual agent
+    hook.update_columns(action_config: { "target_agent_id" => agents(:http_agent).id, "prompt" => "Review work" })
+
+    execution = HookExecution.create!(
+      agent_hook: hook,
+      task: tasks(:design_homepage),
+      company: companies(:acme),
+      status: :queued,
+      input_payload: { task_id: tasks(:design_homepage).id }
+    )
+
+    assert_difference "Task.count", 1 do  # validation subtask created
+      ExecuteHookJob.perform_now(execution.id)
+    end
+
+    execution.reload
+    assert execution.completed?
+  end
+
+  test "calls ExecuteHookService for running execution" do
+    hook = agent_hooks(:claude_validation_hook)
+    hook.update_columns(action_config: { "target_agent_id" => agents(:http_agent).id, "prompt" => "Review work" })
+
+    execution = HookExecution.create!(
+      agent_hook: hook,
+      task: tasks(:design_homepage),
+      company: companies(:acme),
+      status: :running,
+      started_at: Time.current,
+      input_payload: { task_id: tasks(:design_homepage).id }
+    )
+
+    # Running executions should also be processed (retry scenario)
+    assert_difference "Task.count", 1 do
+      ExecuteHookJob.perform_now(execution.id)
+    end
+
+    execution.reload
+    assert execution.completed?
+  end
 end

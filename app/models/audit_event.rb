@@ -1,4 +1,6 @@
 class AuditEvent < ApplicationRecord
+  include Chronological
+
   belongs_to :auditable, polymorphic: true
   belongs_to :actor, polymorphic: true
   belongs_to :company, optional: true
@@ -6,9 +8,6 @@ class AuditEvent < ApplicationRecord
   validates :action, presence: true
 
   after_create_commit :broadcast_activity_event
-
-  scope :chronological, -> { order(:created_at) }
-  scope :reverse_chronological, -> { order(created_at: :desc) }
   scope :for_action, ->(action_name) { where(action: action_name) }
   scope :for_company, ->(company) { where(company: company) }
   scope :for_actor_type, ->(type) { where(actor_type: type) }
@@ -26,6 +25,7 @@ class AuditEvent < ApplicationRecord
     agent_terminated
     config_rollback
     cost_recorded
+    hook_executed
   ].freeze
 
   # Immutability: prevent updates to persisted records
