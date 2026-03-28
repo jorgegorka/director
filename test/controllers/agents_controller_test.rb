@@ -254,7 +254,7 @@ class AgentsControllerTest < ActionDispatch::IntegrationTest
   test "should show heartbeat section on agent detail page" do
     get agent_url(@claude_agent)
     assert_response :success
-    assert_select ".agent-detail__heartbeat-config"
+    assert_select ".agent-detail__kv"
   end
 
   test "should show heartbeat events on agent detail page" do

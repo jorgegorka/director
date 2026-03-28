@@ -1,7 +1,7 @@
 <div class="stat-card">
-  <div class="stat-card__value"><%= value %></div>
-  <div class="stat-card__label"><%= label %></div>
+  <span class="stat-card__value"><%= value %></span>
+  <span class="stat-card__label"><%= label %></span>
   <% if defined?(link_path) && link_path %>
-    <%= link_to "View all", link_path, class: "stat-card__link" %>
+    <%= link_to "View all →", link_path, class: "stat-card__link" %>
   <% end %>
 </div>

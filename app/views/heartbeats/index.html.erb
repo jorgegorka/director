@@ -1,7 +1,7 @@
 <% content_for(:title, "Heartbeat History - #{@agent.name}") %>
 
 <section class="heartbeats-history">
-  <div class="heartbeats-history__header">
+  <header class="heartbeats-history__header">
     <div>
       <h1>Heartbeat History</h1>
       <p class="heartbeats-history__subtitle">
@@ -10,23 +10,25 @@
       </p>
     </div>
     <%= link_to "Back to Agent", agent_path(@agent), class: "btn btn--ghost btn--sm" %>
-  </div>
+  </header>
 
   <% if @heartbeat_events.any? %>
-    <table class="table heartbeat-table">
-      <thead>
-        <tr>
-          <th>Trigger</th>
-          <th>Status</th>
-          <th>Source</th>
-          <th>Delivered</th>
-          <th>Created</th>
-        </tr>
-      </thead>
-      <tbody>
-        <%= render partial: "heartbeats/event_row", collection: @heartbeat_events, as: :event, locals: { show_delivered: true } %>
-      </tbody>
-    </table>
+    <div class="heartbeats-history__card">
+      <table class="table heartbeat-table heartbeat-table--full">
+        <thead>
+          <tr>
+            <th>Trigger</th>
+            <th>Status</th>
+            <th>Source</th>
+            <th>Delivered</th>
+            <th>Created</th>
+          </tr>
+        </thead>
+        <tbody>
+          <%= render partial: "heartbeats/event_row", collection: @heartbeat_events, as: :event, locals: { show_delivered: true } %>
+        </tbody>
+      </table>
+    </div>
 
     <% if @total_pages > 1 %>
       <nav class="pagination" aria-label="Heartbeat history pages">

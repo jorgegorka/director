@@ -1,9 +1,10 @@
 <% content_for(:title, @skill.name) %>
 
 <section class="skill-detail">
-  <div class="skill-detail__header">
-    <div>
-      <h1><%= @skill.name %></h1>
+  <%# ── Profile header ── %>
+  <header class="skill-detail__profile">
+    <div class="skill-detail__profile-main">
+      <h1 class="skill-detail__name"><%= @skill.name %></h1>
       <div class="skill-detail__meta">
         <code class="skill-detail__key"><%= @skill.key %></code>
         <% if @skill.category.present? %>
@@ -15,6 +16,9 @@
           <span class="skill-card__custom">custom</span>
         <% end %>
       </div>
+      <% if @skill.description.present? %>
+        <p class="skill-detail__description"><%= @skill.description %></p>
+      <% end %>
     </div>
     <div class="skill-detail__actions">
       <%= link_to "Edit", edit_skill_path(@skill), class: "btn btn--ghost btn--sm" %>
@@ -23,38 +27,39 @@
               data: { turbo_confirm: "Delete #{@skill.name}? This will remove it from all agents." } %>
       <% end %>
     </div>
-  </div>
+  </header>
 
-  <div class="skill-detail__body">
-    <% if @skill.description.present? %>
-      <div class="skill-detail__section">
-        <h2>Description</h2>
-        <p><%= @skill.description %></p>
-      </div>
-    <% end %>
+  <%# ── Two-column grid ── %>
+  <div class="skill-detail__grid">
 
-    <div class="skill-detail__section">
-      <h2>Instructions</h2>
-      <div class="skill-detail__markdown">
-        <%= simple_format(@skill.markdown) %>
+    <%# ── Primary column: Instructions ── %>
+    <div class="skill-detail__primary">
+      <div class="skill-detail__card">
+        <h2 class="skill-detail__card-title">Instructions</h2>
+        <div class="skill-detail__markdown">
+          <%= simple_format(@skill.markdown) %>
+        </div>
       </div>
     </div>
 
-    <div class="skill-detail__section">
-      <h2>Assigned Agents (<%= @agents.size %>)</h2>
-      <% if @agents.any? %>
-        <ul class="skill-detail__agents-list">
-          <% @agents.each do |agent| %>
-            <li>
-              <span class="role-card__agent-dot role-card__agent-dot--<%= agent.status %>"></span>
-              <%= link_to agent.name, agent %>
-              <%= agent_status_badge(agent) %>
-            </li>
-          <% end %>
-        </ul>
-      <% else %>
-        <p class="skill-detail__empty-note">No agents have this skill assigned.</p>
-      <% end %>
+    <%# ── Sidebar column ── %>
+    <div class="skill-detail__sidebar">
+      <div class="skill-detail__card">
+        <h2 class="skill-detail__card-title">Assigned Agents (<%= @agents.size %>)</h2>
+        <% if @agents.any? %>
+          <ul class="skill-detail__agents-list">
+            <% @agents.each do |agent| %>
+              <li>
+                <span class="role-card__agent-dot role-card__agent-dot--<%= agent.status %>"></span>
+                <%= link_to agent.name, agent %>
+                <%= agent_status_badge(agent) %>
+              </li>
+            <% end %>
+          </ul>
+        <% else %>
+          <p class="skill-detail__empty-note">No agents have this skill assigned.</p>
+        <% end %>
+      </div>
     </div>
   </div>
 </section>

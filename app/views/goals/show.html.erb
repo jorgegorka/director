@@ -2,62 +2,80 @@
 
 <section class="goal-detail">
   <div class="goal-detail__header">
-    <div>
-      <% if @goal.mission? %>
-        <span class="goal-tree__label goal-tree__label--mission">Mission</span>
-      <% end %>
+    <div class="goal-detail__header-top">
+      <div>
+        <nav class="goal-detail__breadcrumb">
+          <% @goal.ancestry_chain[0...-1].each do |ancestor| %>
+            <%= link_to ancestor.title, goal_path(ancestor) %> <span class="goal-detail__sep">/</span>
+          <% end %>
+        </nav>
 
-      <nav class="goal-detail__breadcrumb">
-        <% @goal.ancestry_chain[0...-1].each do |ancestor| %>
-          <%= link_to ancestor.title, goal_path(ancestor) %> <span class="goal-detail__sep">/</span>
+        <% if @goal.mission? %>
+          <span class="goal-tree__label goal-tree__label--mission">Mission</span>
         <% end %>
-      </nav>
-
-      <h1><%= @goal.title %></h1>
-
-      <% percentage = @goal.progress_percentage %>
-      <div class="goal-detail__progress">
-        <%= render "shared/progress_bar", percentage: percentage, large: true %>
-        <span class="goal-detail__percentage"><%= percentage %>% complete</span>
+        <h1 class="goal-detail__title"><%= @goal.title %></h1>
+      </div>
+      <div class="goal-detail__actions">
+        <%= link_to "Edit", edit_goal_path(@goal), class: "btn btn--ghost btn--sm" %>
+        <%= button_to "Delete", @goal, method: :delete, class: "btn btn--ghost btn--sm goal-detail__delete",
+              data: { turbo_confirm: "Delete '#{@goal.title}'? Child goals will also be deleted." } %>
       </div>
     </div>
-    <div class="goal-detail__actions">
-      <%= link_to "Edit", edit_goal_path(@goal), class: "btn btn--ghost btn--sm" %>
-      <%= button_to "Delete", @goal, method: :delete, class: "btn btn--ghost btn--sm goal-detail__delete",
-            data: { turbo_confirm: "Delete '#{@goal.title}'? Child goals will also be deleted." } %>
+
+    <% percentage = @goal.progress_percentage %>
+    <div class="goal-detail__progress-card">
+      <div class="goal-detail__progress-info">
+        <span class="goal-detail__progress-label">Progress</span>
+        <span class="goal-detail__progress-value"><%= percentage %>%</span>
+      </div>
+      <%= render "shared/progress_bar", percentage: percentage, large: true %>
+      <div class="goal-detail__progress-stats">
+        <span><%= percentage %>% complete &middot; <%= @tasks.count { |t| t.status == "completed" } %> of <%= @tasks.size %> tasks done</span>
+      </div>
     </div>
   </div>
 
   <div class="goal-detail__body">
     <% if @goal.description.present? %>
-      <div class="goal-detail__section">
-        <h2>Description</h2>
+      <div class="goal-detail__description">
         <p><%= @goal.description %></p>
       </div>
     <% end %>
 
     <div class="goal-detail__section">
-      <h2>Objectives (<%= @children.size %>)</h2>
+      <div class="goal-detail__section-header">
+        <h2>Objectives <span class="goal-detail__count"><%= @children.size %></span></h2>
+        <%= link_to "+ Add objective", new_goal_path(parent_id: @goal.id), class: "btn btn--ghost btn--sm" %>
+      </div>
       <% if @children.any? %>
         <div class="goal-tree">
           <% @children.each do |child| %>
             <%= render partial: "goals/goal_tree_node", locals: { goal: child, depth: 0 } %>
           <% end %>
         </div>
+      <% else %>
+        <div class="goal-detail__empty">
+          <p>No objectives yet. Break this goal into smaller objectives to track progress.</p>
+        </div>
       <% end %>
-      <%= link_to "Add objective", new_goal_path(parent_id: @goal.id), class: "btn btn--ghost btn--sm" %>
     </div>
 
     <div class="goal-detail__section">
-      <h2>Tasks (<%= @tasks.size %>)</h2>
+      <div class="goal-detail__section-header">
+        <h2>Tasks <span class="goal-detail__count"><%= @tasks.size %></span></h2>
+        <%= link_to "+ Create task", new_task_path(goal_id: @goal.id), class: "btn btn--primary btn--sm" %>
+      </div>
       <% if @tasks.any? %>
         <div class="task-list">
           <% @tasks.each do |task| %>
             <%= render partial: "tasks/task", locals: { task: task } %>
           <% end %>
         </div>
+      <% else %>
+        <div class="goal-detail__empty">
+          <p>No tasks yet. Create a task to start working toward this goal.</p>
+        </div>
       <% end %>
-      <%= link_to "Create task for this goal", new_task_path(goal_id: @goal.id), class: "btn btn--ghost btn--sm" %>
     </div>
   </div>
 </section>

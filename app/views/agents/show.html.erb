@@ -2,13 +2,20 @@
 
 <section class="agent-detail">
   <%= render "agents/pending_approval_banner", agent: @agent %>
-  <div class="agent-detail__header">
-    <div>
-      <h1><%= @agent.name %></h1>
-      <div class="agent-detail__status">
-        <%= agent_status_badge(@agent) %>
-        <span class="agent-detail__adapter-label"><%= adapter_type_label(@agent) %></span>
+
+  <%# ── Profile header ── %>
+  <header class="agent-detail__profile">
+    <div class="agent-detail__profile-main">
+      <div class="agent-detail__identity">
+        <h1 class="agent-detail__name"><%= @agent.name %></h1>
+        <div class="agent-detail__status-line">
+          <%= agent_status_badge(@agent) %>
+          <span class="agent-detail__adapter-label"><%= adapter_type_label(@agent) %></span>
+        </div>
       </div>
+      <% if @agent.description.present? %>
+        <p class="agent-detail__description"><%= @agent.description %></p>
+      <% end %>
     </div>
     <div class="agent-detail__actions">
       <%= link_to "Edit", edit_agent_path(@agent), class: "btn btn--ghost btn--sm" %>
@@ -31,204 +38,211 @@
       <%= button_to "Delete", @agent, method: :delete, class: "btn btn--ghost btn--sm agent-detail__delete",
             data: { turbo_confirm: "Delete #{@agent.name}? This cannot be undone." } %>
     </div>
-  </div>
+  </header>
 
-  <div class="agent-detail__body">
-    <% if @agent.description.present? %>
-      <div class="agent-detail__section">
-        <h2>Description</h2>
-        <p><%= @agent.description %></p>
-      </div>
-    <% end %>
+  <%# ── Two-column grid ── %>
+  <div class="agent-detail__grid">
 
-    <div class="agent-detail__section">
-      <h2>Adapter Configuration</h2>
-      <dl class="agent-detail__config">
-        <% if @agent.adapter_config.present? %>
-          <% @agent.adapter_config.each do |key, value| %>
-            <div class="agent-detail__config-row">
-              <dt><%= key.humanize %></dt>
-              <dd>
-                <% if key.to_s == "auth_token" && value.present? %>
-                  <span class="agent-detail__masked">••••••••<%= value.to_s.last(4) %></span>
-                <% else %>
-                  <code><%= value %></code>
-                <% end %>
-              </dd>
-            </div>
-          <% end %>
-        <% else %>
-          <p class="agent-detail__empty-note">No configuration set.</p>
-        <% end %>
-      </dl>
-    </div>
+    <%# ── Primary column ── %>
+    <div class="agent-detail__primary">
 
-    <div class="agent-detail__section">
-      <h2>Heartbeat</h2>
-      <div class="agent-detail__heartbeat-config">
-        <dl class="agent-detail__config">
-          <div class="agent-detail__config-row">
+      <%# Heartbeat %>
+      <div class="agent-detail__card">
+        <h2 class="agent-detail__card-title">Heartbeat</h2>
+        <dl class="agent-detail__kv">
+          <div class="agent-detail__kv-row">
             <dt>Schedule</dt>
             <dd>
               <% if @agent.heartbeat_scheduled? %>
                 <span class="heartbeat-active"><%= heartbeat_schedule_label(@agent) %></span>
               <% else %>
-                <span class="agent-detail__never">Disabled</span>
+                <span class="agent-detail__dim">Disabled</span>
               <% end %>
             </dd>
           </div>
-          <div class="agent-detail__config-row">
-            <dt>Last activity</dt>
+          <div class="agent-detail__kv-row">
+            <dt>Last Activity</dt>
             <dd>
               <% if @agent.last_heartbeat_at %>
                 <%= time_ago_in_words(@agent.last_heartbeat_at) %> ago
               <% else %>
-                <span class="agent-detail__never">No activity yet</span>
+                <span class="agent-detail__dim">No activity yet</span>
               <% end %>
             </dd>
           </div>
         </dl>
-      </div>
 
-      <% if @recent_heartbeats.any? %>
-        <h3>Recent Events</h3>
-        <table class="table heartbeat-table">
-          <thead>
-            <tr>
-              <th>Trigger</th>
-              <th>Status</th>
-              <th>Source</th>
-              <th>Time</th>
-            </tr>
-          </thead>
-          <tbody>
-            <%= render partial: "heartbeats/event_row", collection: @recent_heartbeats, as: :event %>
-          </tbody>
-        </table>
-        <%= link_to "View all heartbeat history", agent_heartbeats_path(@agent), class: "btn btn--ghost btn--sm" %>
-      <% else %>
-        <p class="agent-detail__empty-note">No heartbeat events yet. Events will appear here when the agent is triggered by schedule, task assignment, or @mentions.</p>
-      <% end %>
-    </div>
-
-    <div class="agent-detail__section">
-      <h2>Budget</h2>
-      <% if @agent.budget_configured? %>
-        <div class="budget-display">
-          <div class="budget-display__bar-container">
-            <div class="budget-display__bar <%= budget_bar_class(@agent.budget_utilization) %>"
-                 style="--budget-fill: <%= @agent.budget_utilization %>%">
-            </div>
-          </div>
-          <div class="budget-display__details">
-            <div class="budget-display__amounts">
-              <span class="budget-display__spent">
-                <strong><%= format_cents_as_dollars(@agent.monthly_spend_cents) %></strong> spent
-              </span>
-              <span class="budget-display__limit">
-                of <strong><%= format_cents_as_dollars(@agent.budget_cents) %></strong> monthly limit
-              </span>
-            </div>
-            <div class="budget-display__status">
-              <span class="budget-display__remaining">
-                <%= format_cents_as_dollars(@agent.budget_remaining_cents) %> remaining
-              </span>
-              <span class="budget-display__utilization <%= 'budget-display__utilization--warning' if @agent.budget_alert_threshold? %> <%= 'budget-display__utilization--danger' if @agent.budget_exhausted? %>">
-                <%= budget_status_text(@agent) %>
-              </span>
-            </div>
-          </div>
-          <% if @agent.budget_exhausted? %>
-            <div class="budget-display__alert budget-display__alert--exhausted">
-              Agent paused — monthly budget exhausted. Increase the budget or wait for the next billing period to resume.
-            </div>
-          <% elsif @agent.budget_alert_threshold? %>
-            <div class="budget-display__alert budget-display__alert--warning">
-              Approaching budget limit — consider increasing the monthly budget.
-            </div>
-          <% end %>
-        </div>
-      <% else %>
-        <p class="agent-detail__empty-note">No budget configured. <%= link_to "Set a monthly budget", edit_agent_path(@agent) %> to control spending.</p>
-      <% end %>
-    </div>
-
-    <div class="agent-detail__section">
-      <h2>Approval Gates</h2>
-      <% if @agent.has_any_gates? %>
-        <div class="gate-list">
-          <% @agent.approval_gates.sort_by(&:action_type).each do |gate| %>
-            <div class="gate-item <%= "gate-item--enabled" if gate.enabled? %> <%= "gate-item--disabled" unless gate.enabled? %>">
-              <span class="gate-item__status"><%= gate.enabled? ? "Active" : "Disabled" %></span>
-              <span class="gate-item__type"><%= gate.action_type.humanize %></span>
-              <span class="gate-item__description"><%= gate_description(gate.action_type) %></span>
-            </div>
-          <% end %>
-        </div>
-      <% else %>
-        <p class="agent-detail__empty-note">No approval gates configured. <%= link_to "Set up gates", edit_agent_path(@agent) %> to require human approval for critical actions.</p>
-      <% end %>
-    </div>
-
-    <div class="agent-detail__section">
-      <h2>Skills</h2>
-      <div class="skill-manager">
-        <% skills_by_category = @company_skills.group_by(&:category) %>
-        <% (SkillsHelper::SKILL_CATEGORIES + [ nil ]).each do |category| %>
-          <% category_skills = category ? skills_by_category[category] : skills_by_category.except(*SkillsHelper::SKILL_CATEGORIES).values.flatten %>
-          <% next unless category_skills&.any? %>
-          <div class="skill-manager__category">
-            <h3 class="skill-manager__category-title">
-              <%= category ? skill_category_badge(category) : "Other" %>
-              <span class="skill-manager__category-count"><%= category_skills.count %></span>
-            </h3>
-            <div class="skill-manager__list">
-              <%= render partial: "agents/skill_toggle", collection: category_skills, as: :skill,
-                    locals: { agent: @agent, agent_skills_by_skill_id: @agent_skills_by_skill_id } %>
-            </div>
-          </div>
-        <% end %>
-        <% if @company_skills.empty? %>
-          <p class="agent-detail__empty-note">No skills in company library. <%= link_to "Create skills", skills_path %> to assign them to agents.</p>
+        <% if @recent_heartbeats.any? %>
+          <h3 class="agent-detail__card-subtitle">Recent Events</h3>
+          <table class="table heartbeat-table">
+            <thead>
+              <tr>
+                <th>Trigger</th>
+                <th>Status</th>
+                <th>Source</th>
+                <th>Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              <%= render partial: "heartbeats/event_row", collection: @recent_heartbeats, as: :event %>
+            </tbody>
+          </table>
+          <%= link_to "View all heartbeat history", agent_heartbeats_path(@agent), class: "btn btn--ghost btn--sm" %>
+        <% else %>
+          <p class="agent-detail__empty-note">No heartbeat events yet. Events appear when the agent is triggered.</p>
         <% end %>
       </div>
-    </div>
 
-    <div class="agent-detail__section">
-      <h2>Hooks (<%= @agent.agent_hooks.count %>)</h2>
-      <% if @agent.agent_hooks.any? %>
-        <div class="hook-summary">
-          <p>
-            <%= pluralize(@agent.agent_hooks.enabled.count, "active hook") %> configured
-            (<%= @agent.agent_hooks.disabled.count %> disabled).
-          </p>
-        </div>
-        <%= link_to "Manage hooks", agent_agent_hooks_path(@agent), class: "btn btn--ghost btn--sm" %>
-      <% else %>
-        <p class="agent-detail__empty-note">No hooks configured. <%= link_to "Set up hooks", new_agent_agent_hook_path(@agent) %> to trigger agent validation or webhook notifications on task events.</p>
-      <% end %>
-    </div>
-
-    <% if @agent.roles.any? %>
-      <div class="agent-detail__section">
-        <h2>Assigned Roles (<%= @agent.roles.size %>)</h2>
-        <ul class="agent-detail__roles-list">
-          <% @agent.roles.sort_by(&:title).each do |role| %>
-            <li><%= link_to role.title, role %></li>
+      <%# Skills %>
+      <div class="agent-detail__card">
+        <h2 class="agent-detail__card-title">Skills</h2>
+        <div class="skill-manager">
+          <% skills_by_category = @company_skills.group_by(&:category) %>
+          <% (SkillsHelper::SKILL_CATEGORIES + [ nil ]).each do |category| %>
+            <% category_skills = category ? skills_by_category[category] : skills_by_category.except(*SkillsHelper::SKILL_CATEGORIES).values.flatten %>
+            <% next unless category_skills&.any? %>
+            <div class="skill-manager__category">
+              <h3 class="skill-manager__category-title">
+                <%= category ? skill_category_badge(category) : "Other" %>
+                <span class="skill-manager__category-count"><%= category_skills.count %></span>
+              </h3>
+              <div class="skill-manager__list">
+                <%= render partial: "agents/skill_toggle", collection: category_skills, as: :skill,
+                      locals: { agent: @agent, agent_skills_by_skill_id: @agent_skills_by_skill_id } %>
+              </div>
+            </div>
           <% end %>
-        </ul>
+          <% if @company_skills.empty? %>
+            <p class="agent-detail__empty-note">No skills in company library. <%= link_to "Create skills", skills_path %></p>
+          <% end %>
+        </div>
       </div>
-    <% end %>
+    </div>
 
-    <div class="agent-detail__section">
-      <h2>Configuration History</h2>
-      <% config_version_count = @agent.config_versions.count %>
-      <% if config_version_count > 0 %>
-        <p><%= pluralize(config_version_count, "version") %> recorded.</p>
-        <%= link_to "View full history", version_history_path_for(@agent), class: "btn btn--ghost btn--sm" %>
-      <% else %>
-        <p class="agent-detail__empty-note">No configuration changes recorded yet.</p>
+    <%# ── Sidebar column ── %>
+    <div class="agent-detail__sidebar">
+
+      <%# Adapter Configuration %>
+      <div class="agent-detail__card">
+        <h2 class="agent-detail__card-title">Configuration</h2>
+        <% if @agent.adapter_config.present? %>
+          <dl class="agent-detail__kv">
+            <% @agent.adapter_config.each do |key, value| %>
+              <div class="agent-detail__kv-row">
+                <dt><%= key.humanize %></dt>
+                <dd>
+                  <% if key.to_s == "auth_token" && value.present? %>
+                    <span class="agent-detail__masked">••••••••<%= value.to_s.last(4) %></span>
+                  <% else %>
+                    <code><%= value %></code>
+                  <% end %>
+                </dd>
+              </div>
+            <% end %>
+          </dl>
+        <% else %>
+          <p class="agent-detail__empty-note">No configuration set.</p>
+        <% end %>
+      </div>
+
+      <%# Budget %>
+      <div class="agent-detail__card">
+        <h2 class="agent-detail__card-title">Budget</h2>
+        <% if @agent.budget_configured? %>
+          <div class="budget-display">
+            <div class="budget-display__bar-container">
+              <div class="budget-display__bar <%= budget_bar_class(@agent.budget_utilization) %>"
+                   style="--budget-fill: <%= @agent.budget_utilization %>%">
+              </div>
+            </div>
+            <div class="budget-display__details">
+              <div class="budget-display__amounts">
+                <span class="budget-display__spent">
+                  <strong><%= format_cents_as_dollars(@agent.monthly_spend_cents) %></strong> spent
+                </span>
+                <span class="budget-display__limit">
+                  of <strong><%= format_cents_as_dollars(@agent.budget_cents) %></strong> monthly
+                </span>
+              </div>
+              <div class="budget-display__status">
+                <span class="budget-display__remaining">
+                  <%= format_cents_as_dollars(@agent.budget_remaining_cents) %> remaining
+                </span>
+                <span class="budget-display__utilization <%= 'budget-display__utilization--warning' if @agent.budget_alert_threshold? %> <%= 'budget-display__utilization--danger' if @agent.budget_exhausted? %>">
+                  <%= budget_status_text(@agent) %>
+                </span>
+              </div>
+            </div>
+            <% if @agent.budget_exhausted? %>
+              <div class="budget-display__alert budget-display__alert--exhausted">
+                Budget exhausted — agent paused.
+              </div>
+            <% elsif @agent.budget_alert_threshold? %>
+              <div class="budget-display__alert budget-display__alert--warning">
+                Approaching budget limit.
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="agent-detail__empty-note">No budget configured. <%= link_to "Set a monthly budget", edit_agent_path(@agent) %></p>
+        <% end %>
+      </div>
+
+      <%# Approval Gates %>
+      <div class="agent-detail__card">
+        <h2 class="agent-detail__card-title">Approval Gates</h2>
+        <% if @agent.has_any_gates? %>
+          <div class="gate-list">
+            <% @agent.approval_gates.sort_by(&:action_type).each do |gate| %>
+              <div class="gate-item <%= "gate-item--enabled" if gate.enabled? %> <%= "gate-item--disabled" unless gate.enabled? %>">
+                <span class="gate-item__status"><%= gate.enabled? ? "Active" : "Off" %></span>
+                <span class="gate-item__type"><%= gate.action_type.humanize %></span>
+                <span class="gate-item__description"><%= gate_description(gate.action_type) %></span>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="agent-detail__empty-note">No approval gates. <%= link_to "Set up gates", edit_agent_path(@agent) %></p>
+        <% end %>
+      </div>
+
+      <%# Hooks %>
+      <div class="agent-detail__card">
+        <h2 class="agent-detail__card-title">Hooks</h2>
+        <% if @agent.agent_hooks.any? %>
+          <div class="hook-summary">
+            <p><%= pluralize(@agent.agent_hooks.enabled.count, "active hook") %> configured
+            (<%= @agent.agent_hooks.disabled.count %> disabled).</p>
+          </div>
+          <%= link_to "Manage hooks", agent_agent_hooks_path(@agent), class: "btn btn--ghost btn--sm" %>
+        <% else %>
+          <p class="agent-detail__empty-note">No hooks configured. <%= link_to "Set up hooks", new_agent_agent_hook_path(@agent) %></p>
+        <% end %>
+      </div>
+
+      <%# Roles %>
+      <% if @agent.roles.any? %>
+        <div class="agent-detail__card">
+          <h2 class="agent-detail__card-title">Assigned Roles (<%= @agent.roles.size %>)</h2>
+          <ul class="agent-detail__roles-list">
+            <% @agent.roles.sort_by(&:title).each do |role| %>
+              <li><%= link_to role.title, role %></li>
+            <% end %>
+          </ul>
+        </div>
       <% end %>
+
+      <%# Config History %>
+      <div class="agent-detail__card">
+        <h2 class="agent-detail__card-title">Configuration History</h2>
+        <% config_version_count = @agent.config_versions.count %>
+        <% if config_version_count > 0 %>
+          <p class="agent-detail__history-count"><%= pluralize(config_version_count, "version") %> recorded.</p>
+          <%= link_to "View full history", version_history_path_for(@agent), class: "btn btn--ghost btn--sm" %>
+        <% else %>
+          <p class="agent-detail__empty-note">No configuration changes recorded yet.</p>
+        <% end %>
+      </div>
     </div>
   </div>
 </section>
