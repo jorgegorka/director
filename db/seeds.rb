@@ -7,9 +7,9 @@
 puts "Seeding Director AI..."
 
 # Clean slate
-Company.destroy_all
-User.destroy_all
 Session.destroy_all
+User.destroy_all
+Company.destroy_all
 
 # User & Company
 user = User.create!(
@@ -20,11 +20,7 @@ user = User.create!(
 company = Company.create!(name: "Director AI")
 # ↑ after_create callback auto-seeds 50 builtin skills
 
-membership = Membership.create!(
-  user: user,
-  company: company,
-  role: :owner
-)
+Membership.create!(user: user, company: company, role: :owner)
 
 puts "  Created user: admin@director.ai"
 puts "  Created company: Director AI (#{company.skills.count} builtin skills)"
@@ -118,6 +114,8 @@ manual_skill_assignments = {
 manual_skill_assignments.each do |agent_name, skill_keys|
   agent = agents[agent_name]
   skills_to_assign = company.skills.where(key: skill_keys)
+  missing = skill_keys - skills_to_assign.pluck(:key)
+  raise "Missing skills for #{agent_name}: #{missing.join(', ')}" if missing.any?
   skills_to_assign.each do |skill|
     agent.agent_skills.find_or_create_by!(skill: skill)
   end
