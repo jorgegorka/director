@@ -12,6 +12,7 @@ class MessagesController < ApplicationController
       @messages = @task.messages.includes(:author, replies: :author).roots.chronological
       @audit_events = @task.audit_events.includes(:actor).reverse_chronological
       @task_document_links = @task.task_documents.joins(:document).includes(:document).order("documents.title")
+      @goal_evaluations = @task.goal_evaluations.order(:attempt_number).includes(:goal)
       render "tasks/show", status: :unprocessable_entity
     end
   end

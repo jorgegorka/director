@@ -88,6 +88,32 @@
       </div>
     <% end %>
 
+    <% if @goal_evaluations.any? %>
+      <div class="task-detail__section">
+        <h2>Goal Evaluations</h2>
+        <div class="eval-history">
+          <% @goal_evaluations.each do |evaluation| %>
+            <div class="eval-history__item eval-history__item--<%= evaluation.result %>">
+              <div class="eval-history__header">
+                <span class="eval-item__badge eval-item__badge--<%= evaluation.result %>">
+                  <%= evaluation.result.upcase %>
+                </span>
+                <span class="eval-history__attempt">Attempt <%= evaluation.attempt_number %>/<%= GoalEvaluation::MAX_ATTEMPTS %></span>
+                <time class="eval-history__time"><%= evaluation.created_at.strftime("%b %d, %Y at %H:%M") %></time>
+              </div>
+              <p class="eval-history__feedback"><%= evaluation.feedback %></p>
+              <div class="eval-history__meta">
+                <span>Goal: <%= link_to evaluation.goal.title, goal_path(evaluation.goal) %></span>
+                <% if evaluation.cost_cents.present? %>
+                  <span>Cost: <%= format_cents_as_dollars(evaluation.cost_cents) %></span>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
     <div class="task-detail__section">
       <h2>Conversation (<%= @task.messages.size %>)</h2>
       <div class="message-thread">
