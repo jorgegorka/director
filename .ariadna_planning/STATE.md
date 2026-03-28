@@ -10,16 +10,16 @@ See: .ariadna_planning/PROJECT.md (updated 2026-03-28)
 ## Current Position
 
 Phase: 21 - Hook Management UI
-Plan: --
-Status: Planning
-Last activity: 2026-03-28 -- Phase 20 complete (1/1 plans, verified 7/7)
+Plan: 01
+Status: Complete
+Last activity: 2026-03-28 -- Phase 21 complete (1/1 plans, verified all must-haves)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 40
+- Total plans completed: 41
 - Average duration: ~7 minutes
-- Total execution time: ~220 minutes
+- Total execution time: ~224 minutes
 
 **By Phase:**
 
@@ -45,10 +45,11 @@ Last activity: 2026-03-28 -- Phase 20 complete (1/1 plans, verified 7/7)
 | 18-hook-data-foundation | 1/1 | ~4 min | ~4 min |
 | 19-hook-triggering-engine | 2/2 | ~6 min | ~3 min |
 | 20-validation-feedback-loop | 1/1 | ~3 min | ~3 min |
+| 21-hook-management-ui | 1/1 | ~4 min | ~4 min |
 
 **Recent Trend:**
-- Last 5 plans: 18-01 (~4 min), 19-01 (~3 min), 19-02 (~3 min), 20-01 (~3 min)
-- Trend: consistent, stable. v1.0 COMPLETE. v1.1 COMPLETE. v1.2 COMPLETE. v1.3 in progress (Phase 20 COMPLETE).
+- Last 5 plans: 19-01 (~3 min), 19-02 (~3 min), 20-01 (~3 min), 21-01 (~4 min)
+- Trend: consistent, stable. v1.0 COMPLETE. v1.1 COMPLETE. v1.2 COMPLETE. v1.3 COMPLETE (Phase 21 complete).
 
 *Updated after each plan completion*
 
@@ -190,6 +191,7 @@ Recent decisions affecting current work:
 - [20-01]: Feedback message authored by validation agent (subtask assignee) with fallback to parent_agent if subtask has no assignee -- clear attribution in conversation thread
 - [20-01]: review_validation: 4 added to HeartbeatEvent enum; validation_feedback_received added to AuditEvent::GOVERNANCE_ACTIONS
 - [20-01]: wake_original_agent skips if parent agent is terminated but message and audit still proceed -- defense in depth without blocking the feedback record
+- [21-01]: action_config["target_agent_id"] returns string from SQLite JSON storage (not integer) -- assert with .to_i in tests; same pattern as [04-02] jsonb/json column behavior
 
 ### Pending Todos
 
@@ -202,6 +204,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-28
-Stopped at: Phase 20 complete -- Validation Feedback Loop verified (7/7 must-haves, 852 tests)
-Resume file: .ariadna_planning/phases/20-validation-feedback-loop/20-VERIFICATION.md
-Next step: Plan Phase 21 (Hook Management UI)
+Stopped at: Phase 21 complete -- Hook Management UI (1/1 plans, 878 tests passing)
+Resume file: .ariadna_planning/phases/21-hook-management-ui/21-01-SUMMARY.md
+Next step: v1.3 COMPLETE -- all phases 18-21 done. Plan v1.4 or next feature set.
