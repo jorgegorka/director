@@ -5,14 +5,16 @@
 See: .ariadna_planning/PROJECT.md (updated 2026-03-28)
 
 **Core value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
-**Current focus:** v1.4 Agent Execution
+**Current focus:** v1.4 Agent Execution -- Phase 22: AgentRun Data Model and Job Dispatch
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-03-28 — Milestone v1.4 started
+Phase: 22 of 25 (AgentRun Data Model and Job Dispatch)
+Plan: 0 of TBD in current phase
+Status: Ready to plan
+Last activity: 2026-03-28 -- v1.4 roadmap defined (4 phases, 26 requirements mapped)
+
+Progress: [████████████████████░░░░░] 84% (21/25 phases complete)
 
 ## Performance Metrics
 
@@ -49,7 +51,7 @@ Last activity: 2026-03-28 — Milestone v1.4 started
 
 **Recent Trend:**
 - Last 5 plans: 19-01 (~3 min), 19-02 (~3 min), 20-01 (~3 min), 21-01 (~4 min)
-- Trend: consistent, stable. v1.0 COMPLETE. v1.1 COMPLETE. v1.2 COMPLETE. v1.3 COMPLETE (Phase 21 complete).
+- Trend: consistent, stable. v1.0 COMPLETE. v1.1 COMPLETE. v1.2 COMPLETE. v1.3 COMPLETE.
 
 *Updated after each plan completion*
 
@@ -60,138 +62,14 @@ Last activity: 2026-03-28 — Milestone v1.4 started
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- [Roadmap]: 10 phases derived from 38 requirements across 10 categories -- comprehensive depth
-- [Roadmap]: Multi-tenancy (Current.account scoping) established in Phase 2 as foundation for all subsequent phases
-- [v1.1-Roadmap]: 2 phases (11-12) derived from 8 requirements across 2 categories -- DB migration then cleanup
-- [v1.1-Roadmap]: Phase 11 covers all 5 DB-* requirements as one coherent deliverable (gem swap + config + column migration + deploy)
-- [v1.1-Roadmap]: Phase 12 covers all 3 CLN-* requirements (docs + dead code + test verification) -- depends on Phase 11
-- [v1.2-Roadmap]: 5 phases (13-17) derived from 22 requirements across 6 categories -- data model, seeding, auto-assignment, CRUD, agent management
-- [v1.2-Roadmap]: Phase 13 (data model) is foundation -- all other phases depend on it
-- [v1.2-Roadmap]: Phase 14 (seeding) before Phase 15 (auto-assignment) because auto-assignment needs skills to exist in the company
-- [v1.2-Roadmap]: Phase 16 (skills CRUD) and Phase 17 (agent skill management) are the UI layer -- depend on data model but could theoretically parallelize; sequenced for simplicity
-- [v1.3-Roadmap]: 4 phases (18-21) derived from 15 requirements across 5 categories -- data foundation, triggering engine, feedback loop, management UI
-- [v1.3-Roadmap]: Phase 18 (data foundation) includes UI-03 (HeartbeatEvent enum extension) because it modifies an existing model alongside new model creation
-- [v1.3-Roadmap]: Phase 19 combines triggering (TRIG-01, TRIG-02) with actions (ACT-01, ACT-02, ACT-03) because the concern and service are tightly coupled -- Hookable detects transitions, ExecuteHookService dispatches them
-- [v1.3-Roadmap]: Phase 20 (feedback loop) depends on Phase 19 because validation subtasks must be created by trigger_agent hooks before feedback can be processed
-- [v1.3-Roadmap]: Phase 21 (management UI) is last because hooks should fire correctly before exposing CRUD to users
-- [01-01]: Rails 8 built-in authentication generator used (has_secure_password, Session model, Authentication concern)
-- [01-01]: `email_address` field name (not `email`) -- Rails 8 auth generator convention, keep throughout
-- [01-01]: PostgreSQL for primary database; sqlite3 retained for Solid Queue/Cache/Cable secondary connections
-- [01-01]: CSS design system uses OKLCH colors, CSS layers, CSS nesting, logical properties (dark mode via prefers-color-scheme)
-- [01-01]: Root route (`/`) is the authenticated landing page -- unauthenticated users redirect to /session/new
-- [01-02]: No system/integration tests -- only unit and controller tests. Flows verified manually in Chrome.
-- [01-02]: SettingsController requires current password verification before any account changes
-- [02-01]: No default_scope on Tenantable -- use explicit .for_current_company scope (avoids anti-pattern)
-- [02-01]: SetCurrentCompany guards on Current.user nil -- unauthenticated routes don't error
-- [02-01]: Company switcher uses generic Stimulus dropdown controller (reusable for all future dropdowns)
-- [02-01]: No company edit/delete in this phase -- deferred
-- [02-02]: Role enum on Invitation is member/admin only -- no owner (owner assigned only at company creation)
-- [02-02]: Partial unique index WHERE status = 0 on [company_id, email_address] -- prevents duplicate pending invites, allows re-inviting after accept/expire
-- [02-02]: Role param sanitized outside permit() using .in?(enum.keys) -- avoids brakeman mass assignment warning
-- [02-02]: Routes added in Task 1 (not Task 2) to unblock InvitationMailer URL helper in test environment
-- [03-01]: assert_raises(ActiveRecord::RecordNotFound) does not work in integration tests — Rails catches it in middleware and returns 404. Use assert_response :not_found instead.
-- [03-02]: SVG foreignObject nodes built with programmatic DOM (createElement/textContent/appendChild) — never innerHTML with user data. XSS-safe by design.
-- [03-02]: agent_name is nil placeholder throughout Phase 3; Phase 4 will populate real agent names
-- [04-01]: Zeitwerk namespace pattern: app/adapters/adapters/ subdirectory required for Adapters::* constants (Rails 8 treats app/adapters as autoload root, so files must be nested under adapters/ subdir)
-- [04-01]: Agent.active scope excludes only :terminated — paused/error/pending_approval are still "active" records
-- [04-02]: Fixture jsonb format: YAML hash syntax (key: val) required for jsonb columns in fixtures — JSON string literals ('{"key": "val"}') cause Rails to store/return String instead of Hash, breaking all jsonb operations in controller tests
-- [04-02]: adapter_params pattern: use params[:agent][:adapter_config].permit!.to_h for unrestricted jsonb key acceptance in strong params
-- [04-02]: Stimulus toggle disables hidden inputs (not just display:none) to prevent non-active adapter config fields from submitting
-- [04-03]: form_with(model: [@agent, NestedModel.new]) generates wrong path helper when controller uses custom naming — use explicit url: helper instead
-- [04-03]: agent_name: nil placeholder in OrgChartsHelper replaced with role.agent&.name; OrgChartsController eager-loads :agent to prevent N+1
-- [05-01]: Auditable concern uses dependent: delete_all (not destroy) -- AuditEvent readonly? blocks cascade destroy, delete_all bypasses callbacks
-- [05-01]: creator_id on tasks is nullable -- plan said null: false but also dependent: nullify; nullable is correct for user deletion without cascade
-- [05-01]: t.references auto-creates indexes -- removed duplicate explicit add_index calls for parent_task_id and actor polymorphic index
-- [05-02]: When testing audit events, use `.where(action: ...).last` not `.find_by(action: ...)` -- fixtures pre-populate audit events so find_by returns the fixture record, not the newly created one
-- [05-03]: AgentApiAuthenticatable uses skip_before_action :require_authentication and replaces with session-OR-bearer-token logic -- does not modify Authentication concern
-- [05-03]: current_actor returns @current_agent (Agent) if Bearer token auth succeeded, else Current.user (User) -- determines AuditEvent actor_type polymorphism
-- [05-03]: developer role fixture updated with agent: http_agent to create testable CEO -> CTO/claude_agent -> Developer/http_agent hierarchy
-- [06-01]: Goal tree pattern matches Role model exactly (ancestors iterative, descendants recursive flat_map) -- locked user decision
-- [06-01]: Mission = Goal with parent_id nil (no type column, no STI) -- mission? is alias for root?
-- [06-01]: Progress roll-up: subtree_task_ids collects all descendant goal IDs, then single Task.where query; returns 0.0 when no tasks
-- [06-02]: CSS plan aliases (--space-lg, --text-sm, --border-default, --radius-full) mapped to actual project tokens (--space-6, --font-size-sm, --border, 9999px) -- do not create new token definitions
-- [06-02]: options_for_goal_select available in TasksHelper context because Rails includes all helpers in all views by default
-- [07-01]: HeartbeatScheduleManager uses class_attribute :task_store (nil in production = uses SolidQueue::RecurringTask; set in tests = uses FakeTaskStore). SolidQueue uses separate SQLite DB in production (not primary PostgreSQL), so guard checks table existence; tests inject fake store to avoid needing queue schema in primary DB
-- [07-02]: Triggerable concern uses private methods (not included-do callbacks) — each model registers its own after_commit; trigger logic differs enough per model that shared callbacks would be awkward
-- [07-02]: detect_mentions uses direct string include? check (not regex word boundaries) — handles multi-word agent names like "API Bot" which regex \b would split incorrectly
-- [07-02]: Api::AgentEventsController scoped find_by for acknowledge — `@current_agent.heartbeat_events.queued.find_by(id:)` prevents cross-agent access and double-ack with a single 404 (no information disclosure)
-- [07-03]: assert_raises(RecordNotFound) in integration tests must be assert_response :not_found (reconfirmed 03-01 pattern for HeartbeatsController cross-company isolation test)
-- [07-03]: HeartbeatsHelper is in app/helpers/ (not app/presenters/ or included explicitly) -- Rails includes all helpers in all views, so helper methods are available in agents/show and heartbeats/index without any extra configuration
-- [08-01]: t.references with polymorphic: true auto-creates an index; use index: false on t.references calls when providing explicit add_index with custom names to avoid PG::DuplicateTable on migration
-- [08-01]: budget_cents uses integer cents (not float dollars) to avoid floating-point issues; nil = no budget configured (unlimited)
-- [08-01]: Notification model reuses Tenantable for company scoping; polymorphic recipient (User), actor (Agent/User/nil), notifiable (Agent/nil) — designed for reuse in Phase 9 governance alerts
-- [08-02]: BudgetEnforcementService.check!(agent) is the single entry point; called after every cost recording from AgentCostsController
-- [08-02]: Alert threshold test budget_cents must account for fixture task costs already in current period (claude_agent: 3700 cents from design_homepage+completed_task) — use budget_cents: 15000 for 81.3% utilization at 12200 cents total
-- [08-02]: cost endpoint accumulates cost (adds to existing cost_cents), not replaces — supports agents reporting partial costs across multiple calls
-- [08-04]: NotificationsController index requires an HTML template (index.html.erb) even with respond_to block — 406 returned without it
-- [08-04]: assert_response :not_found do...end is invalid (block ignored); always make request then assert separately (reconfirmed 03-01 pattern)
-- [09-01]: Company has_many :audit_events must use dependent: :delete_all (not :destroy) — AuditEvent#readonly? prevents ActiveRecord destroy callbacks on persisted records; delete_all bypasses callbacks, matching the Auditable concern pattern
-- [09-01]: ConfigVersioned concern declares has_many :config_versions on included models — do not add a separate explicit declaration to Agent/Role; the concern's declaration in the included block is the single source
-- [09-01]: ConfigVersioned concern's should_version? check: saved_changes.keys == ["updated_at"] catches touch-only saves; also filters via governance_attributes intersection so non-governance attribute changes are ignored
-- [09-02]: GateCheckService records agent as both auditable AND actor on gate_blocked AuditEvent — agent is the subject of the event and the initiator; Auditable concern not used here since it assumes Current.user as actor
-- [09-02]: approve action reads pause_reason before clearing it (for gate_approval audit metadata); regex match extracts action_type from "Approval required: {action_type} gate is active" format
-- [09-03]: Rack encodes gates: {} (empty nested hash) as empty string; params.require(:agent) raises ParameterMissing (400) when only gates is submitted — use hidden gates_submitted sentinel field to detect gate fieldset presence instead of checking gates key presence
-- [09-03]: gate_fieldset partial only renders on edit form (agent.new_record? check) since gates require existing agent_id FK
-- [09-03]: sync_approval_gates uses ActionController::Parameters.new.permit! for all-unchecked case (empty permitted params with all-false gate checks)
-- [09-04]: AuditLogsController uses params[:action_filter] not params[:action] to avoid collision with Rails' own controller :action param
-- [09-04]: ConfigVersionsController find_versionable whitelist (Agent, Role only) prevents arbitrary model lookups; uses find_by (not find) so nil triggers graceful redirect instead of 404
-- [10-01]: `resource :dashboard` routes to `DashboardsController` (plural) by default — must add `controller: "dashboard"` to force singular controller; root route uses `dashboard#show` directly which is fine
-- [10-01]: tabs_controller.js uses `hidden` attribute (not CSS display:none) for panel toggling — semantically correct, accessible, consistent with existing dropdown_controller.js pattern
-- [09-04]: Plan CSS tokens (--text-secondary, --surface-secondary, --font-weight-medium, etc.) are planning placeholders — map to actual project tokens (--text-muted, --color-neutral-100, literal 500, etc.)
-- [10-02]: @all_tasks loaded once with includes(:assignee, :creator); in-memory grouping via @tasks_by_status avoids 5 separate status-filtered queries
-- [10-02]: kanban_controller.js auto-discovered by eagerLoadControllersFrom naming convention — no manual registration needed
-- [10-02]: PATCH on drop uses fetch with CSRF meta tag; page.reload() on failure to restore server-authoritative state
-- [10-04]: turbo_stream_from + Turbo::StreamsChannel.broadcast_*_to — standard Rails 8 / Turbo 8 pattern; no custom Action Cable channel JS needed; turbo-rails handles auto-subscription via turbo-cable-stream-source element
-- [10-04]: Stream name convention "dashboard_company_{company_id}" — simple string for company-scoped isolation
-- [10-04]: ApplicationCable::Channel base class created — was missing from app/channels/; required for Action Cable
-- [10-04]: after_create_commit (not after_commit) used on AuditEvent — readonly after persist so only initial create triggers broadcast
-- [11-01]: db:prepare fails when schema.rb has jsonb columns (SQLite rejects them at schema:load). Fix: manually update schema.rb then use db:create + db:migrate + db:schema:dump sequence
-- [11-01]: SQLite uses t.json (not t.jsonb) for hash/object columns — jsonb is PostgreSQL-only; json works identically for storing Ruby hashes in fixtures and AR operations
-- [11-01]: bigint declarations are preserved in SQLite schema.rb — cosmetic only; SQLite stores all integers natively regardless of declared size
-- [11-02]: Dockerfile was already SQLite-clean (Rails 8 generator defaults); only deploy.yml needed cleanup (DB_HOST comment block + mysql/db accessory removed)
-- [11-02]: No SQLite-specific test failures in full CI run — json column migration from 11-01 was sufficient for all 674 tests
-- [12-01]: Rephrase (not just checkbox) PostgreSQL references to achieve zero grep matches: requirement text and key decision table entry renamed
-- [12-01]: Removing :test group from Gemfile leaves trailing blank line — rubocop auto-fix required; stage Gemfile before committing
-- [12-01]: Test count after removing 7 home_controller tests: landed at 668 (not 667 as predicted), all passing with 0 failures
-- [13-01]: Agent needs has_many :agent_skills, dependent: :destroy and Company needs has_many :skills, dependent: :destroy -- FK cascade constraints block destroy tests otherwise
-- [13-01]: Skill uniqueness: unique index on [company_id, key] enforced at DB + model level; two companies can share a key, one company cannot duplicate it
-- [13-02]: Skills section in agent show view is read-only (no add/remove UI) -- Phase 17 adds agent skill management UI; this plan only wires associations and updates display
-- [13-02]: Company has_many :skills was already in place from Plan 01 Rule 3 auto-fix; no changes needed to company.rb in this plan
-- [14-01]: 50 unique skill keys extracted from role mapping table (spec text says "44" but the actual table yields 50 distinct keys); authoritative count is 50
-- [14-01]: general role maps to 4 skills (task_execution, communication, documentation, problem_solving) exactly as specified in design spec table
-- [14-01]: task_execution, communication, problem_solving assigned to operations category per plan's explicit category assignment list
-- [14-02]: Company#seed_default_skills! uses find_or_create_by!(key:) -- the block only runs on create, so existing skills are never overwritten; method is idempotent by design
-- [14-02]: after_create callback does not fire during fixture loading (Rails fixtures use bulk INSERT bypassing AR callbacks) -- acme/widgets fixture companies unaffected by seeding logic
-- [15-01]: Role uses saved_change_to_agent_id? and agent_id_before_last_save for post-save dirty tracking -- correct pattern for after_save callbacks (vs will_save_change_to_* which is pre-save)
-- [15-01]: after_save with :if guard is more idiomatic than checking conditions inside the callback method; guard is a pure predicate method
-- [15-01]: default_skills_config memoized at class level (@default_skills_config ||=) -- YAML file read once per process, not on every role save
-- [17-01]: AgentSkillsController create uses find_or_create_by!(skill:) for idempotency -- assigning an already-assigned skill is a safe no-op
-- [17-01]: @assigned_skill_ids = @agent.skill_ids.to_set in AgentsController#show -- Set membership for O(1) lookup per skill in checkbox loop
-- [17-01]: Checkbox toggle UI pattern: button_to DELETE for checked (assigned) skills, button_to POST with skill_id param for unchecked -- no JS required
-- [17-01]: AgentSkill lookup for destroy path uses in-memory find on @agent.agent_skills (already loaded via includes) -- no extra DB query per skill row
-- [17-02]: Idempotency test for create uses assert_no_difference + assert_redirected_to -- find_or_create_by! is silent no-op, redirect is the expected outcome
-- [17-02]: Cross-agent destroy test: use http_data_analysis fixture via claude_agent nested route -- @agent.agent_skills.find scopes the lookup, gives 404 for mismatched parent
-- [17-02]: Skill UI assertions use css_select size comparison (total toggles > assigned toggles) rather than hardcoded counts -- resilient to fixture changes
-- [18-01]: index: false on t.references when providing explicit add_index -- avoids SQLite "index already exists" error (reconfirmed 08-01 pattern for all t.references calls with explicit indexes)
-- [18-01]: HookExecution does NOT include Tenantable -- has direct belongs_to :company column; Tenantable would add duplicate belongs_to declaration
-- [18-01]: Task model needs has_many :hook_executions, dependent: :destroy -- FK constraint on hook_executions.task_id blocks task destroy tests without it
-- [18-01]: AgentHook lifecycle_event uses LIFECYCLE_EVENTS string constant (not integer enum) -- allows future extension without migration, same pattern as ApprovalGate GATABLE_ACTIONS
-- [18-01]: target_agent is a convenience method reading action_config JSON (not a belongs_to) -- target is stored in JSON config, not a direct FK column
-- [19-01]: Hookable concern uses saved_change_to_status? in after_commit -- consistent with Task's existing saved_change_to_assignee_id? pattern; works for creates and updates
-- [19-01]: HOOKABLE_TRANSITIONS maps only in_progress/completed -- all other status values return nil and are silently ignored, no explicit rejection needed
-- [19-01]: ExecuteHookJob must exist before hookable.rb is used in tests -- NameError raised on first after_commit trigger; created job in Task 1 as Rule 3 fix
-- [19-01]: claude_agent has 2 after_task_start hooks (claude_webhook_hook pos 0, claude_start_validation_hook pos 1) -- direct in_progress creation test expects 2 HookExecutions not 1
-- [19-02]: ExecuteHookService re-raises StandardError after mark_failed! -- required for ExecuteHookJob retry_on mechanism to catch it; service swallowing exception would prevent retries
-- [19-02]: unless execution.failed? guard on mark_failed! prevents double-marking on job retry (execution already marked failed from previous attempt)
-- [19-02]: Creating a validation subtask with an assignee fires Triggerable#trigger_assignment_wake (task_assigned event) in addition to the explicit hook_triggered WakeAgentService call -- HeartbeatEvent count is 2 not 1
-- [19-02]: hook_executed added to AuditEvent::GOVERNANCE_ACTIONS -- hook execution affects agent behavior (creates tasks, wakes agents), fits governance visibility pattern
-- [19-02]: webmock gem added to :development/:test group for HTTP stubbing in service tests
-- [20-01]: enqueue_validation_feedback fires after enqueue_hooks_for_transition -- trigger_agent hooks that create subtasks fire first, then feedback loop activates if this task itself is a completed subtask
-- [20-01]: ProcessValidationResultJob receives task_id integer (not record) -- same idempotent retry pattern as ExecuteHookJob; guard clauses check find_by, completed?, parent_task_id.present?
-- [20-01]: Feedback message authored by validation agent (subtask assignee) with fallback to parent_agent if subtask has no assignee -- clear attribution in conversation thread
-- [20-01]: review_validation: 4 added to HeartbeatEvent enum; validation_feedback_received added to AuditEvent::GOVERNANCE_ACTIONS
-- [20-01]: wake_original_agent skips if parent agent is terminated but message and audit still proceed -- defense in depth without blocking the feedback record
-- [21-01]: action_config["target_agent_id"] returns string from SQLite JSON storage (not integer) -- assert with .to_i in tests; same pattern as [04-02] jsonb/json column behavior
+- [v1.4-Roadmap]: 4 phases (22-25) derived from 26 requirements across 5 categories -- data model, HTTP adapter, Claude adapter, streaming UI + callbacks
+- [v1.4-Roadmap]: Phase 22 (AgentRun + job dispatch) is foundation -- no streaming or execution can proceed without the persistent run record
+- [v1.4-Roadmap]: Phase 23 (HTTP adapter) before Phase 24 (Claude) -- simpler adapter validates job dispatch chain without Claude-specific complexity adding noise
+- [v1.4-Roadmap]: Phase 24 (Claude) before Phase 25 (streaming UI) -- live view is only meaningful when Claude is actually streaming; building UI against a stub wastes iteration cycles
+- [v1.4-Roadmap]: tmux is the subprocess management layer for Claude Local adapter (HARD REQUIREMENT, deployment dependency) -- provides real TTY, session persistence, zombie-free lifecycle
+- [v1.4-Roadmap]: Execution model: `tmux new-session -d -s "agent_run_42" "claude -p --bare ..."` then capture output via tmux capture-pane
+- [v1.4-Roadmap]: No new gems for v1.4 -- Net::HTTP (stdlib), tmux (system dep), Turbo::StreamsChannel (already in Gemfile)
+- [21-01]: action_config["target_agent_id"] returns string from SQLite JSON storage (not integer) -- assert with .to_i in tests
 
 ### Pending Todos
 
@@ -199,11 +77,13 @@ None.
 
 ### Blockers/Concerns
 
-None.
+- [Phase 24 pre-check]: Verify tmux is available in the Kamal Docker image before coding ClaudeExecutionService
+- [Phase 24 pre-check]: Confirm ANTHROPIC_API_KEY is available in the Kamal deployment environment (ENV or Rails credentials)
+- [Phase 22 pre-check]: Verify Solid Cable uses a separate SQLite DB file (config/cable.yml) -- must not share primary DB before adding execution log writes
 
 ## Session Continuity
 
 Last session: 2026-03-28
-Stopped at: v1.4 milestone initialization — defining requirements
-Resume file: —
-Next step: Complete requirements and roadmap definition
+Stopped at: v1.4 roadmap created -- 4 phases (22-25), 26 requirements mapped, ready to plan Phase 22
+Resume file: --
+Next step: `/ariadna:plan-phase 22`

@@ -13,6 +13,7 @@ Director transforms the chaos of managing multiple AI agents into a structured b
 - v1.1 SQLite Migration & Cleanup - Phases 11-12 (shipped 2026-03-28)
 - v1.2 Agent Skills - Phases 13-17 (shipped 2026-03-28)
 - v1.3 Agent Hooks - Phases 18-21 (shipped 2026-03-28)
+- v1.4 Agent Execution - Phases 22-25 (in progress)
 
 ## Phases
 
@@ -241,10 +242,80 @@ Full details: [v1.3-ROADMAP.md](milestones/v1.3-ROADMAP.md)
 
 </details>
 
+## v1.4 Agent Execution (In Progress)
+
+**Milestone Goal:** Make agents actually execute work -- Claude CLI with live streaming output, HTTP wake delivery, full autonomous task runs with API callbacks.
+
+### Phase 22: AgentRun Data Model and Job Dispatch
+**Goal**: Persistent execution records exist for every agent run, and WakeAgentService dispatches real execution jobs instead of stubs
+**Why this matters**: Every user who assigns a task to an agent needs to know that something actually happened -- not a silent stub. This phase creates the durable record that tracks every execution attempt and the job that starts the real work. Without it, no streaming, no history, and no cost tracking are possible.
+**Depends on**: Phase 21 (v1.3 complete -- agents, hooks, and wake service all in place)
+**Requirements**: EXEC-01, EXEC-02, EXEC-03, EXEC-04, EXEC-05, EXEC-06
+**Success Criteria** (what must be TRUE):
+  1. When a task is assigned to an agent, an AgentRun record is created and the agent status changes from idle to running
+  2. When execution completes or fails, the AgentRun record shows the final state (completed/failed/cancelled), exit code, and timing
+  3. AgentRun stores the Claude session ID so that a subsequent run for the same agent can resume the conversation
+  4. Long-running execution jobs run on a dedicated queue and do not block short background jobs from completing
+  5. If an execution job fails mid-run, the agent status returns to idle -- it does not get stuck in the running state
+**Plans**: TBD
+
+Plans:
+- [ ] 22-01: AgentRun migration, model with state machine, ExecuteAgentJob, WakeAgentService dispatch wiring
+
+### Phase 23: HTTP Adapter Real Execution
+**Goal**: Agents configured with HTTP endpoints receive real POST delivery when woken, with correct failure handling and retry behavior
+**Why this matters**: HTTP is the adapter type most users configure first -- it covers any external agent that exposes a webhook URL. Replacing the existing TODO stub with real delivery is what makes Director useful for the majority of connected agents today.
+**Depends on**: Phase 22 (AgentRun model and ExecuteAgentJob dispatch chain)
+**Requirements**: HTTP-01, HTTP-02, HTTP-03, HTTP-04
+**Success Criteria** (what must be TRUE):
+  1. When an HTTP agent is woken, Director sends a real POST request to the agent's configured URL with the task context as the payload
+  2. If the agent URL returns a 4xx response, Director marks the run as permanently failed and does not retry
+  3. If the agent URL returns a 5xx or times out, Director retries with exponential backoff and marks failed only after exhausting retries
+  4. HTTP requests use explicit timeouts (5s connect, 30s read) so a slow or unresponsive agent URL never blocks a thread indefinitely
+**Plans**: TBD
+
+Plans:
+- [ ] 23-01: HttpExecutionService with Net::HTTP delivery, timeout config, failure classification, and retry delegation
+
+### Phase 24: Claude Local Adapter with Tmux
+**Goal**: Agents configured as Claude Local spawn a real claude CLI process via tmux and accumulate the full stream-JSON output with session resumption across runs
+**Why this matters**: Claude Local is the power-user adapter -- it lets users point Director at the Claude CLI and have it work autonomously on their behalf. Tmux provides a real TTY (solving Claude CLI's stdout buffering bug), session persistence, and zombie-free process lifecycle. This is the core capability that distinguishes Director from a simple task tracker.
+**Depends on**: Phase 22 (AgentRun with session_id column and cost_cents), Phase 23 (validates dispatch chain with simpler adapter first)
+**Requirements**: CLAUDE-01, CLAUDE-02, CLAUDE-03, CLAUDE-04, CLAUDE-05, CLAUDE-06, CLAUDE-07
+**Success Criteria** (what must be TRUE):
+  1. A Claude Local agent, when woken for a task, spawns a tmux session running `claude -p --bare --output-format stream-json` and the AgentRun transitions to running
+  2. The full stream-JSON output is parsed line-by-line and accumulated in the AgentRun log -- including tool calls, assistant messages, and the final result event
+  3. After a run completes, the session ID from the result event is stored on the AgentRun; the next run for the same agent passes `--resume <session_id>` so Claude maintains conversation context
+  4. The cost from the result event's `total_cost_usd` field is written to AgentRun cost_cents and triggers budget enforcement
+  5. If the agent's budget is exhausted before execution starts, the run is blocked and the AgentRun is marked failed with a budget reason -- no tmux session is spawned
+**Plans**: TBD
+
+Plans:
+- [ ] 24-01: ClaudeExecutionService with tmux session lifecycle, stream-JSON parsing, session capture, and budget gate
+- [ ] 24-02: Session resumption (--resume flag), cost tracking, budget enforcement wiring, and ClaudeLocalAdapter integration
+
+### Phase 25: Live Streaming UI and Result Callbacks
+**Goal**: Users watch agent output stream live in the browser, agent status updates appear on the dashboard in real time, and agents can report task completion back to Director via API
+**Why this matters**: This is the payoff the entire v1.4 milestone builds toward -- users can finally see their agents working. Live output gives users confidence that autonomous execution is happening correctly, and result callbacks close the loop so task status updates automatically when the agent finishes. Together, these turn Director from a task dispatch system into a real-time agent operations center.
+**Depends on**: Phase 22 (AgentRun model and broadcast infrastructure), Phase 23 (HTTP adapter stable), Phase 24 (Claude adapter streaming output)
+**Requirements**: STREAM-01, STREAM-02, STREAM-03, STREAM-04, STREAM-05, CALLBACK-01, CALLBACK-02, CALLBACK-03, CALLBACK-04
+**Success Criteria** (what must be TRUE):
+  1. On the AgentRun show page, live output from the running agent streams into the browser in real time -- new lines appear as the agent works without any page refresh
+  2. Tool-use events (file reads, bash commands, web fetches) are displayed as distinct indicators in the output stream so users can see what actions the agent is taking
+  3. The dashboard and agent show page update the agent status badge from idle to running and back to idle without page refresh
+  4. A cancel button on the running AgentRun kills the tmux session and marks the run as cancelled within a few seconds
+  5. An agent can POST to `/api/agent_runs/:id/result` to report task completion, causing the task status to update and a completion message to appear in the task conversation thread
+**Plans**: TBD
+
+Plans:
+- [ ] 25-01: AgentRunsController (index + show), turbo_stream_from live view, broadcast_line wiring in ClaudeExecutionService
+- [ ] 25-02: Agent status broadcasts, cancel action, STREAM-03 tool-use indicators, broadcast batching
+- [ ] 25-03: Api::AgentRunsController result and progress callback endpoints, task status update, conversation message posting
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14 -> 15 -> 16 -> 17 -> 18 -> 19 -> 20 -> 21
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14 -> 15 -> 16 -> 17 -> 18 -> 19 -> 20 -> 21 -> 22 -> 23 -> 24 -> 25
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -269,3 +340,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 19. Hook Triggering Engine | v1.3 | 2/2 | Complete | 2026-03-28 |
 | 20. Validation Feedback Loop | v1.3 | 1/1 | Complete | 2026-03-28 |
 | 21. Hook Management UI | v1.3 | 1/1 | Complete | 2026-03-28 |
+| 22. AgentRun Data Model and Job Dispatch | v1.4 | 0/TBD | Not started | - |
+| 23. HTTP Adapter Real Execution | v1.4 | 0/TBD | Not started | - |
+| 24. Claude Local Adapter with Tmux | v1.4 | 0/TBD | Not started | - |
+| 25. Live Streaming UI and Result Callbacks | v1.4 | 0/TBD | Not started | - |

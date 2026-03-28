@@ -78,38 +78,38 @@ Requirements for agent execution milestone. Each maps to roadmap phases.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| EXEC-01 | Pending | Pending |
-| EXEC-02 | Pending | Pending |
-| EXEC-03 | Pending | Pending |
-| EXEC-04 | Pending | Pending |
-| EXEC-05 | Pending | Pending |
-| EXEC-06 | Pending | Pending |
-| HTTP-01 | Pending | Pending |
-| HTTP-02 | Pending | Pending |
-| HTTP-03 | Pending | Pending |
-| HTTP-04 | Pending | Pending |
-| CLAUDE-01 | Pending | Pending |
-| CLAUDE-02 | Pending | Pending |
-| CLAUDE-03 | Pending | Pending |
-| CLAUDE-04 | Pending | Pending |
-| CLAUDE-05 | Pending | Pending |
-| CLAUDE-06 | Pending | Pending |
-| CLAUDE-07 | Pending | Pending |
-| STREAM-01 | Pending | Pending |
-| STREAM-02 | Pending | Pending |
-| STREAM-03 | Pending | Pending |
-| STREAM-04 | Pending | Pending |
-| STREAM-05 | Pending | Pending |
-| CALLBACK-01 | Pending | Pending |
-| CALLBACK-02 | Pending | Pending |
-| CALLBACK-03 | Pending | Pending |
-| CALLBACK-04 | Pending | Pending |
+| EXEC-01 | 22 - AgentRun Data Model and Job Dispatch | Not started |
+| EXEC-02 | 22 - AgentRun Data Model and Job Dispatch | Not started |
+| EXEC-03 | 22 - AgentRun Data Model and Job Dispatch | Not started |
+| EXEC-04 | 22 - AgentRun Data Model and Job Dispatch | Not started |
+| EXEC-05 | 22 - AgentRun Data Model and Job Dispatch | Not started |
+| EXEC-06 | 22 - AgentRun Data Model and Job Dispatch | Not started |
+| HTTP-01 | 23 - HTTP Adapter Real Execution | Not started |
+| HTTP-02 | 23 - HTTP Adapter Real Execution | Not started |
+| HTTP-03 | 23 - HTTP Adapter Real Execution | Not started |
+| HTTP-04 | 23 - HTTP Adapter Real Execution | Not started |
+| CLAUDE-01 | 24 - Claude Local Adapter with Tmux | Not started |
+| CLAUDE-02 | 24 - Claude Local Adapter with Tmux | Not started |
+| CLAUDE-03 | 24 - Claude Local Adapter with Tmux | Not started |
+| CLAUDE-04 | 24 - Claude Local Adapter with Tmux | Not started |
+| CLAUDE-05 | 24 - Claude Local Adapter with Tmux | Not started |
+| CLAUDE-06 | 24 - Claude Local Adapter with Tmux | Not started |
+| CLAUDE-07 | 24 - Claude Local Adapter with Tmux | Not started |
+| STREAM-01 | 25 - Live Streaming UI and Result Callbacks | Not started |
+| STREAM-02 | 25 - Live Streaming UI and Result Callbacks | Not started |
+| STREAM-03 | 25 - Live Streaming UI and Result Callbacks | Not started |
+| STREAM-04 | 25 - Live Streaming UI and Result Callbacks | Not started |
+| STREAM-05 | 25 - Live Streaming UI and Result Callbacks | Not started |
+| CALLBACK-01 | 25 - Live Streaming UI and Result Callbacks | Not started |
+| CALLBACK-02 | 25 - Live Streaming UI and Result Callbacks | Not started |
+| CALLBACK-03 | 25 - Live Streaming UI and Result Callbacks | Not started |
+| CALLBACK-04 | 25 - Live Streaming UI and Result Callbacks | Not started |
 
 **Coverage:**
 - v1.4 requirements: 26 total
-- Mapped to phases: 0
-- Unmapped: 26
+- Mapped to phases: 26
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-28*
-*Last updated: 2026-03-28 after initial definition*
+*Last updated: 2026-03-28 after roadmap creation -- all 26 requirements mapped to phases 22-25*
