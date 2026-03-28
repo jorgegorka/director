@@ -42,6 +42,8 @@ class WakeAgentService
     else
       event
     end
+
+    dispatch_execution(event)
   rescue StandardError => e
     event.mark_failed!(error_message: e.message)
     event
@@ -51,6 +53,24 @@ class WakeAgentService
   def deliver_http(event)
     event.mark_delivered!(response: { status: "acknowledged" })
     event
+  end
+
+  def dispatch_execution(event)
+    agent_run = agent.agent_runs.create!(
+      task: find_task_from_context,
+      company_id: agent.company_id,
+      status: :queued,
+      trigger_type: trigger_type
+    )
+
+    ExecuteAgentJob.perform_later(agent_run.id)
+    agent_run
+  end
+
+  def find_task_from_context
+    task_id = context[:task_id] || context["task_id"]
+    return nil unless task_id
+    Task.find_by(id: task_id)
   end
 
   def build_request_payload
