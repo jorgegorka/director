@@ -10,9 +10,9 @@ See: .ariadna_planning/PROJECT.md (updated 2026-03-28)
 ## Current Position
 
 Phase: 17 - Agent Skill Management
-Plan: 01
-Status: Plan 01 complete
-Last activity: 2026-03-28 -- Phase 17-01 complete: AgentSkillsController + interactive skill management UI on agent show + skill name tags on agent card, 726 tests pass
+Plan: 02
+Status: Plan 02 complete — Phase 17 COMPLETE
+Last activity: 2026-03-28 -- Phase 17-02 complete: controller tests for AgentSkillsController + skill UI tests in AgentsControllerTest, 742 tests pass
 
 ## Performance Metrics
 
@@ -41,11 +41,11 @@ Last activity: 2026-03-28 -- Phase 17-01 complete: AgentSkillsController + inter
 | 14-skill-catalog-seeding | 2/2 | ~12 min | ~6 min |
 | 15-role-auto-assignment | 1/1 | ~2 min | ~2 min |
 | 16-skills-crud | 2/2 | ~13 min | ~6.5 min |
-| 17-agent-skill-management | 1/? | ~2 min | ~2 min |
+| 17-agent-skill-management | 2/2 | ~7 min | ~3.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 15-01 (~2 min), 16-01 (~8 min), 16-02 (~5 min), 17-01 (~2 min)
-- Trend: consistent, stable. v1.0 COMPLETE. v1.1 COMPLETE. v1.2 in progress (Phase 17-01 COMPLETE).
+- Last 5 plans: 16-01 (~8 min), 16-02 (~5 min), 17-01 (~2 min), 17-02 (~5 min)
+- Trend: consistent, stable. v1.0 COMPLETE. v1.1 COMPLETE. v1.2 COMPLETE (Phase 17 done).
 
 *Updated after each plan completion*
 
@@ -160,6 +160,9 @@ Recent decisions affecting current work:
 - [17-01]: @assigned_skill_ids = @agent.skill_ids.to_set in AgentsController#show -- Set membership for O(1) lookup per skill in checkbox loop
 - [17-01]: Checkbox toggle UI pattern: button_to DELETE for checked (assigned) skills, button_to POST with skill_id param for unchecked -- no JS required
 - [17-01]: AgentSkill lookup for destroy path uses in-memory find on @agent.agent_skills (already loaded via includes) -- no extra DB query per skill row
+- [17-02]: Idempotency test for create uses assert_no_difference + assert_redirected_to -- find_or_create_by! is silent no-op, redirect is the expected outcome
+- [17-02]: Cross-agent destroy test: use http_data_analysis fixture via claude_agent nested route -- @agent.agent_skills.find scopes the lookup, gives 404 for mismatched parent
+- [17-02]: Skill UI assertions use css_select size comparison (total toggles > assigned toggles) rather than hardcoded counts -- resilient to fixture changes
 
 ### Pending Todos
 
@@ -172,6 +175,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-28
-Stopped at: Phase 17 plan 01 complete (AgentSkillsController + skill management UI), 726 tests pass
-Resume file: .ariadna_planning/phases/17-agent-skill-management/17-01-SUMMARY.md
-Next step: Phase 17 plan 02 (if exists) or complete phase 17
+Stopped at: Phase 17 plan 02 complete (AgentSkillsController + AgentsController skill UI tests), 742 tests pass
+Resume file: .ariadna_planning/phases/17-agent-skill-management/17-02-SUMMARY.md
+Next step: v1.2 is complete. Determine next roadmap phase.
