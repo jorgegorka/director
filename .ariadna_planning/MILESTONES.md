@@ -12,5 +12,6 @@
 
 ### v1.1 — SQLite Migration & Cleanup
 **Started:** 2026-03-28
-**Goal:** Replace PostgreSQL with SQLite for the primary database; clean up v1.0 tech debt.
-**Phases:** Starting at 11
+**Completed:** 2026-03-28
+**Goal:** Migrated primary database to SQLite; cleaned up v1.0 tech debt.
+**Phases:** 11-12 (all complete)

@@ -4,7 +4,7 @@
 
 [Paperclip](https://github.com/paperclipai/paperclip) is an open-source Node.js/React platform that orchestrates multiple AI agents as a virtual company. Users define company missions, hire agent "employees," allocate budgets, and monitor performance. Its tagline: *"If OpenClaw is an employee, Paperclip is the company."*
 
-**Director** replicates Paperclip's full feature set as a Ruby on Rails 8 app with Hotwire (Turbo + Stimulus), PostgreSQL, and Solid Queue. The goal is a single Rails monolith that consolidates Paperclip's Node.js server, React SPA, and Drizzle ORM layer (~30 schema tables, ~60 services, ~290 UI files).
+**Director** replicates Paperclip's full feature set as a Ruby on Rails 8 app with Hotwire (Turbo + Stimulus), SQLite, and Solid Queue. The goal is a single Rails monolith that consolidates Paperclip's Node.js server, React SPA, and Drizzle ORM layer (~30 schema tables, ~60 services, ~290 UI files).
 
 ---
 
@@ -13,13 +13,13 @@
 ### 1.1 Bootstrap
 
 ```bash
-rails new director --database=postgresql --css=tailwind --skip-jbuilder --asset-pipeline=propshaft
+rails new director --database=sqlite3 --css=tailwind --skip-jbuilder --asset-pipeline=propshaft
 ```
 
 **Key gems:**
 | Gem | Purpose |
 |-----|---------|
-| `pg` | PostgreSQL |
+| `sqlite3` | SQLite |
 | `solid_queue` | Background jobs (Rails 8 default) |
 | `solid_cache` | Caching (Rails 8 default) |
 | `solid_cable` | ActionCable (Rails 8 default) |
@@ -91,7 +91,7 @@ Run `rails generate authentication` for built-in User/Session/Password models.
 ### 2.4 Services
 
 - `Issues::CreateService` — validates assignee, sets identifier, resolves goal from project fallback
-- `Issues::SearchService` — PostgreSQL full-text search via `tsvector` or `pg_trgm`
+- `Issues::SearchService` — Full-text search (SQLite FTS5 or LIKE queries)
 - `Goals::TreeService` — builds nested goal tree, computes ancestors/descendants
 
 ---
@@ -267,7 +267,7 @@ monthly_spend_reset:
 
 **Health check**: `GET /health` — DB connectivity, Solid Queue status, adapter availability
 
-**Docker**: `Dockerfile` + `docker-compose.yml` with PostgreSQL
+**Docker**: `Dockerfile` + `docker-compose.yml` with SQLite
 
 ---
 

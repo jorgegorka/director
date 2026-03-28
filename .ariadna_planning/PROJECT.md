@@ -40,7 +40,7 @@ Users can organize AI agents into a functioning company structure and confidentl
 
 <!-- v1.1: SQLite Migration & Cleanup -->
 
-- [ ] Replace PostgreSQL with SQLite for primary database
+- [x] Migrate primary database to SQLite
 - [ ] Clean up v1.0 tech debt and rough edges
 
 ### Out of Scope
@@ -81,16 +81,16 @@ Users can organize AI agents into a functioning company structure and confidentl
 | Hotwire over React | Rails-native real-time UI — matches Turbo Streams for live updates (agent status, task changes, conversations) | — Pending |
 | Budget enforcement in v1 | Core safety feature — users won't trust autonomous agents without cost controls | — Pending |
 | Both heartbeat + event triggers | Matches Paperclip behavior — agents need both scheduled work and reactive responses | — Pending |
-| SQLite over PostgreSQL | Simplifies deployment (no external DB server), aligns all databases on one engine, Rails 8.1 has excellent SQLite support | — Pending |
+| SQLite for all databases | Simplifies deployment (no external DB server), aligns all databases on one engine, Rails 8.1 has excellent SQLite support | — Done |
 
 ## Current Milestone: v1.1 SQLite Migration & Cleanup
 
-**Goal:** Replace PostgreSQL with SQLite for the primary database and clean up v1.0 tech debt.
+**Goal:** Migrated primary database to SQLite and cleaned up v1.0 tech debt.
 
 **Target features:**
 - Replace pg gem with sqlite3 for primary database
 - Update database.yml for SQLite primary + SQLite solid gems
-- Fix any PostgreSQL-specific SQL, column types, or features (jsonb → json)
+- Fixed pg-specific column types (jsonb → json) for SQLite compatibility
 - Update deployment config (Dockerfile, Kamal) for SQLite
 - Clean up tech debt from rapid v1.0 development
 

@@ -14,7 +14,7 @@ Director is a Rails 8 clone of [Paperclip AI](https://github.com/paperclipai/pap
 - **IDs**: Standard integer auto-increment — NO UUIDs
 - **Testing**: Minitest + fixtures — NO RSpec, NO FactoryBot, NO system/integration tests
 - **Multi-tenancy**: `Current.account` scoping — NO acts_as_tenant gem
-- **Database**: PostgreSQL (primary), SQLite for Solid Queue/Cache/Cable
+- **Database**: SQLite for everything (primary + Solid Queue/Cache/Cable)
 - **Deployment**: Kamal + Docker
 
 ## Commands

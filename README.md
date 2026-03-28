@@ -26,14 +26,14 @@ The prompt I gave to Ariadna was: *"Understand what Paperclip does and how it wo
 ## Tech Stack
 
 - Ruby 3.4 / Rails 8.1
-- PostgreSQL (primary) + SQLite (Solid Queue, Solid Cache, Solid Cable)
+- SQLite (primary + Solid Queue, Solid Cache, Solid Cable)
 - Hotwire (Turbo + Stimulus)
 - Custom CSS with OKLCH color system
 - Kamal + Docker for deployment
 
 ## Getting Started
 
-**Prerequisites:** Ruby 3.4 and PostgreSQL. No Node.js required.
+**Prerequisites:** Ruby 3.4. No Node.js or external database required.
 
 ```bash
 git clone https://github.com/jorgegorka/director.git
