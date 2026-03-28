@@ -4,6 +4,9 @@
 
 Managing multiple AI agents gets messy fast. They run in different tabs, lose context between sessions, burn through money with no oversight, and nobody knows what any of them are actually doing. Director fixes this by letting you organize your AI agents into a structured company — with an org chart, task assignments, budgets, and human oversight — so you can let them work autonomously while staying in control.
 
+<img width="1218" height="905" alt="AI Company orchestrator" src="https://github.com/user-attachments/assets/de87fb27-990b-4ba2-a9bc-6848e5a9005b" />
+
+
 ## What can you do with Director?
 
 ### Build your AI company
