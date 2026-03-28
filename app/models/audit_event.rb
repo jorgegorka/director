@@ -27,6 +27,7 @@ class AuditEvent < ApplicationRecord
     cost_recorded
     hook_executed
     validation_feedback_received
+    goal_evaluation_exhausted
   ].freeze
 
   # Immutability: prevent updates to persisted records
