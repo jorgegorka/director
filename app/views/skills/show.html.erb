@@ -1,0 +1,60 @@
+<% content_for(:title, @skill.name) %>
+
+<section class="skill-detail">
+  <div class="skill-detail__header">
+    <div>
+      <h1><%= @skill.name %></h1>
+      <div class="skill-detail__meta">
+        <code class="skill-detail__key"><%= @skill.key %></code>
+        <% if @skill.category.present? %>
+          <%= skill_category_badge(@skill.category) %>
+        <% end %>
+        <% if @skill.builtin? %>
+          <span class="skill-card__builtin">built-in</span>
+        <% else %>
+          <span class="skill-card__custom">custom</span>
+        <% end %>
+      </div>
+    </div>
+    <div class="skill-detail__actions">
+      <%= link_to "Edit", edit_skill_path(@skill), class: "btn btn--ghost btn--sm" %>
+      <% unless @skill.builtin? %>
+        <%= button_to "Delete", @skill, method: :delete, class: "btn btn--ghost btn--sm skill-detail__delete",
+              data: { turbo_confirm: "Delete #{@skill.name}? This will remove it from all agents." } %>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="skill-detail__body">
+    <% if @skill.description.present? %>
+      <div class="skill-detail__section">
+        <h2>Description</h2>
+        <p><%= @skill.description %></p>
+      </div>
+    <% end %>
+
+    <div class="skill-detail__section">
+      <h2>Instructions</h2>
+      <div class="skill-detail__markdown">
+        <%= simple_format(@skill.markdown) %>
+      </div>
+    </div>
+
+    <div class="skill-detail__section">
+      <h2>Assigned Agents (<%= @agents.size %>)</h2>
+      <% if @agents.any? %>
+        <ul class="skill-detail__agents-list">
+          <% @agents.each do |agent| %>
+            <li>
+              <span class="role-card__agent-dot role-card__agent-dot--<%= agent.status %>"></span>
+              <%= link_to agent.name, agent %>
+              <%= agent_status_badge(agent) %>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p class="skill-detail__empty-note">No agents have this skill assigned.</p>
+      <% end %>
+    </div>
+  </div>
+</section>

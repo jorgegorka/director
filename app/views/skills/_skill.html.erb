@@ -1,0 +1,22 @@
+<div class="skill-card" id="<%= dom_id(skill) %>">
+  <div class="skill-card__header">
+    <h3 class="skill-card__title">
+      <%= link_to skill.name, skill %>
+    </h3>
+    <% if skill.category.present? %>
+      <%= skill_category_badge(skill.category) %>
+    <% end %>
+  </div>
+  <% if skill.description.present? %>
+    <p class="skill-card__description"><%= skill.description %></p>
+  <% end %>
+  <div class="skill-card__meta">
+    <span class="skill-card__key"><code><%= skill.key %></code></span>
+    <% if skill.builtin? %>
+      <span class="skill-card__builtin">built-in</span>
+    <% else %>
+      <span class="skill-card__custom">custom</span>
+    <% end %>
+    <span class="skill-card__agents"><%= pluralize(skill.agents.size, "agent") %></span>
+  </div>
+</div>

@@ -1,0 +1,49 @@
+<%= form_with(model: skill, class: "form") do |f| %>
+  <% if skill.errors.any? %>
+    <div class="form__errors" role="alert">
+      <% skill.errors.full_messages.each do |message| %>
+        <p><%= message %></p>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="form__field">
+    <%= f.label :name, "Skill name" %>
+    <%= f.text_field :name, autofocus: true, required: true, placeholder: "e.g. Code Review, Strategic Planning" %>
+  </div>
+
+  <div class="form__field">
+    <%= f.label :key, "Key (unique identifier)" %>
+    <%= f.text_field :key, required: true, placeholder: "e.g. code_review, strategic_planning",
+          disabled: skill.persisted? && skill.builtin? %>
+    <% if skill.persisted? && skill.builtin? %>
+      <p class="form__hint">Built-in skill keys cannot be changed.</p>
+    <% else %>
+      <p class="form__hint">Lowercase letters, numbers, and underscores. Must be unique within the company.</p>
+    <% end %>
+  </div>
+
+  <div class="form__field">
+    <%= f.label :category, "Category" %>
+    <%= f.select :category,
+          skill_category_options,
+          { include_blank: "None" },
+          { class: "form__select" } %>
+  </div>
+
+  <div class="form__field">
+    <%= f.label :description, "Short description" %>
+    <%= f.text_area :description, rows: 2, placeholder: "Brief summary of what this skill enables" %>
+  </div>
+
+  <div class="form__field">
+    <%= f.label :markdown, "Instruction content (Markdown)" %>
+    <%= f.text_area :markdown, rows: 12, required: true,
+          placeholder: "# Skill Name\n\n## Purpose\nDescribe the skill's purpose...\n\n## Instructions\n1. Step one\n2. Step two" %>
+  </div>
+
+  <div class="form__actions">
+    <%= f.submit class: "btn btn--primary" %>
+    <%= link_to "Cancel", skill.persisted? ? skill_path(skill) : skills_path, class: "btn btn--ghost" %>
+  </div>
+<% end %>

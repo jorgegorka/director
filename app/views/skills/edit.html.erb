@@ -1,0 +1,9 @@
+<% content_for(:title, "Edit #{@skill.name}") %>
+
+<section class="skills-page">
+  <div class="skills-page__header">
+    <h1>Edit <%= @skill.name %></h1>
+  </div>
+
+  <%= render "form", skill: @skill %>
+</section>

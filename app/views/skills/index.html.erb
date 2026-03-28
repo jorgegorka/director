@@ -1,0 +1,36 @@
+<% content_for(:title, "Skills") %>
+
+<section class="skills-page">
+  <div class="skills-page__header">
+    <h1>Skills</h1>
+    <%= link_to "New Skill", new_skill_path, class: "btn btn--primary btn--sm" %>
+  </div>
+
+  <% if @categories.any? %>
+    <nav class="skills-page__filters">
+      <%= link_to "All", skills_path, class: "filter-link #{"filter-link--active" unless @current_category}" %>
+      <% @categories.each do |category| %>
+        <%= link_to category.capitalize, skills_path(category: category),
+              class: "filter-link #{"filter-link--active" if @current_category == category}" %>
+      <% end %>
+    </nav>
+  <% end %>
+
+  <% if @skills.any? %>
+    <div class="skills-list">
+      <% @skills.each do |skill| %>
+        <%= render partial: "skills/skill", locals: { skill: skill } %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="skills-page__empty">
+      <% if @current_category %>
+        <p>No skills in the <%= @current_category %> category.</p>
+        <%= link_to "View all skills", skills_path, class: "btn btn--ghost" %>
+      <% else %>
+        <p>No skills yet. Create your first skill to build your company's capability library.</p>
+        <%= link_to "Create a skill", new_skill_path, class: "btn btn--primary" %>
+      <% end %>
+    </div>
+  <% end %>
+</section>
