@@ -8,6 +8,8 @@ class AgentsController < ApplicationController
 
   def show
     @recent_heartbeats = @agent.heartbeat_events.reverse_chronological.limit(5)
+    @company_skills = Current.company.skills.order(:category, :name)
+    @assigned_skill_ids = @agent.skill_ids.to_set
   end
 
   def new

@@ -171,21 +171,80 @@
     </div>
 
     <div class="agent-detail__section">
-      <% sorted_skills = @agent.skills.sort_by(&:name) %>
-      <h2>Skills (<%= sorted_skills.size %>)</h2>
-      <div class="agent-detail__skills">
-        <% sorted_skills.each do |skill| %>
-          <div class="skill-badge" title="<%= skill.description %>">
-            <span><%= skill.name %></span>
-            <% if skill.category.present? %>
-              <span class="skill-badge__category"><%= skill.category %></span>
-            <% end %>
+      <h2>Skills</h2>
+      <div class="skill-manager">
+        <% skills_by_category = @company_skills.group_by(&:category) %>
+        <% SkillsHelper::SKILL_CATEGORIES.each do |category| %>
+          <% category_skills = skills_by_category[category] %>
+          <% next unless category_skills&.any? %>
+          <div class="skill-manager__category">
+            <h3 class="skill-manager__category-title">
+              <%= skill_category_badge(category) %>
+              <span class="skill-manager__category-count"><%= category_skills.count %></span>
+            </h3>
+            <div class="skill-manager__list">
+              <% category_skills.each do |skill| %>
+                <% assigned = @assigned_skill_ids.include?(skill.id) %>
+                <% agent_skill = @agent.agent_skills.find { |as| as.skill_id == skill.id } if assigned %>
+                <div class="skill-manager__item">
+                  <% if assigned %>
+                    <%= button_to agent_agent_skill_path(@agent, agent_skill),
+                          method: :delete,
+                          class: "skill-manager__toggle skill-manager__toggle--assigned",
+                          title: "Remove #{skill.name}" do %>
+                      <span class="skill-manager__checkbox">&#10003;</span>
+                      <span class="skill-manager__name"><%= skill.name %></span>
+                    <% end %>
+                  <% else %>
+                    <%= button_to agent_agent_skills_path(@agent),
+                          params: { skill_id: skill.id },
+                          class: "skill-manager__toggle",
+                          title: "Assign #{skill.name}" do %>
+                      <span class="skill-manager__checkbox"></span>
+                      <span class="skill-manager__name"><%= skill.name %></span>
+                    <% end %>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
           </div>
         <% end %>
+        <%# Handle skills with nil/blank category %>
+        <% uncategorized = skills_by_category.select { |k, _| k.blank? }.values.flatten %>
+        <% if uncategorized.any? %>
+          <div class="skill-manager__category">
+            <h3 class="skill-manager__category-title">Other</h3>
+            <div class="skill-manager__list">
+              <% uncategorized.each do |skill| %>
+                <% assigned = @assigned_skill_ids.include?(skill.id) %>
+                <% agent_skill = @agent.agent_skills.find { |as| as.skill_id == skill.id } if assigned %>
+                <div class="skill-manager__item">
+                  <% if assigned %>
+                    <%= button_to agent_agent_skill_path(@agent, agent_skill),
+                          method: :delete,
+                          class: "skill-manager__toggle skill-manager__toggle--assigned",
+                          title: "Remove #{skill.name}" do %>
+                      <span class="skill-manager__checkbox">&#10003;</span>
+                      <span class="skill-manager__name"><%= skill.name %></span>
+                    <% end %>
+                  <% else %>
+                    <%= button_to agent_agent_skills_path(@agent),
+                          params: { skill_id: skill.id },
+                          class: "skill-manager__toggle",
+                          title: "Assign #{skill.name}" do %>
+                      <span class="skill-manager__checkbox"></span>
+                      <span class="skill-manager__name"><%= skill.name %></span>
+                    <% end %>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+        <% if @company_skills.empty? %>
+          <p class="agent-detail__empty-note">No skills in company library. <%= link_to "Create skills", skills_path %> to assign them to agents.</p>
+        <% end %>
       </div>
-      <% if sorted_skills.empty? %>
-        <p class="empty-state">No skills assigned yet.</p>
-      <% end %>
     </div>
 
     <% if @agent.roles.any? %>

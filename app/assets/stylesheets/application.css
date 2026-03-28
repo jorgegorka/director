@@ -1403,10 +1403,35 @@
     margin-block-start: auto;
   }
 
-  .agent-card__skills,
   .agent-card__roles {
     font-size: var(--font-size-sm);
     color: var(--text-muted);
+  }
+
+  .agent-card__skill-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    align-items: center;
+  }
+
+  .agent-card__skill-tag {
+    display: inline-flex;
+    align-items: center;
+    padding-block: 1px;
+    padding-inline: var(--space-2);
+    background-color: var(--color-accent-50);
+    color: var(--color-accent-600);
+    border: 1px solid oklch(from var(--color-accent-500) l c h / 0.2);
+    border-radius: var(--radius-sm);
+    font-size: 0.7rem;
+    font-weight: 500;
+  }
+
+  .agent-card__skill-overflow {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-weight: 400;
   }
 
   /* --- Status badge --- */
@@ -1653,6 +1678,96 @@
     &:hover {
       opacity: 1;
     }
+  }
+
+  /* --- Skill manager (agent show page) --- */
+  .skill-manager {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    max-block-size: 32rem;
+    overflow-y: auto;
+    padding-inline-end: var(--space-2);
+  }
+
+  .skill-manager__category {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .skill-manager__category-title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    margin: 0;
+    padding-block-end: var(--space-1);
+    border-block-end: 1px solid var(--border);
+  }
+
+  .skill-manager__category-count {
+    font-size: var(--font-size-xs);
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+
+  .skill-manager__list {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .skill-manager__item {
+    display: flex;
+  }
+
+  .skill-manager__toggle {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding-block: var(--space-1);
+    padding-inline: var(--space-2);
+    background: none;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    inline-size: 100%;
+    text-align: start;
+    font: inherit;
+    color: var(--text-base);
+    transition: background-color var(--transition-fast);
+
+    &:hover {
+      background-color: var(--color-neutral-50);
+    }
+  }
+
+  .skill-manager__checkbox {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 1.125rem;
+    block-size: 1.125rem;
+    border: 2px solid var(--color-neutral-300);
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: transparent;
+    flex-shrink: 0;
+    transition: all var(--transition-fast);
+  }
+
+  .skill-manager__toggle--assigned .skill-manager__checkbox {
+    background-color: var(--color-brand-500);
+    border-color: var(--color-brand-500);
+    color: white;
+  }
+
+  .skill-manager__name {
+    font-size: var(--font-size-sm);
+    line-height: 1.4;
   }
 
   /* --- Inline form layout --- */

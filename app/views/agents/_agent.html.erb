@@ -11,7 +11,15 @@
   </div>
   <div class="agent-card__footer">
     <% if agent.skills.any? %>
-      <span class="agent-card__skills"><%= pluralize(agent.skills.size, "skill") %></span>
+      <div class="agent-card__skill-tags">
+        <% agent.skills.first(3).each do |skill| %>
+          <span class="agent-card__skill-tag"><%= skill.name %></span>
+        <% end %>
+        <% overflow = agent.skills.size - 3 %>
+        <% if overflow > 0 %>
+          <span class="agent-card__skill-overflow">+<%= overflow %> more</span>
+        <% end %>
+      </div>
     <% end %>
     <% if agent.roles.any? %>
       <span class="agent-card__roles"><%= pluralize(agent.roles.size, "role") %></span>
