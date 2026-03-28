@@ -1,0 +1,79 @@
+# Default skill assignments per role title.
+# Used by Role auto-assignment (Phase 15) and referenced by seeding logic.
+# Role titles are matched case-insensitively.
+
+ceo:
+  - strategic_planning
+  - company_vision
+  - stakeholder_communication
+  - decision_making
+  - risk_assessment
+
+cto:
+  - code_review
+  - architecture_planning
+  - technical_strategy
+  - system_design
+  - security_assessment
+
+cmo:
+  - market_analysis
+  - content_strategy
+  - brand_management
+  - campaign_planning
+  - audience_research
+
+cfo:
+  - financial_analysis
+  - budget_planning
+  - revenue_forecasting
+  - cost_optimization
+  - compliance_reporting
+
+engineer:
+  - code_review
+  - implementation
+  - debugging
+  - testing
+  - documentation
+
+designer:
+  - ui_design
+  - ux_research
+  - prototyping
+  - design_systems
+  - accessibility_review
+
+pm:
+  - project_planning
+  - requirements_gathering
+  - sprint_management
+  - stakeholder_communication
+  - progress_reporting
+
+qa:
+  - test_planning
+  - bug_reporting
+  - regression_testing
+  - performance_testing
+  - quality_standards
+
+devops:
+  - infrastructure_management
+  - ci_cd_pipelines
+  - monitoring_alerting
+  - deployment_automation
+  - incident_response
+
+researcher:
+  - data_analysis
+  - literature_review
+  - experiment_design
+  - report_writing
+  - market_analysis
+
+general:
+  - task_execution
+  - communication
+  - documentation
+  - problem_solving
