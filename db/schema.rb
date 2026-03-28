@@ -10,7 +10,25 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_28_103718) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_28_143529) do
+  create_table "agent_hooks", force: :cascade do |t|
+    t.json "action_config", default: {}, null: false
+    t.integer "action_type", default: 0, null: false
+    t.integer "agent_id", null: false
+    t.integer "company_id", null: false
+    t.json "conditions", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.boolean "enabled", default: true, null: false
+    t.string "lifecycle_event", null: false
+    t.string "name"
+    t.integer "position", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.index ["agent_id", "enabled"], name: "index_agent_hooks_on_agent_id_and_enabled"
+    t.index ["agent_id", "lifecycle_event"], name: "index_agent_hooks_on_agent_id_and_lifecycle_event"
+    t.index ["agent_id"], name: "index_agent_hooks_on_agent_id"
+    t.index ["company_id"], name: "index_agent_hooks_on_company_id"
+  end
+
   create_table "agent_skills", force: :cascade do |t|
     t.integer "agent_id", null: false
     t.datetime "created_at", null: false
@@ -123,6 +141,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_28_103718) do
     t.index ["agent_id", "trigger_type"], name: "index_heartbeat_events_on_agent_and_trigger"
     t.index ["agent_id"], name: "index_heartbeat_events_on_agent_id"
     t.index ["status"], name: "index_heartbeat_events_on_status"
+  end
+
+  create_table "hook_executions", force: :cascade do |t|
+    t.integer "agent_hook_id", null: false
+    t.integer "company_id", null: false
+    t.datetime "completed_at"
+    t.datetime "created_at", null: false
+    t.text "error_message"
+    t.json "input_payload", default: {}, null: false
+    t.json "output_payload", default: {}, null: false
+    t.datetime "started_at"
+    t.integer "status", default: 0, null: false
+    t.integer "task_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["agent_hook_id", "status"], name: "index_hook_executions_on_agent_hook_id_and_status"
+    t.index ["company_id"], name: "index_hook_executions_on_company_id"
+    t.index ["task_id", "created_at"], name: "index_hook_executions_on_task_id_and_created_at"
   end
 
   create_table "invitations", force: :cascade do |t|
@@ -257,6 +292,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_28_103718) do
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
   end
 
+  add_foreign_key "agent_hooks", "agents"
+  add_foreign_key "agent_hooks", "companies"
   add_foreign_key "agent_skills", "agents"
   add_foreign_key "agent_skills", "skills"
   add_foreign_key "agents", "companies"
@@ -266,6 +303,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_28_103718) do
   add_foreign_key "goals", "companies"
   add_foreign_key "goals", "goals", column: "parent_id"
   add_foreign_key "heartbeat_events", "agents"
+  add_foreign_key "hook_executions", "agent_hooks"
+  add_foreign_key "hook_executions", "companies"
+  add_foreign_key "hook_executions", "tasks"
   add_foreign_key "invitations", "companies"
   add_foreign_key "invitations", "users", column: "inviter_id"
   add_foreign_key "memberships", "companies"
