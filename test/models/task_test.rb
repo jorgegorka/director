@@ -1,6 +1,8 @@
 require "test_helper"
 
 class TaskTest < ActiveSupport::TestCase
+  include ActiveJob::TestHelper
+
   setup do
     @company = companies(:acme)
     @other_company = companies(:widgets)
@@ -294,6 +296,37 @@ class TaskTest < ActiveSupport::TestCase
   test "task status change does not error" do
     assert_nothing_raised do
       @task.update!(status: :completed)
+    end
+  end
+
+  # --- Goal evaluation trigger ---
+
+  test "enqueues goal evaluation job when task completes and has goal" do
+    agent = agents(:claude_agent)
+    goal = goals(:acme_objective_one)
+    task = Task.create!(title: "Eval trigger test", company: companies(:acme), assignee: agent, goal: goal, status: :open)
+
+    assert_enqueued_with(job: EvaluateGoalAlignmentJob) do
+      task.update!(status: :completed)
+    end
+  end
+
+  test "does not enqueue goal evaluation when task has no goal" do
+    agent = agents(:claude_agent)
+    task = Task.create!(title: "No goal trigger test", company: companies(:acme), assignee: agent, status: :open)
+
+    assert_no_enqueued_jobs(only: EvaluateGoalAlignmentJob) do
+      task.update!(status: :completed)
+    end
+  end
+
+  test "does not enqueue goal evaluation when task is not completed" do
+    agent = agents(:claude_agent)
+    goal = goals(:acme_objective_one)
+    task = Task.create!(title: "Not completed test", company: companies(:acme), assignee: agent, goal: goal, status: :open)
+
+    assert_no_enqueued_jobs(only: EvaluateGoalAlignmentJob) do
+      task.update!(status: :in_progress)
     end
   end
 end

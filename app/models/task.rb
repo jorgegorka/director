@@ -37,6 +37,7 @@ class Task < ApplicationRecord
   after_commit :broadcast_kanban_remove, on: :destroy
   after_commit :enqueue_hooks_for_transition, on: [ :create, :update ]
   after_commit :enqueue_validation_feedback, on: [ :create, :update ]
+  after_commit :enqueue_goal_evaluation, on: [ :create, :update ]
 
   def cost_in_dollars
     return nil unless cost_cents
@@ -108,5 +109,13 @@ class Task < ApplicationRecord
       trigger_source: "Task##{id}",
       context: { task_id: id, task_title: title }
     )
+  end
+
+  def enqueue_goal_evaluation
+    return unless saved_change_to_status?
+    return unless completed?
+    return unless goal_id.present?
+
+    EvaluateGoalAlignmentJob.perform_later(id)
   end
 end
