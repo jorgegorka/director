@@ -30,6 +30,15 @@ class HeartbeatEventTest < ActiveSupport::TestCase
     assert heartbeat_events(:mention_event).mention?
   end
 
+  test "trigger_type enum: hook_triggered?" do
+    event = HeartbeatEvent.new(
+      agent: agents(:claude_agent),
+      trigger_type: :hook_triggered,
+      status: :queued
+    )
+    assert event.hook_triggered?
+  end
+
   test "status enum: queued?" do
     assert heartbeat_events(:queued_event).queued?
   end

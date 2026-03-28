@@ -135,6 +135,19 @@ class AgentTest < ActiveSupport::TestCase
     assert_includes @claude_agent.roles, roles(:cto)
   end
 
+  test "has many agent_hooks" do
+    assert @claude_agent.respond_to?(:agent_hooks)
+    assert @claude_agent.agent_hooks.count > 0
+  end
+
+  test "destroying agent destroys its agent_hooks" do
+    hook_count = @claude_agent.agent_hooks.count
+    assert hook_count > 0
+    assert_difference "AgentHook.count", -hook_count do
+      @claude_agent.destroy
+    end
+  end
+
   # --- Scoping ---
 
   test "for_current_company returns only agents in Current.company" do
