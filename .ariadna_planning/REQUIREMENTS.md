@@ -24,11 +24,11 @@ Requirements for SQLite migration and cleanup. Each maps to roadmap phases.
 
 ### Database Migration
 
-- [ ] **DB-01**: Primary database uses SQLite instead of PostgreSQL -- *simplifies deployment, eliminates external DB dependency*
-- [ ] **DB-02**: All jsonb columns migrated to json type compatible with SQLite -- *8 columns across 5 tables*
-- [ ] **DB-03**: Gemfile removes pg gem and uses sqlite3 as sole database adapter -- *single DB engine*
-- [ ] **DB-04**: All environments (dev/test/prod) use SQLite in database.yml -- *consistent behavior across environments*
-- [ ] **DB-05**: Dockerfile and deploy config updated for SQLite-only stack -- *no PostgreSQL packages needed*
+- [x] **DB-01**: Primary database uses SQLite instead of PostgreSQL -- *simplifies deployment, eliminates external DB dependency*
+- [x] **DB-02**: All jsonb columns migrated to json type compatible with SQLite -- *8 columns across 5 tables*
+- [x] **DB-03**: Gemfile removes pg gem and uses sqlite3 as sole database adapter -- *single DB engine*
+- [x] **DB-04**: All environments (dev/test/prod) use SQLite in database.yml -- *consistent behavior across environments*
+- [x] **DB-05**: Dockerfile and deploy config updated for SQLite-only stack -- *no PostgreSQL packages needed*
 
 ### Cleanup
 
@@ -87,11 +87,11 @@ All 38 requirements mapped to phases 1-10. Complete.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DB-01 | 11 - SQLite Migration | Pending |
-| DB-02 | 11 - SQLite Migration | Pending |
-| DB-03 | 11 - SQLite Migration | Pending |
-| DB-04 | 11 - SQLite Migration | Pending |
-| DB-05 | 11 - SQLite Migration | Pending |
+| DB-01 | 11 - SQLite Migration | Complete |
+| DB-02 | 11 - SQLite Migration | Complete |
+| DB-03 | 11 - SQLite Migration | Complete |
+| DB-04 | 11 - SQLite Migration | Complete |
+| DB-05 | 11 - SQLite Migration | Complete |
 | CLN-01 | 12 - Cleanup & Verification | Pending |
 | CLN-02 | 12 - Cleanup & Verification | Pending |
 | CLN-03 | 12 - Cleanup & Verification | Pending |

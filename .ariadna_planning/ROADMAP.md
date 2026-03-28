@@ -208,7 +208,7 @@ Plans:
 
 **Milestone Goal:** Replace PostgreSQL with SQLite for the primary database, unifying all databases on a single engine. Clean up v1.0 tech debt so the codebase is lean and docs match reality.
 
-- [ ] **Phase 11: SQLite Migration** - Primary database switches from PostgreSQL to SQLite
+- [x] **Phase 11: SQLite Migration** - Primary database switches from PostgreSQL to SQLite
 - [ ] **Phase 12: Cleanup & Verification** - Docs, dead code, and test suite aligned with the new stack
 
 ## Phase Details
@@ -223,11 +223,11 @@ Plans:
   2. All 8 jsonb columns function correctly as json columns under SQLite -- agent capabilities, adapter config, approval gates, config version snapshots, and other structured data read and write without error
   3. `bin/rails test` passes in full with SQLite as the primary database -- no PostgreSQL-specific SQL or features cause failures
   4. Docker build completes without PostgreSQL client libraries and the production container runs on SQLite only
-**Plans**: TBD
+**Plans**: 2/2 complete
 
 Plans:
-- [ ] 11-01: TBD
-- [ ] 11-02: TBD
+- [x] 11-01: Database engine swap + column migration (Gemfile, database.yml, jsonb→json)
+- [x] 11-02: Docker/deploy cleanup + CI verification
 
 ### Phase 12: Cleanup & Verification
 **Goal**: Project documentation, codebase, and test suite are fully aligned with the SQLite stack and free of v1.0 tech debt
@@ -260,5 +260,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 8. Budget & Cost Control | v1.0 | 4/4 | Complete | 2026-03-27 |
 | 9. Governance & Audit | v1.0 | 4/4 | Complete | 2026-03-27 |
 | 10. Dashboard & Real-time UI | v1.0 | 4/4 | Complete | 2026-03-28 |
-| 11. SQLite Migration | v1.1 | 0/2 | Not started | - |
+| 11. SQLite Migration | v1.1 | 2/2 | Complete | 2026-03-28 |
 | 12. Cleanup & Verification | v1.1 | 0/1 | Not started | - |
