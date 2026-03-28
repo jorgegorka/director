@@ -32,6 +32,7 @@ Rails.application.routes.draw do
 
   # Agents (scoped to active company via Current.company)
   resources :agents do
+    resources :agent_skills, only: [ :create, :destroy ]
     resources :heartbeats, only: [ :index ]
     member do
       post :pause
