@@ -14,7 +14,7 @@ Director transforms the chaos of managing multiple AI agents into a structured b
 - v1.2 Agent Skills - Phases 13-17 (shipped 2026-03-28)
 - v1.3 Agent Hooks - Phases 18-21 (shipped 2026-03-28)
 - v1.4 Agent Execution - Phases 22-25 (shipped 2026-03-28)
-- v1.5 Role Templates - Phases 26-28 (in progress)
+- v1.5 Role Templates - Phases 26-28 (shipped 2026-03-29)
 
 ## Phases
 
@@ -255,13 +255,13 @@ Full details: [v1.4-ROADMAP.md](milestones/v1.4-ROADMAP.md)
 
 </details>
 
-### v1.5 Role Templates (In Progress)
+### v1.5 Role Templates (Shipped 2026-03-29)
 
 **Milestone Goal:** Builtin department templates that let users bootstrap their AI company's org chart with pre-built hierarchies instead of creating every role manually.
 
 - [ ] **Phase 26: Template Data and Registry** - YAML department definitions and the registry that loads them
 - [x] **Phase 27: Template Application Service** - Business logic to create role hierarchies with skill pre-assignment
-- [ ] **Phase 28: Templates Browse and Apply UI** - User-facing pages to discover, preview, and apply templates
+- [x] **Phase 28: Templates Browse and Apply UI** - User-facing pages to discover, preview, and apply templates
 
 #### Phase 26: Template Data and Registry
 **Goal**: Ship 5 department YAML templates (Engineering, Marketing, Operations, Finance, HR) with a registry class that loads, validates, and exposes them
@@ -307,10 +307,11 @@ Plans:
   2. Clicking a template card shows a detail page with the full role hierarchy tree, descriptions, and skill badges for each role
   3. Clicking "Apply" creates the department and redirects with a flash message summarizing what was created and skipped (e.g., "Created 6 roles, skipped 1 existing")
   4. The roles index page includes a link to the templates browse page so users discover templates from the natural starting point
-**Plans**: 0/2
+**Plans**: 2/2 complete
 
 Plans:
-- [ ] 28-01: RoleTemplatesController (index, show, apply), template card grid, hierarchy preview, flash feedback, roles index link
+- [x] 28-01: RoleTemplatesController (index, show, apply), template card grid, hierarchy preview, flash feedback
+- [x] 28-02: RoleTemplatesController tests and roles index discovery link
 
 ## Progress
 
@@ -346,4 +347,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 25. Live Streaming UI and Result Callbacks | v1.4 | 3/3 | Complete | 2026-03-28 |
 | 26. Template Data and Registry | v1.5 | 2/2 | Complete | 2026-03-29 |
 | 27. Template Application Service | v1.5 | 2/2 | Complete | 2026-03-29 |
-| 28. Templates Browse and Apply UI | v1.5 | 0/1 | Not started | - |
+| 28. Templates Browse and Apply UI | v1.5 | 2/2 | Complete | 2026-03-29 |

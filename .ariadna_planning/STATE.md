@@ -10,9 +10,9 @@ See: .ariadna_planning/PROJECT.md (updated 2026-03-29)
 ## Current Position
 
 Phase: 28 - Templates Browse and Apply UI
-Plan: 02 complete
+Plan: All complete
 Status: Complete
-Last activity: 2026-03-29 -- Phase 28-02 complete, RoleTemplates controller tests and roles index discovery link
+Last activity: 2026-03-29 -- Phase 28 verified and complete. v1.5 milestone shipped.
 
 Progress: [██████████████████████████] 100%
 
@@ -96,6 +96,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-29
-Stopped at: Phase 28-02 complete. Controller tests (17) for RoleTemplatesController + roles index Browse Templates link.
+Stopped at: Phase 28 verified and complete. v1.5 Role Templates milestone shipped — all 3 phases (26-28) done.
 Resume file: --
-Next step: Plan next feature or v1.6 roadmap.
+Next step: `/ariadna:complete-milestone`
