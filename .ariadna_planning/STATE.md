@@ -10,11 +10,11 @@ See: .ariadna_planning/PROJECT.md (updated 2026-03-29)
 ## Current Position
 
 Phase: 26 - Template Data and Registry
-Plan: 01 complete
+Plan: 02 complete
 Status: In progress
-Last activity: 2026-03-29 -- Plan 26-01 complete: five department YAML templates + 18 default_skills.yml mappings
+Last activity: 2026-03-29 -- Plan 26-02 complete: RoleTemplateRegistry with Data.define value objects, load-time parent-ordering validation, and 30 tests
 
-Progress: [█████░░░░░░░░░░░░░░░░░░░░░] ~33% (1/3 plans done)
+Progress: [██████████░░░░░░░░░░░░░░░░] ~66% (2/3 plans done)
 
 ## Performance Metrics
 
@@ -54,7 +54,7 @@ Progress: [█████░░░░░░░░░░░░░░░░░░
 | 25-live-streaming-ui-and-result-callbacks | 3/3 | ~22 min | ~7.3 min |
 
 **Recent Trend:**
-- Last 5 plans: 23-01 (~6 min), 24-01 (~11 min), 25-01 (~18 min), 25-03 (~2 min), 26-01 (~2 min)
+- Last 5 plans: 24-01 (~11 min), 25-01 (~18 min), 25-03 (~2 min), 26-01 (~2 min), 26-02 (~2 min)
 - Trend: consistent, stable. v1.0 COMPLETE. v1.1 COMPLETE. v1.2 COMPLETE. v1.3 COMPLETE. v1.4 COMPLETE. v1.5 in progress.
 
 *Updated after each plan completion*
@@ -74,10 +74,11 @@ Recent decisions affecting current work:
 - [v1.5-Roadmap]: Flat YAML with parent title references (matches db/seeds.rb pattern), not nested children
 - [v1.5-Roadmap]: No transaction wrapper for template application -- partial success preferred over all-or-nothing (matches additive skip-duplicate philosophy)
 - [v1.5-Research]: Critical pitfalls: parent ordering in YAML (validate at load time), cross-tenant skill lookup (always scope through company.skills), case-sensitive title matching (COLLATE NOCASE)
+- [26-02]: Data.define (Ruby 3.2+) used for Template and TemplateRole value objects -- immutable, lightweight, named attributes; validate_parent_ordering! fires at load time not at query time
 
 ### Pending Todos
 
-None - 26-02 (RoleTemplateRegistry) is next.
+None - 26-03 (Phase 26 final plan) is next.
 
 ### Blockers/Concerns
 
@@ -87,6 +88,6 @@ None - 26-02 (RoleTemplateRegistry) is next.
 ## Session Continuity
 
 Last session: 2026-03-29
-Stopped at: Plan 26-01 complete. Five YAML department templates + 18 default_skills.yml mappings in place.
+Stopped at: Plan 26-02 complete. RoleTemplateRegistry implemented with Data.define value objects, caching, and parent-ordering validation. 30 tests pass.
 Resume file: --
-Next step: Execute plan 26-02 (RoleTemplateRegistry)
+Next step: Execute plan 26-03 (Phase 26 final plan)
