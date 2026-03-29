@@ -2,17 +2,17 @@
 
 ## Project Reference
 
-See: .ariadna_planning/PROJECT.md (updated 2026-03-28)
+See: .ariadna_planning/PROJECT.md (updated 2026-03-29)
 
 **Core value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
-**Current focus:** v1.5 Role Templates — builtin department structures users can apply to their companies.
+**Current focus:** v1.5 Role Templates -- builtin department structures users can apply to their companies.
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-03-29 — Milestone v1.5 started
+Phase: 26 - Template Data and Registry
+Plan: --
+Status: Not started
+Last activity: 2026-03-29 -- Roadmap created for v1.5
 
 Progress: [░░░░░░░░░░░░░░░░░░░░░░░░░░] 0%
 
@@ -66,28 +66,14 @@ Progress: [░░░░░░░░░░░░░░░░░░░░░░░
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- [v1.4-Roadmap]: 4 phases (22-25) derived from 26 requirements across 5 categories -- data model, HTTP adapter, Claude adapter, streaming UI + callbacks
-- [v1.4-Roadmap]: Phase 22 (AgentRun + job dispatch) is foundation -- no streaming or execution can proceed without the persistent run record
-- [v1.4-Roadmap]: Phase 23 (HTTP adapter) before Phase 24 (Claude) -- simpler adapter validates job dispatch chain without Claude-specific complexity adding noise
-- [v1.4-Roadmap]: Phase 24 (Claude) before Phase 25 (streaming UI) -- live view is only meaningful when Claude is actually streaming; building UI against a stub wastes iteration cycles
-- [v1.4-Roadmap]: tmux is the subprocess management layer for Claude Local adapter (HARD REQUIREMENT, deployment dependency) -- provides real TTY, session persistence, zombie-free lifecycle
-- [v1.4-Roadmap]: Execution model: `tmux new-session -d -s "agent_run_42" "claude -p --bare ..."` then capture output via tmux capture-pane
-- [v1.4-Roadmap]: No new gems for v1.4 -- Net::HTTP (stdlib), tmux (system dep), Turbo::StreamsChannel (already in Gemfile)
-- [21-01]: action_config["target_agent_id"] returns string from SQLite JSON storage (not integer) -- assert with .to_i in tests
-- [22-01]: NotImplementedError inherits from ScriptError, not StandardError -- rescue Exception in ExecuteAgentJob to catch adapter NotImplementedError and prevent agent getting stuck in running state
-- [22-01]: Task model needs has_many :agent_runs, dependent: :nullify -- task deletion with associated runs causes FK constraint failure without it
-- [23-01]: Minitest 6.0.2 has no minitest/mock -- use define_singleton_method for class method overrides in tests; extract backoff_sleep as public hook on adapter classes for zero-sleep test execution
-- [23-01]: Net::HTTP::GenericRequest has no merge! -- set headers via request[key]=value iteration
-- [23-01]: HttpAdapter error classes (PermanentError, TransientError) both inherit from StandardError -- caught by existing ExecuteAgentJob rescue StandardError clause
-- [24-01]: private_class_method on def self.method is not compatible with define_singleton_method test isolation -- both share the same singleton class slot, so remove_method permanently destroys the method. Hookable shell-out methods (spawn_session, session_exists?, capture_pane, kill_session, env_prefix) must be public class methods for test isolation to work correctly
-- [24-01]: define_singleton_method blocks run with self = the class, not the test instance -- use local variable closures (spawn_calls = @spawn_calls = []) to share state between define_singleton_method blocks and test assertions
-- [24-01]: ExecuteAgentJob loads a fresh AR object via agent_run.agent, so singleton method stubs on test @agent instances do not apply -- use real DB state to trigger budget exhaustion
-- [25-01]: assert_raises(ActiveRecord::RecordNotFound) does not work in Rails integration tests -- Rails catches the exception and converts to 404 response; use assert_response :not_found instead (established pattern in agents_controller_test.rb)
-- [25-02]: assert_response :not_found used for cancel scoping test -- same pattern as 25-01; Rails integration tests return 404 not raise RecordNotFound
-- [25-02]: cancel! checks terminal? (all 3 states) not just completed?/failed? -- defensive, consistent guard
-- [25-02]: broadcast_flush! via after_commit not inside mark_completed!/mark_failed! -- fires after DB commit, prevents race
-- [25-03]: Agent run callbacks placed outside scope :agent block in routes -- runs are identified by their integer ID, not by agent token scope; Bearer token auth still enforced via AgentApiAuthenticatable
-- [25-03]: update_task_on_completion and record_cost_on_task are private controller helpers delegating to existing model methods (mark_completed!, broadcast_line!) and BudgetEnforcementService -- thin controller pattern maintained
+- [v1.5-Roadmap]: 3 phases (26-28) derived from 13 requirements across 4 categories -- template data, application service, UI, skill mappings
+- [v1.5-Roadmap]: Phase 26 (Template Data + Registry) is foundation -- YAML files + registry class must exist before service or UI can function
+- [v1.5-Roadmap]: Phase 27 (Application Service) before Phase 28 (UI) -- service logic tested in isolation before adding the HTTP layer
+- [v1.5-Roadmap]: No new gems, no migrations, no new models -- YAML files + plain Ruby registry + service object + standard controller
+- [v1.5-Roadmap]: SKILL-01 (default_skills.yml extensions) grouped with Phase 26 because skill mappings are data definitions, not service logic
+- [v1.5-Roadmap]: Flat YAML with parent title references (matches db/seeds.rb pattern), not nested children
+- [v1.5-Roadmap]: No transaction wrapper for template application -- partial success preferred over all-or-nothing (matches additive skip-duplicate philosophy)
+- [v1.5-Research]: Critical pitfalls: parent ordering in YAML (validate at load time), cross-tenant skill lookup (always scope through company.skills), case-sensitive title matching (COLLATE NOCASE)
 
 ### Pending Todos
 
@@ -101,6 +87,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-29
-Stopped at: v1.5 milestone started, defining requirements.
+Stopped at: v1.5 roadmap created. Ready for phase 26 planning.
 Resume file: --
-Next step: Complete requirements → roadmap
+Next step: `/ariadna:plan-phase 26`

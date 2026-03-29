@@ -2,7 +2,11 @@
 
 ## Active
 
-None — planning next milestone.
+### v1.5 -- Role Templates
+**Started:** 2026-03-29
+**Phases:** 26-28 (3 phases, 3 plans estimated)
+**Summary:** Builtin YAML role templates for 5 departments (Engineering, Marketing, Operations, Finance, HR) that users can browse, preview, and apply with one click. Each template creates a full department hierarchy with job specs and skill pre-assignment. Stackable with skip-duplicate logic.
+**Requirements:** 13 (4 TMPL, 5 APPLY, 4 UI, 1 SKILL)
 
 ## Completed
 
@@ -16,7 +20,7 @@ None — planning next milestone.
 ### v1.3 -- Agent Hooks
 **Completed:** 2026-03-28
 **Phases:** 18-21 (4 phases, 5 plans, 15 tasks)
-**Summary:** Configurable agent hook system that fires at task lifecycle events (after_task_start, after_task_complete). Hooks can trigger other agents for validation or call webhooks for external integration. Validation feedback loop closes the cycle: Agent A completes → Agent B validates → results posted back → Agent A iterates. Full CRUD management UI.
+**Summary:** Configurable agent hook system that fires at task lifecycle events (after_task_start, after_task_complete). Hooks can trigger other agents for validation or call webhooks for external integration. Validation feedback loop closes the cycle: Agent A completes -> Agent B validates -> results posted back -> Agent A iterates. Full CRUD management UI.
 **Stats:** 15 requirements, 5 plans, 878 tests, ~14 minutes total execution
 **Archive:** [v1.3-ROADMAP.md](milestones/v1.3-ROADMAP.md) | [v1.3-REQUIREMENTS.md](milestones/v1.3-REQUIREMENTS.md)
 

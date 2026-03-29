@@ -14,6 +14,7 @@ Director transforms the chaos of managing multiple AI agents into a structured b
 - v1.2 Agent Skills - Phases 13-17 (shipped 2026-03-28)
 - v1.3 Agent Hooks - Phases 18-21 (shipped 2026-03-28)
 - v1.4 Agent Execution - Phases 22-25 (shipped 2026-03-28)
+- v1.5 Role Templates - Phases 26-28 (in progress)
 
 ## Phases
 
@@ -254,10 +255,65 @@ Full details: [v1.4-ROADMAP.md](milestones/v1.4-ROADMAP.md)
 
 </details>
 
+### v1.5 Role Templates (In Progress)
+
+**Milestone Goal:** Builtin department templates that let users bootstrap their AI company's org chart with pre-built hierarchies instead of creating every role manually.
+
+- [ ] **Phase 26: Template Data and Registry** - YAML department definitions and the registry that loads them
+- [ ] **Phase 27: Template Application Service** - Business logic to create role hierarchies with skill pre-assignment
+- [ ] **Phase 28: Templates Browse and Apply UI** - User-facing pages to discover, preview, and apply templates
+
+#### Phase 26: Template Data and Registry
+**Goal**: Ship 5 department YAML templates (Engineering, Marketing, Operations, Finance, HR) with a registry class that loads, validates, and exposes them
+**Why this matters**: Users need a catalog of ready-made departments before they can apply anything -- the YAML files are the content that makes the feature valuable, and the registry is the foundation both the service and UI depend on.
+**Depends on**: Phase 25 (v1.4 complete -- existing Role, Skill, and RoleSkill models in place)
+**Requirements**: TMPL-01, TMPL-02, TMPL-03, SKILL-01
+**Success Criteria** (what must be TRUE):
+  1. Five YAML template files exist in `db/seeds/role_templates/` defining Engineering, Marketing, Operations, Finance, and HR departments with 4-7 roles each
+  2. Each template role has a title, description, multi-paragraph job spec, parent reference, and 3-5 skill key assignments
+  3. `RoleTemplateRegistry.all` returns all 5 templates and `RoleTemplateRegistry.find("engineering")` returns the correct template
+  4. `config/default_skills.yml` includes ~17 new role-title-to-skill mappings covering all template role titles not already mapped
+  5. Template YAML validation catches parent-ordering errors (children listed before parents) at load time
+**Plans**: TBD
+
+Plans:
+- [ ] 26-01: YAML template files, RoleTemplateRegistry, default_skills.yml extensions, validation tests
+
+#### Phase 27: Template Application Service
+**Goal**: `ApplyRoleTemplateService` creates a complete department hierarchy with skill pre-assignment, skip-duplicate logic, and structured result reporting
+**Why this matters**: This is the engine that turns a template definition into a real org chart -- without it, templates are just documentation. The service must be reliable enough that users trust one-click department creation.
+**Depends on**: Phase 26 (templates must be loadable before they can be applied)
+**Requirements**: APPLY-01, APPLY-02, APPLY-03, APPLY-04, APPLY-05
+**Success Criteria** (what must be TRUE):
+  1. Applying the Engineering template to an empty company creates the full role hierarchy (CTO -> VP Engineering -> Tech Lead, etc.) with correct parent-child relationships
+  2. Applying the same template twice to the same company creates no duplicate roles -- all existing roles are skipped
+  3. Each created role has skills from the company's skill library pre-assigned (not from another tenant)
+  4. The service returns a result object reporting how many roles were created, how many were skipped, and any errors
+  5. "Apply All" creates all 5 departments under the CEO with no conflicts or duplicates
+**Plans**: TBD
+
+Plans:
+- [ ] 27-01: ApplyRoleTemplateService with hierarchy creation, skip-duplicate, skill assignment, result object, Apply All
+
+#### Phase 28: Templates Browse and Apply UI
+**Goal**: Dedicated templates pages where users can browse available departments, preview their role hierarchies, and apply them with one click
+**Why this matters**: Users need to discover what templates are available and understand what they will get before committing -- the browse and preview pages build confidence, and the one-click apply makes the feature frictionless.
+**Depends on**: Phase 27 (service must exist before the controller can delegate to it)
+**Requirements**: UI-01, UI-02, UI-03, UI-04
+**Success Criteria** (what must be TRUE):
+  1. A dedicated templates page at `/role_templates` lists all 5 departments as cards with name, description, and role count
+  2. Clicking a template card shows a detail page with the full role hierarchy tree, descriptions, and skill badges for each role
+  3. Clicking "Apply" creates the department and redirects with a flash message summarizing what was created and skipped (e.g., "Created 6 roles, skipped 1 existing")
+  4. The roles index page includes a link to the templates browse page so users discover templates from the natural starting point
+**Plans**: TBD
+
+Plans:
+- [ ] 28-01: RoleTemplatesController (index, show, apply), template card grid, hierarchy preview, flash feedback, roles index link
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14 -> 15 -> 16 -> 17 -> 18 -> 19 -> 20 -> 21 -> 22 -> 23 -> 24 -> 25
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14 -> 15 -> 16 -> 17 -> 18 -> 19 -> 20 -> 21 -> 22 -> 23 -> 24 -> 25 -> 26 -> 27 -> 28
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -286,3 +342,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 23. HTTP Adapter Real Execution | v1.4 | 1/1 | Complete | 2026-03-28 |
 | 24. Claude Local Adapter with Tmux | v1.4 | 1/1 | Complete | 2026-03-28 |
 | 25. Live Streaming UI and Result Callbacks | v1.4 | 3/3 | Complete | 2026-03-28 |
+| 26. Template Data and Registry | v1.5 | 0/1 | Not started | - |
+| 27. Template Application Service | v1.5 | 0/1 | Not started | - |
+| 28. Templates Browse and Apply UI | v1.5 | 0/1 | Not started | - |
