@@ -10,11 +10,11 @@ See: .ariadna_planning/PROJECT.md (updated 2026-03-29)
 ## Current Position
 
 Phase: 27 - Template Application Service
-Plan: 01 complete
-Status: In Progress
-Last activity: 2026-03-29 -- Phase 27-01 complete: ApplyRoleTemplateService + 28 tests
+Plan: 02 complete
+Status: Complete
+Last activity: 2026-03-29 -- Phase 27-02 complete: ApplyAllRoleTemplatesService + 20 tests
 
-Progress: [██████████████████████████] ~50% of phase 27
+Progress: [█████████████████████████████████████████] ~100% of phase 27
 
 ## Performance Metrics
 
@@ -54,8 +54,8 @@ Progress: [███████████████████████
 | 25-live-streaming-ui-and-result-callbacks | 3/3 | ~22 min | ~7.3 min |
 
 **Recent Trend:**
-- Last 5 plans: 24-01 (~11 min), 25-01 (~18 min), 25-03 (~2 min), 26-01 (~2 min), 26-02 (~2 min)
-- Trend: consistent, stable. v1.0 COMPLETE. v1.1 COMPLETE. v1.2 COMPLETE. v1.3 COMPLETE. v1.4 COMPLETE. v1.5 in progress.
+- Last 5 plans: 25-03 (~2 min), 26-01 (~2 min), 26-02 (~2 min), 27-01 (~3 min), 27-02 (~2 min)
+- Trend: consistent, stable. v1.0 COMPLETE. v1.1 COMPLETE. v1.2 COMPLETE. v1.3 COMPLETE. v1.4 COMPLETE. v1.5 Phase 27 COMPLETE.
 
 *Updated after each plan completion*
 
@@ -77,6 +77,7 @@ Recent decisions affecting current work:
 - [26-02]: Data.define (Ruby 3.2+) used for Template and TemplateRole value objects -- immutable, lightweight, named attributes; validate_parent_ordering! fires at load time not at query time
 - [27-01]: No transaction wrapper for ApplyRoleTemplateService -- partial success preferred; roles_by_title tracks both created and skipped roles for correct parent resolution
 - [27-01]: SQLite title column has no COLLATE NOCASE -- find_by(title:) is case-sensitive; skip-duplicate is title-exact-match only
+- [27-02]: Reused ApplyRoleTemplateService::Result for ApplyAllRoleTemplatesService combined output -- no new types needed
 
 ### Pending Todos
 
@@ -90,6 +91,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-29
-Stopped at: Phase 27-01 complete. ApplyRoleTemplateService + 28 comprehensive tests shipped.
+Stopped at: Phase 27-02 complete. ApplyAllRoleTemplatesService + 20 comprehensive tests shipped. Phase 27 complete.
 Resume file: --
-Next step: Phase 27-02 (controller/UI for template application)
+Next step: Phase 28 (Templates UI -- controller + Hotwire views)
