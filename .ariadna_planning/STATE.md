@@ -10,9 +10,9 @@ See: .ariadna_planning/PROJECT.md (updated 2026-03-29)
 ## Current Position
 
 Phase: 28 - Templates Browse and Apply UI
-Plan: 01 complete
+Plan: 02 complete
 Status: Complete
-Last activity: 2026-03-29 -- Phase 28-01 complete, v1.5 Role Templates UI shipped
+Last activity: 2026-03-29 -- Phase 28-02 complete, RoleTemplates controller tests and roles index discovery link
 
 Progress: [██████████████████████████] 100%
 
@@ -54,7 +54,7 @@ Progress: [███████████████████████
 | 25-live-streaming-ui-and-result-callbacks | 3/3 | ~22 min | ~7.3 min |
 
 **Recent Trend:**
-- Last 5 plans: 26-02 (~2 min), 27-01 (~3 min), 27-02 (~2 min), 28-01 (~12 min)
+- Last 5 plans: 27-01 (~3 min), 27-02 (~2 min), 28-01 (~12 min), 28-02 (~10 min)
 - Trend: consistent, stable. v1.0 COMPLETE. v1.1 COMPLETE. v1.2 COMPLETE. v1.3 COMPLETE. v1.4 COMPLETE. v1.5 COMPLETE.
 
 *Updated after each plan completion*
@@ -80,6 +80,9 @@ Recent decisions affecting current work:
 - [27-02]: Reused ApplyRoleTemplateService::Result for ApplyAllRoleTemplatesService combined output -- no new types needed
 - [28-01]: params[:id] is string template key, not integer DB ID -- RoleTemplateRegistry.find(key) does lookup, TemplateNotFound re-raised as RecordNotFound for 404
 - [28-01]: Hierarchy tree rendered via recursive ERB lambda (render_tree) -- self-contained in show.html.erb, avoids recursive partial complexity
+- [28-02]: button_to renders button[type=submit], not input[type=submit] -- use button selector in controller tests
+- [28-02]: Rails handles RecordNotFound as 404 response in tests -- use assert_response :not_found, not assert_raises
+- [28-02]: Acme fixture has "CTO" role matching engineering template -- first apply creates 4 roles, not 5
 
 ### Pending Todos
 
@@ -93,6 +96,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-29
-Stopped at: Phase 28-01 complete. v1.5 Role Templates UI shipped -- browse, detail, and apply.
+Stopped at: Phase 28-02 complete. Controller tests (17) for RoleTemplatesController + roles index Browse Templates link.
 Resume file: --
 Next step: Plan next feature or v1.6 roadmap.
