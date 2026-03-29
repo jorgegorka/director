@@ -20,9 +20,9 @@ class AuditEvent < ApplicationRecord
     gate_blocked
     emergency_stop
     emergency_resume
-    agent_paused
-    agent_resumed
-    agent_terminated
+    role_paused
+    role_resumed
+    role_terminated
     config_rollback
     cost_recorded
     hook_executed

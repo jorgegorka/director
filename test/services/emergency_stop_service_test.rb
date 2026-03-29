@@ -53,7 +53,7 @@ class EmergencyStopServiceTest < ActiveSupport::TestCase
       EmergencyStopService.call!(company: @company, user: @user)
     end
     notification = Notification.where(action: "emergency_stop").last
-    assert notification.metadata["agents_paused"].present?
+    assert notification.metadata["roles_paused"].present?
     assert_equal @user.email_address, notification.metadata["triggered_by"]
   end
 

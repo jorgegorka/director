@@ -12,6 +12,14 @@
     <p class="role-card__description"><%= role.description %></p>
   <% end %>
 
+  <% if role.skills.any? %>
+    <div class="role-card__skills">
+      <% role.skills.each do |skill| %>
+        <span class="role-card__skill-tag"><%= skill.name %></span>
+      <% end %>
+    </div>
+  <% end %>
+
   <div class="role-card__footer">
     <span class="role-card__status">
       <span class="role-card__status-dot role-card__status-dot--<%= role.status %>"></span>

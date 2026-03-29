@@ -48,7 +48,7 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
   test "should show adapter type on detail page" do
     get role_url(@developer)
     assert_response :success
-    assert_select ".agent-detail__adapter-label", text: "HTTP API"
+    assert_select ".role-detail__adapter-label", text: "HTTP API"
   end
 
   # --- New / Create ---
@@ -237,7 +237,7 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
   test "should show heartbeat section on role detail page" do
     get role_url(@cto)
     assert_response :success
-    assert_select ".agent-detail__kv"
+    assert_select ".role-detail__kv"
   end
 
   test "should show heartbeat events on role detail page" do
@@ -292,7 +292,7 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
   test "should show no-budget message for role without budget" do
     get role_url(roles(:process_role))
     assert_response :success
-    assert_select ".agent-detail__empty-note", /No budget configured/
+    assert_select ".role-detail__empty-note", /No budget configured/
   end
 
   # --- Role Status Actions ---
@@ -365,20 +365,20 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
 
   test "pause records audit event" do
     @cto.update_columns(status: Role.statuses[:idle])
-    assert_difference -> { AuditEvent.where(action: "agent_paused").count } do
+    assert_difference -> { AuditEvent.where(action: "role_paused").count } do
       post pause_role_url(@cto)
     end
   end
 
   test "resume records audit event" do
     @cto.update_columns(status: Role.statuses[:paused], pause_reason: "test", paused_at: Time.current)
-    assert_difference -> { AuditEvent.where(action: "agent_resumed").count } do
+    assert_difference -> { AuditEvent.where(action: "role_resumed").count } do
       post resume_role_url(@cto)
     end
   end
 
   test "terminate records audit event" do
-    assert_difference -> { AuditEvent.where(action: "agent_terminated").count } do
+    assert_difference -> { AuditEvent.where(action: "role_terminated").count } do
       post terminate_role_url(@cto)
     end
   end
@@ -503,6 +503,6 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
   test "should show skill tags in role card on index" do
     get roles_url
     assert_response :success
-    assert_select ".agent-card__skill-tag", minimum: 1
+    assert_select ".role-card__skill-tag", minimum: 1
   end
 end

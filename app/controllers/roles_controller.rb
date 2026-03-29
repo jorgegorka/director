@@ -3,7 +3,7 @@ class RolesController < ApplicationController
   before_action :set_role, only: [ :show, :edit, :update, :destroy, :pause, :resume, :terminate, :approve, :reject ]
 
   def index
-    @roles = Current.company.roles.includes(:parent, :children).order(:title)
+    @roles = Current.company.roles.includes(:parent, :children, :skills).order(:title)
   end
 
   def show
@@ -128,7 +128,7 @@ class RolesController < ApplicationController
   private
 
   def set_role
-    @role = Current.company.roles.includes(:skills, :approval_gates, :role_skills).find(params[:id])
+    @role = Current.company.roles.includes(:skills, :approval_gates, :role_skills, children: :skills).find(params[:id])
   end
 
   def sync_approval_gates

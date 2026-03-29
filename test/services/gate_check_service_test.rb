@@ -36,7 +36,7 @@ class GateCheckServiceTest < ActiveSupport::TestCase
     end
     notification = Notification.where(notifiable: @role, action: "gate_pending_approval").last
     assert_equal "task_creation", notification.metadata["action_type"]
-    assert_equal @role.title, notification.metadata["agent_name"]
+    assert_equal @role.title, notification.metadata["role_title"]
   end
 
   test "records audit event when gate blocks" do

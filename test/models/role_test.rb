@@ -549,15 +549,15 @@ class RoleTest < ActiveSupport::TestCase
   end
 
   test "first agent configuration does not duplicate existing skills" do
-    # cto already has strategic_planning and code_review from fixtures.
-    # Create a new role with the same title to test.
-    role = Role.create!(title: "Test CEO", company: @company)
+    # Create a role whose title matches a default_skills key, pre-assign a skill, then configure adapter.
+    roles(:ceo).destroy # free up the "CEO" title
+    role = Role.create!(title: "CEO", company: @company)
     role.role_skills.create!(skill: skills(:acme_strategic_planning))
     initial_count = role.role_skills.count
     assert initial_count > 0, "Role should have some existing skills"
 
     # Configuring adapter triggers first assignment.
-    role.update!(title: "CEO", adapter_type: :http, adapter_config: { "url" => "https://example.com" })
+    role.update!(adapter_type: :http, adapter_config: { "url" => "https://example.com" })
 
     role.reload
     # strategic_planning should exist exactly once

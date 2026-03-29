@@ -29,6 +29,7 @@ class Role < ApplicationRecord
   validate :validate_adapter_config_schema, if: :agent_configured?
 
   scope :active, -> { where.not(status: [ :terminated ]) }
+  scope :agent_configured, -> { where.not(adapter_type: nil) }
 
   attr_writer :preloaded_monthly_spend_cents
 
@@ -79,7 +80,7 @@ class Role < ApplicationRecord
   end
 
   def online?
-    idle? || running?
+    agent_configured? && (idle? || running?)
   end
 
   def offline?

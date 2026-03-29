@@ -45,7 +45,8 @@ class TaskDelegationsControllerTest < ActionDispatch::IntegrationTest
   test "human user cannot delegate to role not in subordinate hierarchy" do
     original_assignee = @task.assignee
 
-    post delegate_task_url(@task), params: { role_id: @process_role.id }
+    # CEO is parent of CTO, not a subordinate — delegation should fail
+    post delegate_task_url(@task), params: { role_id: @cto.parent.id }
 
     assert_redirected_to task_path(@task)
     assert_match "Cannot delegate", flash[:alert]
@@ -115,8 +116,10 @@ class TaskDelegationsControllerTest < ActionDispatch::IntegrationTest
     sign_out
     original_assignee = @task.assignee
 
+    # CEO is parent of CTO, not a subordinate — delegation should fail
+    ceo = roles(:ceo)
     post delegate_task_url(@task, format: :json),
-         params: { role_id: @process_role.id },
+         params: { role_id: ceo.id },
          headers: { "Authorization" => "Bearer #{@cto.api_token}" }
 
     assert_response :unprocessable_entity

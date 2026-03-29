@@ -33,7 +33,7 @@ class RoleRunsControllerTest < ActionDispatch::IntegrationTest
     @role.role_runs.delete_all
     get role_role_runs_url(@role)
     assert_response :success
-    assert_select ".agent-runs__empty"
+    assert_select ".role-runs__empty"
   end
 
   # --- Show ---
@@ -42,14 +42,14 @@ class RoleRunsControllerTest < ActionDispatch::IntegrationTest
     run = role_runs(:completed_run)
     get role_role_run_url(@role, run)
     assert_response :success
-    assert_select ".agent-run-detail"
+    assert_select ".role-run-detail"
   end
 
   test "show includes output stream container" do
     run = role_runs(:completed_run)
     get role_role_run_url(@role, run)
     assert_response :success
-    assert_select ".agent-run-output__stream"
+    assert_select ".role-run-output__stream"
   end
 
   test "show rejects run from different role" do
@@ -68,7 +68,7 @@ class RoleRunsControllerTest < ActionDispatch::IntegrationTest
     )
     get role_role_run_url(@role, run)
     assert_response :success
-    assert_select ".agent-run-detail__kv-row--error"
+    assert_select ".role-run-detail__kv-row--error"
   end
 
   # --- Cancel ---

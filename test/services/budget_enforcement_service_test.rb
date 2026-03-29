@@ -24,7 +24,7 @@ class BudgetEnforcementServiceTest < ActiveSupport::TestCase
     end
     notification = Notification.where(notifiable: @role, action: "budget_exhausted").last
     assert_equal "budget_exhausted", notification.action
-    assert_equal @role.title, notification.metadata["agent_name"]
+    assert_equal @role.title, notification.metadata["role_title"]
   end
 
   test "creates budget_alert notification at 80% threshold" do

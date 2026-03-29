@@ -24,7 +24,7 @@ class CompaniesController < ApplicationController
   def emergency_stop
     company = Current.user.companies.find(params[:id])
     unless company == Current.company
-      redirect_to companies_path, alert: "Cannot control agents for a company you are not viewing."
+      redirect_to companies_path, alert: "Cannot control roles for a company you are not viewing."
       return
     end
 

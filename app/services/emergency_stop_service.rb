@@ -1,5 +1,5 @@
 class EmergencyStopService
-  PAUSE_REASON = "Emergency stop: all agents paused by administrator"
+  PAUSE_REASON = "Emergency stop: all roles paused by administrator"
 
   attr_reader :company, :user
 
@@ -13,7 +13,7 @@ class EmergencyStopService
   end
 
   def call!
-    roles_to_pause = company.roles.active.where.not(status: [ :paused, :terminated ])
+    roles_to_pause = company.roles.active.agent_configured.where.not(status: [ :paused, :terminated ])
     paused_count = 0
 
     roles_to_pause.find_each do |role|

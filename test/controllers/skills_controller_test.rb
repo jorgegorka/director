@@ -80,14 +80,14 @@ class SkillsControllerTest < ActionDispatch::IntegrationTest
     # claude_agent has acme_code_review via fixture
     get skill_url(@builtin_skill)
     assert_response :success
-    assert_select ".skill-detail__agents-list li", minimum: 1
+    assert_select ".skill-detail__roles-list li", minimum: 1
   end
 
   test "should show empty agents message when none assigned" do
     # acme_custom_skill has no agents assigned in fixtures
     get skill_url(@custom_skill)
     assert_response :success
-    assert_select ".skill-detail__empty-note", text: /No agents/
+    assert_select ".skill-detail__empty-note", text: /No roles/
   end
 
   test "should show category badge on skill detail" do

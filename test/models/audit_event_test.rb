@@ -119,7 +119,7 @@ class AuditEventTest < ActiveSupport::TestCase
   end
 
   test "GOVERNANCE_ACTIONS includes expected action types" do
-    expected = %w[gate_approval gate_rejection emergency_stop emergency_resume agent_paused agent_resumed agent_terminated config_rollback cost_recorded hook_executed]
+    expected = %w[gate_approval gate_rejection emergency_stop emergency_resume role_paused role_resumed role_terminated config_rollback cost_recorded hook_executed]
     expected.each do |action|
       assert_includes AuditEvent::GOVERNANCE_ACTIONS, action
     end
