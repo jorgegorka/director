@@ -9,12 +9,12 @@ See: .ariadna_planning/PROJECT.md (updated 2026-03-29)
 
 ## Current Position
 
-Phase: 26 - Template Data and Registry
-Plan: All complete
-Status: Complete
-Last activity: 2026-03-29 -- Phase 26 verified and complete
+Phase: 27 - Template Application Service
+Plan: 01 complete
+Status: In Progress
+Last activity: 2026-03-29 -- Phase 27-01 complete: ApplyRoleTemplateService + 28 tests
 
-Progress: [██████████████████████████] 100%
+Progress: [██████████████████████████] ~50% of phase 27
 
 ## Performance Metrics
 
@@ -75,6 +75,8 @@ Recent decisions affecting current work:
 - [v1.5-Roadmap]: No transaction wrapper for template application -- partial success preferred over all-or-nothing (matches additive skip-duplicate philosophy)
 - [v1.5-Research]: Critical pitfalls: parent ordering in YAML (validate at load time), cross-tenant skill lookup (always scope through company.skills), case-sensitive title matching (COLLATE NOCASE)
 - [26-02]: Data.define (Ruby 3.2+) used for Template and TemplateRole value objects -- immutable, lightweight, named attributes; validate_parent_ordering! fires at load time not at query time
+- [27-01]: No transaction wrapper for ApplyRoleTemplateService -- partial success preferred; roles_by_title tracks both created and skipped roles for correct parent resolution
+- [27-01]: SQLite title column has no COLLATE NOCASE -- find_by(title:) is case-sensitive; skip-duplicate is title-exact-match only
 
 ### Pending Todos
 
@@ -88,6 +90,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-29
-Stopped at: Phase 26 complete and verified. All 5 YAML templates + RoleTemplateRegistry shipped.
+Stopped at: Phase 27-01 complete. ApplyRoleTemplateService + 28 comprehensive tests shipped.
 Resume file: --
-Next step: `/ariadna:plan-phase 27`
+Next step: Phase 27-02 (controller/UI for template application)
