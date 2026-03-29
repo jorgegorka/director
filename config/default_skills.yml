@@ -74,3 +74,123 @@ general:
   - communication
   - documentation
   - problem_solving
+
+# --- Engineering department template roles ---
+
+vp engineering:
+  - project_planning
+  - sprint_management
+  - technical_strategy
+  - progress_reporting
+
+tech lead:
+  - code_review
+  - architecture_planning
+  - implementation
+  - system_design
+
+# Note: "engineer" and "qa" already mapped above
+
+# --- Marketing department template roles ---
+
+content manager:
+  - content_strategy
+  - documentation
+  - audience_research
+  - communication
+
+seo specialist:
+  - data_analysis
+  - content_strategy
+  - market_analysis
+  - report_writing
+
+social media manager:
+  - content_strategy
+  - audience_research
+  - communication
+  - campaign_planning
+
+marketing analyst:
+  - data_analysis
+  - report_writing
+  - market_analysis
+  - financial_analysis
+
+# --- Operations department template roles ---
+
+coo:
+  - strategic_planning
+  - decision_making
+  - project_planning
+  - risk_assessment
+
+operations manager:
+  - project_planning
+  - progress_reporting
+  - problem_solving
+  - task_execution
+
+project manager:
+  - project_planning
+  - sprint_management
+  - requirements_gathering
+  - progress_reporting
+
+business analyst:
+  - requirements_gathering
+  - data_analysis
+  - documentation
+  - report_writing
+
+executive assistant:
+  - communication
+  - documentation
+  - task_execution
+
+# --- Finance department template roles ---
+
+controller:
+  - financial_analysis
+  - compliance_reporting
+  - documentation
+  - cost_optimization
+
+compliance officer:
+  - compliance_reporting
+  - risk_assessment
+  - documentation
+  - report_writing
+
+financial analyst:
+  - financial_analysis
+  - revenue_forecasting
+  - data_analysis
+  - budget_planning
+  - report_writing
+
+# --- HR department template roles ---
+
+hr director:
+  - strategic_planning
+  - decision_making
+  - communication
+  - risk_assessment
+
+recruiter:
+  - requirements_gathering
+  - communication
+  - data_analysis
+  - report_writing
+
+training specialist:
+  - documentation
+  - communication
+  - experiment_design
+  - progress_reporting
+
+compensation analyst:
+  - data_analysis
+  - financial_analysis
+  - market_analysis
+  - report_writing
