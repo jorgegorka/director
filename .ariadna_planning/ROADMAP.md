@@ -260,7 +260,7 @@ Full details: [v1.4-ROADMAP.md](milestones/v1.4-ROADMAP.md)
 **Milestone Goal:** Builtin department templates that let users bootstrap their AI company's org chart with pre-built hierarchies instead of creating every role manually.
 
 - [ ] **Phase 26: Template Data and Registry** - YAML department definitions and the registry that loads them
-- [ ] **Phase 27: Template Application Service** - Business logic to create role hierarchies with skill pre-assignment
+- [x] **Phase 27: Template Application Service** - Business logic to create role hierarchies with skill pre-assignment
 - [ ] **Phase 28: Templates Browse and Apply UI** - User-facing pages to discover, preview, and apply templates
 
 #### Phase 26: Template Data and Registry
@@ -291,10 +291,11 @@ Plans:
   3. Each created role has skills from the company's skill library pre-assigned (not from another tenant)
   4. The service returns a result object reporting how many roles were created, how many were skipped, and any errors
   5. "Apply All" creates all 5 departments under the CEO with no conflicts or duplicates
-**Plans**: 0/2
+**Plans**: 2/2 complete
 
 Plans:
-- [ ] 27-01: ApplyRoleTemplateService with hierarchy creation, skip-duplicate, skill assignment, result object, Apply All
+- [x] 27-01: ApplyRoleTemplateService with hierarchy creation, skip-duplicate, skill assignment, result object
+- [x] 27-02: ApplyAllRoleTemplatesService with CEO find-or-create and aggregate results
 
 #### Phase 28: Templates Browse and Apply UI
 **Goal**: Dedicated templates pages where users can browse available departments, preview their role hierarchies, and apply them with one click
@@ -344,5 +345,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 24. Claude Local Adapter with Tmux | v1.4 | 1/1 | Complete | 2026-03-28 |
 | 25. Live Streaming UI and Result Callbacks | v1.4 | 3/3 | Complete | 2026-03-28 |
 | 26. Template Data and Registry | v1.5 | 2/2 | Complete | 2026-03-29 |
-| 27. Template Application Service | v1.5 | 0/1 | Not started | - |
+| 27. Template Application Service | v1.5 | 2/2 | Complete | 2026-03-29 |
 | 28. Templates Browse and Apply UI | v1.5 | 0/1 | Not started | - |
