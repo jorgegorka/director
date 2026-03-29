@@ -274,10 +274,11 @@ Full details: [v1.4-ROADMAP.md](milestones/v1.4-ROADMAP.md)
   3. `RoleTemplateRegistry.all` returns all 5 templates and `RoleTemplateRegistry.find("engineering")` returns the correct template
   4. `config/default_skills.yml` includes ~17 new role-title-to-skill mappings covering all template role titles not already mapped
   5. Template YAML validation catches parent-ordering errors (children listed before parents) at load time
-**Plans**: TBD
+**Plans**: 2/2 complete
 
 Plans:
-- [ ] 26-01: YAML template files, RoleTemplateRegistry, default_skills.yml extensions, validation tests
+- [x] 26-01: YAML template files and default_skills.yml extensions (template data)
+- [x] 26-02: RoleTemplateRegistry class with validation and comprehensive tests
 
 #### Phase 27: Template Application Service
 **Goal**: `ApplyRoleTemplateService` creates a complete department hierarchy with skill pre-assignment, skip-duplicate logic, and structured result reporting
@@ -290,7 +291,7 @@ Plans:
   3. Each created role has skills from the company's skill library pre-assigned (not from another tenant)
   4. The service returns a result object reporting how many roles were created, how many were skipped, and any errors
   5. "Apply All" creates all 5 departments under the CEO with no conflicts or duplicates
-**Plans**: TBD
+**Plans**: 0/2
 
 Plans:
 - [ ] 27-01: ApplyRoleTemplateService with hierarchy creation, skip-duplicate, skill assignment, result object, Apply All
@@ -305,7 +306,7 @@ Plans:
   2. Clicking a template card shows a detail page with the full role hierarchy tree, descriptions, and skill badges for each role
   3. Clicking "Apply" creates the department and redirects with a flash message summarizing what was created and skipped (e.g., "Created 6 roles, skipped 1 existing")
   4. The roles index page includes a link to the templates browse page so users discover templates from the natural starting point
-**Plans**: TBD
+**Plans**: 0/2
 
 Plans:
 - [ ] 28-01: RoleTemplatesController (index, show, apply), template card grid, hierarchy preview, flash feedback, roles index link
@@ -342,6 +343,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 23. HTTP Adapter Real Execution | v1.4 | 1/1 | Complete | 2026-03-28 |
 | 24. Claude Local Adapter with Tmux | v1.4 | 1/1 | Complete | 2026-03-28 |
 | 25. Live Streaming UI and Result Callbacks | v1.4 | 3/3 | Complete | 2026-03-28 |
-| 26. Template Data and Registry | v1.5 | 0/1 | Not started | - |
+| 26. Template Data and Registry | v1.5 | 2/2 | Complete | 2026-03-29 |
 | 27. Template Application Service | v1.5 | 0/1 | Not started | - |
 | 28. Templates Browse and Apply UI | v1.5 | 0/1 | Not started | - |
