@@ -3,28 +3,28 @@ class TaskEscalationsController < ApplicationController
   before_action :set_task
 
   def create
-    manager_agent = find_manager_agent
+    manager_role = find_manager_role
 
-    unless manager_agent
-      return respond_error(@task, "Cannot escalate -- no manager with an assigned agent found.")
+    unless manager_role
+      return respond_error(@task, "Cannot escalate -- no manager role found.")
     end
 
     old_assignee = @task.assignee
-    @task.update!(assignee: manager_agent)
+    @task.update!(assignee: manager_role)
 
     @task.record_audit_event!(
       actor: current_actor,
       action: "escalated",
       metadata: {
-        from_agent_id: old_assignee&.id,
-        from_agent_name: old_assignee&.name,
-        to_agent_id: manager_agent.id,
-        to_agent_name: manager_agent.name,
+        from_role_id: old_assignee&.id,
+        from_role_title: old_assignee&.title,
+        to_role_id: manager_role.id,
+        to_role_title: manager_role.title,
         reason: escalation_params[:reason].presence
       }
     )
 
-    respond_success(@task, "Task escalated to #{manager_agent.name}.")
+    respond_success(@task, "Task escalated to #{manager_role.title}.")
   end
 
   private
@@ -33,7 +33,7 @@ class TaskEscalationsController < ApplicationController
     params.permit(:reason)
   end
 
-  def find_manager_agent
-    @task.assignee&.manager_agent
+  def find_manager_role
+    @task.assignee&.manager_role
   end
 end

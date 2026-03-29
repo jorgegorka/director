@@ -4,7 +4,7 @@ class AuditEventTest < ActiveSupport::TestCase
   setup do
     @task = tasks(:design_homepage)
     @user = users(:one)
-    @agent = agents(:claude_agent)
+    @role = roles(:cto)
     @event = audit_events(:task_created)
   end
 
@@ -33,10 +33,10 @@ class AuditEventTest < ActiveSupport::TestCase
     assert_equal "User", @event.actor_type
   end
 
-  test "belongs to actor (polymorphic) - Agent" do
-    agent_event = audit_events(:task_status_changed)
-    assert_equal @agent, agent_event.actor
-    assert_equal "Agent", agent_event.actor_type
+  test "belongs to actor (polymorphic) - Role" do
+    role_event = audit_events(:task_status_changed)
+    assert_equal @role, role_event.actor
+    assert_equal "Role", role_event.actor_type
   end
 
   # --- Immutability ---
@@ -129,7 +129,7 @@ class AuditEventTest < ActiveSupport::TestCase
 
   test "audit event has broadcast_activity_event private method" do
     event = AuditEvent.new(
-      auditable: agents(:claude_agent),
+      auditable: roles(:cto),
       actor: users(:one),
       action: "test_action",
       company: companies(:acme)
@@ -140,7 +140,7 @@ class AuditEventTest < ActiveSupport::TestCase
   test "creating audit event does not error" do
     assert_nothing_raised do
       AuditEvent.create!(
-        auditable: agents(:claude_agent),
+        auditable: roles(:cto),
         actor: users(:one),
         action: "test_broadcast",
         company: companies(:acme)

@@ -4,15 +4,15 @@ require "webmock/minitest"
 class ExecuteHookServiceTest < ActiveSupport::TestCase
   setup do
     @company = companies(:acme)
-    @claude_agent = agents(:claude_agent)
-    @http_agent = agents(:http_agent)
-    @task = tasks(:design_homepage)  # in_progress, assigned to claude_agent
+    @cto = roles(:cto)
+    @developer = roles(:developer)
+    @task = tasks(:design_homepage)  # in_progress, assigned to cto
 
     # Create fresh queued execution for trigger_agent hook
-    @trigger_hook = agent_hooks(:claude_validation_hook)
+    @trigger_hook = role_hooks(:cto_validation_hook)
 
     @trigger_execution = HookExecution.create!(
-      agent_hook: @trigger_hook,
+      role_hook: @trigger_hook,
       task: @task,
       company: @company,
       status: :queued,
@@ -20,9 +20,9 @@ class ExecuteHookServiceTest < ActiveSupport::TestCase
     )
 
     # Create fresh queued execution for webhook hook
-    @webhook_hook = agent_hooks(:claude_webhook_hook)
+    @webhook_hook = role_hooks(:cto_webhook_hook)
     @webhook_execution = HookExecution.create!(
-      agent_hook: @webhook_hook,
+      role_hook: @webhook_hook,
       task: @task,
       company: @company,
       status: :queued,
@@ -32,10 +32,10 @@ class ExecuteHookServiceTest < ActiveSupport::TestCase
 
   # --- trigger_agent dispatch ---
 
-  test "trigger_agent creates validation subtask assigned to target agent" do
+  test "trigger_agent creates validation subtask assigned to target role" do
     ExecuteHookService.call(@trigger_execution)
 
-    subtask = Task.find_by(parent_task: @task, assignee: @http_agent)
+    subtask = Task.find_by(parent_task: @task, assignee: @developer)
     assert subtask.present?, "Validation subtask should be created"
     assert_equal "Validate: #{@task.title}", subtask.title
     assert_equal @task.company_id, subtask.company_id
@@ -45,27 +45,25 @@ class ExecuteHookServiceTest < ActiveSupport::TestCase
 
   test "trigger_agent subtask description includes hook prompt" do
     ExecuteHookService.call(@trigger_execution)
-    subtask = Task.find_by(parent_task: @task, assignee: @http_agent)
+    subtask = Task.find_by(parent_task: @task, assignee: @developer)
     assert_includes subtask.description, "Review the completed work for correctness and quality."
   end
 
   test "trigger_agent subtask description includes original task title" do
     ExecuteHookService.call(@trigger_execution)
-    subtask = Task.find_by(parent_task: @task, assignee: @http_agent)
+    subtask = Task.find_by(parent_task: @task, assignee: @developer)
     assert_includes subtask.description, @task.title
   end
 
-  test "trigger_agent wakes target agent via WakeAgentService with hook_triggered" do
-    # 2 events: one from Triggerable#trigger_assignment_wake (task_assigned) when subtask
-    # is created with an assignee, and one explicitly from dispatch_trigger_agent (hook_triggered)
+  test "trigger_agent wakes target role via WakeRoleService with hook_triggered" do
     assert_difference "HeartbeatEvent.count", 2 do
       ExecuteHookService.call(@trigger_execution)
     end
 
     hook_event = HeartbeatEvent.where(trigger_type: :hook_triggered).last
     assert hook_event.present?
-    assert_equal @http_agent.id, hook_event.agent_id
-    assert_equal "AgentHook##{@trigger_hook.id}", hook_event.trigger_source
+    assert_equal @developer.id, hook_event.role_id
+    assert_equal "RoleHook##{@trigger_hook.id}", hook_event.trigger_source
   end
 
   test "trigger_agent marks execution as completed with output" do
@@ -79,16 +77,16 @@ class ExecuteHookServiceTest < ActiveSupport::TestCase
     assert @trigger_execution.output_payload["validation_task_id"].present?
   end
 
-  test "trigger_agent raises when target agent not found" do
-    @trigger_hook.update_columns(action_config: { "target_agent_id" => 999999 })
+  test "trigger_agent raises when target role not found" do
+    @trigger_hook.update_columns(action_config: { "target_role_id" => 999999 })
 
-    assert_raises(RuntimeError, /Target agent not found/) do
+    assert_raises(RuntimeError, /Target role not found/) do
       ExecuteHookService.call(@trigger_execution)
     end
 
     @trigger_execution.reload
     assert @trigger_execution.failed?
-    assert_includes @trigger_execution.error_message, "Target agent not found"
+    assert_includes @trigger_execution.error_message, "Target role not found"
   end
 
   # --- webhook dispatch ---
@@ -166,13 +164,13 @@ class ExecuteHookServiceTest < ActiveSupport::TestCase
     audit = AuditEvent.last
     assert_equal "hook_executed", audit.action
     assert_equal @trigger_hook, audit.auditable
-    assert_equal @claude_agent, audit.actor
+    assert_equal @cto, audit.actor
     assert_equal @company, audit.company
     assert_equal @task.id, audit.metadata["task_id"]
   end
 
   test "does not record audit event on failure" do
-    @trigger_hook.update_columns(action_config: { "target_agent_id" => 999999 })
+    @trigger_hook.update_columns(action_config: { "target_role_id" => 999999 })
 
     audit_count_before = AuditEvent.count
     assert_raises(RuntimeError) do

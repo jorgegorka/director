@@ -53,8 +53,6 @@ class ConfigVersionsController < ApplicationController
 
   def find_versionable
     case @versionable_type
-    when "Agent"
-      Current.company.agents.find_by(id: @versionable_id)
     when "Role"
       Current.company.roles.find_by(id: @versionable_id)
     else

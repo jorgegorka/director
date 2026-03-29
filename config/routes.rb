@@ -24,25 +24,12 @@ Rails.application.routes.draw do
   resources :invitation_acceptances, only: [ :show, :update ], param: :token
 
   # Org Chart & Roles (scoped to active company via Current.company)
-  resources :roles
-  resource :org_chart, only: [ :show ]
-
-  # Skills (scoped to active company via Current.company)
-  resources :skills do
-    resources :skill_documents, only: [ :create, :destroy ]
-  end
-
-  # Documents (scoped to active company via Current.company)
-  resources :documents
-  resources :document_tags, only: [ :index, :create, :destroy ]
-
-  # Agents (scoped to active company via Current.company)
-  resources :agents do
-    resources :agent_skills, only: [ :create, :destroy ]
-    resources :agent_documents, only: [ :create, :destroy ]
+  resources :roles do
+    resources :role_skills, only: [ :create, :destroy ]
+    resources :role_documents, only: [ :create, :destroy ]
     resources :heartbeats, only: [ :index ]
-    resources :agent_hooks
-    resources :agent_runs, only: [ :index, :show ] do
+    resources :role_hooks
+    resources :role_runs, only: [ :index, :show ] do
       member do
         post :cancel
       end
@@ -55,6 +42,16 @@ Rails.application.routes.draw do
       post :reject
     end
   end
+  resource :org_chart, only: [ :show ]
+
+  # Skills (scoped to active company via Current.company)
+  resources :skills do
+    resources :skill_documents, only: [ :create, :destroy ]
+  end
+
+  # Documents (scoped to active company via Current.company)
+  resources :documents
+  resources :document_tags, only: [ :index, :create, :destroy ]
 
   # Tasks (scoped to active company via Current.company)
   resources :tasks do
@@ -82,35 +79,10 @@ Rails.application.routes.draw do
   # Audit Log (scoped to active company via Current.company)
   resources :audit_logs, only: [ :index ]
 
-  # Config Versions (version history and rollback for Agent/Role)
+  # Config Versions (version history and rollback for Role)
   resources :config_versions, only: [ :index, :show ] do
     member do
       post :rollback
-    end
-  end
-
-  # Agent API (Bearer token auth for process/bash agents)
-  namespace :api do
-    scope :agent do
-      resources :events, only: [ :index ], controller: "agent_events" do
-        member do
-          post :acknowledge
-        end
-      end
-      # Cost reporting: agents report task costs
-      resources :tasks, only: [], controller: "agent_costs", as: "agent_tasks" do
-        member do
-          post :cost
-        end
-      end
-    end
-
-    # Agent run callbacks (agents report results/progress back to Director)
-    resources :agent_runs, only: [] do
-      member do
-        post :result
-        post :progress
-      end
     end
   end
 
@@ -119,10 +91,6 @@ Rails.application.routes.draw do
 
   # Health check - used by load balancers and uptime monitors
   get "up" => "rails/health#show", as: :rails_health_check
-
-  # Render dynamic PWA files from app/views/pwa/*
-  # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
-  # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
   root "dashboard#show"
 end

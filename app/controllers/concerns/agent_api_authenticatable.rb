@@ -9,11 +9,11 @@ module AgentApiAuthenticatable
   private
 
   def current_actor
-    @current_agent || Current.user
+    @current_role || Current.user
   end
 
   def agent_api_request?
-    @current_agent.present?
+    @current_role.present?
   end
 
   def require_session_or_agent_token
@@ -26,9 +26,9 @@ module AgentApiAuthenticatable
 
     token = extract_bearer_token
     if token.present?
-      @current_agent = Agent.find_by(api_token: token)
-      if @current_agent
-        Current.company = @current_agent.company
+      @current_role = Role.find_by(api_token: token)
+      if @current_role
+        Current.company = @current_role.company
         return
       end
     end

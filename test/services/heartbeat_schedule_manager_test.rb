@@ -1,11 +1,6 @@
 require "test_helper"
 
 class HeartbeatScheduleManagerTest < ActiveSupport::TestCase
-  # HeartbeatScheduleManager interacts with SolidQueue::RecurringTask which lives in a
-  # separate queue database (SQLite in production). In dev/test the table is absent from
-  # the primary DB. We inject a FakeTaskStore to test the business logic without the
-  # queue schema, using HeartbeatScheduleManager.task_store class attribute.
-
   class FakeTask
     attr_accessor :key, :class_name, :schedule, :arguments, :static, :description
 
@@ -48,7 +43,7 @@ class HeartbeatScheduleManagerTest < ActiveSupport::TestCase
   end
 
   setup do
-    @agent = agents(:http_agent)
+    @role = roles(:developer)
     FakeTaskStore.records = {}
     HeartbeatScheduleManager.task_store = FakeTaskStore
   end
@@ -57,75 +52,74 @@ class HeartbeatScheduleManagerTest < ActiveSupport::TestCase
     HeartbeatScheduleManager.task_store = nil
   end
 
-  test "creates recurring task when agent has schedule enabled" do
-    @agent.update_columns(heartbeat_enabled: true, heartbeat_interval: 15)
+  test "creates recurring task when role has schedule enabled" do
+    @role.update_columns(heartbeat_enabled: true, heartbeat_interval: 15)
 
     assert_difference -> { FakeTaskStore.count }, 1 do
-      HeartbeatScheduleManager.sync(@agent)
+      HeartbeatScheduleManager.sync(@role)
     end
 
-    task = FakeTaskStore.find_by(key: "agent_heartbeat_#{@agent.id}")
+    task = FakeTaskStore.find_by(key: "role_heartbeat_#{@role.id}")
     assert task.present?
-    assert_equal "AgentHeartbeatJob", task.class_name
+    assert_equal "RoleHeartbeatJob", task.class_name
     assert_equal "every 15 minutes", task.schedule
     assert_equal false, task.static
-    assert_equal [ @agent.id ], task.arguments
+    assert_equal [ @role.id ], task.arguments
   end
 
   test "updates existing recurring task when interval changes" do
-    @agent.update_columns(heartbeat_enabled: true, heartbeat_interval: 15)
-    HeartbeatScheduleManager.sync(@agent)
+    @role.update_columns(heartbeat_enabled: true, heartbeat_interval: 15)
+    HeartbeatScheduleManager.sync(@role)
 
-    @agent.update_columns(heartbeat_interval: 30)
+    @role.update_columns(heartbeat_interval: 30)
     assert_no_difference -> { FakeTaskStore.count } do
-      HeartbeatScheduleManager.sync(@agent)
+      HeartbeatScheduleManager.sync(@role)
     end
 
-    task = FakeTaskStore.find_by(key: "agent_heartbeat_#{@agent.id}")
+    task = FakeTaskStore.find_by(key: "role_heartbeat_#{@role.id}")
     assert_equal "every 30 minutes", task.schedule
   end
 
   test "removes recurring task when schedule is disabled" do
-    @agent.update_columns(heartbeat_enabled: true, heartbeat_interval: 15)
-    HeartbeatScheduleManager.sync(@agent)
-    assert FakeTaskStore.exists?(key: "agent_heartbeat_#{@agent.id}")
+    @role.update_columns(heartbeat_enabled: true, heartbeat_interval: 15)
+    HeartbeatScheduleManager.sync(@role)
+    assert FakeTaskStore.exists?(key: "role_heartbeat_#{@role.id}")
 
-    @agent.update_columns(heartbeat_enabled: false)
-    HeartbeatScheduleManager.sync(@agent)
-    assert_not FakeTaskStore.exists?(key: "agent_heartbeat_#{@agent.id}")
+    @role.update_columns(heartbeat_enabled: false)
+    HeartbeatScheduleManager.sync(@role)
+    assert_not FakeTaskStore.exists?(key: "role_heartbeat_#{@role.id}")
   end
 
   test "removes recurring task when interval is nil" do
-    @agent.update_columns(heartbeat_enabled: true, heartbeat_interval: 15)
-    HeartbeatScheduleManager.sync(@agent)
+    @role.update_columns(heartbeat_enabled: true, heartbeat_interval: 15)
+    HeartbeatScheduleManager.sync(@role)
 
-    @agent.update_columns(heartbeat_interval: nil)
-    HeartbeatScheduleManager.sync(@agent)
-    assert_not FakeTaskStore.exists?(key: "agent_heartbeat_#{@agent.id}")
+    @role.update_columns(heartbeat_interval: nil)
+    HeartbeatScheduleManager.sync(@role)
+    assert_not FakeTaskStore.exists?(key: "role_heartbeat_#{@role.id}")
   end
 
   test "remove class method destroys task" do
-    @agent.update_columns(heartbeat_enabled: true, heartbeat_interval: 15)
-    HeartbeatScheduleManager.sync(@agent)
-    assert FakeTaskStore.exists?(key: "agent_heartbeat_#{@agent.id}")
+    @role.update_columns(heartbeat_enabled: true, heartbeat_interval: 15)
+    HeartbeatScheduleManager.sync(@role)
+    assert FakeTaskStore.exists?(key: "role_heartbeat_#{@role.id}")
 
-    HeartbeatScheduleManager.remove(@agent)
-    assert_not FakeTaskStore.exists?(key: "agent_heartbeat_#{@agent.id}")
+    HeartbeatScheduleManager.remove(@role)
+    assert_not FakeTaskStore.exists?(key: "role_heartbeat_#{@role.id}")
   end
 
   test "remove does nothing when no task exists" do
     assert_nothing_raised do
-      HeartbeatScheduleManager.remove(@agent)
+      HeartbeatScheduleManager.remove(@role)
     end
   end
 
   test "sync does nothing when solid queue not available" do
-    HeartbeatScheduleManager.task_store = nil  # disable fake store so guard fires
-    @agent.update_columns(heartbeat_enabled: true, heartbeat_interval: 15)
+    HeartbeatScheduleManager.task_store = nil
+    @role.update_columns(heartbeat_enabled: true, heartbeat_interval: 15)
 
-    # With no task_store and no real SolidQueue table, sync should be a no-op
     assert_nothing_raised do
-      HeartbeatScheduleManager.sync(@agent)
+      HeartbeatScheduleManager.sync(@role)
     end
     assert_equal 0, FakeTaskStore.records.size
   end

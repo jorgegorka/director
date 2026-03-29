@@ -53,24 +53,6 @@ acme_custom_skill:
   category: technical
   builtin: false
 
-acme_company_vision:
-  company: acme
-  key: company_vision
-  name: Company Vision
-  description: "Define and communicate company vision"
-  markdown: "# Company Vision\n\n## Purpose\nDefine and communicate company vision.\n\n## Instructions\n1. Articulate vision\n2. Align stakeholders\n3. Communicate clearly"
-  category: leadership
-  builtin: true
-
-acme_stakeholder_communication:
-  company: acme
-  key: stakeholder_communication
-  name: Stakeholder Communication
-  description: "Manage stakeholder relationships"
-  markdown: "# Stakeholder Communication\n\n## Purpose\nManage stakeholder relationships.\n\n## Instructions\n1. Identify stakeholders\n2. Plan communications\n3. Execute outreach"
-  category: leadership
-  builtin: true
-
 acme_decision_making:
   company: acme
   key: decision_making

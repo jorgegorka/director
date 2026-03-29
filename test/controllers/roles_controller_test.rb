@@ -45,6 +45,12 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
+  test "should show adapter type on detail page" do
+    get role_url(@developer)
+    assert_response :success
+    assert_select ".agent-detail__adapter-label", text: "HTTP API"
+  end
+
   # --- New / Create ---
 
   test "should get new role form" do
@@ -91,6 +97,39 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
   end
 
+  test "should create role with adapter config (http)" do
+    assert_difference("Role.count", 1) do
+      post roles_url, params: {
+        role: {
+          title: "New HTTP Role",
+          adapter_type: "http",
+          adapter_config: { url: "https://example.com/api", method: "POST" }
+        }
+      }
+    end
+    role = Role.order(:created_at).last
+    assert_equal "New HTTP Role", role.title
+    assert role.http?
+    assert_equal "https://example.com/api", role.adapter_config["url"]
+    assert_equal @company, role.company
+    assert_redirected_to role_url(role)
+  end
+
+  test "should create role with claude_local adapter" do
+    assert_difference("Role.count", 1) do
+      post roles_url, params: {
+        role: {
+          title: "Local Claude Role",
+          adapter_type: "claude_local",
+          adapter_config: { model: "claude-sonnet-4-20250514" }
+        }
+      }
+    end
+    role = Role.order(:created_at).last
+    assert role.claude_local?
+    assert_equal "claude-sonnet-4-20250514", role.adapter_config["model"]
+  end
+
   # --- Edit / Update ---
 
   test "should get edit form" do
@@ -108,7 +147,6 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should update role parent" do
-    # Move developer to report directly to CEO instead of CTO
     patch role_url(@developer), params: { role: { parent_id: @ceo.id } }
     assert_redirected_to role_url(@developer)
     @developer.reload
@@ -123,7 +161,6 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
   # --- Destroy ---
 
   test "should destroy role and re-parent children" do
-    # CTO has developer as child. Deleting CTO should re-parent developer to CEO.
     assert_difference("Role.count", -1) do
       delete role_url(@cto)
     end
@@ -133,77 +170,11 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should destroy root role and make children root" do
-    # Delete CEO -- CTO should become root
     assert_difference("Role.count", -1) do
       delete role_url(@ceo)
     end
     @cto.reload
     assert_nil @cto.parent_id
-  end
-
-  # --- Agent assignment ---
-
-  test "should assign agent to role on create" do
-    agent = agents(:claude_agent)
-    assert_difference("Role.count", 1) do
-      post roles_url, params: {
-        role: { title: "Lead Architect", agent_id: agent.id }
-      }
-    end
-    role = Role.order(:created_at).last
-    assert_equal agent.id, role.agent_id
-  end
-
-  test "should assign agent to role on update" do
-    agent = agents(:http_agent)
-    patch role_url(@ceo), params: { role: { agent_id: agent.id } }
-    assert_redirected_to role_url(@ceo)
-    @ceo.reload
-    assert_equal agent.id, @ceo.agent_id
-  end
-
-  test "should unassign agent from role" do
-    # CTO already has claude_agent assigned (from fixture)
-    assert_not_nil @cto.agent_id
-    patch role_url(@cto), params: { role: { agent_id: "" } }
-    assert_redirected_to role_url(@cto)
-    @cto.reload
-    assert_nil @cto.agent_id
-  end
-
-  test "assigning agent to unassigned role triggers skill auto-assignment" do
-    # CEO has no agent (fixture). Assigning process_agent should trigger auto-assignment.
-    agent = agents(:process_agent)
-    assert_equal 0, agent.agent_skills.count
-
-    patch role_url(@ceo), params: { role: { agent_id: agent.id } }
-    assert_redirected_to role_url(@ceo)
-
-    agent.reload
-    assert agent.skills.any?, "Agent should have skills after first role assignment"
-    skill_keys = agent.skills.pluck(:key).sort
-    expected_keys = %w[company_vision decision_making risk_assessment stakeholder_communication strategic_planning]
-    assert_equal expected_keys, skill_keys
-  end
-
-  test "reassigning role agent does not trigger auto-assignment" do
-    # CTO already has claude_agent. Reassigning to process_agent should NOT assign CTO skills.
-    agent = agents(:process_agent)
-    assert_equal 0, agent.agent_skills.count
-
-    patch role_url(@cto), params: { role: { agent_id: agent.id } }
-    assert_redirected_to role_url(@cto)
-
-    agent.reload
-    assert_equal 0, agent.agent_skills.count,
-      "Reassignment should not trigger auto-assignment"
-  end
-
-  test "should show agent name on role detail" do
-    # CTO has claude_agent assigned
-    get role_url(@cto)
-    assert_response :success
-    assert_select ".role-detail__agent", text: /Claude Assistant/
   end
 
   # --- Auth / Scoping ---
@@ -219,5 +190,319 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
     sign_in_as(user_without_company)
     get roles_url
     assert_redirected_to new_company_url
+  end
+
+  # --- Heartbeat Schedule ---
+
+  test "should create role with heartbeat schedule" do
+    assert_difference("Role.count", 1) do
+      post roles_url, params: {
+        role: {
+          title: "Scheduled Role",
+          adapter_type: "http",
+          adapter_config: { url: "https://example.com/agent" },
+          heartbeat_enabled: "1",
+          heartbeat_interval: "15"
+        }
+      }
+    end
+    role = Role.order(:created_at).last
+    assert role.heartbeat_enabled?
+    assert_equal 15, role.heartbeat_interval
+  end
+
+  test "should update role heartbeat schedule" do
+    patch role_url(@cto), params: {
+      role: {
+        heartbeat_enabled: "1",
+        heartbeat_interval: "30"
+      }
+    }
+    assert_redirected_to role_url(@cto)
+    @cto.reload
+    assert @cto.heartbeat_enabled?
+    assert_equal 30, @cto.heartbeat_interval
+  end
+
+  test "should disable role heartbeat" do
+    @cto.update_columns(heartbeat_enabled: true, heartbeat_interval: 15)
+    patch role_url(@cto), params: {
+      role: { heartbeat_enabled: "0" }
+    }
+    assert_redirected_to role_url(@cto)
+    @cto.reload
+    assert_not @cto.heartbeat_enabled?
+  end
+
+  test "should show heartbeat section on role detail page" do
+    get role_url(@cto)
+    assert_response :success
+    assert_select ".agent-detail__kv"
+  end
+
+  test "should show heartbeat events on role detail page" do
+    get role_url(@cto)
+    assert_response :success
+    assert_select ".heartbeat-table"
+  end
+
+  test "should link to heartbeat history from role page" do
+    get role_url(@cto)
+    assert_response :success
+    assert_select "a[href=?]", role_heartbeats_path(@cto)
+  end
+
+  # --- Budget ---
+
+  test "should create role with budget" do
+    assert_difference("Role.count") do
+      post roles_url, params: { role: {
+        title: "Budget Role",
+        adapter_type: "http",
+        adapter_config: { url: "https://example.com" },
+        budget_dollars: "250.00"
+      } }
+    end
+    role = Role.find_by(title: "Budget Role")
+    assert_equal 25000, role.budget_cents
+    assert_equal Date.current.beginning_of_month, role.budget_period_start
+  end
+
+  test "should update role budget" do
+    patch role_url(@cto), params: { role: { budget_dollars: "750.00" } }
+    assert_redirected_to role_url(@cto)
+    @cto.reload
+    assert_equal 75000, @cto.budget_cents
+  end
+
+  test "should clear budget when empty string submitted" do
+    patch role_url(@cto), params: { role: { budget_dollars: "" } }
+    assert_redirected_to role_url(@cto)
+    @cto.reload
+    assert_nil @cto.budget_cents
+    assert_nil @cto.budget_period_start
+  end
+
+  test "should show budget section on role detail page" do
+    get role_url(@cto)
+    assert_response :success
+    assert_select ".budget-display"
+  end
+
+  test "should show no-budget message for role without budget" do
+    get role_url(roles(:process_role))
+    assert_response :success
+    assert_select ".agent-detail__empty-note", /No budget configured/
+  end
+
+  # --- Role Status Actions ---
+
+  test "should pause role" do
+    @cto.update_columns(status: Role.statuses[:idle])
+    post pause_role_url(@cto)
+    assert_redirected_to role_url(@cto)
+    @cto.reload
+    assert @cto.paused?
+    assert @cto.pause_reason.present?
+    assert @cto.paused_at.present?
+  end
+
+  test "should not pause already paused role" do
+    @cto.update_columns(status: Role.statuses[:paused])
+    post pause_role_url(@cto)
+    assert_redirected_to role_url(@cto)
+    assert_equal "#{@cto.title} is already paused.", flash[:alert]
+  end
+
+  test "should resume paused role" do
+    @cto.update_columns(status: Role.statuses[:paused], pause_reason: "test", paused_at: Time.current)
+    post resume_role_url(@cto)
+    assert_redirected_to role_url(@cto)
+    @cto.reload
+    assert @cto.idle?
+    assert_nil @cto.pause_reason
+  end
+
+  test "should resume pending_approval role" do
+    @cto.update_columns(status: Role.statuses[:pending_approval], pause_reason: "test", paused_at: Time.current)
+    post resume_role_url(@cto)
+    assert_redirected_to role_url(@cto)
+    @cto.reload
+    assert @cto.idle?
+  end
+
+  test "should terminate role" do
+    post terminate_role_url(@cto)
+    assert_redirected_to role_url(@cto)
+    @cto.reload
+    assert @cto.terminated?
+  end
+
+  test "should not terminate already terminated role" do
+    @cto.update_columns(status: Role.statuses[:terminated])
+    post terminate_role_url(@cto)
+    assert_redirected_to role_url(@cto)
+    assert_equal "#{@cto.title} is already terminated.", flash[:alert]
+  end
+
+  test "should approve pending_approval role" do
+    @cto.update_columns(status: Role.statuses[:pending_approval], pause_reason: "Approval required: Task creation gate is active")
+    post approve_role_url(@cto)
+    assert_redirected_to role_url(@cto)
+    @cto.reload
+    assert @cto.idle?
+    assert_nil @cto.pause_reason
+  end
+
+  test "should reject pending_approval role" do
+    @cto.update_columns(status: Role.statuses[:pending_approval], pause_reason: "Approval required")
+    post reject_role_url(@cto)
+    assert_redirected_to role_url(@cto)
+    @cto.reload
+    assert @cto.paused?
+    assert_match /Approval rejected/, @cto.pause_reason
+  end
+
+  test "pause records audit event" do
+    @cto.update_columns(status: Role.statuses[:idle])
+    assert_difference -> { AuditEvent.where(action: "agent_paused").count } do
+      post pause_role_url(@cto)
+    end
+  end
+
+  test "resume records audit event" do
+    @cto.update_columns(status: Role.statuses[:paused], pause_reason: "test", paused_at: Time.current)
+    assert_difference -> { AuditEvent.where(action: "agent_resumed").count } do
+      post resume_role_url(@cto)
+    end
+  end
+
+  test "terminate records audit event" do
+    assert_difference -> { AuditEvent.where(action: "agent_terminated").count } do
+      post terminate_role_url(@cto)
+    end
+  end
+
+  test "approve records gate_approval audit event" do
+    @cto.update_columns(status: Role.statuses[:pending_approval], pause_reason: "Approval required")
+    assert_difference -> { AuditEvent.where(action: "gate_approval").count } do
+      post approve_role_url(@cto)
+    end
+  end
+
+  test "reject records gate_rejection audit event" do
+    @cto.update_columns(status: Role.statuses[:pending_approval], pause_reason: "Approval required")
+    assert_difference -> { AuditEvent.where(action: "gate_rejection").count } do
+      post reject_role_url(@cto)
+    end
+  end
+
+  # --- Emergency Stop ---
+
+  test "should emergency stop all roles" do
+    @company.roles.where.not(adapter_type: nil).update_all(status: Role.statuses[:idle])
+    post emergency_stop_company_url(@company)
+    assert_redirected_to roles_url
+  end
+
+  test "should not allow status actions on other company roles" do
+    post pause_role_url(roles(:widgets_lead))
+    assert_response :not_found
+  end
+
+  # --- Approval Gates ---
+
+  test "should save approval gates on role update" do
+    patch role_url(@cto), params: {
+      role: {
+        gates_submitted: "1",
+        gates: {
+          task_creation: "1",
+          budget_spend: "1"
+        }
+      }
+    }
+    assert_redirected_to role_url(@cto)
+    @cto.reload
+    assert @cto.gate_enabled?("task_creation")
+    assert @cto.gate_enabled?("budget_spend")
+  end
+
+  test "should disable gates when unchecked" do
+    patch role_url(@cto), params: {
+      role: {
+        gates_submitted: "1",
+        gates: {
+          task_creation: "1",
+          budget_spend: "1"
+        }
+      }
+    }
+    patch role_url(@cto), params: {
+      role: {
+        gates_submitted: "1",
+        gates: {}
+      }
+    }
+    assert_redirected_to role_url(@cto)
+    @cto.reload
+    assert_not @cto.gate_enabled?("task_creation")
+    assert_not @cto.gate_enabled?("budget_spend")
+  end
+
+  test "should show approval gates section on role detail page" do
+    get role_url(@cto)
+    assert_response :success
+    assert_select ".gate-list", minimum: 0
+  end
+
+  test "should show pending approval banner when role is pending" do
+    @cto.update_columns(status: Role.statuses[:pending_approval], pause_reason: "Approval required: Task creation gate is active")
+    get role_url(@cto)
+    assert_response :success
+    assert_select ".approval-banner"
+  end
+
+  test "should not show pending approval banner for idle role" do
+    get role_url(@cto)
+    assert_response :success
+    assert_select ".approval-banner", count: 0
+  end
+
+  # --- Skills: Skill Manager (show page) ---
+
+  test "should show skill manager with checkboxes on role show" do
+    get role_url(@cto)
+    assert_response :success
+    assert_select ".skill-manager"
+    assert_select ".skill-manager__category", minimum: 1
+  end
+
+  test "should show assigned skills as checked on role show" do
+    get role_url(@cto)
+    assert_response :success
+    assert_select ".skill-manager__toggle--assigned", minimum: 1
+  end
+
+  test "should show unassigned skills as unchecked on role show" do
+    get role_url(@cto)
+    assert_response :success
+    assigned_count = css_select(".skill-manager__toggle--assigned").size
+    total_count = css_select(".skill-manager__toggle").size
+    assert total_count > assigned_count, "Expected unassigned skills to also appear as toggles"
+  end
+
+  test "should show skill categories in skill manager" do
+    get role_url(@cto)
+    assert_response :success
+    assert_select ".skill-manager__category-title", minimum: 2
+  end
+
+  # --- Skills: Role Card (index page) ---
+
+  test "should show skill tags in role card on index" do
+    get roles_url
+    assert_response :success
+    assert_select ".agent-card__skill-tag", minimum: 1
   end
 end

@@ -5,7 +5,7 @@ class ConfigVersionTest < ActiveSupport::TestCase
     @company = companies(:acme)
     @user = users(:one)
     @role_version = config_versions(:role_edit_version)
-    @budget_version = config_versions(:agent_budget_version)
+    @budget_version = config_versions(:role_budget_version)
   end
 
   # --- Validations ---

@@ -38,7 +38,7 @@ class TasksController < ApplicationController
         @task.record_audit_event!(
           actor: Current.user,
           action: "assigned",
-          metadata: { assignee_id: @task.assignee_id, assignee_name: @task.assignee.name }
+          metadata: { assignee_id: @task.assignee_id, assignee_name: @task.assignee.title }
         )
       end
 
@@ -68,7 +68,7 @@ class TasksController < ApplicationController
         @task.record_audit_event!(
           actor: Current.user,
           action: "assigned",
-          metadata: { assignee_id: @task.assignee_id, assignee_name: @task.assignee.name }
+          metadata: { assignee_id: @task.assignee_id, assignee_name: @task.assignee.title }
         )
       end
 

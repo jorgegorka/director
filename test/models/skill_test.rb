@@ -59,12 +59,12 @@ class SkillTest < ActiveSupport::TestCase
     assert_equal @company, @skill.company
   end
 
-  test "has many agent_skills" do
-    assert @skill.respond_to?(:agent_skills)
+  test "has many role_skills" do
+    assert @skill.respond_to?(:role_skills)
   end
 
-  test "has many agents through agent_skills" do
-    assert_includes skills(:acme_code_review).agents, agents(:claude_agent)
+  test "has many roles through role_skills" do
+    assert_includes skills(:acme_code_review).roles, roles(:cto)
   end
 
   # --- Scopes ---

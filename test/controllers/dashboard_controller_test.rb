@@ -55,16 +55,16 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "dashboard only shows current company data" do
-    # Acme has 3 active agents (claude_agent, http_agent, process_agent)
-    acme_agent_count = companies(:acme).agents.active.count
+    # Acme has active agent-configured roles (cto, developer, process_role)
+    acme_role_count = companies(:acme).roles.active.where.not(adapter_type: nil).count
 
     # Switch to widgets company and verify data changes
     post company_switch_url(companies(:widgets))
     get dashboard_url
     assert_response :success
-    widgets_agent_count = companies(:widgets).agents.active.count
+    widgets_role_count = companies(:widgets).roles.active.where.not(adapter_type: nil).count
 
-    assert_not_equal acme_agent_count, widgets_agent_count
+    assert_not_equal acme_role_count, widgets_role_count
   end
 
   test "should show overview tab by default" do
@@ -87,19 +87,19 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     assert_select ".audit-badge", minimum: 1
   end
 
-  test "activity tab has agent filter dropdown" do
+  test "activity tab has role filter dropdown" do
     get root_url
     assert_response :success
-    assert_select "select[name='agent_filter']"
+    assert_select "select[name='role_filter']"
   end
 
-  test "agent filter narrows activity results" do
-    get root_url, params: { tab: "activity", agent_filter: agents(:claude_agent).id }
+  test "role filter narrows activity results" do
+    get root_url, params: { tab: "activity", role_filter: roles(:cto).id }
     assert_response :success
   end
 
-  test "agents_only filter shows all agent activity" do
-    get root_url, params: { tab: "activity", agent_filter: "agents_only" }
+  test "roles_only filter shows all role activity" do
+    get root_url, params: { tab: "activity", role_filter: "roles_only" }
     assert_response :success
   end
 

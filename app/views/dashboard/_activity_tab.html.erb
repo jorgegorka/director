@@ -4,11 +4,11 @@
     <div class="activity-feed__filter">
       <%= form_with url: root_path, method: :get, class: "form--inline", data: { turbo_frame: "_top" } do |f| %>
         <input type="hidden" name="tab" value="activity">
-        <%= f.select :agent_filter,
+        <%= f.select :role_filter,
             options_for_select(
-              [["All activity", ""], ["All agents", "agents_only"]] +
-              @filter_agents.map { |a| [a.name, a.id] },
-              params[:agent_filter]
+              [["All activity", ""], ["All roles", "roles_only"]] +
+              @filter_roles.map { |r| [r.title, r.id] },
+              params[:role_filter]
             ),
             {},
             class: "form__select form__select--sm",
@@ -32,7 +32,7 @@
     <% end %>
   <% else %>
     <div class="activity-feed__empty">
-      <p>No activity recorded yet<%= " for this filter" if params[:agent_filter].present? %>.</p>
+      <p>No activity recorded yet<%= " for this filter" if params[:role_filter].present? %>.</p>
     </div>
   <% end %>
 </div>

@@ -29,7 +29,7 @@ class CompaniesController < ApplicationController
     end
 
     paused_count = EmergencyStopService.call!(company: company, user: Current.user)
-    redirect_to agents_path, notice: "Emergency stop activated. #{paused_count} agent(s) paused."
+    redirect_to roles_path, notice: "Emergency stop activated. #{paused_count} role(s) paused."
   end
 
   private

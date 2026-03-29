@@ -1,5 +1,5 @@
 completed_execution:
-  agent_hook: claude_validation_hook
+  role_hook: cto_validation_hook
   task: completed_task
   company: acme
   status: 2  # completed
@@ -13,7 +13,7 @@ completed_execution:
   completed_at: <%= 5.minutes.ago.to_fs(:db) %>
 
 failed_execution:
-  agent_hook: claude_webhook_hook
+  role_hook: cto_webhook_hook
   task: design_homepage
   company: acme
   status: 3  # failed

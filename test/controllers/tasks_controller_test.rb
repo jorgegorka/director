@@ -8,8 +8,8 @@ class TasksControllerTest < ActionDispatch::IntegrationTest
     post company_switch_url(@company)
     @design_task = tasks(:design_homepage)
     @widgets_task = tasks(:widgets_task)
-    @claude_agent = agents(:claude_agent)
-    @http_agent = agents(:http_agent)
+    @cto = roles(:cto)
+    @developer = roles(:developer)
   end
 
   # --- Index ---
@@ -72,12 +72,12 @@ class TasksControllerTest < ActionDispatch::IntegrationTest
         task: {
           title: "Assigned task",
           priority: "high",
-          assignee_id: @claude_agent.id
+          assignee_id: @cto.id
         }
       }
     end
     task = Task.order(:created_at).last
-    assert_equal @claude_agent, task.assignee
+    assert_equal @cto, task.assignee
   end
 
   test "should create audit event on task creation" do
@@ -101,7 +101,7 @@ class TasksControllerTest < ActionDispatch::IntegrationTest
         task: {
           title: "Assigned task with audit",
           priority: "medium",
-          assignee_id: @claude_agent.id
+          assignee_id: @cto.id
         }
       }
     end
@@ -151,12 +151,12 @@ class TasksControllerTest < ActionDispatch::IntegrationTest
   test "should create audit event on assignment change" do
     assert_difference("AuditEvent.count", 1) do
       patch task_url(tasks(:write_tests)), params: {
-        task: { assignee_id: @http_agent.id }
+        task: { assignee_id: @developer.id }
       }
     end
     event = tasks(:write_tests).audit_events.reload.find_by(action: "assigned")
     assert_not_nil event
-    assert_equal @http_agent.name, event.metadata["assignee_name"]
+    assert_equal @developer.title, event.metadata["assignee_name"]
   end
 
   test "should not update task with blank title" do

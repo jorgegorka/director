@@ -4,7 +4,7 @@ class NotificationTest < ActiveSupport::TestCase
   setup do
     @company = companies(:acme)
     @user = users(:one)
-    @agent = agents(:claude_agent)
+    @role = roles(:cto)
     @budget_alert = notifications(:budget_alert_claude)
     @budget_exhausted = notifications(:budget_exhausted_http)
     @read_notification = notifications(:read_notification)
@@ -41,12 +41,12 @@ class NotificationTest < ActiveSupport::TestCase
     assert_equal @user, @budget_alert.recipient
   end
 
-  test "belongs to actor (Agent)" do
-    assert_equal @agent, @budget_alert.actor
+  test "belongs to actor (Role)" do
+    assert_equal @role, @budget_alert.actor
   end
 
-  test "belongs to notifiable (Agent)" do
-    assert_equal @agent, @budget_alert.notifiable
+  test "belongs to notifiable (Role)" do
+    assert_equal @role, @budget_alert.notifiable
   end
 
   test "actor is optional" do
@@ -131,7 +131,7 @@ class NotificationTest < ActiveSupport::TestCase
 
   test "metadata stores and retrieves hash data" do
     assert_kind_of Hash, @budget_alert.metadata
-    assert_equal "Claude Assistant", @budget_alert.metadata["agent_name"]
+    assert_equal "CTO", @budget_alert.metadata["agent_name"]
   end
 
   # --- Deletion ---
@@ -155,17 +155,17 @@ class NotificationTest < ActiveSupport::TestCase
     end
   end
 
-  # --- Agent Notifiable ---
+  # --- Role Notifiable ---
 
-  test "agent has many notifications as notifiable" do
-    assert_includes @agent.notifications, @budget_alert
+  test "role has many notifications as notifiable" do
+    assert_includes @role.notifications, @budget_alert
   end
 
-  test "destroying agent destroys its notifiable notifications" do
-    notif_count = @agent.notifications.count
+  test "destroying role destroys its notifiable notifications" do
+    notif_count = @role.notifications.count
     assert notif_count > 0
     assert_difference "Notification.count", -notif_count do
-      @agent.destroy
+      @role.destroy
     end
   end
 end

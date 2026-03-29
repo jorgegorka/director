@@ -1,70 +1,366 @@
 <% content_for(:title, @role.title) %>
 
+<%= turbo_stream_from "role_#{@role.id}" %>
+
 <section class="role-detail">
-  <div class="role-detail__header">
-    <div>
-      <h1><%= @role.title %></h1>
-      <% if @role.parent %>
-        <p class="role-detail__reports-to">Reports to <%= link_to @role.parent.title, @role.parent %></p>
-      <% else %>
-        <p class="role-detail__reports-to">Top-level role</p>
+  <% if @role.pending_approval? %>
+    <div class="approval-banner">
+      <div class="approval-banner__icon">
+        <span class="icon icon--warning"></span>
+      </div>
+      <div class="approval-banner__content">
+        <h3 class="approval-banner__title">Pending Approval</h3>
+        <p class="approval-banner__reason"><%= @role.pause_reason %></p>
+      </div>
+      <div class="approval-banner__actions">
+        <%= button_to "Approve", approve_role_path(@role), class: "btn btn--primary btn--sm",
+              data: { turbo_confirm: "Approve #{@role.title} to continue?" } %>
+        <%= button_to "Reject", reject_role_path(@role), class: "btn btn--danger btn--sm",
+              data: { turbo_confirm: "Reject #{@role.title}'s pending action?" } %>
+      </div>
+    </div>
+  <% end %>
+
+  <%# -- Profile header -- %>
+  <header class="role-detail__profile">
+    <div class="role-detail__profile-main">
+      <div class="role-detail__identity">
+        <h1 class="role-detail__name"><%= @role.title %></h1>
+        <div class="role-detail__status-line">
+          <%= role_status_badge(@role) %>
+          <span class="role-detail__adapter-label"><%= adapter_type_label(@role) %></span>
+          <% if @role.parent %>
+            <span class="role-detail__reports-to">Reports to <%= link_to @role.parent.title, @role.parent %></span>
+          <% else %>
+            <span class="role-detail__reports-to">Top-level role</span>
+          <% end %>
+        </div>
+      </div>
+      <% if @role.description.present? %>
+        <p class="role-detail__description"><%= @role.description %></p>
       <% end %>
     </div>
     <div class="role-detail__actions">
       <%= link_to "Edit", edit_role_path(@role), class: "btn btn--ghost btn--sm" %>
-      <%= button_to "Delete", @role, method: :delete, class: "btn btn--ghost btn--sm role-detail__delete",
-            data: { turbo_confirm: "Delete #{@role.title}? Direct reports will be reassigned to #{@role.parent&.title || 'top-level'}." } %>
-    </div>
-  </div>
-
-  <div class="role-detail__body">
-    <div class="role-detail__section">
-      <h2>Agent</h2>
-      <div class="role-detail__agent">
-        <% if @role.agent %>
-          <span class="role-card__agent-dot role-card__agent-dot--<%= @role.agent.status %>"></span>
-          <%= link_to @role.agent.name, @role.agent %>
-          <%= agent_status_badge(@role.agent) %>
+      <% if @role.pending_approval? %>
+        <%= button_to "Approve", approve_role_path(@role), class: "btn btn--primary btn--sm",
+              data: { turbo_confirm: "Approve #{@role.title} to continue?" } %>
+        <%= button_to "Reject", reject_role_path(@role), class: "btn btn--danger btn--sm",
+              data: { turbo_confirm: "Reject #{@role.title}'s pending action?" } %>
+      <% end %>
+      <% unless @role.terminated? %>
+        <% if @role.paused? || @role.pending_approval? %>
+          <%= button_to "Resume", resume_role_path(@role), class: "btn btn--success btn--sm" %>
         <% else %>
-          <span class="role-card__agent-dot role-card__agent-dot--unassigned"></span>
-          <span>Unassigned</span>
+          <%= button_to "Pause", pause_role_path(@role), class: "btn btn--warning btn--sm",
+                data: { turbo_confirm: "Pause #{@role.title}? It will stop processing tasks." } %>
+        <% end %>
+        <%= button_to "Terminate", terminate_role_path(@role), method: :post, class: "btn btn--danger btn--sm",
+              data: { turbo_confirm: "Terminate #{@role.title}? This cannot be easily undone." } %>
+      <% end %>
+      <%= button_to "Delete", @role, method: :delete, class: "btn btn--ghost btn--sm role-detail__delete",
+            data: { turbo_confirm: "Delete #{@role.title}? This cannot be undone." } %>
+    </div>
+  </header>
+
+  <%# -- Two-column grid -- %>
+  <div class="role-detail__grid">
+
+    <%# -- Primary column -- %>
+    <div class="role-detail__primary">
+
+      <% if @role.job_spec.present? %>
+        <div class="role-detail__card">
+          <h2 class="role-detail__card-title">Job Specification</h2>
+          <div class="role-detail__job-spec"><%= simple_format(@role.job_spec) %></div>
+        </div>
+      <% end %>
+
+      <%# Direct Reports %>
+      <% if @role.children.any? %>
+        <div class="role-detail__card">
+          <h2 class="role-detail__card-title">Direct Reports (<%= @role.children.size %>)</h2>
+          <div class="roles-list roles-list--compact">
+            <% @role.children.order(:title).each do |child| %>
+              <%= render partial: "roles/role", locals: { role: child } %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <%# Heartbeat %>
+      <div class="role-detail__card">
+        <h2 class="role-detail__card-title">Heartbeat</h2>
+        <dl class="role-detail__kv">
+          <div class="role-detail__kv-row">
+            <dt>Schedule</dt>
+            <dd>
+              <% if @role.heartbeat_scheduled? %>
+                <span class="heartbeat-active"><%= heartbeat_schedule_label(@role) %></span>
+              <% else %>
+                <span class="role-detail__dim">Disabled</span>
+              <% end %>
+            </dd>
+          </div>
+          <div class="role-detail__kv-row">
+            <dt>Last Activity</dt>
+            <dd>
+              <% if @role.last_heartbeat_at %>
+                <%= time_ago_in_words(@role.last_heartbeat_at) %> ago
+              <% else %>
+                <span class="role-detail__dim">No activity yet</span>
+              <% end %>
+            </dd>
+          </div>
+        </dl>
+
+        <% if @recent_heartbeats.any? %>
+          <h3 class="role-detail__card-subtitle">Recent Events</h3>
+          <table class="table heartbeat-table">
+            <thead>
+              <tr>
+                <th>Trigger</th>
+                <th>Status</th>
+                <th>Source</th>
+                <th>Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              <%= render partial: "heartbeats/event_row", collection: @recent_heartbeats, as: :event %>
+            </tbody>
+          </table>
+          <%= link_to "View all heartbeat history", role_heartbeats_path(@role), class: "btn btn--ghost btn--sm" %>
+        <% else %>
+          <p class="role-detail__empty-note">No heartbeat events yet. Events appear when the role is triggered.</p>
         <% end %>
       </div>
-    </div>
 
-    <% if @role.description.present? %>
-      <div class="role-detail__section">
-        <h2>Description</h2>
-        <p><%= @role.description %></p>
+      <%# Recent Runs %>
+      <div class="role-detail__card">
+        <h2 class="role-detail__card-title">Recent Runs</h2>
+        <% if @recent_runs.any? %>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Run</th>
+                <th>Status</th>
+                <th>Duration</th>
+                <th>Started</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @recent_runs.each do |run| %>
+                <tr>
+                  <td><%= link_to "##{run.id}", role_role_run_path(@role, run) %></td>
+                  <td><%= role_run_status_badge(run) %></td>
+                  <td><%= role_run_duration(run) %></td>
+                  <td><%= run.started_at ? time_ago_in_words(run.started_at) + " ago" : "Queued" %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+          <%= link_to "View all runs", role_role_runs_path(@role), class: "btn btn--ghost btn--sm" %>
+        <% else %>
+          <p class="role-detail__empty-note">No execution runs yet. Runs appear when the role is triggered.</p>
+        <% end %>
       </div>
-    <% end %>
 
-    <% if @role.job_spec.present? %>
-      <div class="role-detail__section">
-        <h2>Job Specification</h2>
-        <div class="role-detail__job-spec"><%= simple_format(@role.job_spec) %></div>
-      </div>
-    <% end %>
-
-    <% if @role.children.any? %>
-      <div class="role-detail__section">
-        <h2>Direct Reports (<%= @role.children.size %>)</h2>
-        <div class="roles-list roles-list--compact">
-          <% @role.children.order(:title).each do |child| %>
-            <%= render partial: "roles/role", locals: { role: child } %>
+      <%# Skills %>
+      <div class="role-detail__card">
+        <h2 class="role-detail__card-title">Skills</h2>
+        <div class="skill-manager">
+          <% skills_by_category = @company_skills.group_by(&:category) %>
+          <% (SkillsHelper::SKILL_CATEGORIES + [ nil ]).each do |category| %>
+            <% category_skills = category ? skills_by_category[category] : skills_by_category.except(*SkillsHelper::SKILL_CATEGORIES).values.flatten %>
+            <% next unless category_skills&.any? %>
+            <div class="skill-manager__category">
+              <h3 class="skill-manager__category-title">
+                <%= category ? skill_category_badge(category) : "Other" %>
+                <span class="skill-manager__category-count"><%= category_skills.count %></span>
+              </h3>
+              <div class="skill-manager__list">
+                <%= render partial: "roles/skill_toggle", collection: category_skills, as: :skill,
+                      locals: { role: @role, role_skills_by_skill_id: @role_skills_by_skill_id } %>
+              </div>
+            </div>
+          <% end %>
+          <% if @company_skills.empty? %>
+            <p class="role-detail__empty-note">No skills in company library. <%= link_to "Create skills", skills_path %></p>
           <% end %>
         </div>
       </div>
-    <% end %>
 
-    <div class="role-detail__section">
-      <h2>Configuration History</h2>
-      <% if @role.config_versions.any? %>
-        <p><%= pluralize(@role.config_versions.count, "version") %> recorded.</p>
-        <%= link_to "View full history", version_history_path_for(@role), class: "btn btn--ghost btn--sm" %>
-      <% else %>
-        <p class="role-detail__empty-note">No configuration changes recorded yet.</p>
+      <%# Documents %>
+      <div class="role-detail__card">
+        <h2 class="role-detail__card-title">Documents</h2>
+        <%= render "documents/document_picker",
+              linkable: @role,
+              linked_documents: @role_document_links,
+              link_path: role_role_documents_path(@role),
+              unlink_path_helper: ->(role, rd) { role_role_document_path(role, rd) } %>
+      </div>
+    </div>
+
+    <%# -- Sidebar column -- %>
+    <div class="role-detail__sidebar">
+
+      <%# Adapter Configuration %>
+      <div class="role-detail__card">
+        <h2 class="role-detail__card-title">Configuration</h2>
+        <% if @role.adapter_config.present? %>
+          <dl class="role-detail__kv">
+            <% @role.adapter_config.each do |key, value| %>
+              <div class="role-detail__kv-row">
+                <dt><%= key.humanize %></dt>
+                <dd>
+                  <% if key.to_s == "auth_token" && value.present? %>
+                    <span class="role-detail__masked">••••••••<%= value.to_s.last(4) %></span>
+                  <% else %>
+                    <code><%= value %></code>
+                  <% end %>
+                </dd>
+              </div>
+            <% end %>
+          </dl>
+        <% else %>
+          <p class="role-detail__empty-note">No configuration set.</p>
+        <% end %>
+      </div>
+
+      <%# Goals %>
+      <% if @role_goals.any? %>
+        <div class="role-detail__card">
+          <h2 class="role-detail__card-title">Goals (<%= @role_goals.size %>)</h2>
+          <ul class="role-detail__list">
+            <% @role_goals.each do |goal| %>
+              <li>
+                <%= link_to goal.title, goal_path(goal) %>
+                <% if goal.mission? %>
+                  <span class="goal-tree__label goal-tree__label--mission">Mission</span>
+                <% end %>
+              </li>
+            <% end %>
+          </ul>
+
+          <% if @eval_total > 0 %>
+            <h3 class="role-detail__card-subtitle">Evaluation Summary</h3>
+            <dl class="role-detail__kv">
+              <div class="role-detail__kv-row">
+                <dt>Total evaluations</dt>
+                <dd><%= @eval_total %></dd>
+              </div>
+              <div class="role-detail__kv-row">
+                <dt>Pass rate</dt>
+                <dd><%= eval_pass_rate(@eval_pass_count, @eval_total) %>%</dd>
+              </div>
+            </dl>
+
+            <h3 class="role-detail__card-subtitle">Recent Evaluations</h3>
+            <div class="eval-list">
+              <% @recent_evaluations.each do |evaluation| %>
+                <div class="eval-item eval-item--<%= evaluation.result %>">
+                  <span class="eval-item__badge eval-item__badge--<%= evaluation.result %>">
+                    <%= evaluation.result.upcase %>
+                  </span>
+                  <span class="eval-item__task">
+                    <%= link_to evaluation.task.title, task_path(evaluation.task) %>
+                  </span>
+                  <time class="eval-item__time"><%= time_ago_in_words(evaluation.created_at) %> ago</time>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
       <% end %>
+
+      <%# Budget %>
+      <div class="role-detail__card">
+        <h2 class="role-detail__card-title">Budget</h2>
+        <% if @role.budget_configured? %>
+          <div class="budget-display">
+            <div class="budget-display__bar-container">
+              <div class="budget-display__bar <%= budget_bar_class(@role.budget_utilization) %>"
+                   style="--budget-fill: <%= @role.budget_utilization %>%">
+              </div>
+            </div>
+            <div class="budget-display__details">
+              <div class="budget-display__amounts">
+                <span class="budget-display__spent">
+                  <strong><%= format_cents_as_dollars(@role.monthly_spend_cents) %></strong> spent
+                </span>
+                <span class="budget-display__limit">
+                  of <strong><%= format_cents_as_dollars(@role.budget_cents) %></strong> monthly
+                </span>
+              </div>
+              <div class="budget-display__status">
+                <span class="budget-display__remaining">
+                  <%= format_cents_as_dollars(@role.budget_remaining_cents) %> remaining
+                </span>
+                <span class="budget-display__utilization <%= 'budget-display__utilization--warning' if @role.budget_alert_threshold? %> <%= 'budget-display__utilization--danger' if @role.budget_exhausted? %>">
+                  <%= budget_status_text(@role) %>
+                </span>
+              </div>
+            </div>
+            <% if @role.budget_exhausted? %>
+              <div class="budget-display__alert budget-display__alert--exhausted">
+                Budget exhausted — role paused.
+              </div>
+            <% elsif @role.budget_alert_threshold? %>
+              <div class="budget-display__alert budget-display__alert--warning">
+                Approaching budget limit.
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="role-detail__empty-note">No budget configured. <%= link_to "Set a monthly budget", edit_role_path(@role) %></p>
+        <% end %>
+      </div>
+
+      <%# Approval Gates %>
+      <div class="role-detail__card">
+        <h2 class="role-detail__card-title">Approval Gates</h2>
+        <% if @role.has_any_gates? %>
+          <div class="gate-list">
+            <% @role.approval_gates.sort_by(&:action_type).each do |gate| %>
+              <div class="gate-item <%= "gate-item--enabled" if gate.enabled? %> <%= "gate-item--disabled" unless gate.enabled? %>">
+                <span class="gate-item__status"><%= gate.enabled? ? "Active" : "Off" %></span>
+                <span class="gate-item__type"><%= gate.action_type.humanize %></span>
+                <span class="gate-item__description"><%= gate_description(gate.action_type) %></span>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="role-detail__empty-note">No approval gates. <%= link_to "Set up gates", edit_role_path(@role) %></p>
+        <% end %>
+      </div>
+
+      <%# Hooks %>
+      <div class="role-detail__card">
+        <h2 class="role-detail__card-title">Hooks</h2>
+        <% hooks = @role.role_hooks.to_a %>
+        <% if hooks.any? %>
+          <% enabled_count = hooks.count(&:enabled?) %>
+          <div class="hook-summary">
+            <p><%= pluralize(enabled_count, "active hook") %> configured
+            (<%= hooks.size - enabled_count %> disabled).</p>
+          </div>
+          <%= link_to "Manage hooks", role_role_hooks_path(@role), class: "btn btn--ghost btn--sm" %>
+        <% else %>
+          <p class="role-detail__empty-note">No hooks configured. <%= link_to "Set up hooks", new_role_role_hook_path(@role) %></p>
+        <% end %>
+      </div>
+
+      <%# Config History %>
+      <div class="role-detail__card">
+        <h2 class="role-detail__card-title">Configuration History</h2>
+        <% config_version_count = @role.config_versions.count %>
+        <% if config_version_count > 0 %>
+          <p class="role-detail__history-count"><%= pluralize(config_version_count, "version") %> recorded.</p>
+          <%= link_to "View full history", version_history_path_for(@role), class: "btn btn--ghost btn--sm" %>
+        <% else %>
+          <p class="role-detail__empty-note">No configuration changes recorded yet.</p>
+        <% end %>
+      </div>
     </div>
   </div>
 </section>

@@ -19,15 +19,15 @@ module TasksHelper
 
   def delegation_targets_for(task)
     return [] unless task.assignee.present?
-    task.assignee.subordinate_agents.order(:name).map { |a| [ a.name, a.id ] }
+    task.assignee.subordinate_roles.order(:title).map { |r| [ r.title, r.id ] }
   end
 
   def can_escalate?(task)
-    task.assignee&.manager_agent.present?
+    task.assignee&.manager_role.present?
   end
 
   def escalation_target_name(task)
-    task.assignee&.manager_agent&.name
+    task.assignee&.manager_role&.title
   end
 
   def audit_event_description(event)
@@ -40,7 +40,7 @@ module TasksHelper
     when "status_changed"
       "Status changed from #{meta["from"]} to #{meta["to"]}"
     when "delegated", "escalated"
-      desc = "#{event.action.humanize} from #{meta["from_agent_name"]} to #{meta["to_agent_name"]}"
+      desc = "#{event.action.humanize} from #{meta["from_role_name"] || meta["from_agent_name"]} to #{meta["to_role_name"] || meta["to_agent_name"]}"
       desc += " — #{meta["reason"]}" if meta["reason"].present?
       desc
     else

@@ -27,8 +27,8 @@
   <% end %>
 
   <% if linked_documents.empty? && available_docs.empty? %>
-    <p class="agent-detail__empty-note">No documents available. <%= link_to "Create one", new_document_path %></p>
+    <p class="detail__empty-note">No documents available. <%= link_to "Create one", new_document_path %></p>
   <% elsif linked_documents.empty? %>
-    <p class="agent-detail__empty-note">No documents linked yet.</p>
+    <p class="detail__empty-note">No documents linked yet.</p>
   <% end %>
 </div>

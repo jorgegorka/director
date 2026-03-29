@@ -1,8 +1,8 @@
 # Acme company goal hierarchy:
 # acme_mission (root)
-#   ├── acme_objective_one
-#   │   └── acme_sub_objective
-#   └── acme_objective_two
+#   +-- acme_objective_one
+#   |   +-- acme_sub_objective
+#   +-- acme_objective_two
 
 acme_mission:
   title: "Build the best AI platform"
@@ -16,7 +16,7 @@ acme_objective_one:
   company: acme
   parent: acme_mission
   position: 0
-  agent: claude_agent
+  role: cto
 
 acme_objective_two:
   title: "Achieve 99.9% uptime"
@@ -32,7 +32,7 @@ acme_sub_objective:
   parent: acme_objective_one
   position: 0
 
-# Widgets company — separate mission for tenant isolation testing
+# Widgets company -- separate mission for tenant isolation testing
 widgets_mission:
   title: "Dominate widget market"
   description: "Widgets everywhere"

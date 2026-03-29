@@ -3,7 +3,7 @@ design_homepage:
   description: "Create the main homepage design with responsive layout"
   company: acme
   creator: one
-  assignee: claude_agent
+  assignee: cto
   status: 1  # in_progress
   priority: 2  # high
   goal: acme_objective_one
@@ -14,7 +14,7 @@ fix_login_bug:
   description: "Users cannot log in when using special characters in password"
   company: acme
   creator: one
-  assignee: http_agent
+  assignee: developer
   status: 0  # open
   priority: 3  # urgent
   goal: acme_objective_one
@@ -35,7 +35,7 @@ completed_task:
   description: "Configure GitHub Actions for automated testing"
   company: acme
   creator: one
-  assignee: claude_agent
+  assignee: cto
   status: 3  # completed
   priority: 1  # medium
   completed_at: <%= 2.days.ago.to_fs(:db) %>
@@ -55,7 +55,7 @@ eval_ready_task:
   description: "Add full-text search to the product catalog"
   company: acme
   creator: one
-  assignee: claude_agent
+  assignee: cto
   status: 3  # completed
   priority: 1  # medium
   goal: acme_objective_one

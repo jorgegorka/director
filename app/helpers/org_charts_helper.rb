@@ -12,7 +12,7 @@ module OrgChartsHelper
       title: role.title,
       description: role.description.to_s.truncate(80),
       url: role_path(role),
-      agent_name: role.agent&.name,
+      status: role.status,
       children: children.map { |child| role_node_data(child, roles_by_parent_id) }
     }
   end

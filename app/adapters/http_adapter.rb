@@ -26,12 +26,12 @@ class HttpAdapter < BaseAdapter
   # Sends a POST request to the agent's configured URL with task context as a
   # JSON payload. Returns a result hash on success. Raises PermanentError for
   # 4xx responses and TransientError for 5xx/timeout after MAX_RETRIES attempts.
-  def self.execute(agent, context)
-    url = agent.adapter_config["url"]
+  def self.execute(role, context)
+    url = role.adapter_config["url"]
     raise PermanentError, "No URL configured" if url.blank?
 
-    payload = build_payload(agent, context)
-    response = deliver_with_retries(url, payload, agent.adapter_config)
+    payload = build_payload(role, context)
+    response = deliver_with_retries(url, payload, role.adapter_config)
 
     {
       exit_code: 0,
@@ -45,10 +45,10 @@ class HttpAdapter < BaseAdapter
     sleep(seconds)
   end
 
-  private_class_method def self.build_payload(agent, context)
+  private_class_method def self.build_payload(role, context)
     {
-      agent_id: agent.id,
-      agent_name: agent.name,
+      role_id: role.id,
+      role_title: role.title,
       run_id: context[:run_id],
       trigger_type: context[:trigger_type],
       task: context[:task_id] ? {

@@ -1,66 +1,62 @@
 require "test_helper"
 require "webmock/minitest"
 
-class ExecuteAgentJobTest < ActiveSupport::TestCase
+class ExecuteRoleJobTest < ActiveSupport::TestCase
   setup do
-    @agent = agents(:claude_agent)
+    @role = roles(:cto)
     @task = tasks(:design_homepage)
     @company = companies(:acme)
   end
 
   test "job is enqueued to execution queue" do
-    assert_equal "execution", ExecuteAgentJob.new.queue_name
+    assert_equal "execution", ExecuteRoleJob.new.queue_name
   end
 
-  test "skips when agent_run not found" do
+  test "skips when role_run not found" do
     assert_nothing_raised do
-      ExecuteAgentJob.perform_now(999999)
+      ExecuteRoleJob.perform_now(999999)
     end
   end
 
-  test "skips terminal agent_runs" do
-    run = agent_runs(:completed_run)
-    # Should not change anything
-    ExecuteAgentJob.perform_now(run.id)
+  test "skips terminal role_runs" do
+    run = role_runs(:completed_run)
+    ExecuteRoleJob.perform_now(run.id)
     assert run.reload.completed?
   end
 
-  test "transitions agent_run from queued to running" do
-    run = AgentRun.create!(
-      agent: @agent, task: @task, company: @company,
+  test "transitions role_run from queued to running" do
+    run = RoleRun.create!(
+      role: @role, task: @task, company: @company,
       status: :queued, trigger_type: "task_assigned"
     )
 
-    # Will fail because ClaudeLocalAdapter raises ExecutionError (missing API key),
-    # but mark_running! is called before dispatch so the run transitions through running.
-    ExecuteAgentJob.perform_now(run.id)
+    ExecuteRoleJob.perform_now(run.id)
     run.reload
 
-    # Run should be failed (adapter raises ExecutionError about missing API key)
     assert run.failed?
     assert run.error_message.present?
   end
 
-  test "agent returns to idle after execution failure" do
-    @agent.update!(status: :idle)
-    run = AgentRun.create!(
-      agent: @agent, task: @task, company: @company,
+  test "role returns to idle after execution failure" do
+    @role.update!(status: :idle)
+    run = RoleRun.create!(
+      role: @role, task: @task, company: @company,
       status: :queued, trigger_type: "task_assigned"
     )
 
-    ExecuteAgentJob.perform_now(run.id)
-    @agent.reload
+    ExecuteRoleJob.perform_now(run.id)
+    @role.reload
 
-    assert @agent.idle?, "Agent should return to idle after failed execution, got #{@agent.status}"
+    assert @role.idle?, "Role should return to idle after failed execution, got #{@role.status}"
   end
 
-  test "agent_run is marked failed with error message on exception" do
-    run = AgentRun.create!(
-      agent: @agent, task: @task, company: @company,
+  test "role_run is marked failed with error message on exception" do
+    run = RoleRun.create!(
+      role: @role, task: @task, company: @company,
       status: :queued, trigger_type: "task_assigned"
     )
 
-    ExecuteAgentJob.perform_now(run.id)
+    ExecuteRoleJob.perform_now(run.id)
     run.reload
 
     assert run.failed?
@@ -70,13 +66,13 @@ class ExecuteAgentJobTest < ActiveSupport::TestCase
   end
 
   test "build_context includes task details when task present" do
-    run = AgentRun.create!(
-      agent: @agent, task: @task, company: @company,
+    run = RoleRun.create!(
+      role: @role, task: @task, company: @company,
       status: :queued, trigger_type: "task_assigned"
     )
 
-    job = ExecuteAgentJob.new
-    context = job.send(:build_context, @agent, run)
+    job = ExecuteRoleJob.new
+    context = job.send(:build_context, @role, run)
 
     assert_equal run.id, context[:run_id]
     assert_equal "task_assigned", context[:trigger_type]
@@ -84,51 +80,50 @@ class ExecuteAgentJobTest < ActiveSupport::TestCase
     assert_equal @task.title, context[:task_title]
   end
 
-  test "build_context includes resume_session_id when agent has prior session" do
-    # Create a completed run with session ID
-    AgentRun.create!(
-      agent: @agent, task: @task, company: @company,
+  test "build_context includes resume_session_id when role has prior session" do
+    RoleRun.create!(
+      role: @role, task: @task, company: @company,
       status: :completed, trigger_type: "scheduled",
       claude_session_id: "sess_prior_123",
       started_at: 1.hour.ago, completed_at: 30.minutes.ago
     )
 
-    run = AgentRun.create!(
-      agent: @agent, task: @task, company: @company,
+    run = RoleRun.create!(
+      role: @role, task: @task, company: @company,
       status: :queued, trigger_type: "task_assigned"
     )
 
-    job = ExecuteAgentJob.new
-    context = job.send(:build_context, @agent, run)
+    job = ExecuteRoleJob.new
+    context = job.send(:build_context, @role, run)
 
     assert_equal "sess_prior_123", context[:resume_session_id]
   end
 
   test "build_context omits resume_session_id when no prior session" do
-    run = AgentRun.create!(
-      agent: agents(:http_agent), task: @task, company: @company,
+    run = RoleRun.create!(
+      role: roles(:developer), task: @task, company: @company,
       status: :queued, trigger_type: "task_assigned"
     )
 
-    job = ExecuteAgentJob.new
-    context = job.send(:build_context, agents(:http_agent), run)
+    job = ExecuteRoleJob.new
+    context = job.send(:build_context, roles(:developer), run)
 
     assert_nil context[:resume_session_id]
   end
 
-  test "skips already completed agent_run" do
-    run = agent_runs(:completed_run)
+  test "skips already completed role_run" do
+    run = role_runs(:completed_run)
     original_status = run.status
 
-    ExecuteAgentJob.perform_now(run.id)
+    ExecuteRoleJob.perform_now(run.id)
     assert_equal original_status, run.reload.status
   end
 
-  test "skips already failed agent_run" do
-    run = agent_runs(:failed_run)
+  test "skips already failed role_run" do
+    run = role_runs(:failed_run)
     original_error = run.error_message
 
-    ExecuteAgentJob.perform_now(run.id)
+    ExecuteRoleJob.perform_now(run.id)
     assert_equal original_error, run.reload.error_message
   end
 
@@ -136,46 +131,46 @@ class ExecuteAgentJobTest < ActiveSupport::TestCase
   # HTTP adapter end-to-end integration tests
   # ---------------------------------------------------------------------------
 
-  test "executes HTTP agent run successfully through adapter" do
-    http_agent = agents(:http_agent)
+  test "executes HTTP role run successfully through adapter" do
+    http_role = roles(:developer)
     stub_request(:post, "https://api.example.com/agent")
       .to_return(status: 200, body: '{"status":"ok"}')
     HttpAdapter.define_singleton_method(:backoff_sleep) { |_n| nil }
 
-    run = AgentRun.create!(
-      agent: http_agent, task: @task, company: @company,
+    run = RoleRun.create!(
+      role: http_role, task: @task, company: @company,
       status: :queued, trigger_type: "task_assigned"
     )
 
-    ExecuteAgentJob.perform_now(run.id)
+    ExecuteRoleJob.perform_now(run.id)
     run.reload
-    http_agent.reload
+    http_role.reload
 
     assert run.completed?, "Run should be completed, got #{run.status}"
-    assert http_agent.idle?, "Agent should be idle, got #{http_agent.status}"
+    assert http_role.idle?, "Role should be idle, got #{http_role.status}"
     assert_equal 0, run.exit_code
   ensure
     HttpAdapter.singleton_class.remove_method(:backoff_sleep)
   end
 
   test "HTTP adapter 4xx marks run as failed" do
-    http_agent = agents(:http_agent)
+    http_role = roles(:developer)
     stub_request(:post, "https://api.example.com/agent")
       .to_return(status: 404, body: "Not Found")
     HttpAdapter.define_singleton_method(:backoff_sleep) { |_n| nil }
 
-    run = AgentRun.create!(
-      agent: http_agent, task: @task, company: @company,
+    run = RoleRun.create!(
+      role: http_role, task: @task, company: @company,
       status: :queued, trigger_type: "task_assigned"
     )
 
-    ExecuteAgentJob.perform_now(run.id)
+    ExecuteRoleJob.perform_now(run.id)
     run.reload
-    http_agent.reload
+    http_role.reload
 
     assert run.failed?, "Run should be failed, got #{run.status}"
     assert_match(/404/, run.error_message)
-    assert http_agent.idle?, "Agent should return to idle, got #{http_agent.status}"
+    assert http_role.idle?, "Role should return to idle, got #{http_role.status}"
   ensure
     HttpAdapter.singleton_class.remove_method(:backoff_sleep)
   end
@@ -184,7 +179,7 @@ class ExecuteAgentJobTest < ActiveSupport::TestCase
   # Claude Local adapter end-to-end integration tests
   # ---------------------------------------------------------------------------
 
-  test "executes Claude Local agent run successfully through adapter" do
+  test "executes Claude Local role run successfully through adapter" do
     ENV["ANTHROPIC_API_KEY"] = "test_key_job"
     ClaudeLocalAdapter.define_singleton_method(:poll_sleep) { |_n| nil }
 
@@ -200,19 +195,19 @@ class ExecuteAgentJobTest < ActiveSupport::TestCase
     ClaudeLocalAdapter.define_singleton_method(:capture_pane) { |_name| pane_output }
     ClaudeLocalAdapter.define_singleton_method(:kill_session) { |_name| true }
 
-    run = AgentRun.create!(
-      agent: @agent, task: @task, company: @company,
+    run = RoleRun.create!(
+      role: @role, task: @task, company: @company,
       status: :queued, trigger_type: "task_assigned"
     )
 
-    ExecuteAgentJob.perform_now(run.id)
+    ExecuteRoleJob.perform_now(run.id)
     run.reload
-    @agent.reload
+    @role.reload
 
     assert run.completed?, "Run should be completed, got #{run.status}"
     assert_equal "sess_job_abc", run.claude_session_id
-    assert_equal 5, run.cost_cents  # 0.05 * 100 = 5
-    assert @agent.idle?, "Agent should be idle, got #{@agent.status}"
+    assert_equal 5, run.cost_cents
+    assert @role.idle?, "Role should be idle, got #{@role.status}"
   ensure
     ENV.delete("ANTHROPIC_API_KEY")
     %i[poll_sleep spawn_session session_exists? capture_pane kill_session].each do |m|
@@ -223,43 +218,42 @@ class ExecuteAgentJobTest < ActiveSupport::TestCase
   end
 
   test "Claude Local adapter budget exhausted marks run as failed" do
-    # Exhaust the agent's budget (budget_cents: 50000) by creating a costly task assigned to it.
     Task.create!(
-      company: @company, assignee: @agent,
+      company: @company, assignee: @role,
       title: "Prior expensive task", status: :open,
-      cost_cents: @agent.budget_cents,
+      cost_cents: @role.budget_cents,
       created_at: Date.current.beginning_of_month + 1.hour
     )
 
-    run = AgentRun.create!(
-      agent: @agent, task: @task, company: @company,
+    run = RoleRun.create!(
+      role: @role, task: @task, company: @company,
       status: :queued, trigger_type: "task_assigned"
     )
 
-    ExecuteAgentJob.perform_now(run.id)
+    ExecuteRoleJob.perform_now(run.id)
     run.reload
-    @agent.reload
+    @role.reload
 
     assert run.failed?, "Run should be failed, got #{run.status}"
     assert_match(/budget/i, run.error_message)
-    assert @agent.idle?, "Agent should return to idle, got #{@agent.status}"
+    assert @role.idle?, "Role should return to idle, got #{@role.status}"
   end
 
   # ---------------------------------------------------------------------------
   # Document context tests
   # ---------------------------------------------------------------------------
 
-  test "build_context includes skill documents for the agent" do
-    agent = agents(:claude_agent)
-    agent_run = AgentRun.create!(
-      agent: agent,
-      company: agent.company,
+  test "build_context includes skill documents for the role" do
+    role = roles(:cto)
+    role_run = RoleRun.create!(
+      role: role,
+      company: role.company,
       status: :queued,
       trigger_type: :scheduled
     )
 
-    job = ExecuteAgentJob.new
-    ctx = job.send(:build_context, agent, agent_run)
+    job = ExecuteRoleJob.new
+    ctx = job.send(:build_context, role, role_run)
 
     assert ctx.key?(:documents)
     assert ctx[:documents].key?(:skill_documents)
@@ -267,51 +261,51 @@ class ExecuteAgentJobTest < ActiveSupport::TestCase
     assert_includes skill_doc_titles, "Coding Standards"
   end
 
-  test "build_context includes agent documents" do
-    agent = agents(:claude_agent)
-    agent_run = AgentRun.create!(
-      agent: agent,
-      company: agent.company,
+  test "build_context includes role documents" do
+    role = roles(:cto)
+    role_run = RoleRun.create!(
+      role: role,
+      company: role.company,
       status: :queued,
       trigger_type: :scheduled
     )
 
-    job = ExecuteAgentJob.new
-    ctx = job.send(:build_context, agent, agent_run)
+    job = ExecuteRoleJob.new
+    ctx = job.send(:build_context, role, role_run)
 
-    agent_doc_titles = ctx[:documents][:agent_documents].map { |d| d[:title] }
-    assert_includes agent_doc_titles, "Refund Policy"
+    role_doc_titles = ctx[:documents][:role_documents].map { |d| d[:title] }
+    assert_includes role_doc_titles, "Refund Policy"
   end
 
   test "build_context includes task documents when task present" do
-    agent = agents(:claude_agent)
+    role = roles(:cto)
     task = tasks(:design_homepage)
-    agent_run = AgentRun.create!(
-      agent: agent,
-      company: agent.company,
+    role_run = RoleRun.create!(
+      role: role,
+      company: role.company,
       task: task,
       status: :queued,
       trigger_type: :task_assigned
     )
 
-    job = ExecuteAgentJob.new
-    ctx = job.send(:build_context, agent, agent_run)
+    job = ExecuteRoleJob.new
+    ctx = job.send(:build_context, role, role_run)
 
     task_doc_titles = ctx[:documents][:task_documents].map { |d| d[:title] }
     assert_includes task_doc_titles, "Coding Standards"
   end
 
   test "build_context has empty task_documents when no task" do
-    agent = agents(:claude_agent)
-    agent_run = AgentRun.create!(
-      agent: agent,
-      company: agent.company,
+    role = roles(:cto)
+    role_run = RoleRun.create!(
+      role: role,
+      company: role.company,
       status: :queued,
       trigger_type: :scheduled
     )
 
-    job = ExecuteAgentJob.new
-    ctx = job.send(:build_context, agent, agent_run)
+    job = ExecuteRoleJob.new
+    ctx = job.send(:build_context, role, role_run)
 
     assert_equal [], ctx[:documents][:task_documents]
   end
@@ -320,24 +314,23 @@ class ExecuteAgentJobTest < ActiveSupport::TestCase
   # Skill context tests
   # ---------------------------------------------------------------------------
 
-  test "build_context includes skills for the agent" do
-    agent = agents(:claude_agent)
-    agent_run = AgentRun.create!(
-      agent: agent,
-      company: agent.company,
+  test "build_context includes skills for the role" do
+    role = roles(:cto)
+    role_run = RoleRun.create!(
+      role: role,
+      company: role.company,
       status: :queued,
       trigger_type: :scheduled
     )
 
-    job = ExecuteAgentJob.new
-    ctx = job.send(:build_context, agent, agent_run)
+    job = ExecuteRoleJob.new
+    ctx = job.send(:build_context, role, role_run)
 
     assert ctx.key?(:skills)
     skill_keys = ctx[:skills].map { |s| s[:key] }
     assert_includes skill_keys, "strategic_planning"
     assert_includes skill_keys, "code_review"
 
-    # Verify skill structure
     skill = ctx[:skills].find { |s| s[:key] == "code_review" }
     assert_equal "Code Review", skill[:name]
     assert_equal "technical", skill[:category]
@@ -345,20 +338,20 @@ class ExecuteAgentJobTest < ActiveSupport::TestCase
     assert skill[:markdown].present?
   end
 
-  test "build_context includes empty skills when agent has none" do
-    agent = agents(:http_agent)
-    # Remove the one skill assignment http_agent has
-    agent.agent_skills.destroy_all
+  test "build_context includes empty skills when role has none" do
+    role = roles(:developer)
+    # Remove all skill assignments except data_analysis
+    role.role_skills.destroy_all
 
-    agent_run = AgentRun.create!(
-      agent: agent,
-      company: agent.company,
+    role_run = RoleRun.create!(
+      role: role,
+      company: role.company,
       status: :queued,
       trigger_type: :scheduled
     )
 
-    job = ExecuteAgentJob.new
-    ctx = job.send(:build_context, agent, agent_run)
+    job = ExecuteRoleJob.new
+    ctx = job.send(:build_context, role, role_run)
 
     assert_equal [], ctx[:skills]
   end

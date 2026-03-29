@@ -22,23 +22,23 @@ class ClaudeLocalAdapter < BaseAdapter
   end
 
   def self.config_schema
-    { required: %w[model], optional: %w[max_turns session_id system_prompt allowed_tools] }
+    { required: %w[model], optional: %w[max_turns session_id allowed_tools] }
   end
 
   # Executes a claude CLI process in a tmux session and streams the JSON output
-  # back into the AgentRun log. Returns a result hash with exit_code, session_id,
+  # back into the RoleRun log. Returns a result hash with exit_code, session_id,
   # and cost_cents extracted from the stream-JSON result event.
   #
-  # Raises BudgetExhausted (CLAUDE-06) before spawning if agent.budget_exhausted?.
+  # Raises BudgetExhausted (CLAUDE-06) before spawning if role.budget_exhausted?.
   # Raises ExecutionError if tmux spawn fails or execution times out.
-  def self.execute(agent, context)
-    if agent.budget_exhausted?
-      raise BudgetExhausted, "Agent budget exhausted: spent #{agent.monthly_spend_cents} of #{agent.budget_cents} cents budget"
+  def self.execute(role, context)
+    if role.budget_exhausted?
+      raise BudgetExhausted, "Role budget exhausted: spent #{role.monthly_spend_cents} of #{role.budget_cents} cents budget"
     end
 
-    agent_run    = AgentRun.find(context[:run_id])
+    role_run     = RoleRun.find(context[:run_id])
     session_name = "#{SESSION_PREFIX}_#{context[:run_id]}"
-    claude_cmd   = build_claude_command(agent, context)
+    claude_cmd   = build_claude_command(role, context)
     prefix       = env_prefix
     # -e sets an environment variable in the session; the last arg is the shell command to run.
     # claude_cmd already has its individual args shellescape-d, so just double-quote the whole string.
@@ -48,7 +48,7 @@ class ClaudeLocalAdapter < BaseAdapter
       raise ExecutionError, "Failed to create tmux session: #{session_name}"
     end
 
-    accumulated_lines = poll_session(session_name, agent_run)
+    accumulated_lines = poll_session(session_name, role_run)
     parse_result(accumulated_lines)
   ensure
     cleanup_session(session_name) if defined?(session_name) && session_name
@@ -93,8 +93,8 @@ class ClaudeLocalAdapter < BaseAdapter
     system("tmux kill-session -t #{name.shellescape} 2>/dev/null")
   end
 
-  private_class_method def self.build_claude_command(agent, context)
-    config = agent.adapter_config
+  private_class_method def self.build_claude_command(role, context)
+    config = role.adapter_config
     prompt = context[:task_description] || context[:task_title] || "Execute assigned task"
 
     parts = [ "claude", "-p" ]
@@ -104,7 +104,7 @@ class ClaudeLocalAdapter < BaseAdapter
     parts << "--model #{config['model'].shellescape}" if config["model"].present?
     parts << "--max-turns #{config['max_turns'].to_i}" if config["max_turns"].present?
 
-    system_prompt = compose_system_prompt(agent, context)
+    system_prompt = compose_system_prompt(role, context)
     parts << "--system-prompt #{system_prompt.shellescape}" if system_prompt.present?
 
     parts << "--allowedTools #{config['allowed_tools'].shellescape}" if config["allowed_tools"].present?
@@ -112,11 +112,10 @@ class ClaudeLocalAdapter < BaseAdapter
     parts.join(" ")
   end
 
-  private_class_method def self.compose_system_prompt(agent, context)
+  private_class_method def self.compose_system_prompt(role, context)
     parts = []
 
-    base = agent.adapter_config["system_prompt"]
-    parts << base if base.present?
+    parts << role.description if role.description.present?
 
     if context[:skills].present?
       parts << build_skills_prompt(context[:skills])
@@ -142,7 +141,7 @@ class ClaudeLocalAdapter < BaseAdapter
     PROMPT
   end
 
-  private_class_method def self.poll_session(session_name, agent_run)
+  private_class_method def self.poll_session(session_name, role_run)
     last_line_count = 0
     accumulated_lines = []
     poll_count = 0
@@ -158,7 +157,7 @@ class ClaudeLocalAdapter < BaseAdapter
       if lines.size > last_line_count
         new_lines = lines[last_line_count..]
         new_lines.each do |line|
-          agent_run.broadcast_line!(line + "\n")
+          role_run.broadcast_line!(line + "\n")
           accumulated_lines << line
         end
         last_line_count = lines.size

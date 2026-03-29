@@ -14,7 +14,7 @@ class ProcessValidationResultService
     return unless validation_task.completed?
 
     post_feedback_message
-    wake_original_agent
+    wake_original_role
     record_audit_event
   end
 
@@ -24,8 +24,8 @@ class ProcessValidationResultService
     @parent_task ||= validation_task.parent_task
   end
 
-  def parent_agent
-    @parent_agent ||= parent_task.assignee
+  def parent_role
+    @parent_role ||= parent_task.assignee
   end
 
   # --- Feedback message ---
@@ -39,9 +39,7 @@ class ProcessValidationResultService
   end
 
   def validation_author
-    # The validation agent (subtask assignee) is the author of the feedback
-    # Falls back to parent_agent if subtask has no assignee (defensive)
-    validation_task.assignee || parent_agent
+    validation_task.assignee || parent_role
   end
 
   def build_feedback_body
@@ -57,7 +55,7 @@ class ProcessValidationResultService
       parts << "### Validation Results"
       parts << ""
       validation_messages.each do |msg|
-        author_name = msg.author.respond_to?(:name) ? msg.author.name : msg.author.email_address
+        author_name = msg.author.respond_to?(:title) ? msg.author.title : msg.author.email_address
         parts << "> **#{author_name}:** #{msg.body}"
         parts << ""
       end
@@ -68,14 +66,14 @@ class ProcessValidationResultService
     parts.join("\n")
   end
 
-  # --- Wake original agent ---
+  # --- Wake original role ---
 
-  def wake_original_agent
-    return unless parent_agent
-    return if parent_agent.terminated?
+  def wake_original_role
+    return unless parent_role
+    return if parent_role.terminated?
 
-    WakeAgentService.call(
-      agent: parent_agent,
+    WakeRoleService.call(
+      role: parent_role,
       trigger_type: :review_validation,
       trigger_source: "Task##{validation_task.id}",
       context: {

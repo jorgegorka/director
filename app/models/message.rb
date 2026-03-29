@@ -27,16 +27,16 @@ class Message < ApplicationRecord
     company = task&.company
     return unless company
 
-    mentioned_agents = detect_mentions(body, company)
-    mentioned_agents.each do |agent|
-      trigger_agent_wake(
-        agent: agent,
+    mentioned_roles = detect_mentions(body, company)
+    mentioned_roles.each do |role|
+      trigger_role_wake(
+        role: role,
         trigger_type: :mention,
         trigger_source: "Message##{id}",
         context: {
           message_id: id,
           task_id: task_id,
-          mentioned_by: author_type == "User" ? "user" : "agent"
+          mentioned_by: author_type == "User" ? "user" : "role"
         }
       )
     end

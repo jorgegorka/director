@@ -3,7 +3,7 @@ class HookExecution < ApplicationRecord
   include Chronological
   include Runnable
 
-  belongs_to :agent_hook
+  belongs_to :role_hook
   belongs_to :task
 
   enum :status, { queued: 0, running: 1, completed: 2, failed: 3 }

@@ -31,7 +31,7 @@
           <dt>Assignee</dt>
           <dd>
             <% if @task.assignee.present? %>
-              <%= link_to @task.assignee.name, agent_path(@task.assignee) %>
+              <%= link_to @task.assignee.title, role_path(@task.assignee) %>
             <% else %>
               <span class="task-detail__unassigned">Unassigned</span>
             <% end %>
@@ -135,7 +135,7 @@
             <li class="audit-trail__event">
               <span class="audit-trail__action"><%= audit_event_description(event) %></span>
               <span class="audit-trail__meta">
-                by <strong><%= event.actor.try(:email_address) || event.actor.try(:name) || "Unknown" %></strong>
+                by <strong><%= event.actor.try(:email_address) || event.actor.try(:title) || "Unknown" %></strong>
               </span>
               <time class="audit-trail__time" datetime="<%= event.created_at.iso8601 %>">
                 <%= time_ago_in_words(event.created_at) %> ago

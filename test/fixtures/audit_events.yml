@@ -12,12 +12,12 @@ task_assigned:
   action: assigned
   company: acme
   metadata:
-    assignee_name: Claude Assistant
+    assignee_name: CTO
     assignee_id: 1
 
 task_status_changed:
   auditable: design_homepage (Task)
-  actor: claude_agent (Agent)
+  actor: cto (Role)
   action: status_changed
   company: acme
   metadata:
@@ -25,13 +25,13 @@ task_status_changed:
     to: in_progress
 
 gate_approval_event:
-  auditable: claude_agent (Agent)
+  auditable: cto (Role)
   actor: one (User)
   action: gate_approval
   company: acme
   metadata:
     action_type: task_creation
-    agent_name: Claude Assistant
+    agent_name: CTO
 
 emergency_stop_event:
   auditable: acme (Company)

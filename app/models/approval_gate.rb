@@ -9,11 +9,11 @@ class ApprovalGate < ApplicationRecord
     escalation
   ].freeze
 
-  belongs_to :agent
+  belongs_to :role
 
   validates :action_type, presence: true,
                           inclusion: { in: GATABLE_ACTIONS, message: "%{value} is not a valid gatable action" },
-                          uniqueness: { scope: :agent_id, message: "gate already exists for this agent" }
+                          uniqueness: { scope: :role_id, message: "gate already exists for this role" }
 
   scope :for_action, ->(action) { where(action_type: action) }
 end

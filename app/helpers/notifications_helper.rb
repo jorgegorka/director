@@ -15,17 +15,17 @@ module NotificationsHelper
     meta = notification.metadata
     case notification.action
     when "budget_alert"
-      "#{meta['agent_name']} has used #{meta['percentage']}% of its monthly budget (#{format_cents_as_dollars(meta['spent_cents'])} of #{format_cents_as_dollars(meta['budget_cents'])})"
+      "#{meta['role_name'] || meta['agent_name']} has used #{meta['percentage']}% of its monthly budget (#{format_cents_as_dollars(meta['spent_cents'])} of #{format_cents_as_dollars(meta['budget_cents'])})"
     when "budget_exhausted"
-      "#{meta['agent_name']} has been paused — monthly budget exhausted (#{format_cents_as_dollars(meta['spent_cents'])} spent)"
+      "#{meta['role_name'] || meta['agent_name']} has been paused — monthly budget exhausted (#{format_cents_as_dollars(meta['spent_cents'])} spent)"
     when "gate_pending_approval"
-      "#{meta['agent_name']} is waiting for approval: #{meta['action_type']&.humanize} gate triggered"
+      "#{meta['role_name'] || meta['agent_name']} is waiting for approval: #{meta['action_type']&.humanize} gate triggered"
     when "gate_approval"
-      "#{meta['agent_name']} has been approved and resumed"
+      "#{meta['role_name'] || meta['agent_name']} has been approved and resumed"
     when "gate_rejection"
-      "#{meta['agent_name']} approval was rejected"
+      "#{meta['role_name'] || meta['agent_name']} approval was rejected"
     when "emergency_stop"
-      "Emergency stop activated by #{meta['triggered_by']} — #{meta['agents_paused']} agent(s) paused"
+      "Emergency stop activated by #{meta['triggered_by']} — #{meta['roles_paused'] || meta['agents_paused']} role(s) paused"
     else
       notification.action.humanize
     end
@@ -33,10 +33,10 @@ module NotificationsHelper
 
   def notification_link(notification)
     case notification.notifiable_type
-    when "Agent"
-      agent_path(notification.notifiable_id)
+    when "Role"
+      role_path(notification.notifiable_id)
     when "Company"
-      agents_path
+      roles_path
     else
       "#"
     end

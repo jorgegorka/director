@@ -2,7 +2,7 @@ class Goal < ApplicationRecord
   include Tenantable
   include TreeHierarchy
 
-  belongs_to :agent, optional: true
+  belongs_to :role, optional: true
 
   has_many :children, class_name: "Goal", foreign_key: :parent_id, inverse_of: :parent, dependent: :destroy
   has_many :tasks, dependent: :nullify
@@ -10,7 +10,7 @@ class Goal < ApplicationRecord
 
   validates :title, presence: true,
                     uniqueness: { scope: [ :company_id, :parent_id ], message: "already exists under this parent" }
-  validate :agent_belongs_to_same_company
+  validate :role_belongs_to_same_company
 
   scope :ordered, -> { order(:position, :title) }
 
@@ -37,9 +37,9 @@ class Goal < ApplicationRecord
 
   private
 
-  def agent_belongs_to_same_company
-    if agent.present? && agent.company_id != company_id
-      errors.add(:agent, "must belong to the same company")
+  def role_belongs_to_same_company
+    if role.present? && role.company_id != company_id
+      errors.add(:role, "must belong to the same company")
     end
   end
 

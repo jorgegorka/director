@@ -13,11 +13,11 @@ class EmergencyStopService
   end
 
   def call!
-    agents_to_pause = company.agents.active.where.not(status: [ :paused, :terminated ])
+    roles_to_pause = company.roles.active.where.not(status: [ :paused, :terminated ])
     paused_count = 0
 
-    agents_to_pause.find_each do |agent|
-      agent.update!(
+    roles_to_pause.find_each do |role|
+      role.update!(
         status: :paused,
         pause_reason: PAUSE_REASON,
         paused_at: Time.current
@@ -39,7 +39,7 @@ class EmergencyStopService
       action: "emergency_stop",
       company: company,
       metadata: {
-        agents_paused: paused_count,
+        roles_paused: paused_count,
         triggered_by: user.email_address
       }
     )
@@ -54,7 +54,7 @@ class EmergencyStopService
         notifiable: company,
         action: "emergency_stop",
         metadata: {
-          agents_paused: paused_count,
+          roles_paused: paused_count,
           triggered_by: user.email_address
         }
       )

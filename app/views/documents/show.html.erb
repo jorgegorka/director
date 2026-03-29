@@ -24,7 +24,7 @@
     <div class="document-detail__actions">
       <%= link_to "Edit", edit_document_path(@document), class: "btn btn--ghost btn--sm" %>
       <%= button_to "Delete", @document, method: :delete, class: "btn btn--ghost btn--sm document-detail__delete",
-            data: { turbo_confirm: "Delete '#{@document.title}'? This will unlink it from all agents, skills, and tasks." } %>
+            data: { turbo_confirm: "Delete '#{@document.title}'? This will unlink it from all roles, skills, and tasks." } %>
     </div>
   </header>
 
@@ -50,14 +50,14 @@
         </div>
       <% end %>
 
-      <% if @linked_agents.any? %>
+      <% if @linked_roles.any? %>
         <div class="document-detail__card">
-          <h2 class="document-detail__card-title">Linked Agents (<%= @linked_agents.size %>)</h2>
+          <h2 class="document-detail__card-title">Linked Roles (<%= @linked_roles.size %>)</h2>
           <ul class="document-detail__link-list">
-            <% @linked_agents.each do |agent| %>
+            <% @linked_roles.each do |role| %>
               <li>
-                <span class="role-card__agent-dot role-card__agent-dot--<%= agent.status %>"></span>
-                <%= link_to agent.name, agent %>
+                <span class="role-card__status-dot role-card__status-dot--<%= role.status %>"></span>
+                <%= link_to role.title, role %>
               </li>
             <% end %>
           </ul>

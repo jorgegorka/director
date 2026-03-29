@@ -36,9 +36,9 @@
         <% end %>
       </div>
     </div>
-    <% if @goal.agent.present? %>
-      <div class="goal-detail__agent">
-        <span>Assigned to: <%= link_to @goal.agent.name, agent_path(@goal.agent) %></span>
+    <% if @goal.role.present? %>
+      <div class="goal-detail__role">
+        <span>Assigned to: <%= link_to @goal.role.title, role_path(@goal.role) %></span>
       </div>
     <% end %>
   </div>

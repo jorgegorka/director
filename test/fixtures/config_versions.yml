@@ -12,13 +12,13 @@ role_edit_version:
       - "Chief Tech Officer"
       - "Chief Technology Officer"
 
-agent_budget_version:
+role_budget_version:
   company: acme
-  versionable: claude_agent (Agent)
+  versionable: cto (Role)
   author: one (User)
   action: update
   snapshot:
-    name: Claude Assistant
+    title: CTO
     budget_cents: 50000
   changeset:
     budget_cents:

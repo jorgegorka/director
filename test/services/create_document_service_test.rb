@@ -3,21 +3,21 @@ require "test_helper"
 class CreateDocumentServiceTest < ActiveSupport::TestCase
   setup do
     @company = companies(:acme)
-    @agent = agents(:claude_agent)
+    @role = roles(:cto)
     @user = users(:one)
   end
 
-  test "creates document with agent author" do
+  test "creates document with role author" do
     doc = CreateDocumentService.call(
-      author: @agent,
+      author: @role,
       company: @company,
-      title: "Agent Report",
+      title: "Role Report",
       body: "# Report\n\nFindings here."
     )
 
     assert doc.persisted?
-    assert_equal "Agent Report", doc.title
-    assert_equal @agent, doc.author
+    assert_equal "Role Report", doc.title
+    assert_equal @role, doc.author
     assert_equal @company, doc.company
   end
 
@@ -35,7 +35,7 @@ class CreateDocumentServiceTest < ActiveSupport::TestCase
 
   test "creates and links tags by name" do
     doc = CreateDocumentService.call(
-      author: @agent,
+      author: @role,
       company: @company,
       title: "Tagged Doc",
       body: "# Content",
@@ -53,7 +53,7 @@ class CreateDocumentServiceTest < ActiveSupport::TestCase
 
     assert_no_difference("DocumentTag.where(name: 'policy', company: @company).count") do
       CreateDocumentService.call(
-        author: @agent,
+        author: @role,
         company: @company,
         title: "Doc with existing tag",
         body: "# Content",
@@ -65,7 +65,7 @@ class CreateDocumentServiceTest < ActiveSupport::TestCase
   test "raises on invalid document" do
     assert_raises(ActiveRecord::RecordInvalid) do
       CreateDocumentService.call(
-        author: @agent,
+        author: @role,
         company: @company,
         title: "",
         body: "# Content"
@@ -73,14 +73,14 @@ class CreateDocumentServiceTest < ActiveSupport::TestCase
     end
   end
 
-  test "does not auto-link document to author agent" do
+  test "does not auto-link document to author role" do
     doc = CreateDocumentService.call(
-      author: @agent,
+      author: @role,
       company: @company,
       title: "Standalone Doc",
       body: "# Content"
     )
 
-    assert_equal 0, doc.agent_documents.count
+    assert_equal 0, doc.role_documents.count
   end
 end

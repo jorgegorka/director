@@ -1,9 +1,9 @@
 class BaseAdapter
-  def self.execute(agent, context)
+  def self.execute(role, context)
     raise NotImplementedError, "#{name} must implement .execute"
   end
 
-  def self.test_connection(agent)
+  def self.test_connection(role)
     raise NotImplementedError, "#{name} must implement .test_connection"
   end
 

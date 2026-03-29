@@ -10,7 +10,7 @@
   <div class="kanban-card__meta">
     <%= task_priority_badge(task) %>
     <% if task.assignee.present? %>
-      <span class="kanban-card__assignee"><%= task.assignee.name %></span>
+      <span class="kanban-card__assignee"><%= task.assignee.title %></span>
     <% else %>
       <span class="kanban-card__unassigned">Unassigned</span>
     <% end %>

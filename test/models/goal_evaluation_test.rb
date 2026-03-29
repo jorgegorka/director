@@ -3,7 +3,7 @@ require "test_helper"
 class GoalEvaluationTest < ActiveSupport::TestCase
   setup do
     @company = companies(:acme)
-    @agent = agents(:claude_agent)
+    @role = roles(:cto)
     @goal = goals(:acme_objective_one)
     @task = tasks(:eval_ready_task)
     @evaluation = goal_evaluations(:passing_eval)
@@ -23,15 +23,15 @@ class GoalEvaluationTest < ActiveSupport::TestCase
     assert_equal @goal, @evaluation.goal
   end
 
-  test "belongs to agent" do
-    assert_equal @agent, @evaluation.agent
+  test "belongs to role" do
+    assert_equal @role, @evaluation.role
   end
 
   # --- Validations ---
 
   test "requires result" do
     evaluation = GoalEvaluation.new(
-      company: @company, task: @task, goal: @goal, agent: @agent,
+      company: @company, task: @task, goal: @goal, role: @role,
       feedback: "Good work", attempt_number: 1
     )
     assert_not evaluation.valid?
@@ -40,7 +40,7 @@ class GoalEvaluationTest < ActiveSupport::TestCase
 
   test "requires feedback" do
     evaluation = GoalEvaluation.new(
-      company: @company, task: @task, goal: @goal, agent: @agent,
+      company: @company, task: @task, goal: @goal, role: @role,
       result: :pass, attempt_number: 1
     )
     assert_not evaluation.valid?
@@ -49,7 +49,7 @@ class GoalEvaluationTest < ActiveSupport::TestCase
 
   test "requires attempt_number" do
     evaluation = GoalEvaluation.new(
-      company: @company, task: @task, goal: @goal, agent: @agent,
+      company: @company, task: @task, goal: @goal, role: @role,
       result: :pass, feedback: "Good"
     )
     assert_not evaluation.valid?
@@ -58,7 +58,7 @@ class GoalEvaluationTest < ActiveSupport::TestCase
 
   test "attempt_number must be positive integer" do
     evaluation = GoalEvaluation.new(
-      company: @company, task: @task, goal: @goal, agent: @agent,
+      company: @company, task: @task, goal: @goal, role: @role,
       result: :pass, feedback: "Good", attempt_number: 0
     )
     assert_not evaluation.valid?
@@ -66,7 +66,7 @@ class GoalEvaluationTest < ActiveSupport::TestCase
 
   test "attempt_number must be unique per task" do
     duplicate = GoalEvaluation.new(
-      company: @company, task: @task, goal: @goal, agent: @agent,
+      company: @company, task: @task, goal: @goal, role: @role,
       result: :fail, feedback: "Not aligned", attempt_number: 1
     )
     assert_not duplicate.valid?

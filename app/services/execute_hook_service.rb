@@ -22,23 +22,23 @@ class ExecuteHookService
 
   private
 
-  delegate :agent_hook, to: :execution
+  delegate :role_hook, to: :execution
   delegate :task, to: :execution
 
   def dispatch
-    if agent_hook.trigger_agent?
-      dispatch_trigger_agent
-    elsif agent_hook.webhook?
+    if role_hook.trigger_agent?
+      dispatch_trigger_role
+    elsif role_hook.webhook?
       dispatch_webhook
     else
-      raise "Unknown action_type: #{agent_hook.action_type} for hook #{agent_hook.id}"
+      raise "Unknown action_type: #{role_hook.action_type} for hook #{role_hook.id}"
     end
   end
 
-  def dispatch_trigger_agent
-    target = agent_hook.target_agent
-    raise "Target agent not found for hook #{agent_hook.id}" unless target
-    raise "Target agent #{target.id} is terminated" if target.terminated?
+  def dispatch_trigger_role
+    target = role_hook.target_role
+    raise "Target role not found for hook #{role_hook.id}" unless target
+    raise "Target role #{target.id} is terminated" if target.terminated?
 
     validation_task = Task.create!(
       title: "Validate: #{task.title}",
@@ -50,38 +50,38 @@ class ExecuteHookService
       priority: task.priority
     )
 
-    WakeAgentService.call(
-      agent: target,
+    WakeRoleService.call(
+      role: target,
       trigger_type: :hook_triggered,
-      trigger_source: "AgentHook##{agent_hook.id}",
+      trigger_source: "RoleHook##{role_hook.id}",
       context: {
-        hook_id: agent_hook.id,
-        hook_name: agent_hook.name,
+        hook_id: role_hook.id,
+        hook_name: role_hook.name,
         validation_task_id: validation_task.id,
         original_task_id: task.id,
         original_task_title: task.title
       }
     )
 
-    { result: "validation_created", validation_task_id: validation_task.id, target_agent_id: target.id }
+    { result: "validation_created", validation_task_id: validation_task.id, target_role_id: target.id }
   end
 
   def build_validation_description
-    prompt = agent_hook.action_config&.dig("prompt")
+    prompt = role_hook.action_config&.dig("prompt")
     parts = []
-    parts << "Hook: #{agent_hook.name}" if agent_hook.name.present?
+    parts << "Hook: #{role_hook.name}" if role_hook.name.present?
     parts << "Original task: #{task.title} (#{task.status})"
     parts << prompt if prompt.present?
     parts.join("\n\n")
   end
 
   def dispatch_webhook
-    url = agent_hook.action_config["url"]
-    raise "Webhook URL not configured for hook #{agent_hook.id}" unless url
+    url = role_hook.action_config["url"]
+    raise "Webhook URL not configured for hook #{role_hook.id}" unless url
 
     uri = URI.parse(url)
     headers = build_webhook_headers
-    timeout = (agent_hook.action_config["timeout"] || 30).to_i
+    timeout = (role_hook.action_config["timeout"] || 30).to_i
     payload = build_webhook_payload
 
     http = Net::HTTP.new(uri.host, uri.port)
@@ -102,15 +102,15 @@ class ExecuteHookService
   end
 
   def build_webhook_headers
-    custom_headers = agent_hook.action_config["headers"] || {}
+    custom_headers = role_hook.action_config["headers"] || {}
     { "Content-Type" => "application/json" }.merge(custom_headers)
   end
 
   def build_webhook_payload
     {
-      event: agent_hook.lifecycle_event,
-      hook_id: agent_hook.id,
-      hook_name: agent_hook.name,
+      event: role_hook.lifecycle_event,
+      hook_id: role_hook.id,
+      hook_name: role_hook.name,
       task: {
         id: task.id,
         title: task.title,
@@ -125,14 +125,14 @@ class ExecuteHookService
   end
 
   def record_audit_event
-    agent_hook.record_audit_event!(
-      actor: agent_hook.agent,
+    role_hook.record_audit_event!(
+      actor: role_hook.role,
       action: "hook_executed",
       company: task.company,
       metadata: {
-        hook_name: agent_hook.name,
-        action_type: agent_hook.action_type,
-        lifecycle_event: agent_hook.lifecycle_event,
+        hook_name: role_hook.name,
+        action_type: role_hook.action_type,
+        lifecycle_event: role_hook.lifecycle_event,
         task_id: task.id,
         task_title: task.title,
         execution_id: execution.id

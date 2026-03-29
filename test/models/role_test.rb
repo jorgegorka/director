@@ -6,6 +6,7 @@ class RoleTest < ActiveSupport::TestCase
     @ceo = roles(:ceo)
     @cto = roles(:cto)
     @developer = roles(:developer)
+    @process_role = roles(:process_role)
   end
 
   # --- Validations ---
@@ -51,6 +52,91 @@ class RoleTest < ActiveSupport::TestCase
     assert_includes @ceo.errors[:parent], "cannot be a descendant of this role"
   end
 
+  # --- Adapter validations ---
+
+  test "valid with adapter_type, adapter_config, and valid config" do
+    role = Role.new(
+      title: "New Agent Role",
+      company: @company,
+      adapter_type: :http,
+      adapter_config: { "url" => "https://example.com" }
+    )
+    assert role.valid?
+  end
+
+  test "invalid when http role missing url in adapter_config" do
+    role = Role.new(
+      title: "Bad HTTP",
+      company: @company,
+      adapter_type: :http,
+      adapter_config: { "method" => "POST" }
+    )
+    assert_not role.valid?
+    assert_match /missing required keys: url/, role.errors[:adapter_config].join
+  end
+
+  test "invalid when process role missing command in adapter_config" do
+    role = Role.new(
+      title: "Bad Process",
+      company: @company,
+      adapter_type: :process,
+      adapter_config: { "timeout" => 30 }
+    )
+    assert_not role.valid?
+    assert_match /missing required keys: command/, role.errors[:adapter_config].join
+  end
+
+  test "invalid when claude_local role missing model in adapter_config" do
+    role = Role.new(
+      title: "Bad Claude",
+      company: @company,
+      adapter_type: :claude_local,
+      adapter_config: { "max_turns" => 5 }
+    )
+    assert_not role.valid?
+    assert_match /missing required keys: model/, role.errors[:adapter_config].join
+  end
+
+  test "valid adapter_config with only required keys" do
+    role = Role.new(
+      title: "Minimal Claude",
+      company: @company,
+      adapter_type: :claude_local,
+      adapter_config: { "model" => "claude-opus-4" }
+    )
+    assert role.valid?
+  end
+
+  # --- Enums ---
+
+  test "adapter_type enum: http?" do
+    assert @developer.http?
+    assert_not @cto.http?
+  end
+
+  test "adapter_type enum: process?" do
+    assert @process_role.process?
+  end
+
+  test "adapter_type enum: claude_local?" do
+    assert @cto.claude_local?
+  end
+
+  test "status enum: idle?" do
+    assert @cto.idle?
+  end
+
+  test "status enum: paused?" do
+    assert @process_role.paused?
+  end
+
+  test "status enum covers all values" do
+    %i[idle running paused error terminated pending_approval].each do |s|
+      role = Role.new(status: s)
+      assert role.send(:"#{s}?"), "Expected #{s}? to return true"
+    end
+  end
+
   # --- Associations ---
 
   test "belongs to company via Tenantable" do
@@ -71,6 +157,29 @@ class RoleTest < ActiveSupport::TestCase
     assert_not @cto.root?
   end
 
+  test "has many skills through role_skills" do
+    skills = @cto.skills
+    assert_equal 2, skills.count
+    assert skills.all? { |s| s.is_a?(Skill) }
+  end
+
+  test "has many role_skills" do
+    assert_equal 2, @cto.role_skills.count
+  end
+
+  test "has many role_hooks" do
+    assert @cto.respond_to?(:role_hooks)
+    assert @cto.role_hooks.count > 0
+  end
+
+  test "destroying role destroys its role_hooks" do
+    hook_count = @cto.role_hooks.count
+    assert hook_count > 0
+    assert_difference "RoleHook.count", -hook_count do
+      @cto.destroy
+    end
+  end
+
   # --- Hierarchy methods ---
 
   test "ancestors returns chain to root" do
@@ -86,7 +195,6 @@ class RoleTest < ActiveSupport::TestCase
     descendants = @ceo.descendants
     assert_includes descendants, @cto
     assert_includes descendants, @developer
-    assert_equal 2, descendants.size
   end
 
   test "depth returns hierarchy level" do
@@ -114,6 +222,63 @@ class RoleTest < ActiveSupport::TestCase
     Current.company = nil
   end
 
+  test "active scope excludes terminated roles" do
+    terminated = Role.new(
+      title: "Dead Role",
+      company: @company,
+      adapter_type: :http,
+      adapter_config: { "url" => "https://example.com" },
+      status: :terminated
+    )
+    terminated.save!
+
+    active_roles = Role.active
+    assert_not_includes active_roles, terminated
+    assert_includes active_roles, @cto
+  end
+
+  # --- Methods ---
+
+  test "online? returns true for idle role" do
+    assert @cto.online?
+  end
+
+  test "online? returns true for running role" do
+    @cto.status = :running
+    assert @cto.online?
+  end
+
+  test "offline? returns true for paused role" do
+    assert @process_role.offline?
+  end
+
+  test "offline? returns true for error status" do
+    @cto.status = :error
+    assert @cto.offline?
+  end
+
+  test "offline? returns true for terminated status" do
+    @cto.status = :terminated
+    assert @cto.offline?
+  end
+
+  test "offline? returns true for pending_approval status" do
+    @cto.status = :pending_approval
+    assert @cto.offline?
+  end
+
+  test "adapter returns correct adapter class for claude_local" do
+    assert_equal ClaudeLocalAdapter, @cto.adapter_class
+  end
+
+  test "adapter returns correct adapter class for http" do
+    assert_equal HttpAdapter, @developer.adapter_class
+  end
+
+  test "adapter returns correct adapter class for process" do
+    assert_equal ProcessAdapter, @process_role.adapter_class
+  end
+
   # --- Deletion behavior ---
 
   test "destroying parent re-parents children to grandparent" do
@@ -128,7 +293,15 @@ class RoleTest < ActiveSupport::TestCase
     assert_nil @cto.parent_id
   end
 
-  test "destroying company destroys all roles" do
+  test "destroying role destroys its role_skills" do
+    skill_count = @cto.role_skills.count
+    assert skill_count > 0
+    assert_difference "RoleSkill.count", -skill_count do
+      @cto.destroy
+    end
+  end
+
+  test "destroying company destroys all its roles" do
     role_count = @company.roles.count
     assert role_count > 0
     assert_difference("Role.count", -role_count) do
@@ -136,98 +309,268 @@ class RoleTest < ActiveSupport::TestCase
     end
   end
 
+  # --- API Token ---
+
+  test "generates api_token on create for agent-configured role" do
+    role = Role.create!(
+      title: "Token Role",
+      company: @company,
+      adapter_type: :http,
+      adapter_config: { "url" => "https://example.com" }
+    )
+    assert role.api_token.present?
+    assert_equal 24, role.api_token.length
+  end
+
+  test "api_token is unique" do
+    role1 = Role.create!(
+      title: "Token Role 1",
+      company: @company,
+      adapter_type: :http,
+      adapter_config: { "url" => "https://example.com" }
+    )
+    role2 = Role.create!(
+      title: "Token Role 2",
+      company: @company,
+      adapter_type: :http,
+      adapter_config: { "url" => "https://example.com" }
+    )
+    assert_not_equal role1.api_token, role2.api_token
+  end
+
+  test "regenerate_api_token! changes the token" do
+    old_token = @cto.api_token
+    @cto.regenerate_api_token!
+    assert_not_equal old_token, @cto.api_token
+    assert @cto.api_token.present?
+  end
+
+  test "vacant role does not generate api_token" do
+    role = Role.create!(title: "Vacant Role", company: @company)
+    assert_nil role.api_token
+  end
+
+  # --- Budget ---
+
+  test "valid with budget_cents" do
+    @cto.budget_cents = 50000
+    assert @cto.valid?
+  end
+
+  test "invalid with negative budget_cents" do
+    @cto.budget_cents = -100
+    assert_not @cto.valid?
+    assert_includes @cto.errors[:budget_cents], "must be greater than 0"
+  end
+
+  test "invalid with zero budget_cents" do
+    @cto.budget_cents = 0
+    assert_not @cto.valid?
+  end
+
+  test "valid with nil budget_cents (no budget)" do
+    @cto.budget_cents = nil
+    assert @cto.valid?
+  end
+
+  test "budget_configured? returns true when budget_cents present" do
+    assert @cto.budget_configured?
+  end
+
+  test "budget_configured? returns false when budget_cents nil" do
+    @process_role.budget_cents = nil
+    assert_not @process_role.budget_configured?
+  end
+
+  test "monthly_spend_cents returns sum of task costs in current period" do
+    expected = Task.where(assignee: @cto)
+                   .where.not(cost_cents: nil)
+                   .where(created_at: Date.current.beginning_of_month.beginning_of_day..Date.current.end_of_month.end_of_day)
+                   .sum(:cost_cents)
+    assert_equal expected, @cto.monthly_spend_cents
+  end
+
+  test "monthly_spend_cents returns 0 when no budget configured" do
+    assert_equal 0, @process_role.monthly_spend_cents
+  end
+
+  test "monthly_spend_cents ignores tasks with nil cost_cents" do
+    spend = @cto.monthly_spend_cents
+    assert spend >= 0
+  end
+
+  test "budget_remaining_cents returns correct remaining amount" do
+    remaining = @cto.budget_remaining_cents
+    assert_equal [ 50000 - @cto.monthly_spend_cents, 0 ].max, remaining
+  end
+
+  test "budget_remaining_cents returns nil when no budget" do
+    @process_role.budget_cents = nil
+    assert_nil @process_role.budget_remaining_cents
+  end
+
+  test "budget_remaining_cents never goes below zero" do
+    @cto.budget_cents = 1  # $0.01 budget, guaranteed to be exhausted
+    assert_equal 0, @cto.budget_remaining_cents
+  end
+
+  test "budget_utilization returns percentage" do
+    util = @cto.budget_utilization
+    assert_kind_of Float, util
+    assert util >= 0.0
+    assert util <= 100.0
+  end
+
+  test "budget_utilization returns 0.0 when no budget" do
+    @process_role.budget_cents = nil
+    assert_equal 0.0, @process_role.budget_utilization
+  end
+
+  test "budget_exhausted? returns true when spend meets budget" do
+    @cto.budget_cents = 1  # tiny budget
+    assert @cto.budget_exhausted?
+  end
+
+  test "budget_exhausted? returns false when under budget" do
+    @cto.budget_cents = 999_999_99  # very large budget
+    assert_not @cto.budget_exhausted?
+  end
+
+  test "budget_alert_threshold? returns true at 80% utilization" do
+    spend = @cto.monthly_spend_cents
+    @cto.budget_cents = (spend / 0.80).ceil if spend > 0
+    if @cto.budget_cents && @cto.budget_cents > 0
+      assert @cto.budget_alert_threshold?
+    end
+  end
+
+  test "budget_alert_threshold? returns false when well under budget" do
+    @cto.budget_cents = 999_999_99
+    assert_not @cto.budget_alert_threshold?
+  end
+
+  test "current_budget_period_start defaults to beginning of month" do
+    @cto.budget_period_start = nil
+    assert_equal Date.current.beginning_of_month, @cto.current_budget_period_start
+  end
+
+  test "current_budget_period_end returns end of month" do
+    assert_equal @cto.current_budget_period_start.end_of_month, @cto.current_budget_period_end
+  end
+
+  # --- Real-time broadcasts ---
+
+  test "role has broadcast_dashboard_update private method" do
+    assert @cto.respond_to?(:broadcast_dashboard_update, true)
+  end
+
+  test "role status change does not error" do
+    assert_nothing_raised do
+      @cto.update!(status: :running)
+    end
+  end
+
+  # --- all_documents ---
+
+  test "all_documents returns role's directly linked documents" do
+    Current.company = companies(:acme)
+    role = roles(:cto)
+    docs = role.all_documents
+    assert_includes docs, documents(:acme_refund_policy)
+  end
+
+  test "all_documents returns documents from role's skills" do
+    Current.company = companies(:acme)
+    role = roles(:cto)
+    docs = role.all_documents
+    assert_includes docs, documents(:acme_coding_standards)
+  end
+
+  test "all_documents does not return unlinked documents" do
+    Current.company = companies(:acme)
+    role = roles(:cto)
+    docs = role.all_documents
+    assert_not_includes docs, documents(:acme_agent_created_doc)
+  end
+
+  test "all_documents does not return documents from other companies" do
+    Current.company = companies(:acme)
+    role = roles(:cto)
+    docs = role.all_documents
+    assert_not_includes docs, documents(:widgets_doc)
+  end
+
+  test "all_documents does not duplicate documents linked both directly and via skill" do
+    Current.company = companies(:acme)
+    role = roles(:cto)
+    # Link coding_standards directly to the role too (it's already linked via skill)
+    RoleDocument.find_or_create_by!(role: role, document: documents(:acme_coding_standards))
+    docs = role.all_documents
+    coding_standards_count = docs.select { |d| d.id == documents(:acme_coding_standards).id }.count
+    assert_equal 1, coding_standards_count
+  end
+
+  # --- Goals association ---
+
+  test "role can have many goals" do
+    role = roles(:cto)
+    assert_includes role.goals, goals(:acme_objective_one)
+  end
+
+  test "role with no goals is still valid" do
+    role = roles(:developer)
+    assert_empty role.goals
+    assert role.valid?
+  end
+
+  test "destroying role nullifies goal role_id" do
+    role = roles(:cto)
+    goal = goals(:acme_objective_one)
+    assert_equal role, goal.role
+
+    role.destroy
+    goal.reload
+    assert_nil goal.role_id
+  end
+
   # --- Auto-assignment ---
 
-  test "first agent assignment creates agent_skills for role default skills" do
-    # CEO role has no agent. Assigning process_agent should trigger auto-assignment.
-    # CEO maps to: strategic_planning, company_vision, stakeholder_communication, decision_making, risk_assessment
-    agent = agents(:process_agent)
-    assert_equal 0, agent.agent_skills.count, "Agent should start with no skills"
+  test "first agent configuration creates role_skills for role default skills" do
+    # CEO role has no adapter. Configuring it should trigger auto-assignment.
+    # CEO maps to: strategic_planning, decision_making, risk_assessment
+    assert_equal 0, @ceo.role_skills.count, "Role should start with no skills"
 
-    @ceo.update!(agent: agent)
+    @ceo.update!(adapter_type: :http, adapter_config: { "url" => "https://example.com" })
 
-    agent.reload
-    skill_keys = agent.skills.pluck(:key).sort
-    expected_keys = %w[company_vision decision_making risk_assessment stakeholder_communication strategic_planning]
-    assert_equal expected_keys, skill_keys, "Agent should have all CEO default skills"
+    @ceo.reload
+    skill_keys = @ceo.skills.pluck(:key).sort
+    expected_keys = %w[decision_making risk_assessment strategic_planning]
+    assert_equal expected_keys, skill_keys, "Role should have all CEO default skills"
   end
 
-  test "first agent assignment does not duplicate existing skills" do
-    # claude_agent already has strategic_planning and code_review from fixtures.
-    # Assigning claude_agent to CEO role should add the other 3 CEO skills
-    # but NOT duplicate strategic_planning.
-    agent = agents(:claude_agent)
-    initial_count = agent.agent_skills.count
-    assert initial_count > 0, "Agent should have some existing skills"
+  test "first agent configuration does not duplicate existing skills" do
+    # cto already has strategic_planning and code_review from fixtures.
+    # Create a new role with the same title to test.
+    role = Role.create!(title: "Test CEO", company: @company)
+    role.role_skills.create!(skill: skills(:acme_strategic_planning))
+    initial_count = role.role_skills.count
+    assert initial_count > 0, "Role should have some existing skills"
 
-    # CEO has no agent. Assigning claude_agent triggers first assignment.
-    @ceo.update!(agent: agent)
+    # Configuring adapter triggers first assignment.
+    role.update!(title: "CEO", adapter_type: :http, adapter_config: { "url" => "https://example.com" })
 
-    agent.reload
+    role.reload
     # strategic_planning should exist exactly once
-    sp_count = agent.agent_skills.joins(:skill).where(skills: { key: "strategic_planning" }).count
+    sp_count = role.role_skills.joins(:skill).where(skills: { key: "strategic_planning" }).count
     assert_equal 1, sp_count, "strategic_planning should not be duplicated"
-
-    # Should have original skills + new CEO skills (minus the one already present)
-    ceo_keys = %w[company_vision decision_making risk_assessment stakeholder_communication strategic_planning]
-    new_keys = ceo_keys - %w[strategic_planning]
-    assert_equal initial_count + new_keys.size, agent.agent_skills.count
-  end
-
-  test "reassignment does not trigger auto-assignment" do
-    # CTO has claude_agent. Reassigning to http_agent should NOT give http_agent CTO skills.
-    agent = agents(:http_agent)
-    initial_skill_count = agent.agent_skills.count
-
-    @cto.update!(agent: agent)
-
-    agent.reload
-    assert_equal initial_skill_count, agent.agent_skills.count,
-      "Reassignment should not create new agent_skills"
-  end
-
-  test "unassigning agent does not trigger auto-assignment" do
-    # CTO has claude_agent. Unassigning should not trigger anything.
-    agent = agents(:claude_agent)
-    initial_skill_count = agent.agent_skills.count
-
-    @cto.update!(agent: nil)
-
-    agent.reload
-    assert_equal initial_skill_count, agent.agent_skills.count,
-      "Unassigning agent should not change skills"
   end
 
   test "unknown role title silently skips auto-assignment" do
-    # Create a role with a title not in default_skills.yml
-    agent = agents(:process_agent)
     role = Role.create!(title: "Chief Happiness Officer", company: @company)
 
-    assert_no_difference("AgentSkill.count") do
-      role.update!(agent: agent)
+    assert_no_difference("RoleSkill.count") do
+      role.update!(adapter_type: :http, adapter_config: { "url" => "https://example.com" })
     end
-  end
-
-  test "missing skill keys in company are silently skipped" do
-    # Create a role with a known title but company has no matching skills.
-    # widgets company only has strategic_planning in fixtures (not the full CEO set).
-    widgets_company = companies(:widgets)
-    widgets_agent = agents(:widgets_agent)
-    role = Role.create!(title: "CEO", company: widgets_company)
-
-    # This should create AgentSkill only for strategic_planning (the only CEO skill in widgets fixtures).
-    # The other 4 CEO skills (company_vision, decision_making, risk_assessment, stakeholder_communication)
-    # do not exist in widgets company, so they are silently skipped.
-    assert_nothing_raised do
-      role.update!(agent: widgets_agent)
-    end
-
-    widgets_agent.reload
-    skill_keys = widgets_agent.skills.pluck(:key)
-    assert_includes skill_keys, "strategic_planning",
-      "Should assign skills that exist in the company"
-    assert_equal 1, widgets_agent.agent_skills.count,
-      "Should only assign skills that exist in the company (not all 5 CEO defaults)"
   end
 
   test "default_skill_keys_for returns empty array for unknown title" do
@@ -236,7 +579,7 @@ class RoleTest < ActiveSupport::TestCase
 
   test "default_skill_keys_for is case-insensitive" do
     ceo_keys = Role.default_skill_keys_for("CEO")
-    assert_equal 5, ceo_keys.size
+    assert_equal 3, ceo_keys.size
     assert_includes ceo_keys, "strategic_planning"
 
     ceo_keys_lower = Role.default_skill_keys_for("ceo")

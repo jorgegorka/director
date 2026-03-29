@@ -4,15 +4,15 @@ class HookExecutionTest < ActiveSupport::TestCase
   setup do
     @completed_execution = hook_executions(:completed_execution)
     @failed_execution = hook_executions(:failed_execution)
-    @validation_hook = agent_hooks(:claude_validation_hook)
+    @validation_hook = role_hooks(:cto_validation_hook)
     @company = companies(:acme)
   end
 
   # --- Validations ---
 
-  test "valid with agent_hook, task, company, and status" do
+  test "valid with role_hook, task, company, and status" do
     execution = HookExecution.new(
-      agent_hook: @validation_hook,
+      role_hook: @validation_hook,
       task: tasks(:design_homepage),
       company: @company,
       status: :queued
@@ -49,8 +49,8 @@ class HookExecutionTest < ActiveSupport::TestCase
 
   # --- Associations ---
 
-  test "belongs to agent_hook" do
-    assert_equal @validation_hook, @completed_execution.agent_hook
+  test "belongs to role_hook" do
+    assert_equal @validation_hook, @completed_execution.role_hook
   end
 
   test "belongs to task" do
@@ -65,7 +65,7 @@ class HookExecutionTest < ActiveSupport::TestCase
 
   test "mark_running! sets status and started_at" do
     execution = HookExecution.create!(
-      agent_hook: @validation_hook,
+      role_hook: @validation_hook,
       task: tasks(:design_homepage),
       company: @company,
       status: :queued
@@ -80,7 +80,7 @@ class HookExecutionTest < ActiveSupport::TestCase
 
   test "mark_completed! sets status, output_payload, and completed_at" do
     execution = HookExecution.create!(
-      agent_hook: @validation_hook,
+      role_hook: @validation_hook,
       task: tasks(:design_homepage),
       company: @company,
       status: :running,
@@ -95,7 +95,7 @@ class HookExecutionTest < ActiveSupport::TestCase
 
   test "mark_failed! sets status, error_message, and completed_at" do
     execution = HookExecution.create!(
-      agent_hook: @validation_hook,
+      role_hook: @validation_hook,
       task: tasks(:design_homepage),
       company: @company,
       status: :running,

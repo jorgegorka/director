@@ -1,5 +1,5 @@
 scheduled_heartbeat:
-  agent: claude_agent
+  role: cto
   trigger_type: 0         # scheduled
   status: 1               # delivered
   trigger_source: "schedule"
@@ -7,13 +7,13 @@ scheduled_heartbeat:
   delivered_at: <%= 1.hour.ago.to_fs(:db) %>
   request_payload:
     trigger: scheduled
-    agent_id: 1
+    role_id: 1
   response_payload:
     status: ok
   metadata: {}
 
 task_assigned_event:
-  agent: http_agent
+  role: developer
   trigger_type: 1         # task_assigned
   status: 1               # delivered
   trigger_source: "Task#1"
@@ -26,7 +26,7 @@ task_assigned_event:
   metadata: {}
 
 queued_event:
-  agent: process_agent
+  role: process_role
   trigger_type: 1         # task_assigned
   status: 0               # queued
   trigger_source: "Task#2"
@@ -37,7 +37,7 @@ queued_event:
   metadata: {}
 
 failed_event:
-  agent: http_agent
+  role: developer
   trigger_type: 0         # scheduled
   status: 2               # failed
   trigger_source: "schedule"
@@ -48,7 +48,7 @@ failed_event:
     error: "Connection refused"
 
 mention_event:
-  agent: claude_agent
+  role: cto
   trigger_type: 2         # mention
   status: 1               # delivered
   trigger_source: "Message#1"

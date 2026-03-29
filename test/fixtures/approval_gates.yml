@@ -1,19 +1,19 @@
-claude_task_creation_gate:
-  agent: claude_agent
+cto_task_creation_gate:
+  role: cto
   action_type: task_creation
   enabled: true
 
-claude_budget_gate:
-  agent: claude_agent
+cto_budget_gate:
+  role: cto
   action_type: budget_spend
   enabled: true
 
-claude_delegation_gate_disabled:
-  agent: claude_agent
+cto_delegation_gate_disabled:
+  role: cto
   action_type: task_delegation
   enabled: false
 
-http_agent_escalation_gate:
-  agent: http_agent
+developer_escalation_gate:
+  role: developer
   action_type: escalation
   enabled: true

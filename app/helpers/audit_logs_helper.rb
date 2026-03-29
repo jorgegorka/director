@@ -21,12 +21,10 @@ module AuditLogsHelper
     case event.auditable_type
     when "Task"
       link_to_if(event.auditable, event.auditable&.title || "Deleted task", event.auditable)
-    when "Agent"
-      link_to_if(event.auditable, event.auditable&.name || "Deleted agent", event.auditable)
-    when "Company"
-      event.auditable&.name || "Company"
     when "Role"
       link_to_if(event.auditable, event.auditable&.title || "Deleted role", event.auditable)
+    when "Company"
+      event.auditable&.name || "Company"
     else
       "#{event.auditable_type} ##{event.auditable_id}"
     end

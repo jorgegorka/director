@@ -5,7 +5,7 @@ first_update:
 
 agent_reply:
   task: design_homepage
-  author: claude_agent (Agent)
+  author: cto (Role)
   body: "I've analyzed the requirements and have some suggestions for the layout."
 
 threaded_reply:

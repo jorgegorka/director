@@ -4,7 +4,7 @@ class MessageTest < ActiveSupport::TestCase
   setup do
     @task = tasks(:design_homepage)
     @user = users(:one)
-    @agent = agents(:claude_agent)
+    @role = roles(:cto)
     @message = messages(:first_update)
   end
 
@@ -26,8 +26,8 @@ class MessageTest < ActiveSupport::TestCase
     assert message.valid?
   end
 
-  test "valid with Agent author" do
-    message = Message.new(body: "Agent message", task: @task, author: @agent)
+  test "valid with Role author" do
+    message = Message.new(body: "Role message", task: @task, author: @role)
     assert message.valid?
   end
 
@@ -56,10 +56,10 @@ class MessageTest < ActiveSupport::TestCase
     assert_equal "User", @message.author_type
   end
 
-  test "belongs to author (polymorphic) - Agent" do
-    agent_message = messages(:agent_reply)
-    assert_equal @agent, agent_message.author
-    assert_equal "Agent", agent_message.author_type
+  test "belongs to author (polymorphic) - Role" do
+    role_message = messages(:agent_reply)
+    assert_equal @role, role_message.author
+    assert_equal "Role", role_message.author_type
   end
 
   test "belongs to parent (optional)" do
@@ -103,7 +103,7 @@ class MessageTest < ActiveSupport::TestCase
   test "nested replies work (reply to a reply)" do
     parent = messages(:agent_reply)
     reply = messages(:threaded_reply)
-    nested = Message.create!(body: "Nested reply", task: @task, author: @agent, parent: reply)
+    nested = Message.create!(body: "Nested reply", task: @task, author: @role, parent: reply)
     assert_equal reply, nested.parent
     assert_includes reply.replies, nested
   end

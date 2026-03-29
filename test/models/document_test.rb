@@ -42,16 +42,16 @@ class DocumentTest < ActiveSupport::TestCase
 
   test "has polymorphic author" do
     assert_equal @user, @document.author
-    agent_doc = documents(:acme_agent_created_doc)
-    assert_equal agents(:claude_agent), agent_doc.author
+    role_doc = documents(:acme_agent_created_doc)
+    assert_equal roles(:cto), role_doc.author
   end
 
   test "has many skills through skill_documents" do
     assert @document.respond_to?(:skills)
   end
 
-  test "has many agents through agent_documents" do
-    assert @document.respond_to?(:agents)
+  test "has many roles through role_documents" do
+    assert @document.respond_to?(:roles)
   end
 
   test "has many tasks through task_documents" do
@@ -89,10 +89,10 @@ class DocumentTest < ActiveSupport::TestCase
     assert_difference("SkillDocument.count", -doc.skill_documents.count) { doc.destroy }
   end
 
-  test "destroying document destroys agent_documents" do
+  test "destroying document destroys role_documents" do
     doc = documents(:acme_coding_standards)
-    AgentDocument.create!(agent: agents(:claude_agent), document: doc)
-    assert_difference("AgentDocument.count", -1) { doc.destroy }
+    RoleDocument.create!(role: roles(:cto), document: doc)
+    assert_difference("RoleDocument.count", -1) { doc.destroy }
   end
 
   test "destroying document destroys task_documents" do

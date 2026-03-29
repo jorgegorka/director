@@ -10,100 +10,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_28_224006) do
-  create_table "agent_documents", force: :cascade do |t|
-    t.integer "agent_id", null: false
-    t.datetime "created_at", null: false
-    t.integer "document_id", null: false
-    t.datetime "updated_at", null: false
-    t.index ["agent_id", "document_id"], name: "index_agent_documents_on_agent_id_and_document_id", unique: true
-    t.index ["agent_id"], name: "index_agent_documents_on_agent_id"
-    t.index ["document_id"], name: "index_agent_documents_on_document_id"
-  end
-
-  create_table "agent_hooks", force: :cascade do |t|
-    t.json "action_config", default: {}, null: false
-    t.integer "action_type", default: 0, null: false
-    t.integer "agent_id", null: false
-    t.integer "company_id", null: false
-    t.json "conditions", default: {}, null: false
-    t.datetime "created_at", null: false
-    t.boolean "enabled", default: true, null: false
-    t.string "lifecycle_event", null: false
-    t.string "name"
-    t.integer "position", default: 0, null: false
-    t.datetime "updated_at", null: false
-    t.index ["agent_id", "enabled"], name: "index_agent_hooks_on_agent_id_and_enabled"
-    t.index ["agent_id", "lifecycle_event"], name: "index_agent_hooks_on_agent_id_and_lifecycle_event"
-    t.index ["agent_id"], name: "index_agent_hooks_on_agent_id"
-    t.index ["company_id"], name: "index_agent_hooks_on_company_id"
-  end
-
-  create_table "agent_runs", force: :cascade do |t|
-    t.integer "agent_id", null: false
-    t.string "claude_session_id"
-    t.integer "company_id", null: false
-    t.datetime "completed_at"
-    t.integer "cost_cents"
-    t.datetime "created_at", null: false
-    t.text "error_message"
-    t.integer "exit_code"
-    t.text "log_output"
-    t.datetime "started_at"
-    t.integer "status", default: 0, null: false
-    t.integer "task_id"
-    t.string "trigger_type"
-    t.datetime "updated_at", null: false
-    t.index ["agent_id", "created_at"], name: "index_agent_runs_on_agent_id_and_created_at"
-    t.index ["agent_id", "status"], name: "index_agent_runs_on_agent_id_and_status"
-    t.index ["agent_id"], name: "index_agent_runs_on_agent_id"
-    t.index ["claude_session_id"], name: "index_agent_runs_on_claude_session_id"
-    t.index ["company_id", "created_at"], name: "index_agent_runs_on_company_id_and_created_at"
-    t.index ["company_id"], name: "index_agent_runs_on_company_id"
-    t.index ["task_id"], name: "index_agent_runs_on_task_id"
-  end
-
-  create_table "agent_skills", force: :cascade do |t|
-    t.integer "agent_id", null: false
-    t.datetime "created_at", null: false
-    t.integer "skill_id", null: false
-    t.datetime "updated_at", null: false
-    t.index ["agent_id", "skill_id"], name: "index_agent_skills_on_agent_id_and_skill_id", unique: true
-    t.index ["agent_id"], name: "index_agent_skills_on_agent_id"
-    t.index ["skill_id"], name: "index_agent_skills_on_skill_id"
-  end
-
-  create_table "agents", force: :cascade do |t|
-    t.json "adapter_config", default: {}, null: false
-    t.integer "adapter_type", default: 0, null: false
-    t.string "api_token"
-    t.integer "budget_cents"
-    t.date "budget_period_start"
-    t.bigint "company_id", null: false
-    t.datetime "created_at", null: false
-    t.text "description"
-    t.boolean "heartbeat_enabled", default: false, null: false
-    t.integer "heartbeat_interval"
-    t.datetime "last_heartbeat_at"
-    t.string "name", null: false
-    t.text "pause_reason"
-    t.datetime "paused_at"
-    t.integer "status", default: 0, null: false
-    t.datetime "updated_at", null: false
-    t.index ["api_token"], name: "index_agents_on_api_token", unique: true
-    t.index ["company_id", "name"], name: "index_agents_on_company_id_and_name", unique: true
-    t.index ["company_id"], name: "index_agents_on_company_id"
-    t.index ["status"], name: "index_agents_on_status"
-  end
-
+ActiveRecord::Schema[8.1].define(version: 2026_03_29_100553) do
   create_table "approval_gates", force: :cascade do |t|
     t.string "action_type", null: false
-    t.bigint "agent_id", null: false
     t.datetime "created_at", null: false
     t.boolean "enabled", default: true, null: false
+    t.bigint "role_id", null: false
     t.datetime "updated_at", null: false
-    t.index ["agent_id", "action_type"], name: "index_approval_gates_on_agent_and_action_type", unique: true
-    t.index ["agent_id"], name: "index_approval_gates_on_agent_id"
+    t.index ["role_id", "action_type"], name: "index_approval_gates_on_agent_and_action_type", unique: true
+    t.index ["role_id"], name: "index_approval_gates_on_role_id"
   end
 
   create_table "audit_events", force: :cascade do |t|
@@ -182,7 +97,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_28_224006) do
   end
 
   create_table "goal_evaluations", force: :cascade do |t|
-    t.integer "agent_id", null: false
     t.integer "attempt_number", null: false
     t.integer "company_id", null: false
     t.integer "cost_cents"
@@ -190,61 +104,62 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_28_224006) do
     t.text "feedback", null: false
     t.integer "goal_id", null: false
     t.integer "result", null: false
+    t.integer "role_id", null: false
     t.integer "task_id", null: false
     t.datetime "updated_at", null: false
-    t.index ["agent_id"], name: "index_goal_evaluations_on_agent_id"
     t.index ["company_id"], name: "index_goal_evaluations_on_company_id"
     t.index ["goal_id"], name: "index_goal_evaluations_on_goal_id"
+    t.index ["role_id"], name: "index_goal_evaluations_on_role_id"
     t.index ["task_id", "attempt_number"], name: "index_goal_evaluations_on_task_id_and_attempt_number", unique: true
     t.index ["task_id"], name: "index_goal_evaluations_on_task_id"
   end
 
   create_table "goals", force: :cascade do |t|
-    t.integer "agent_id"
     t.bigint "company_id", null: false
     t.datetime "created_at", null: false
     t.text "description"
     t.bigint "parent_id"
     t.integer "position", default: 0, null: false
+    t.integer "role_id"
     t.string "title", null: false
     t.datetime "updated_at", null: false
-    t.index ["agent_id"], name: "index_goals_on_agent_id"
     t.index ["company_id", "parent_id"], name: "index_goals_on_company_id_and_parent_id"
     t.index ["company_id"], name: "index_goals_on_company_id"
     t.index ["parent_id"], name: "index_goals_on_parent_id"
+    t.index ["role_id"], name: "index_goals_on_role_id"
   end
 
   create_table "heartbeat_events", force: :cascade do |t|
-    t.bigint "agent_id", null: false
     t.datetime "created_at", null: false
     t.datetime "delivered_at"
     t.json "metadata", default: {}, null: false
     t.json "request_payload", default: {}, null: false
     t.json "response_payload", default: {}, null: false
+    t.bigint "role_id", null: false
     t.integer "status", default: 0, null: false
     t.string "trigger_source"
     t.integer "trigger_type", default: 0, null: false
     t.datetime "updated_at", null: false
-    t.index ["agent_id", "created_at"], name: "index_heartbeat_events_on_agent_and_time"
-    t.index ["agent_id", "trigger_type"], name: "index_heartbeat_events_on_agent_and_trigger"
-    t.index ["agent_id"], name: "index_heartbeat_events_on_agent_id"
+    t.index ["role_id", "created_at"], name: "index_heartbeat_events_on_agent_and_time"
+    t.index ["role_id", "trigger_type"], name: "index_heartbeat_events_on_agent_and_trigger"
+    t.index ["role_id"], name: "index_heartbeat_events_on_role_id"
     t.index ["status"], name: "index_heartbeat_events_on_status"
   end
 
   create_table "hook_executions", force: :cascade do |t|
-    t.integer "agent_hook_id", null: false
     t.integer "company_id", null: false
     t.datetime "completed_at"
     t.datetime "created_at", null: false
     t.text "error_message"
     t.json "input_payload", default: {}, null: false
     t.json "output_payload", default: {}, null: false
+    t.integer "role_hook_id", null: false
     t.datetime "started_at"
     t.integer "status", default: 0, null: false
     t.integer "task_id", null: false
     t.datetime "updated_at", null: false
-    t.index ["agent_hook_id", "status"], name: "index_hook_executions_on_agent_hook_id_and_status"
     t.index ["company_id"], name: "index_hook_executions_on_company_id"
+    t.index ["role_hook_id", "status"], name: "index_hook_executions_on_role_hook_id_and_status"
     t.index ["task_id", "created_at"], name: "index_hook_executions_on_task_id_and_created_at"
   end
 
@@ -309,19 +224,92 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_28_224006) do
     t.index ["recipient_type", "recipient_id", "read_at"], name: "index_notifications_on_recipient_and_read"
   end
 
+  create_table "role_documents", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "document_id", null: false
+    t.integer "role_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["document_id"], name: "index_role_documents_on_document_id"
+    t.index ["role_id", "document_id"], name: "index_role_documents_on_role_id_and_document_id", unique: true
+    t.index ["role_id"], name: "index_role_documents_on_role_id"
+  end
+
+  create_table "role_hooks", force: :cascade do |t|
+    t.json "action_config", default: {}, null: false
+    t.integer "action_type", default: 0, null: false
+    t.integer "company_id", null: false
+    t.json "conditions", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.boolean "enabled", default: true, null: false
+    t.string "lifecycle_event", null: false
+    t.string "name"
+    t.integer "position", default: 0, null: false
+    t.integer "role_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["company_id"], name: "index_role_hooks_on_company_id"
+    t.index ["role_id", "enabled"], name: "index_role_hooks_on_role_id_and_enabled"
+    t.index ["role_id", "lifecycle_event"], name: "index_role_hooks_on_role_id_and_lifecycle_event"
+    t.index ["role_id"], name: "index_role_hooks_on_role_id"
+  end
+
+  create_table "role_runs", force: :cascade do |t|
+    t.string "claude_session_id"
+    t.integer "company_id", null: false
+    t.datetime "completed_at"
+    t.integer "cost_cents"
+    t.datetime "created_at", null: false
+    t.text "error_message"
+    t.integer "exit_code"
+    t.text "log_output"
+    t.integer "role_id", null: false
+    t.datetime "started_at"
+    t.integer "status", default: 0, null: false
+    t.integer "task_id"
+    t.string "trigger_type"
+    t.datetime "updated_at", null: false
+    t.index ["claude_session_id"], name: "index_role_runs_on_claude_session_id"
+    t.index ["company_id", "created_at"], name: "index_role_runs_on_company_id_and_created_at"
+    t.index ["company_id"], name: "index_role_runs_on_company_id"
+    t.index ["role_id", "created_at"], name: "index_role_runs_on_role_id_and_created_at"
+    t.index ["role_id", "status"], name: "index_role_runs_on_role_id_and_status"
+    t.index ["role_id"], name: "index_role_runs_on_role_id"
+    t.index ["task_id"], name: "index_role_runs_on_task_id"
+  end
+
+  create_table "role_skills", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "role_id", null: false
+    t.integer "skill_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["role_id", "skill_id"], name: "index_role_skills_on_role_id_and_skill_id", unique: true
+    t.index ["role_id"], name: "index_role_skills_on_role_id"
+    t.index ["skill_id"], name: "index_role_skills_on_skill_id"
+  end
+
   create_table "roles", force: :cascade do |t|
-    t.bigint "agent_id"
+    t.json "adapter_config", default: {}, null: false
+    t.integer "adapter_type"
+    t.string "api_token"
+    t.integer "budget_cents"
+    t.date "budget_period_start"
     t.bigint "company_id", null: false
     t.datetime "created_at", null: false
     t.text "description"
+    t.boolean "heartbeat_enabled", default: false, null: false
+    t.integer "heartbeat_interval"
     t.text "job_spec"
+    t.datetime "last_heartbeat_at"
     t.bigint "parent_id"
+    t.text "pause_reason"
+    t.datetime "paused_at"
+    t.integer "status", default: 0, null: false
     t.string "title", null: false
     t.datetime "updated_at", null: false
-    t.index ["agent_id"], name: "index_roles_on_agent_id"
+    t.index ["api_token"], name: "index_roles_on_api_token", unique: true
     t.index ["company_id", "title"], name: "index_roles_on_company_id_and_title", unique: true
     t.index ["company_id"], name: "index_roles_on_company_id"
     t.index ["parent_id"], name: "index_roles_on_parent_id"
+    t.index ["status"], name: "index_roles_on_status"
   end
 
   create_table "sessions", force: :cascade do |t|
@@ -400,33 +388,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_28_224006) do
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
   end
 
-  add_foreign_key "agent_documents", "agents"
-  add_foreign_key "agent_documents", "documents"
-  add_foreign_key "agent_hooks", "agents"
-  add_foreign_key "agent_hooks", "companies"
-  add_foreign_key "agent_runs", "agents"
-  add_foreign_key "agent_runs", "companies"
-  add_foreign_key "agent_runs", "tasks"
-  add_foreign_key "agent_skills", "agents"
-  add_foreign_key "agent_skills", "skills"
-  add_foreign_key "agents", "companies"
-  add_foreign_key "approval_gates", "agents"
+  add_foreign_key "approval_gates", "roles"
   add_foreign_key "audit_events", "companies"
   add_foreign_key "config_versions", "companies"
   add_foreign_key "document_taggings", "document_tags"
   add_foreign_key "document_taggings", "documents"
   add_foreign_key "document_tags", "companies"
   add_foreign_key "documents", "companies"
-  add_foreign_key "goal_evaluations", "agents"
   add_foreign_key "goal_evaluations", "companies"
   add_foreign_key "goal_evaluations", "goals"
+  add_foreign_key "goal_evaluations", "roles"
   add_foreign_key "goal_evaluations", "tasks"
-  add_foreign_key "goals", "agents"
   add_foreign_key "goals", "companies"
   add_foreign_key "goals", "goals", column: "parent_id"
-  add_foreign_key "heartbeat_events", "agents"
-  add_foreign_key "hook_executions", "agent_hooks"
+  add_foreign_key "goals", "roles"
+  add_foreign_key "heartbeat_events", "roles"
   add_foreign_key "hook_executions", "companies"
+  add_foreign_key "hook_executions", "role_hooks"
   add_foreign_key "hook_executions", "tasks"
   add_foreign_key "invitations", "companies"
   add_foreign_key "invitations", "users", column: "inviter_id"
@@ -435,7 +413,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_28_224006) do
   add_foreign_key "messages", "messages", column: "parent_id"
   add_foreign_key "messages", "tasks"
   add_foreign_key "notifications", "companies"
-  add_foreign_key "roles", "agents"
+  add_foreign_key "role_documents", "documents"
+  add_foreign_key "role_documents", "roles"
+  add_foreign_key "role_hooks", "companies"
+  add_foreign_key "role_hooks", "roles"
+  add_foreign_key "role_runs", "companies"
+  add_foreign_key "role_runs", "roles"
+  add_foreign_key "role_runs", "tasks"
+  add_foreign_key "role_skills", "roles"
+  add_foreign_key "role_skills", "skills"
   add_foreign_key "roles", "companies"
   add_foreign_key "roles", "roles", column: "parent_id"
   add_foreign_key "sessions", "users"
@@ -444,9 +430,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_28_224006) do
   add_foreign_key "skills", "companies"
   add_foreign_key "task_documents", "documents"
   add_foreign_key "task_documents", "tasks"
-  add_foreign_key "tasks", "agents", column: "assignee_id"
   add_foreign_key "tasks", "companies"
   add_foreign_key "tasks", "goals"
+  add_foreign_key "tasks", "roles", column: "assignee_id"
   add_foreign_key "tasks", "tasks", column: "parent_task_id"
   add_foreign_key "tasks", "users", column: "creator_id"
 end

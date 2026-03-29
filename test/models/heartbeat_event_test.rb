@@ -3,17 +3,17 @@ require "test_helper"
 class HeartbeatEventTest < ActiveSupport::TestCase
   # Validations
 
-  test "valid with agent, trigger_type, and status" do
+  test "valid with role, trigger_type, and status" do
     event = HeartbeatEvent.new(
-      agent: agents(:claude_agent),
+      role: roles(:cto),
       trigger_type: :scheduled,
       status: :queued
     )
     assert event.valid?
   end
 
-  test "belongs to agent" do
-    assert_equal agents(:claude_agent), heartbeat_events(:scheduled_heartbeat).agent
+  test "belongs to role" do
+    assert_equal roles(:cto), heartbeat_events(:scheduled_heartbeat).role
   end
 
   # Enums
@@ -32,7 +32,7 @@ class HeartbeatEventTest < ActiveSupport::TestCase
 
   test "trigger_type enum: hook_triggered?" do
     event = HeartbeatEvent.new(
-      agent: agents(:claude_agent),
+      role: roles(:cto),
       trigger_type: :hook_triggered,
       status: :queued
     )
@@ -71,10 +71,10 @@ class HeartbeatEventTest < ActiveSupport::TestCase
     assert scheduled.count >= 1
   end
 
-  test "for_agent filters by agent" do
-    claude = agents(:claude_agent)
-    events = HeartbeatEvent.for_agent(claude)
-    assert events.all? { |e| e.agent_id == claude.id }
+  test "for_role filters by role" do
+    cto = roles(:cto)
+    events = HeartbeatEvent.for_role(cto)
+    assert events.all? { |e| e.role_id == cto.id }
     assert events.map(&:id).include?(heartbeat_events(:scheduled_heartbeat).id)
   end
 
@@ -98,59 +98,59 @@ class HeartbeatEventTest < ActiveSupport::TestCase
     assert_equal "timeout", event.metadata["error"]
   end
 
-  test "destroying agent destroys heartbeat_events" do
-    agent = agents(:claude_agent)
-    event_ids = agent.heartbeat_events.pluck(:id)
+  test "destroying role destroys heartbeat_events" do
+    role = roles(:cto)
+    event_ids = role.heartbeat_events.pluck(:id)
     assert event_ids.any?
 
-    agent.destroy
+    role.destroy
     assert_empty HeartbeatEvent.where(id: event_ids)
   end
 
-  # Agent association tests
+  # Role association tests
 
-  test "agent.heartbeat_events returns associated events" do
-    claude = agents(:claude_agent)
-    assert claude.heartbeat_events.map(&:id).include?(heartbeat_events(:scheduled_heartbeat).id)
+  test "role.heartbeat_events returns associated events" do
+    cto = roles(:cto)
+    assert cto.heartbeat_events.map(&:id).include?(heartbeat_events(:scheduled_heartbeat).id)
   end
 
-  test "agent.heartbeat_scheduled? returns true when enabled with interval" do
-    agent = agents(:http_agent)
-    agent.heartbeat_enabled = true
-    agent.heartbeat_interval = 15
-    assert agent.heartbeat_scheduled?
+  test "role.heartbeat_scheduled? returns true when enabled with interval" do
+    role = roles(:developer)
+    role.heartbeat_enabled = true
+    role.heartbeat_interval = 15
+    assert role.heartbeat_scheduled?
   end
 
-  test "agent.heartbeat_scheduled? returns false when disabled" do
-    agent = agents(:http_agent)
-    agent.heartbeat_enabled = false
-    agent.heartbeat_interval = 15
-    assert_not agent.heartbeat_scheduled?
+  test "role.heartbeat_scheduled? returns false when disabled" do
+    role = roles(:developer)
+    role.heartbeat_enabled = false
+    role.heartbeat_interval = 15
+    assert_not role.heartbeat_scheduled?
   end
 
-  test "agent.heartbeat_scheduled? returns false when interval nil" do
-    agent = agents(:http_agent)
-    agent.heartbeat_enabled = true
-    agent.heartbeat_interval = nil
-    assert_not agent.heartbeat_scheduled?
+  test "role.heartbeat_scheduled? returns false when interval nil" do
+    role = roles(:developer)
+    role.heartbeat_enabled = true
+    role.heartbeat_interval = nil
+    assert_not role.heartbeat_scheduled?
   end
 
-  test "agent validates heartbeat_interval is positive integer" do
-    agent = agents(:http_agent)
+  test "role validates heartbeat_interval is positive integer" do
+    role = roles(:developer)
 
-    agent.heartbeat_interval = -5
-    assert_not agent.valid?
+    role.heartbeat_interval = -5
+    assert_not role.valid?
 
-    agent.heartbeat_interval = 0
-    assert_not agent.valid?
+    role.heartbeat_interval = 0
+    assert_not role.valid?
 
-    agent.heartbeat_interval = 15
-    assert agent.valid?
+    role.heartbeat_interval = 15
+    assert role.valid?
   end
 
-  test "agent reverse_chronological heartbeat events returns most recent first" do
-    claude = agents(:claude_agent)
-    events = claude.heartbeat_events.reverse_chronological
+  test "role reverse_chronological heartbeat events returns most recent first" do
+    cto = roles(:cto)
+    events = cto.heartbeat_events.reverse_chronological
     assert events.first.created_at >= events.last.created_at
   end
 end

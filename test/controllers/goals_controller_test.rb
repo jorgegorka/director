@@ -213,44 +213,44 @@ class GoalsControllerTest < ActionDispatch::IntegrationTest
     assert_nil task.goal_id
   end
 
-  # --- Agent assignment ---
+  # --- Role assignment ---
 
-  test "create assigns agent to goal" do
-    agent = agents(:claude_agent)
+  test "create assigns role to goal" do
+    role = roles(:cto)
 
     assert_difference "Goal.count", 1 do
       post goals_path, params: { goal: {
-        title: "Agent-assigned goal",
-        agent_id: agent.id
+        title: "Role-assigned goal",
+        role_id: role.id
       } }
     end
 
     goal = Goal.last
-    assert_equal agent, goal.agent
+    assert_equal role, goal.role
   end
 
-  test "update changes goal agent" do
-    goal = goals(:acme_objective_two)  # has no agent
+  test "update changes goal role" do
+    goal = goals(:acme_objective_two)  # has no role
 
     patch goal_path(goal), params: { goal: {
       title: goal.title,
-      agent_id: agents(:claude_agent).id
+      role_id: roles(:cto).id
     } }
 
     goal.reload
-    assert_equal agents(:claude_agent), goal.agent
+    assert_equal roles(:cto), goal.role
   end
 
-  test "update clears goal agent" do
-    goal = goals(:acme_objective_one)  # has claude_agent assigned
+  test "update clears goal role" do
+    goal = goals(:acme_objective_one)  # has cto assigned
 
     patch goal_path(goal), params: { goal: {
       title: goal.title,
-      agent_id: ""
+      role_id: ""
     } }
 
     goal.reload
-    assert_nil goal.agent
+    assert_nil goal.role
   end
 
   # --- Auth ---

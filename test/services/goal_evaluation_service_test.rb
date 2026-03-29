@@ -5,7 +5,7 @@ class GoalEvaluationServiceTest < ActiveSupport::TestCase
     ENV["ANTHROPIC_API_KEY"] = "test-key"
 
     @company = companies(:acme)
-    @agent = agents(:claude_agent)
+    @role = roles(:cto)
     @goal = goals(:acme_objective_one)
 
     # Create a completed task with goal
@@ -13,7 +13,7 @@ class GoalEvaluationServiceTest < ActiveSupport::TestCase
       title: "Build search feature",
       description: "Add full-text search",
       company: @company,
-      assignee: @agent,
+      assignee: @role,
       goal: @goal,
       status: :open
     )
@@ -21,7 +21,7 @@ class GoalEvaluationServiceTest < ActiveSupport::TestCase
     @task.reload
 
     # Add a work output message
-    Message.create!(task: @task, author: @agent, body: "I implemented full-text search using pg_search.")
+    Message.create!(task: @task, author: @role, body: "I implemented full-text search using pg_search.")
   end
 
   # --- Pass flow ---
@@ -39,7 +39,7 @@ class GoalEvaluationServiceTest < ActiveSupport::TestCase
     assert_equal 1, evaluation.attempt_number
     assert_equal @task.id, evaluation.task_id
     assert_equal @goal.id, evaluation.goal_id
-    assert_equal @agent.id, evaluation.agent_id
+    assert_equal @role.id, evaluation.role_id
     assert_equal @company.id, evaluation.company_id
   end
 
@@ -52,7 +52,7 @@ class GoalEvaluationServiceTest < ActiveSupport::TestCase
     assert @task.completed?
   end
 
-  test "does not wake agent on pass" do
+  test "does not wake role on pass" do
     stub_ai_response(result: "pass", feedback: "Good.")
 
     assert_no_difference "HeartbeatEvent.count" do
@@ -96,7 +96,7 @@ class GoalEvaluationServiceTest < ActiveSupport::TestCase
     assert_includes message.body, "Goal Evaluation"
   end
 
-  test "wakes agent with goal_evaluation_failed trigger on fail" do
+  test "wakes role with goal_evaluation_failed trigger on fail" do
     stub_ai_response(result: "fail", feedback: "Not aligned.")
 
     assert_difference "HeartbeatEvent.count", 1 do
@@ -105,16 +105,15 @@ class GoalEvaluationServiceTest < ActiveSupport::TestCase
 
     event = HeartbeatEvent.order(:created_at).last
     assert event.goal_evaluation_failed?
-    assert_equal @agent.id, event.agent_id
+    assert_equal @role.id, event.role_id
   end
 
   # --- Retry exhaustion ---
 
   test "blocks task after MAX_ATTEMPTS failed evaluations" do
-    # Create 2 prior failed evaluations
-    GoalEvaluation.create!(company: @company, task: @task, goal: @goal, agent: @agent,
+    GoalEvaluation.create!(company: @company, task: @task, goal: @goal, role: @role,
       result: :fail, feedback: "Attempt 1", attempt_number: 1, cost_cents: 50)
-    GoalEvaluation.create!(company: @company, task: @task, goal: @goal, agent: @agent,
+    GoalEvaluation.create!(company: @company, task: @task, goal: @goal, role: @role,
       result: :fail, feedback: "Attempt 2", attempt_number: 2, cost_cents: 50)
 
     stub_ai_response(result: "fail", feedback: "Still not aligned.")
@@ -126,9 +125,9 @@ class GoalEvaluationServiceTest < ActiveSupport::TestCase
   end
 
   test "records audit event on retry exhaustion" do
-    GoalEvaluation.create!(company: @company, task: @task, goal: @goal, agent: @agent,
+    GoalEvaluation.create!(company: @company, task: @task, goal: @goal, role: @role,
       result: :fail, feedback: "Attempt 1", attempt_number: 1, cost_cents: 50)
-    GoalEvaluation.create!(company: @company, task: @task, goal: @goal, agent: @agent,
+    GoalEvaluation.create!(company: @company, task: @task, goal: @goal, role: @role,
       result: :fail, feedback: "Attempt 2", attempt_number: 2, cost_cents: 50)
 
     stub_ai_response(result: "fail", feedback: "Still not aligned.")
@@ -143,7 +142,7 @@ class GoalEvaluationServiceTest < ActiveSupport::TestCase
 
   test "skips evaluation when max attempts already reached" do
     3.times do |i|
-      GoalEvaluation.create!(company: @company, task: @task, goal: @goal, agent: @agent,
+      GoalEvaluation.create!(company: @company, task: @task, goal: @goal, role: @role,
         result: :fail, feedback: "Attempt #{i + 1}", attempt_number: i + 1, cost_cents: 50)
     end
 
@@ -180,7 +179,6 @@ class GoalEvaluationServiceTest < ActiveSupport::TestCase
     GoalEvaluationService.call(@task)
     @task.reload
 
-    # Original cost was nil (created in setup without cost), now has eval cost
     assert @task.cost_cents.present?
     assert @task.cost_cents > 0
   end

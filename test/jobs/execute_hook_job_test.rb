@@ -7,17 +7,16 @@ class ExecuteHookJobTest < ActiveSupport::TestCase
 
   test "skips completed execution" do
     assert @execution.completed?
-    # Should return early without calling service
     assert_nothing_raised do
       ExecuteHookJob.perform_now(@execution.id)
     end
   end
 
   test "retries failed execution" do
-    hook = agent_hooks(:claude_validation_hook)
+    hook = role_hooks(:cto_validation_hook)
 
     execution = HookExecution.create!(
-      agent_hook: hook,
+      role_hook: hook,
       task: tasks(:design_homepage),
       company: companies(:acme),
       status: :failed,
@@ -42,9 +41,7 @@ class ExecuteHookJobTest < ActiveSupport::TestCase
   end
 
   test "has retry_on configured for 3 attempts" do
-    # Verify the job class has retry_on set up via rescue_handlers
     assert ExecuteHookJob.instance_method(:perform)
-    # The retry_on configuration is verified by checking the class has the discard handler
     assert ExecuteHookJob.respond_to?(:retry_on)
   end
 
@@ -53,17 +50,17 @@ class ExecuteHookJobTest < ActiveSupport::TestCase
   end
 
   test "calls ExecuteHookService for queued execution" do
-    hook = agent_hooks(:claude_validation_hook)
+    hook = role_hooks(:cto_validation_hook)
 
     execution = HookExecution.create!(
-      agent_hook: hook,
+      role_hook: hook,
       task: tasks(:design_homepage),
       company: companies(:acme),
       status: :queued,
       input_payload: { task_id: tasks(:design_homepage).id }
     )
 
-    assert_difference "Task.count", 1 do  # validation subtask created
+    assert_difference "Task.count", 1 do
       ExecuteHookJob.perform_now(execution.id)
     end
 
@@ -72,10 +69,10 @@ class ExecuteHookJobTest < ActiveSupport::TestCase
   end
 
   test "calls ExecuteHookService for running execution" do
-    hook = agent_hooks(:claude_validation_hook)
+    hook = role_hooks(:cto_validation_hook)
 
     execution = HookExecution.create!(
-      agent_hook: hook,
+      role_hook: hook,
       task: tasks(:design_homepage),
       company: companies(:acme),
       status: :running,
@@ -83,7 +80,6 @@ class ExecuteHookJobTest < ActiveSupport::TestCase
       input_payload: { task_id: tasks(:design_homepage).id }
     )
 
-    # Running executions should also be processed (retry scenario)
     assert_difference "Task.count", 1 do
       ExecuteHookJob.perform_now(execution.id)
     end

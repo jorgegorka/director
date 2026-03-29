@@ -14,10 +14,10 @@ module HeartbeatsHelper
     tag.span(event.status.humanize, class: "heartbeat-status heartbeat-status--#{event.status}")
   end
 
-  def heartbeat_schedule_label(agent)
-    return "No schedule" unless agent.heartbeat_scheduled?
+  def heartbeat_schedule_label(role)
+    return "No schedule" unless role.heartbeat_scheduled?
 
-    interval = agent.heartbeat_interval
+    interval = role.heartbeat_interval
     if interval < 60
       "Every #{interval} minutes"
     elsif interval == 60

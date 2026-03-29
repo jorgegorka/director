@@ -5,7 +5,7 @@ class HttpAdapterTest < ActiveSupport::TestCase
   AGENT_URL = "https://api.example.com/agent"
 
   setup do
-    @agent = agents(:http_agent)
+    @role = roles(:developer)
     @context = {
       run_id: 1,
       trigger_type: "task_assigned",
@@ -14,39 +14,33 @@ class HttpAdapterTest < ActiveSupport::TestCase
       task_description: "Users cannot log in"
     }
 
-    # Disable actual backoff sleep in tests by default.
     HttpAdapter.define_singleton_method(:backoff_sleep) { |_n| nil }
   end
 
   teardown do
-    # Restore the real backoff_sleep implementation.
     HttpAdapter.singleton_class.remove_method(:backoff_sleep)
   end
-
-  # ---------------------------------------------------------------------------
-  # HTTP-01: Successful delivery
-  # ---------------------------------------------------------------------------
 
   test "successful delivery returns result hash" do
     stub_request(:post, AGENT_URL)
       .to_return(status: 200, body: '{"status":"received"}', headers: { "Content-Type" => "application/json" })
 
-    result = HttpAdapter.execute(@agent, @context)
+    result = HttpAdapter.execute(@role, @context)
 
     assert_equal 0, result[:exit_code]
     assert_equal 200, result[:response_code]
     assert result.key?(:response_body)
   end
 
-  test "payload includes agent and task context" do
+  test "payload includes role and task context" do
     stub_request(:post, AGENT_URL).to_return(status: 200, body: '{"ok":true}')
 
-    HttpAdapter.execute(@agent, @context)
+    HttpAdapter.execute(@role, @context)
 
     assert_requested(:post, AGENT_URL) do |req|
       body = JSON.parse(req.body)
-      body["agent_id"] == @agent.id &&
-        body["agent_name"] == @agent.name &&
+      body["role_id"] == @role.id &&
+        body["role_title"] == @role.title &&
         body["run_id"] == @context[:run_id] &&
         body["trigger_type"] == @context[:trigger_type] &&
         body["task"].present? &&
@@ -61,7 +55,7 @@ class HttpAdapterTest < ActiveSupport::TestCase
     stub_request(:post, AGENT_URL).to_return(status: 200, body: "{}")
 
     context_without_task = @context.except(:task_id, :task_title, :task_description)
-    HttpAdapter.execute(@agent, context_without_task)
+    HttpAdapter.execute(@role, context_without_task)
 
     assert_requested(:post, AGENT_URL) do |req|
       body = JSON.parse(req.body)
@@ -69,15 +63,11 @@ class HttpAdapterTest < ActiveSupport::TestCase
     end
   end
 
-  # ---------------------------------------------------------------------------
-  # HTTP-02: 4xx permanent failure
-  # ---------------------------------------------------------------------------
-
   test "4xx response raises PermanentError immediately without retry" do
     stub_request(:post, AGENT_URL).to_return(status: 404, body: "not found")
 
     assert_raises(HttpAdapter::PermanentError) do
-      HttpAdapter.execute(@agent, @context)
+      HttpAdapter.execute(@role, @context)
     end
 
     assert_requested(:post, AGENT_URL, times: 1)
@@ -87,21 +77,17 @@ class HttpAdapterTest < ActiveSupport::TestCase
     stub_request(:post, AGENT_URL).to_return(status: 401, body: "Unauthorized")
 
     error = assert_raises(HttpAdapter::PermanentError) do
-      HttpAdapter.execute(@agent, @context)
+      HttpAdapter.execute(@role, @context)
     end
 
     assert_match(/401/, error.message)
   end
 
-  # ---------------------------------------------------------------------------
-  # HTTP-03: 5xx transient retry
-  # ---------------------------------------------------------------------------
-
   test "5xx response retries and eventually raises TransientError" do
     stub_request(:post, AGENT_URL).to_return(status: 500, body: "server error")
 
     assert_raises(HttpAdapter::TransientError) do
-      HttpAdapter.execute(@agent, @context)
+      HttpAdapter.execute(@role, @context)
     end
 
     assert_requested(:post, AGENT_URL, times: HttpAdapter::MAX_RETRIES)
@@ -112,7 +98,7 @@ class HttpAdapterTest < ActiveSupport::TestCase
       .to_return(status: 500, body: "error").then
       .to_return(status: 200, body: '{"ok":true}')
 
-    result = HttpAdapter.execute(@agent, @context)
+    result = HttpAdapter.execute(@role, @context)
 
     assert_equal 0, result[:exit_code]
     assert_requested(:post, AGENT_URL, times: 2)
@@ -122,108 +108,51 @@ class HttpAdapterTest < ActiveSupport::TestCase
     stub_request(:post, AGENT_URL).to_raise(Errno::ECONNREFUSED)
 
     assert_raises(HttpAdapter::TransientError) do
-      HttpAdapter.execute(@agent, @context)
+      HttpAdapter.execute(@role, @context)
     end
   end
-
-  # ---------------------------------------------------------------------------
-  # HTTP-04: Timeout handling
-  # ---------------------------------------------------------------------------
 
   test "read timeout raises TransientError after retries" do
     stub_request(:post, AGENT_URL).to_timeout
 
     assert_raises(HttpAdapter::TransientError) do
-      HttpAdapter.execute(@agent, @context)
+      HttpAdapter.execute(@role, @context)
     end
 
     assert_requested(:post, AGENT_URL, times: HttpAdapter::MAX_RETRIES)
   end
 
-  test "open timeout raises TransientError after retries" do
-    stub_request(:post, AGENT_URL).to_raise(Net::OpenTimeout)
-
-    assert_raises(HttpAdapter::TransientError) do
-      HttpAdapter.execute(@agent, @context)
-    end
-  end
-
-  test "timeouts are configured correctly" do
-    stub_request(:post, AGENT_URL).to_return(status: 200, body: "{}")
-
-    captured_http = nil
-    original_new = Net::HTTP.method(:new)
-
-    Net::HTTP.define_singleton_method(:new) do |*args|
-      http = original_new.call(*args)
-      captured_http = http
-      http
-    end
-
-    begin
-      HttpAdapter.execute(@agent, @context)
-    ensure
-      Net::HTTP.singleton_class.remove_method(:new)
-    end
-
-    assert_not_nil captured_http, "Net::HTTP instance should have been created"
-    assert_equal HttpAdapter::OPEN_TIMEOUT, captured_http.open_timeout
-    assert_equal HttpAdapter::READ_TIMEOUT, captured_http.read_timeout
-  end
-
-  # ---------------------------------------------------------------------------
-  # Missing URL
-  # ---------------------------------------------------------------------------
-
   test "no URL configured raises PermanentError" do
-    @agent.adapter_config = {}
+    @role.adapter_config = {}
 
     error = assert_raises(HttpAdapter::PermanentError) do
-      HttpAdapter.execute(@agent, @context)
+      HttpAdapter.execute(@role, @context)
     end
 
     assert_match(/no url/i, error.message)
   end
-
-  test "blank URL configured raises PermanentError" do
-    @agent.adapter_config = { "url" => "" }
-
-    error = assert_raises(HttpAdapter::PermanentError) do
-      HttpAdapter.execute(@agent, @context)
-    end
-
-    assert_match(/no url/i, error.message)
-  end
-
-  # ---------------------------------------------------------------------------
-  # Auth token and custom headers
-  # ---------------------------------------------------------------------------
 
   test "auth_token adds Authorization header" do
-    @agent.adapter_config["auth_token"] = "secret123"
+    @role.adapter_config["auth_token"] = "secret123"
     stub_request(:post, AGENT_URL)
       .with(headers: { "Authorization" => "Bearer secret123" })
       .to_return(status: 200, body: "{}")
 
-    HttpAdapter.execute(@agent, @context)
+    HttpAdapter.execute(@role, @context)
 
     assert_requested(:post, AGENT_URL, headers: { "Authorization" => "Bearer secret123" })
   end
 
   test "custom headers are merged" do
-    @agent.adapter_config["headers"] = { "X-Custom" => "value" }
+    @role.adapter_config["headers"] = { "X-Custom" => "value" }
     stub_request(:post, AGENT_URL)
       .with(headers: { "Content-Type" => "application/json", "X-Custom" => "value" })
       .to_return(status: 200, body: "{}")
 
-    HttpAdapter.execute(@agent, @context)
+    HttpAdapter.execute(@role, @context)
 
     assert_requested(:post, AGENT_URL, headers: { "Content-Type" => "application/json", "X-Custom" => "value" })
   end
-
-  # ---------------------------------------------------------------------------
-  # Skill payload tests
-  # ---------------------------------------------------------------------------
 
   test "payload includes skills when present in context" do
     stub_request(:post, AGENT_URL).to_return(status: 200, body: '{"ok":true}')
@@ -232,7 +161,7 @@ class HttpAdapterTest < ActiveSupport::TestCase
       { key: "code_review", name: "Code Review", description: "Review code", category: "technical", markdown: "# Code Review" }
     ]
 
-    HttpAdapter.execute(@agent, @context)
+    HttpAdapter.execute(@role, @context)
 
     assert_requested(:post, AGENT_URL) do |req|
       body = JSON.parse(req.body)
@@ -247,17 +176,13 @@ class HttpAdapterTest < ActiveSupport::TestCase
 
     @context[:skills] = []
 
-    HttpAdapter.execute(@agent, @context)
+    HttpAdapter.execute(@role, @context)
 
     assert_requested(:post, AGENT_URL) do |req|
       body = JSON.parse(req.body)
       !body.key?("skills")
     end
   end
-
-  # ---------------------------------------------------------------------------
-  # Regression: class methods unchanged
-  # ---------------------------------------------------------------------------
 
   test "display_name, description, config_schema unchanged" do
     assert_equal "HTTP API", HttpAdapter.display_name

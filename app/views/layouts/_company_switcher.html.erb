@@ -1,20 +1,25 @@
 <div class="company-switcher" data-controller="dropdown">
   <button class="company-switcher__trigger" data-action="click->dropdown#toggle" data-dropdown-target="trigger" type="button">
     <span class="company-switcher__name"><%= current_company&.name || "No Company" %></span>
-    <span class="company-switcher__arrow" aria-hidden="true">&#9662;</span>
+    <svg class="company-switcher__caret" viewBox="0 0 10 6" fill="none" aria-hidden="true">
+      <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
   </button>
 
   <div class="company-switcher__menu" data-dropdown-target="menu" hidden>
+    <div class="company-switcher__label">Companies</div>
     <% Current.user.companies.each do |company| %>
       <div class="company-switcher__item">
         <% if company == current_company %>
           <span class="company-switcher__current">
-            <span class="company-switcher__check" aria-hidden="true">&#10003;</span>
+            <svg class="company-switcher__check" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M3.5 8.5L6.5 11.5L12.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
             <%= company.name %>
           </span>
         <% else %>
           <%= button_to company_switch_path(company), method: :post, class: "company-switcher__link" do %>
-            <span class="company-switcher__check company-switcher__check--hidden" aria-hidden="true">&#10003;</span>
+            <span class="company-switcher__check company-switcher__check--hidden" aria-hidden="true"></span>
             <%= company.name %>
           <% end %>
         <% end %>
@@ -22,8 +27,8 @@
     <% end %>
 
     <div class="company-switcher__divider"></div>
-    <%= link_to new_company_path, class: "company-switcher__link company-switcher__new" do %>
-      <span aria-hidden="true">+</span> New Company
+    <%= link_to new_company_path, class: "company-switcher__new" do %>
+      New Company
     <% end %>
   </div>
 </div>

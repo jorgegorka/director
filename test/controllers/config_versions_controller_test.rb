@@ -7,7 +7,7 @@ class ConfigVersionsControllerTest < ActionDispatch::IntegrationTest
     sign_in_as(@user)
     post company_switch_url(@company)
     @role_version = config_versions(:role_edit_version)
-    @agent_version = config_versions(:agent_budget_version)
+    @role_budget_version = config_versions(:role_budget_version)
   end
 
   # --- Index ---
@@ -18,8 +18,8 @@ class ConfigVersionsControllerTest < ActionDispatch::IntegrationTest
     assert_select "h1", "Version History"
   end
 
-  test "should get index for agent versions" do
-    get config_versions_url(type: "Agent", record_id: agents(:claude_agent).id)
+  test "should get index for role versions without assertions" do
+    get config_versions_url(type: "Role", record_id: roles(:cto).id)
     assert_response :success
   end
 
@@ -29,7 +29,7 @@ class ConfigVersionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should redirect for non-existent record" do
-    get config_versions_url(type: "Agent", record_id: 999999)
+    get config_versions_url(type: "Role", record_id: 999999)
     assert_redirected_to root_url
   end
 

@@ -1,7 +1,7 @@
 <div class="stat-card">
-  <div class="stat-card__value"><%= total_agents %></div>
-  <div class="stat-card__label">Total Agents</div>
-  <%= link_to "View all", agents_path, class: "stat-card__link" %>
+  <div class="stat-card__value"><%= total_roles %></div>
+  <div class="stat-card__label">Total Roles</div>
+  <%= link_to "View all", roles_path, class: "stat-card__link" %>
 </div>
 <div class="stat-card">
   <div class="stat-card__value"><%= tasks_active %></div>
@@ -13,6 +13,6 @@
   <div class="stat-card__label">Tasks Completed</div>
 </div>
 <div class="stat-card">
-  <div class="stat-card__value"><%= agents_online %> of <%= total_agents %></div>
-  <div class="stat-card__label">Agents Online</div>
+  <div class="stat-card__value"><%= roles_online %> of <%= total_roles %></div>
+  <div class="stat-card__label">Roles Online</div>
 </div>

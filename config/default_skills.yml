@@ -4,8 +4,6 @@
 
 ceo:
   - strategic_planning
-  - company_vision
-  - stakeholder_communication
   - decision_making
   - risk_assessment
 
@@ -48,7 +46,6 @@ pm:
   - project_planning
   - requirements_gathering
   - sprint_management
-  - stakeholder_communication
   - progress_reporting
 
 qa:

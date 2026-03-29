@@ -3,7 +3,7 @@ require "test_helper"
 class EvaluateGoalAlignmentJobTest < ActiveSupport::TestCase
   setup do
     @company = companies(:acme)
-    @agent = agents(:claude_agent)
+    @role = roles(:cto)
     @goal = goals(:acme_objective_one)
     ENV["ANTHROPIC_API_KEY"] = "test-key"
   end
@@ -26,7 +26,7 @@ class EvaluateGoalAlignmentJobTest < ActiveSupport::TestCase
     task = Task.create!(
       title: "No goal task",
       company: @company,
-      assignee: @agent,
+      assignee: @role,
       status: :open
     )
     task.update_columns(status: 3, completed_at: Time.current)
@@ -40,7 +40,7 @@ class EvaluateGoalAlignmentJobTest < ActiveSupport::TestCase
     task = Task.create!(
       title: "Eval job test",
       company: @company,
-      assignee: @agent,
+      assignee: @role,
       goal: @goal,
       status: :open
     )

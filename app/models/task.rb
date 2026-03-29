@@ -5,14 +5,14 @@ class Task < ApplicationRecord
   include Hookable
 
   belongs_to :creator, class_name: "User", optional: true
-  belongs_to :assignee, class_name: "Agent", optional: true
+  belongs_to :assignee, class_name: "Role", optional: true
   belongs_to :parent_task, class_name: "Task", optional: true
   belongs_to :goal, optional: true
 
   has_many :subtasks, class_name: "Task", foreign_key: :parent_task_id, inverse_of: :parent_task, dependent: :destroy
   has_many :messages, dependent: :destroy
   has_many :hook_executions, dependent: :destroy
-  has_many :agent_runs, dependent: :nullify
+  has_many :role_runs, dependent: :nullify
   has_many :goal_evaluations, dependent: :destroy
 
   has_many :task_documents, dependent: :destroy, inverse_of: :task
@@ -103,8 +103,8 @@ class Task < ApplicationRecord
   def trigger_assignment_wake
     return unless assignee
 
-    trigger_agent_wake(
-      agent: assignee,
+    trigger_role_wake(
+      role: assignee,
       trigger_type: :task_assigned,
       trigger_source: "Task##{id}",
       context: { task_id: id, task_title: title }

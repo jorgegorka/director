@@ -1,6 +1,6 @@
 module ApplicationHelper
-  def options_for_agent_select
-    Current.company.agents.active.order(:name).map { |a| [ a.name, a.id ] }
+  def options_for_role_select
+    Current.company.roles.active.order(:title).map { |r| [ r.title, r.id ] }
   end
 
   def polymorphic_actor_label(record, type_method: :actor_type, assoc: :actor)
@@ -8,7 +8,7 @@ module ApplicationHelper
     obj = record.public_send(assoc)
     case type
     when "User"  then obj&.email_address || "Unknown user"
-    when "Agent" then obj&.name || "Unknown agent"
+    when "Role"  then obj&.title || "Unknown role"
     else "System"
     end
   end

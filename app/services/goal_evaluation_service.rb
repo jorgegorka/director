@@ -30,8 +30,8 @@ class GoalEvaluationService
 
   private
 
-  def agent
-    @agent ||= task.assignee
+  def role
+    @role ||= task.assignee
   end
 
   def goal
@@ -97,7 +97,7 @@ class GoalEvaluationService
       company_id: task.company_id,
       task: task,
       goal: goal,
-      agent: agent,
+      role: role,
       result: result[:parsed]["result"],
       feedback: result[:parsed]["feedback"],
       attempt_number: attempt_number,
@@ -117,7 +117,7 @@ class GoalEvaluationService
   def reopen_task(evaluation)
     post_feedback_message(evaluation)
     task.update!(status: :in_progress)
-    wake_agent(evaluation)
+    wake_role(evaluation)
   end
 
   def block_task(evaluation)
@@ -129,7 +129,7 @@ class GoalEvaluationService
   def post_feedback_message(evaluation)
     Message.create!(
       task: task,
-      author: agent,
+      author: role,
       body: build_feedback_body(evaluation)
     )
   end
@@ -151,12 +151,12 @@ class GoalEvaluationService
     parts.join("\n")
   end
 
-  def wake_agent(evaluation)
-    return unless agent
-    return if agent.terminated?
+  def wake_role(evaluation)
+    return unless role
+    return if role.terminated?
 
-    WakeAgentService.call(
-      agent: agent,
+    WakeRoleService.call(
+      role: role,
       trigger_type: :goal_evaluation_failed,
       trigger_source: "GoalEvaluation##{evaluation.id}",
       context: {
@@ -172,7 +172,7 @@ class GoalEvaluationService
 
   def record_exhaustion_audit(evaluation)
     task.record_audit_event!(
-      actor: agent,
+      actor: role,
       action: "goal_evaluation_exhausted",
       company: task.company,
       metadata: {

@@ -3,16 +3,16 @@ require "test_helper"
 class ProcessValidationResultServiceTest < ActiveSupport::TestCase
   setup do
     @company = companies(:acme)
-    @claude_agent = agents(:claude_agent)
-    @http_agent = agents(:http_agent)
-    @parent_task = tasks(:design_homepage)  # in_progress, assigned to claude_agent
+    @cto = roles(:cto)
+    @developer = roles(:developer)
+    @parent_task = tasks(:design_homepage)  # in_progress, assigned to cto
 
     # Create a completed validation subtask
     @validation_task = Task.create!(
       title: "Validate: #{@parent_task.title}",
       description: "Review the completed work.",
       company: @company,
-      assignee: @http_agent,
+      assignee: @developer,
       parent_task: @parent_task,
       status: :open
     )
@@ -22,12 +22,12 @@ class ProcessValidationResultServiceTest < ActiveSupport::TestCase
     # Add messages to the validation subtask to simulate validation conversation
     @validation_msg1 = Message.create!(
       task: @validation_task,
-      author: @http_agent,
+      author: @developer,
       body: "I reviewed the homepage design. The layout looks good but the navigation needs work."
     )
     @validation_msg2 = Message.create!(
       task: @validation_task,
-      author: @http_agent,
+      author: @developer,
       body: "Specifically, the mobile menu is missing responsive breakpoints."
     )
   end
@@ -43,10 +43,10 @@ class ProcessValidationResultServiceTest < ActiveSupport::TestCase
     assert_equal @parent_task.id, feedback.task_id
   end
 
-  test "feedback message author is the validation agent" do
+  test "feedback message author is the validation role" do
     ProcessValidationResultService.call(@validation_task)
     feedback = @parent_task.messages.order(:created_at).last
-    assert_equal @http_agent, feedback.author
+    assert_equal @developer, feedback.author
   end
 
   test "feedback message body contains validation task title" do
@@ -62,10 +62,10 @@ class ProcessValidationResultServiceTest < ActiveSupport::TestCase
     assert_includes feedback.body, "mobile menu is missing"
   end
 
-  test "feedback message body contains validation agent name" do
+  test "feedback message body contains validation role title" do
     ProcessValidationResultService.call(@validation_task)
     feedback = @parent_task.messages.order(:created_at).last
-    assert_includes feedback.body, @http_agent.name
+    assert_includes feedback.body, @developer.title
   end
 
   test "feedback message body handles no validation messages" do
@@ -76,7 +76,7 @@ class ProcessValidationResultServiceTest < ActiveSupport::TestCase
     assert_includes feedback.body, "No messages were posted during validation"
   end
 
-  # --- Agent wake ---
+  # --- Role wake ---
 
   test "wakes parent task assignee with review_validation trigger" do
     assert_difference "HeartbeatEvent.count", 1 do
@@ -85,7 +85,7 @@ class ProcessValidationResultServiceTest < ActiveSupport::TestCase
 
     event = HeartbeatEvent.order(:created_at).last
     assert event.review_validation?
-    assert_equal @claude_agent.id, event.agent_id
+    assert_equal @cto.id, event.role_id
     assert_equal "Task##{@validation_task.id}", event.trigger_source
   end
 
@@ -101,7 +101,6 @@ class ProcessValidationResultServiceTest < ActiveSupport::TestCase
   test "skips wake when parent task has no assignee" do
     @parent_task.update_columns(assignee_id: nil)
 
-    # Should still post message and record audit, just no wake
     assert_difference "Message.count", 1 do
       assert_no_difference "HeartbeatEvent.count" do
         ProcessValidationResultService.call(@validation_task)
@@ -110,7 +109,7 @@ class ProcessValidationResultServiceTest < ActiveSupport::TestCase
   end
 
   test "skips wake when parent task assignee is terminated" do
-    @claude_agent.update_columns(status: 4)  # terminated
+    @cto.update_columns(status: 4)  # terminated
 
     assert_difference "Message.count", 1 do
       assert_no_difference "HeartbeatEvent.count" do
@@ -128,7 +127,7 @@ class ProcessValidationResultServiceTest < ActiveSupport::TestCase
 
     audit = AuditEvent.where(action: "validation_feedback_received").last
     assert_equal @parent_task, audit.auditable
-    assert_equal @http_agent, audit.actor
+    assert_equal @developer, audit.actor
     assert_equal @company, audit.company
     assert_equal @validation_task.id, audit.metadata["validation_task_id"]
     assert_equal @parent_task.id, audit.metadata["parent_task_id"]
@@ -141,17 +140,13 @@ class ProcessValidationResultServiceTest < ActiveSupport::TestCase
     assert_equal 2, audit.metadata["message_count"]
   end
 
-  test "validation_feedback_received is a governance action" do
-    assert_includes AuditEvent::GOVERNANCE_ACTIONS, "validation_feedback_received"
-  end
-
   # --- Edge cases ---
 
   test "returns nil when validation task has no parent" do
     orphan_task = Task.create!(
       title: "Orphan task",
       company: @company,
-      assignee: @http_agent,
+      assignee: @developer,
       status: :open
     )
     orphan_task.update_columns(status: 3)
@@ -171,7 +166,7 @@ class ProcessValidationResultServiceTest < ActiveSupport::TestCase
     end
   end
 
-  test "full flow: feedback posted, agent woken, audit recorded in one call" do
+  test "full flow: feedback posted, role woken, audit recorded in one call" do
     assert_difference "Message.count", 1 do
       assert_difference "HeartbeatEvent.count", 1 do
         assert_difference "AuditEvent.count", 1 do

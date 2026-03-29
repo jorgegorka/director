@@ -5,8 +5,8 @@ module Hookable
 
   # Map task status values to lifecycle event strings
   HOOKABLE_TRANSITIONS = {
-    "in_progress" => AgentHook::AFTER_TASK_START,
-    "completed" => AgentHook::AFTER_TASK_COMPLETE
+    "in_progress" => RoleHook::AFTER_TASK_START,
+    "completed" => RoleHook::AFTER_TASK_COMPLETE
   }.freeze
 
   def enqueue_hooks_for_transition
@@ -16,10 +16,10 @@ module Hookable
     lifecycle_event = HOOKABLE_TRANSITIONS[status]
     return unless lifecycle_event
 
-    hooks = assignee.agent_hooks.enabled.for_event(lifecycle_event).ordered
+    hooks = assignee.role_hooks.enabled.for_event(lifecycle_event).ordered
     hooks.each do |hook|
       execution = HookExecution.create!(
-        agent_hook: hook,
+        role_hook: hook,
         task: self,
         company_id: company_id,
         status: :queued,
@@ -42,8 +42,8 @@ module Hookable
       task_id: id,
       task_title: title,
       task_status: status,
-      agent_id: assignee_id,
-      agent_name: assignee.name,
+      role_id: assignee_id,
+      role_title: assignee.title,
       lifecycle_event: hook.lifecycle_event,
       hook_name: hook.name,
       action_type: hook.action_type,

@@ -71,7 +71,7 @@ export default class extends Controller {
         title: node.title,
         description: node.description,
         url: node.url,
-        agentName: node.agent_name
+        status: node.status
       })
 
       if (node.children && node.children.length > 0) {
@@ -147,19 +147,17 @@ export default class extends Controller {
     titleSpan.textContent = node.title
     link.appendChild(titleSpan)
 
-    // Agent status
-    const agentSpan = document.createElement("span")
-    agentSpan.className = "org-chart-node__agent"
+    // Role status
+    const statusSpan = document.createElement("span")
+    statusSpan.className = "org-chart-node__status"
 
     const dot = document.createElement("span")
-    dot.className = node.agentName
-      ? "org-chart-node__dot org-chart-node__dot--active"
-      : "org-chart-node__dot org-chart-node__dot--unassigned"
-    agentSpan.appendChild(dot)
+    dot.className = `org-chart-node__dot org-chart-node__dot--${node.status || "inactive"}`
+    statusSpan.appendChild(dot)
 
-    const agentText = document.createTextNode(node.agentName || "Unassigned")
-    agentSpan.appendChild(agentText)
-    link.appendChild(agentSpan)
+    const statusText = document.createTextNode(node.status ? node.status.charAt(0).toUpperCase() + node.status.slice(1) : "Inactive")
+    statusSpan.appendChild(statusText)
+    link.appendChild(statusSpan)
 
     // Description (optional)
     if (node.description) {

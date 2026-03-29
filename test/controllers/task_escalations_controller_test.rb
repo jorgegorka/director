@@ -7,16 +7,16 @@ class TaskEscalationsControllerTest < ActionDispatch::IntegrationTest
     sign_in_as(@user)
     post company_switch_url(@company)
 
-    @claude_agent = agents(:claude_agent)
-    @http_agent = agents(:http_agent)
-    @widgets_agent = agents(:widgets_agent)
+    @cto = roles(:cto)
+    @developer = roles(:developer)
+    @widgets_lead = roles(:widgets_lead)
 
-    # fix_login_bug is assigned to http_agent (developer role)
-    # developer role parent is CTO which has claude_agent -- escalates to claude_agent
+    # fix_login_bug is assigned to developer
+    # developer parent is CTO which is online -- escalates to cto
     @task = tasks(:fix_login_bug)
 
-    # design_homepage is assigned to claude_agent (CTO role)
-    # CTO parent is CEO which has no agent -- escalation fails
+    # design_homepage is assigned to cto
+    # CTO parent is CEO which has no adapter -- escalation fails
     @cto_task = tasks(:design_homepage)
 
     @unassigned_task = tasks(:write_tests)
@@ -27,26 +27,26 @@ class TaskEscalationsControllerTest < ActionDispatch::IntegrationTest
   # Human-initiated escalation tests (session auth)
   # ==========================================================================
 
-  test "human user can escalate task to manager agent" do
+  test "human user can escalate task to manager role" do
     assert_difference("AuditEvent.count", 1) do
       post escalate_task_url(@task)
     end
 
     assert_redirected_to task_path(@task)
-    assert_equal "Task escalated to #{@claude_agent.name}.", flash[:notice]
+    assert_equal "Task escalated to #{@cto.title}.", flash[:notice]
 
     @task.reload
-    assert_equal @claude_agent, @task.assignee
+    assert_equal @cto, @task.assignee
 
     event = AuditEvent.where(action: "escalated").last
     assert_equal "escalated", event.action
     assert_equal "User", event.actor_type
     assert_equal @user.id, event.actor_id
-    assert_equal @http_agent.id, event.metadata["from_agent_id"]
-    assert_equal @claude_agent.id, event.metadata["to_agent_id"]
+    assert_equal @developer.id, event.metadata["from_role_id"]
+    assert_equal @cto.id, event.metadata["to_role_id"]
   end
 
-  test "human user cannot escalate when no manager has agent" do
+  test "human user cannot escalate when no manager role is online" do
     original_assignee = @cto_task.assignee
 
     post escalate_task_url(@cto_task)
@@ -90,15 +90,15 @@ class TaskEscalationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   # ==========================================================================
-  # Agent-initiated escalation tests (Bearer token auth)
+  # Role-initiated escalation tests (Bearer token auth)
   # ==========================================================================
 
-  test "agent can escalate task via API with Bearer token" do
+  test "role can escalate task via API with Bearer token" do
     sign_out
 
     assert_difference("AuditEvent.count", 1) do
       post escalate_task_url(@task, format: :json),
-           headers: { "Authorization" => "Bearer #{@http_agent.api_token}" }
+           headers: { "Authorization" => "Bearer #{@developer.api_token}" }
     end
 
     assert_response :ok
@@ -106,19 +106,19 @@ class TaskEscalationsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "ok", json["status"]
 
     @task.reload
-    assert_equal @claude_agent, @task.assignee
+    assert_equal @cto, @task.assignee
 
     event = AuditEvent.where(action: "escalated").last
-    assert_equal "Agent", event.actor_type
-    assert_equal @http_agent.id, event.actor_id
+    assert_equal "Role", event.actor_type
+    assert_equal @developer.id, event.actor_id
   end
 
-  test "agent API escalation returns JSON error when no manager agent exists" do
+  test "role API escalation returns JSON error when no manager role exists" do
     sign_out
     original_assignee = @cto_task.assignee
 
     post escalate_task_url(@cto_task, format: :json),
-         headers: { "Authorization" => "Bearer #{@claude_agent.api_token}" }
+         headers: { "Authorization" => "Bearer #{@cto.api_token}" }
 
     assert_response :unprocessable_entity
     json = response.parsed_body
@@ -128,7 +128,7 @@ class TaskEscalationsControllerTest < ActionDispatch::IntegrationTest
     assert_equal original_assignee, @cto_task.assignee
   end
 
-  test "agent API escalation returns 401 for invalid token" do
+  test "role API escalation returns 401 for invalid token" do
     sign_out
 
     post escalate_task_url(@task, format: :json),
@@ -139,11 +139,11 @@ class TaskEscalationsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Unauthorized", json["error"]
   end
 
-  test "agent API cannot escalate task from another company" do
+  test "role API cannot escalate task from another company" do
     sign_out
 
     post escalate_task_url(@task, format: :json),
-         headers: { "Authorization" => "Bearer #{@widgets_agent.api_token}" }
+         headers: { "Authorization" => "Bearer #{@widgets_lead.api_token}" }
 
     assert_response :not_found
     json = response.parsed_body

@@ -5,7 +5,7 @@ class GoalEvaluation < ApplicationRecord
 
   belongs_to :task
   belongs_to :goal
-  belongs_to :agent
+  belongs_to :role
 
   enum :result, { pass: 0, fail: 1 }
 

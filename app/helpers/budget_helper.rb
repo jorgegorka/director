@@ -14,14 +14,14 @@ module BudgetHelper
     end
   end
 
-  def budget_status_text(agent)
-    return "No budget set" unless agent.budget_configured?
-    if agent.budget_exhausted?
+  def budget_status_text(role)
+    return "No budget set" unless role.budget_configured?
+    if role.budget_exhausted?
       "Budget exhausted"
-    elsif agent.budget_alert_threshold?
-      "Approaching limit (#{agent.budget_utilization}%)"
+    elsif role.budget_alert_threshold?
+      "Approaching limit (#{role.budget_utilization}%)"
     else
-      "#{agent.budget_utilization}% used"
+      "#{role.budget_utilization}% used"
     end
   end
 end

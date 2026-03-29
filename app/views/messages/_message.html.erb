@@ -1,9 +1,9 @@
 <div class="message <%= "message--reply" if message.parent_id.present? %>" id="message_<%= message.id %>">
   <div class="message__header">
     <span class="message__author">
-      <% if message.author.is_a?(Agent) %>
-        <%= message.author.name %>
-        <span class="message__author-type">Agent</span>
+      <% if message.author.is_a?(Role) %>
+        <%= message.author.title %>
+        <span class="message__author-type">Role</span>
       <% else %>
         <%= message.author.try(:email_address) || "Unknown" %>
       <% end %>

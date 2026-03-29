@@ -1,4 +1,4 @@
-<%= form_with(model: role, class: "form") do |f| %>
+<%= form_with(model: role, class: "form", data: { controller: "adapter-config" }) do |f| %>
   <% if role.errors.any? %>
     <div class="form__errors" role="alert">
       <% role.errors.full_messages.each do |message| %>
@@ -15,6 +15,7 @@
   <div class="form__field">
     <%= f.label :description, "Description" %>
     <%= f.text_area :description, rows: 3, placeholder: "Brief description of this role's purpose" %>
+    <p class="form__hint">Will be used as prompt if present.</p>
   </div>
 
   <div class="form__field">
@@ -31,12 +32,139 @@
   </div>
 
   <div class="form__field">
-    <%= f.label :agent_id, "Assigned agent" %>
-    <%= f.select :agent_id,
-          options_for_agent_select,
-          { include_blank: "None (unassigned)" },
-          { class: "form__select" } %>
+    <%= f.label :adapter_type, "Connection type" %>
+    <%= f.select :adapter_type, adapter_type_options, {}, {
+      class: "form__select",
+      data: { adapter_config_select: "", action: "change->adapter-config#toggle" }
+    } %>
   </div>
+
+  <!-- HTTP adapter config fields -->
+  <fieldset class="form__fieldset" data-adapter-config-target="configGroup" data-adapter-type="http">
+    <legend>HTTP API Configuration</legend>
+    <div class="form__field">
+      <%= label_tag "role_adapter_config_url", "Endpoint URL" %>
+      <%= text_field_tag "role[adapter_config][url]",
+            role.adapter_config&.dig("url"),
+            placeholder: "https://api.example.com/role",
+            id: "role_adapter_config_url" %>
+    </div>
+    <div class="form__field">
+      <%= label_tag "role_adapter_config_method", "HTTP Method" %>
+      <%= select_tag "role[adapter_config][method]",
+            options_for_select([ "POST", "PUT" ], role.adapter_config&.dig("method") || "POST"),
+            id: "role_adapter_config_method",
+            class: "form__select" %>
+    </div>
+    <div class="form__field">
+      <%= label_tag "role_adapter_config_auth_token", "Auth Token (optional)" %>
+      <%= text_field_tag "role[adapter_config][auth_token]",
+            role.adapter_config&.dig("auth_token"),
+            placeholder: "Bearer token for authentication",
+            id: "role_adapter_config_auth_token" %>
+    </div>
+  </fieldset>
+
+  <!-- Process adapter config fields -->
+  <fieldset class="form__fieldset" data-adapter-config-target="configGroup" data-adapter-type="process">
+    <legend>Shell Command Configuration</legend>
+    <div class="form__field">
+      <%= label_tag "role_adapter_config_command", "Command" %>
+      <%= text_field_tag "role[adapter_config][command]",
+            role.adapter_config&.dig("command"),
+            placeholder: "/usr/local/bin/my-role.sh",
+            id: "role_adapter_config_command" %>
+    </div>
+    <div class="form__field">
+      <%= label_tag "role_adapter_config_working_directory", "Working Directory (optional)" %>
+      <%= text_field_tag "role[adapter_config][working_directory]",
+            role.adapter_config&.dig("working_directory"),
+            placeholder: "/home/user/role",
+            id: "role_adapter_config_working_directory" %>
+    </div>
+  </fieldset>
+
+  <!-- Claude Local adapter config fields -->
+  <fieldset class="form__fieldset" data-adapter-config-target="configGroup" data-adapter-type="claude_local">
+    <legend>Claude Code Configuration</legend>
+    <div class="form__field">
+      <%= label_tag "role_adapter_config_model", "Model" %>
+      <%= select_tag "role[adapter_config][model]",
+            options_for_select(
+              [ [ "Claude Sonnet 4", "claude-sonnet-4-20250514" ], [ "Claude Opus 4", "claude-opus-4-20250514" ] ],
+              role.adapter_config&.dig("model")
+            ),
+            id: "role_adapter_config_model",
+            class: "form__select" %>
+    </div>
+    <div class="form__field">
+      <%= label_tag "role_adapter_config_max_turns", "Max Turns (optional)" %>
+      <%= number_field_tag "role[adapter_config][max_turns]",
+            role.adapter_config&.dig("max_turns"),
+            placeholder: "25",
+            min: 1,
+            id: "role_adapter_config_max_turns" %>
+    </div>
+  </fieldset>
+
+  <!-- Heartbeat Schedule Configuration -->
+  <fieldset class="form__fieldset">
+    <legend>Heartbeat Schedule</legend>
+    <p class="form__hint">Configure how often this role wakes to check for work. The role will run on this schedule when enabled.</p>
+
+    <div class="form__field">
+      <%= f.label :heartbeat_enabled, "Enable scheduled heartbeat" %>
+      <div class="form__toggle">
+        <%= f.check_box :heartbeat_enabled, class: "form__checkbox" %>
+        <span class="form__toggle-label">Role wakes on schedule</span>
+      </div>
+    </div>
+
+    <div class="form__field">
+      <%= f.label :heartbeat_interval, "Heartbeat interval" %>
+      <%= f.select :heartbeat_interval,
+            options_for_select(
+              [
+                ["Every 5 minutes", 5],
+                ["Every 10 minutes", 10],
+                ["Every 15 minutes", 15],
+                ["Every 30 minutes", 30],
+                ["Every hour", 60],
+                ["Every 2 hours", 120],
+                ["Every 6 hours", 360],
+                ["Every 12 hours", 720],
+                ["Every 24 hours", 1440]
+              ],
+              role.heartbeat_interval
+            ),
+            { include_blank: "Select interval..." },
+            { class: "form__select" }
+      %>
+    </div>
+  </fieldset>
+
+  <!-- Budget Configuration -->
+  <fieldset class="form__fieldset">
+    <legend>Monthly Budget</legend>
+    <p class="form__hint">Set a monthly spending limit for this role. When the limit is reached, the role will be automatically paused. Leave blank for unlimited.</p>
+
+    <div class="form__field">
+      <%= f.label :budget_dollars, "Monthly budget ($)" %>
+      <div class="form__input-group">
+        <span class="form__input-prefix">$</span>
+        <%= f.number_field :budget_dollars,
+              value: role.budget_cents ? (role.budget_cents / 100.0).round(2) : nil,
+              step: 0.01,
+              min: 0.01,
+              placeholder: "e.g. 500.00",
+              class: "form__input--with-prefix" %>
+      </div>
+    </div>
+  </fieldset>
+
+  <% unless role.new_record? %>
+    <%= render "approval_gates/gate_fieldset", role: role %>
+  <% end %>
 
   <div class="form__actions">
     <%= f.submit class: "btn btn--primary" %>

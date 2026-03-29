@@ -1,25 +1,25 @@
 class HeartbeatScheduleManager
-  TASK_KEY_PREFIX = "agent_heartbeat_".freeze
+  TASK_KEY_PREFIX = "role_heartbeat_".freeze
 
   class_attribute :task_store
   self.task_store = nil
 
-  def self.sync(agent)
-    new(agent).sync
+  def self.sync(role)
+    new(role).sync
   end
 
-  def self.remove(agent)
-    new(agent).remove
+  def self.remove(role)
+    new(role).remove
   end
 
-  def initialize(agent)
-    @agent = agent
+  def initialize(role)
+    @role = role
   end
 
   def sync
     return unless solid_queue_available?
 
-    if @agent.heartbeat_scheduled?
+    if @role.heartbeat_scheduled?
       upsert_recurring_task
     else
       remove
@@ -49,21 +49,21 @@ class HeartbeatScheduleManager
   end
 
   def task_key
-    "#{TASK_KEY_PREFIX}#{@agent.id}"
+    "#{TASK_KEY_PREFIX}#{@role.id}"
   end
 
   def schedule_expression
-    "every #{@agent.heartbeat_interval} minutes"
+    "every #{@role.heartbeat_interval} minutes"
   end
 
   def upsert_recurring_task
     task = find_recurring_task || recurring_task_class.new(key: task_key)
     task.assign_attributes(
-      class_name: "AgentHeartbeatJob",
+      class_name: "RoleHeartbeatJob",
       schedule: schedule_expression,
-      arguments: [ @agent.id ],
+      arguments: [ @role.id ],
       static: false,
-      description: "Heartbeat for agent: #{@agent.name} (#{@agent.id})"
+      description: "Heartbeat for role: #{@role.title} (#{@role.id})"
     )
     task.save!
     task

@@ -7,7 +7,7 @@ class TaskTest < ActiveSupport::TestCase
     @company = companies(:acme)
     @other_company = companies(:widgets)
     @user = users(:one)
-    @agent = agents(:claude_agent)
+    @role = roles(:cto)
     @task = tasks(:design_homepage)
   end
 
@@ -37,8 +37,8 @@ class TaskTest < ActiveSupport::TestCase
   end
 
   test "invalid when assignee belongs to different company" do
-    other_agent = agents(:widgets_agent)
-    task = Task.new(title: "Bad Assignee", company: @company, creator: @user, assignee: other_agent)
+    other_role = roles(:widgets_lead)
+    task = Task.new(title: "Bad Assignee", company: @company, creator: @user, assignee: other_role)
     assert_not task.valid?
     assert_includes task.errors[:assignee], "must belong to the same company"
   end
@@ -101,8 +101,8 @@ class TaskTest < ActiveSupport::TestCase
     assert_equal users(:one), @task.creator
   end
 
-  test "belongs to assignee (Agent, optional)" do
-    assert_equal @agent, @task.assignee
+  test "belongs to assignee (Role, optional)" do
+    assert_equal @role, @task.assignee
     assert_nil tasks(:write_tests).assignee
   end
 
@@ -232,10 +232,10 @@ class TaskTest < ActiveSupport::TestCase
     end
   end
 
-  test "destroying agent nullifies assignee_id" do
+  test "destroying role nullifies assignee_id" do
     task = tasks(:design_homepage)
     assert_not_nil task.assignee_id
-    agents(:claude_agent).destroy
+    roles(:cto).destroy
     task.reload
     assert_nil task.assignee_id
   end
@@ -302,9 +302,9 @@ class TaskTest < ActiveSupport::TestCase
   # --- Goal evaluation trigger ---
 
   test "enqueues goal evaluation job when task completes and has goal" do
-    agent = agents(:claude_agent)
+    role = roles(:cto)
     goal = goals(:acme_objective_one)
-    task = Task.create!(title: "Eval trigger test", company: companies(:acme), assignee: agent, goal: goal, status: :open)
+    task = Task.create!(title: "Eval trigger test", company: companies(:acme), assignee: role, goal: goal, status: :open)
 
     assert_enqueued_with(job: EvaluateGoalAlignmentJob) do
       task.update!(status: :completed)
@@ -312,8 +312,8 @@ class TaskTest < ActiveSupport::TestCase
   end
 
   test "does not enqueue goal evaluation when task has no goal" do
-    agent = agents(:claude_agent)
-    task = Task.create!(title: "No goal trigger test", company: companies(:acme), assignee: agent, status: :open)
+    role = roles(:cto)
+    task = Task.create!(title: "No goal trigger test", company: companies(:acme), assignee: role, status: :open)
 
     assert_no_enqueued_jobs(only: EvaluateGoalAlignmentJob) do
       task.update!(status: :completed)
@@ -321,9 +321,9 @@ class TaskTest < ActiveSupport::TestCase
   end
 
   test "does not enqueue goal evaluation when task is not completed" do
-    agent = agents(:claude_agent)
+    role = roles(:cto)
     goal = goals(:acme_objective_one)
-    task = Task.create!(title: "Not completed test", company: companies(:acme), assignee: agent, goal: goal, status: :open)
+    task = Task.create!(title: "Not completed test", company: companies(:acme), assignee: role, goal: goal, status: :open)
 
     assert_no_enqueued_jobs(only: EvaluateGoalAlignmentJob) do
       task.update!(status: :in_progress)

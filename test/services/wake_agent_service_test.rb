@@ -1,19 +1,19 @@
 require "test_helper"
 
-class WakeAgentServiceTest < ActiveSupport::TestCase
+class WakeRoleServiceTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
 
   setup do
-    @http_agent = agents(:http_agent)
-    @process_agent = agents(:process_agent)
-    @claude_agent = agents(:claude_agent)
+    @developer = roles(:developer)
+    @process_role = roles(:process_role)
+    @cto = roles(:cto)
     # Clear active fixture runs so the idempotency guard doesn't block test dispatches
-    AgentRun.active.delete_all
+    RoleRun.active.delete_all
   end
 
-  test "creates heartbeat event for http agent with delivered status" do
-    event = WakeAgentService.call(
-      agent: @http_agent,
+  test "creates heartbeat event for http role with delivered status" do
+    event = WakeRoleService.call(
+      role: @developer,
       trigger_type: :scheduled,
       trigger_source: "schedule"
     )
@@ -24,9 +24,9 @@ class WakeAgentServiceTest < ActiveSupport::TestCase
     assert event.delivered_at.present?
   end
 
-  test "creates heartbeat event for process agent with queued status" do
-    event = WakeAgentService.call(
-      agent: @process_agent,
+  test "creates heartbeat event for process role with queued status" do
+    event = WakeRoleService.call(
+      role: @process_role,
       trigger_type: :task_assigned,
       trigger_source: "Task#42"
     )
@@ -36,9 +36,9 @@ class WakeAgentServiceTest < ActiveSupport::TestCase
     assert_equal "Task#42", event.trigger_source
   end
 
-  test "creates heartbeat event for claude_local agent with queued status" do
-    event = WakeAgentService.call(
-      agent: @claude_agent,
+  test "creates heartbeat event for claude_local role with queued status" do
+    event = WakeRoleService.call(
+      role: @cto,
       trigger_type: :mention,
       trigger_source: "Message#7"
     )
@@ -47,21 +47,21 @@ class WakeAgentServiceTest < ActiveSupport::TestCase
     assert event.mention?
   end
 
-  test "updates agent last_heartbeat_at" do
-    assert_changes -> { @http_agent.reload.last_heartbeat_at } do
-      WakeAgentService.call(agent: @http_agent, trigger_type: :scheduled)
+  test "updates role last_heartbeat_at" do
+    assert_changes -> { @developer.reload.last_heartbeat_at } do
+      WakeRoleService.call(role: @developer, trigger_type: :scheduled)
     end
   end
 
-  test "returns nil for terminated agent" do
-    @http_agent.update_column(:status, Agent.statuses[:terminated])
-    result = WakeAgentService.call(agent: @http_agent, trigger_type: :scheduled)
+  test "returns nil for terminated role" do
+    @developer.update_column(:status, Role.statuses[:terminated])
+    result = WakeRoleService.call(role: @developer, trigger_type: :scheduled)
     assert_nil result
   end
 
   test "request_payload includes trigger context" do
-    event = WakeAgentService.call(
-      agent: @http_agent,
+    event = WakeRoleService.call(
+      role: @developer,
       trigger_type: :task_assigned,
       trigger_source: "Task#99",
       context: { task_id: 99, task_title: "Do something" }
@@ -69,63 +69,63 @@ class WakeAgentServiceTest < ActiveSupport::TestCase
     assert_equal "task_assigned", event.request_payload["trigger"]
     assert_equal 99, event.request_payload["task_id"]
     assert_equal "Do something", event.request_payload["task_title"]
-    assert_equal @http_agent.id, event.request_payload["agent_id"]
+    assert_equal @developer.id, event.request_payload["role_id"]
   end
 
   test "increments heartbeat_event count" do
     assert_difference -> { HeartbeatEvent.count }, 1 do
-      WakeAgentService.call(agent: @http_agent, trigger_type: :scheduled)
+      WakeRoleService.call(role: @developer, trigger_type: :scheduled)
     end
   end
 
-  # --- AgentRun creation ---
+  # --- RoleRun creation ---
 
-  test "creates AgentRun record when waking agent" do
-    assert_difference -> { AgentRun.count }, 1 do
-      WakeAgentService.call(
-        agent: @http_agent,
+  test "creates RoleRun record when waking role" do
+    assert_difference -> { RoleRun.count }, 1 do
+      WakeRoleService.call(
+        role: @developer,
         trigger_type: :task_assigned,
         trigger_source: "Task#99",
         context: { task_id: tasks(:fix_login_bug).id }
       )
     end
 
-    run = AgentRun.last
+    run = RoleRun.last
     assert run.queued?
-    assert_equal @http_agent, run.agent
+    assert_equal @developer, run.role
     assert_equal tasks(:fix_login_bug), run.task
-    assert_equal @http_agent.company_id, run.company_id
+    assert_equal @developer.company_id, run.company_id
     assert_equal "task_assigned", run.trigger_type
   end
 
-  test "creates AgentRun with nil task for taskless triggers" do
-    WakeAgentService.call(
-      agent: @claude_agent,
+  test "creates RoleRun with nil task for taskless triggers" do
+    WakeRoleService.call(
+      role: @cto,
       trigger_type: :scheduled,
       trigger_source: "schedule"
     )
 
-    run = AgentRun.last
+    run = RoleRun.last
     assert run.queued?
     assert_nil run.task
     assert_equal "scheduled", run.trigger_type
   end
 
-  test "enqueues ExecuteAgentJob when waking agent" do
-    assert_enqueued_with(job: ExecuteAgentJob, queue: "execution") do
-      WakeAgentService.call(
-        agent: @http_agent,
+  test "enqueues ExecuteRoleJob when waking role" do
+    assert_enqueued_with(job: ExecuteRoleJob, queue: "execution") do
+      WakeRoleService.call(
+        role: @developer,
         trigger_type: :task_assigned,
         context: { task_id: tasks(:fix_login_bug).id }
       )
     end
   end
 
-  test "creates both HeartbeatEvent and AgentRun" do
+  test "creates both HeartbeatEvent and RoleRun" do
     assert_difference -> { HeartbeatEvent.count }, 1 do
-      assert_difference -> { AgentRun.count }, 1 do
-        WakeAgentService.call(
-          agent: @http_agent,
+      assert_difference -> { RoleRun.count }, 1 do
+        WakeRoleService.call(
+          role: @developer,
           trigger_type: :task_assigned,
           context: { task_id: tasks(:fix_login_bug).id }
         )
@@ -133,21 +133,21 @@ class WakeAgentServiceTest < ActiveSupport::TestCase
     end
   end
 
-  test "does not create AgentRun for terminated agent" do
-    @http_agent.update_column(:status, Agent.statuses[:terminated])
-    assert_no_difference -> { AgentRun.count } do
-      WakeAgentService.call(agent: @http_agent, trigger_type: :scheduled)
+  test "does not create RoleRun for terminated role" do
+    @developer.update_column(:status, Role.statuses[:terminated])
+    assert_no_difference -> { RoleRun.count } do
+      WakeRoleService.call(role: @developer, trigger_type: :scheduled)
     end
   end
 
   test "handles string task_id from context" do
-    WakeAgentService.call(
-      agent: @http_agent,
+    WakeRoleService.call(
+      role: @developer,
       trigger_type: :task_assigned,
       context: { "task_id" => tasks(:fix_login_bug).id.to_s }
     )
 
-    run = AgentRun.last
+    run = RoleRun.last
     assert_equal tasks(:fix_login_bug), run.task
   end
 end

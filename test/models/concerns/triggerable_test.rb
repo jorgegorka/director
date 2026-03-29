@@ -4,9 +4,9 @@ class TriggerableTaskTest < ActiveSupport::TestCase
   setup do
     @company = companies(:acme)
     @user = users(:one)
-    @http_agent = agents(:http_agent)
-    @claude_agent = agents(:claude_agent)
-    @process_agent = agents(:process_agent)
+    @developer = roles(:developer)
+    @cto = roles(:cto)
+    @process_role = roles(:process_role)
   end
 
   # --- Task Assignment Triggers ---
@@ -14,15 +14,15 @@ class TriggerableTaskTest < ActiveSupport::TestCase
   test "creating a task with assignee triggers wake event" do
     assert_difference -> { HeartbeatEvent.count }, 1 do
       Task.create!(
-        title: "New task for agent",
+        title: "New task for role",
         company: @company,
         creator: @user,
-        assignee: @http_agent
+        assignee: @developer
       )
     end
     event = HeartbeatEvent.last
     assert event.task_assigned?
-    assert_equal @http_agent, event.agent
+    assert_equal @developer, event.role
     assert_match(/Task#/, event.trigger_source)
   end
 
@@ -36,27 +36,27 @@ class TriggerableTaskTest < ActiveSupport::TestCase
     end
   end
 
-  test "assigning agent to existing task triggers wake event" do
+  test "assigning role to existing task triggers wake event" do
     task = Task.create!(title: "Unassigned", company: @company, creator: @user)
     assert_difference -> { HeartbeatEvent.count }, 1 do
-      task.update!(assignee: @claude_agent)
+      task.update!(assignee: @cto)
     end
     event = HeartbeatEvent.last
     assert event.task_assigned?
-    assert_equal @claude_agent, event.agent
+    assert_equal @cto, event.role
     assert_equal "Task##{task.id}", event.trigger_source
   end
 
-  test "reassigning task to different agent triggers wake for new agent" do
-    task = Task.create!(title: "Assigned", company: @company, creator: @user, assignee: @http_agent)
+  test "reassigning task to different role triggers wake for new role" do
+    task = Task.create!(title: "Assigned", company: @company, creator: @user, assignee: @developer)
     # Clear events from initial creation
     HeartbeatEvent.delete_all
 
     assert_difference -> { HeartbeatEvent.count }, 1 do
-      task.update!(assignee: @claude_agent)
+      task.update!(assignee: @cto)
     end
     event = HeartbeatEvent.last
-    assert_equal @claude_agent, event.agent
+    assert_equal @cto, event.role
   end
 
   test "updating task without changing assignee does not trigger wake" do
@@ -67,7 +67,7 @@ class TriggerableTaskTest < ActiveSupport::TestCase
   end
 
   test "unassigning task (setting assignee to nil) does not trigger wake" do
-    task = Task.create!(title: "Assigned", company: @company, creator: @user, assignee: @http_agent)
+    task = Task.create!(title: "Assigned", company: @company, creator: @user, assignee: @developer)
     HeartbeatEvent.delete_all
 
     assert_no_difference -> { HeartbeatEvent.count } do
@@ -75,21 +75,21 @@ class TriggerableTaskTest < ActiveSupport::TestCase
     end
   end
 
-  test "does not trigger wake for terminated agent" do
-    terminated_agent = Agent.create!(
-      name: "Dead Agent",
+  test "does not trigger wake for terminated role" do
+    terminated_role = Role.create!(
+      title: "Dead Role",
       company: @company,
       adapter_type: :http,
       adapter_config: { "url" => "https://example.com" },
       status: :terminated
     )
     assert_no_difference -> { HeartbeatEvent.count } do
-      Task.create!(title: "Task for dead", company: @company, creator: @user, assignee: terminated_agent)
+      Task.create!(title: "Task for dead", company: @company, creator: @user, assignee: terminated_role)
     end
   end
 
   test "task assignment trigger includes task context" do
-    task = Task.create!(title: "Important work", company: @company, creator: @user, assignee: @http_agent)
+    task = Task.create!(title: "Important work", company: @company, creator: @user, assignee: @developer)
     event = HeartbeatEvent.last
     assert_equal task.id, event.request_payload["task_id"]
     assert_equal "Important work", event.request_payload["task_title"]
@@ -101,23 +101,23 @@ class TriggerableMentionTest < ActiveSupport::TestCase
     @company = companies(:acme)
     @user = users(:one)
     @task = tasks(:design_homepage)
-    @http_agent = agents(:http_agent)
-    @claude_agent = agents(:claude_agent)
+    @developer = roles(:developer)
+    @cto = roles(:cto)
   end
 
   # --- Message @Mention Triggers ---
 
-  test "message mentioning agent triggers wake event" do
+  test "message mentioning role triggers wake event" do
     assert_difference -> { HeartbeatEvent.count }, 1 do
       Message.create!(
         task: @task,
         author: @user,
-        body: "Hey @API Bot can you check this?"
+        body: "Hey @Senior Developer can you check this?"
       )
     end
     event = HeartbeatEvent.last
     assert event.mention?
-    assert_equal @http_agent, event.agent
+    assert_equal @developer, event.role
     assert_match(/Message#/, event.trigger_source)
   end
 
@@ -131,12 +131,12 @@ class TriggerableMentionTest < ActiveSupport::TestCase
     end
   end
 
-  test "message mentioning multiple agents triggers multiple wake events" do
+  test "message mentioning multiple roles triggers multiple wake events" do
     assert_difference -> { HeartbeatEvent.count }, 2 do
       Message.create!(
         task: @task,
         author: @user,
-        body: "Hey @API Bot and @Claude Assistant please review"
+        body: "Hey @Senior Developer and @CTO please review"
       )
     end
   end
@@ -146,14 +146,14 @@ class TriggerableMentionTest < ActiveSupport::TestCase
       Message.create!(
         task: @task,
         author: @user,
-        body: "Hey @api bot what do you think?"
+        body: "Hey @senior developer what do you think?"
       )
     end
     event = HeartbeatEvent.last
-    assert_equal @http_agent, event.agent
+    assert_equal @developer, event.role
   end
 
-  test "mention of non-existent agent name does not trigger" do
+  test "mention of non-existent role title does not trigger" do
     assert_no_difference -> { HeartbeatEvent.count } do
       Message.create!(
         task: @task,
@@ -163,23 +163,23 @@ class TriggerableMentionTest < ActiveSupport::TestCase
     end
   end
 
-  test "mention of agent from different company does not trigger" do
+  test "mention of role from different company does not trigger" do
     assert_no_difference -> { HeartbeatEvent.count } do
       Message.create!(
         task: @task,
         author: @user,
-        body: "Hey @Widget Bot can you help?"
+        body: "Hey @Operations Lead can you help?"
       )
     end
   end
 
-  test "mention does not trigger for terminated agent" do
-    @http_agent.update_column(:status, Agent.statuses[:terminated])
+  test "mention does not trigger for terminated role" do
+    @developer.update_column(:status, Role.statuses[:terminated])
     assert_no_difference -> { HeartbeatEvent.count } do
       Message.create!(
         task: @task,
         author: @user,
-        body: "Hey @API Bot are you there?"
+        body: "Hey @Senior Developer are you there?"
       )
     end
   end
@@ -188,7 +188,7 @@ class TriggerableMentionTest < ActiveSupport::TestCase
     msg = Message.create!(
       task: @task,
       author: @user,
-      body: "Hey @API Bot review this"
+      body: "Hey @Senior Developer review this"
     )
     event = HeartbeatEvent.last
     assert_equal msg.id, event.request_payload["message_id"]

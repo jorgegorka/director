@@ -7,7 +7,7 @@
     <%= task_priority_badge(task) %>
     <span class="task-card__assignee">
       <% if task.assignee.present? %>
-        <%= link_to task.assignee.name, agent_path(task.assignee) %>
+        <%= link_to task.assignee.title, role_path(task.assignee) %>
       <% else %>
         <span class="task-card__unassigned">Unassigned</span>
       <% end %>

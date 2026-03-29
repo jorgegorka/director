@@ -3,25 +3,25 @@ module Triggerable
 
   private
 
-  def trigger_agent_wake(agent:, trigger_type:, trigger_source:, context: {})
-    return if agent.nil? || agent.terminated?
+  def trigger_role_wake(role:, trigger_type:, trigger_source:, context: {})
+    return if role.nil? || role.terminated?
 
-    WakeAgentService.call(
-      agent: agent,
+    WakeRoleService.call(
+      role: role,
       trigger_type: trigger_type,
       trigger_source: trigger_source,
       context: context
     )
   end
 
-  # Uses substring matching to support multi-word agent names (e.g. "@API Bot")
+  # Uses substring matching to support multi-word role titles (e.g. "@API Bot")
   def detect_mentions(text, company)
     return [] if text.blank? || company.nil?
     return [] unless text.include?("@")
 
     text_downcased = text.downcase
-    company.agents.active.select do |agent|
-      text_downcased.include?("@#{agent.name.downcase}")
+    company.roles.active.select do |role|
+      text_downcased.include?("@#{role.title.downcase}")
     end
   end
 end
