@@ -5,15 +5,16 @@
 See: .ariadna_planning/PROJECT.md (updated 2026-03-28)
 
 **Core value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
-**Current focus:** v1.4 Agent Execution SHIPPED. Planning next milestone.
+**Current focus:** v1.5 Role Templates — builtin department structures users can apply to their companies.
 
 ## Current Position
 
-Phase: All 25 phases complete across 4 milestones (v1.0-v1.4)
-Status: v1.4 shipped 2026-03-28. Ready for next milestone.
-Last activity: 2026-03-28 -- v1.4 milestone archived
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-29 — Milestone v1.5 started
 
-Progress: [██████████████████████████] 100% (25/25 phases, 47 plans complete)
+Progress: [░░░░░░░░░░░░░░░░░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
@@ -99,7 +100,7 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-28
-Stopped at: v1.4 milestone archived. All 25 phases, 47 plans complete. 1124 tests passing.
+Last session: 2026-03-29
+Stopped at: v1.5 milestone started, defining requirements.
 Resume file: --
-Next step: `/ariadna:new-milestone` to plan v1.5
+Next step: Complete requirements → roadmap

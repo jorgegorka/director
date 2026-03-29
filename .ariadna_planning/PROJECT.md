@@ -56,7 +56,15 @@ Users can organize AI agents into a functioning company structure and confidentl
 
 ### Active
 
-(None yet — planning next milestone)
+<!-- Current scope: v1.5 Role Templates -->
+
+- [ ] Builtin YAML role templates shipped with the app (3-5 core departments)
+- [ ] Each template defines a full department hierarchy with titles, descriptions, job specs, and skill assignments
+- [ ] Templates are stackable — multiple departments can be applied to the same company
+- [ ] Apply-then-edit workflow — one click creates the whole department
+- [ ] Skip-duplicate logic — existing roles by title are not recreated
+- [ ] Dedicated templates browse page with preview and apply
+- [ ] Templates attach under CEO (root role)
 
 ### Out of Scope
 
@@ -100,6 +108,17 @@ Users can organize AI agents into a functioning company structure and confidentl
 | tmux for Claude subprocess management | Real TTY (solves stdout buffering), session persistence, zombie-free lifecycle, no new gems | ✓ Good — clean process isolation, session naming by run ID |
 | No new gems for v1.4 | Net::HTTP (stdlib), tmux (system dep), Turbo::StreamsChannel (already in Gemfile) | ✓ Good — zero dependency growth |
 
+## Current Milestone: v1.5 Role Templates
+
+**Goal:** Add builtin role templates — predefined department structures (Engineering, Marketing, Operations, Finance, HR) that users can apply to their companies with one click, creating full hierarchies with job specs and skill assignments.
+
+**Target features:**
+- Builtin YAML template definitions (3-5 departments)
+- Template browse page with department preview
+- One-click apply with skip-duplicate logic
+- Pre-assigned skills and full job specs on template roles
+- Stackable — multiple departments under the same CEO
+
 ## Current State
 
 **Shipped:** v1.0 (Core Platform) + v1.1 (SQLite Migration) + v1.2 (Agent Skills) + v1.3 (Agent Hooks) + v1.4 (Agent Execution)
@@ -113,4 +132,4 @@ Users can organize AI agents into a functioning company structure and confidentl
 - tmux availability not verified in Docker image (deployment dependency)
 
 ---
-*Last updated: 2026-03-28 after v1.4 milestone*
+*Last updated: 2026-03-29 after v1.5 milestone start*
