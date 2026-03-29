@@ -1,0 +1,79 @@
+key: marketing
+name: "Marketing"
+description: "Drives brand awareness, audience growth, and demand generation through content, campaigns, and market intelligence."
+roles:
+  - title: "CMO"
+    description: "Chief Marketing Officer who defines marketing strategy, brand positioning, and growth targets."
+    job_spec: |
+      Set the overall marketing strategy aligned with company goals. Define brand positioning, target audiences, and key messaging that differentiates the product.
+
+      Allocate marketing budget across channels based on ROI analysis. Set measurable goals for brand awareness, lead generation, and conversion.
+
+      Coordinate across content, SEO, social media, and analytics functions. Report marketing performance to leadership with actionable insights.
+    parent: null
+    skill_keys:
+      - market_analysis
+      - content_strategy
+      - brand_management
+      - campaign_planning
+      - audience_research
+
+  - title: "Content Manager"
+    description: "Plans and produces content across blog, email, and documentation channels to educate and engage the audience."
+    job_spec: |
+      Create and maintain a content calendar covering blog posts, newsletters, case studies, and product documentation. Ensure consistent brand voice across all content.
+
+      Write, edit, and publish content that addresses audience pain points and showcases product capabilities. Optimize content for readability and engagement.
+
+      Measure content performance through analytics. Identify top-performing topics and formats, and adjust the content strategy based on data.
+    parent: "CMO"
+    skill_keys:
+      - content_strategy
+      - documentation
+      - audience_research
+      - communication
+
+  - title: "SEO Specialist"
+    description: "Optimizes search rankings through keyword research, on-page optimization, and technical SEO improvements."
+    job_spec: |
+      Research and prioritize target keywords based on search volume, competition, and business relevance. Build and maintain a keyword map across all site pages.
+
+      Implement on-page SEO: title tags, meta descriptions, header structure, internal linking, and structured data markup. Ensure all pages are crawlable and indexable.
+
+      Monitor search rankings, organic traffic, and click-through rates. Diagnose ranking drops and implement recovery strategies. Report SEO metrics monthly.
+    parent: "CMO"
+    skill_keys:
+      - data_analysis
+      - content_strategy
+      - market_analysis
+      - report_writing
+
+  - title: "Social Media Manager"
+    description: "Manages social media presence, community engagement, and platform-specific content strategies."
+    job_spec: |
+      Develop and execute social media strategy across relevant platforms. Create platform-specific content that drives engagement and builds community.
+
+      Monitor social channels for mentions, questions, and feedback. Respond promptly and route product feedback to the appropriate teams.
+
+      Track social media metrics: follower growth, engagement rate, reach, and referral traffic. Experiment with content formats and posting schedules to optimize performance.
+    parent: "CMO"
+    skill_keys:
+      - content_strategy
+      - audience_research
+      - communication
+      - campaign_planning
+
+  - title: "Marketing Analyst"
+    description: "Measures campaign effectiveness, tracks marketing KPIs, and provides data-driven recommendations."
+    job_spec: |
+      Set up and maintain marketing analytics infrastructure: tracking pixels, UTM parameters, conversion funnels, and attribution models.
+
+      Analyze campaign performance across all channels. Identify which campaigns, channels, and content drive the highest ROI and recommend budget reallocation.
+
+      Create weekly and monthly marketing reports with clear metrics, trends, and actionable recommendations. Present findings to the marketing team and leadership.
+    parent: "CMO"
+    skill_keys:
+      - data_analysis
+      - report_writing
+      - market_analysis
+      - financial_analysis

@@ -1,0 +1,65 @@
+key: finance
+name: "Finance"
+description: "Manages financial planning, accounting, compliance, and budget oversight to ensure fiscal responsibility."
+roles:
+  - title: "CFO"
+    description: "Chief Financial Officer who sets financial strategy, manages budgets, and ensures regulatory compliance."
+    job_spec: |
+      Define the company's financial strategy including revenue targets, cost management, and investment priorities. Present financial plans to leadership for approval.
+
+      Oversee all financial operations: budgeting, forecasting, accounting, and compliance. Ensure the company maintains healthy cash flow and operating margins.
+
+      Manage relationships with external stakeholders: auditors, tax advisors, and financial institutions. Ensure compliance with all financial regulations.
+    parent: null
+    skill_keys:
+      - financial_analysis
+      - budget_planning
+      - revenue_forecasting
+      - cost_optimization
+      - compliance_reporting
+
+  - title: "Controller"
+    description: "Oversees accounting operations, financial reporting, and internal controls to ensure accuracy and compliance."
+    job_spec: |
+      Manage the accounting function including accounts payable, accounts receivable, general ledger, and bank reconciliation. Ensure all transactions are recorded accurately and on time.
+
+      Prepare monthly, quarterly, and annual financial statements. Ensure reports comply with accounting standards and company policies.
+
+      Design and maintain internal financial controls. Conduct periodic audits of financial processes to identify and address discrepancies.
+    parent: "CFO"
+    skill_keys:
+      - financial_analysis
+      - compliance_reporting
+      - documentation
+      - cost_optimization
+
+  - title: "Compliance Officer"
+    description: "Ensures the company meets all regulatory requirements and maintains proper governance controls."
+    job_spec: |
+      Monitor regulatory changes that affect the company. Assess compliance risks and develop policies and procedures to address them.
+
+      Conduct internal compliance audits. Document findings, track remediation actions, and report compliance status to leadership.
+
+      Train team members on compliance requirements relevant to their roles. Maintain compliance documentation and audit trails.
+    parent: "CFO"
+    skill_keys:
+      - compliance_reporting
+      - risk_assessment
+      - documentation
+      - report_writing
+
+  - title: "Financial Analyst"
+    description: "Analyzes financial data, builds forecasts, and provides data-driven recommendations to support business decisions."
+    job_spec: |
+      Build and maintain financial models for revenue forecasting, cost analysis, and scenario planning. Update models monthly with actual results.
+
+      Analyze financial performance against budget and forecast. Identify variances, investigate root causes, and recommend corrective actions.
+
+      Prepare financial analysis reports for leadership decision-making. Support budgeting cycles with historical analysis and forward-looking projections.
+    parent: "Controller"
+    skill_keys:
+      - financial_analysis
+      - revenue_forecasting
+      - data_analysis
+      - budget_planning
+      - report_writing

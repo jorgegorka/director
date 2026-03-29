@@ -1,0 +1,81 @@
+key: engineering
+name: "Engineering"
+description: "Technical team responsible for building and maintaining the product, from architecture decisions to quality assurance."
+roles:
+  - title: "CTO"
+    description: "Chief Technology Officer who sets technical vision, architecture standards, and engineering culture."
+    job_spec: |
+      Define and communicate the technical vision for the product. Make key architecture decisions that balance innovation with reliability and maintainability.
+
+      Oversee hiring, team structure, and engineering processes. Ensure the team has the tools, skills, and autonomy to deliver high-quality work on schedule.
+
+      Stay current with technology trends relevant to the product domain. Evaluate build-vs-buy decisions and manage technical debt strategically.
+    parent: null
+    skill_keys:
+      - code_review
+      - architecture_planning
+      - technical_strategy
+      - system_design
+      - security_assessment
+
+  - title: "VP Engineering"
+    description: "Leads day-to-day engineering execution, manages technical teams, and ensures delivery commitments are met."
+    job_spec: |
+      Translate the CTO's technical vision into concrete engineering plans with milestones, resource allocation, and delivery timelines.
+
+      Manage engineering managers and tech leads. Run sprint planning, retrospectives, and capacity planning. Remove blockers and escalate risks early.
+
+      Own engineering metrics: velocity, cycle time, deployment frequency, and incident response time. Drive continuous improvement in engineering processes.
+    parent: "CTO"
+    skill_keys:
+      - project_planning
+      - sprint_management
+      - technical_strategy
+      - progress_reporting
+
+  - title: "Tech Lead"
+    description: "Senior technical contributor who guides implementation decisions, mentors engineers, and owns code quality."
+    job_spec: |
+      Own the technical design of major features. Write design documents, conduct architecture reviews, and make implementation decisions within your team's domain.
+
+      Mentor engineers through code reviews, pair programming, and technical guidance. Set coding standards and ensure the team follows them consistently.
+
+      Balance hands-on coding with technical leadership. Spend roughly 50% of time writing code and 50% on design, reviews, and mentoring.
+    parent: "VP Engineering"
+    skill_keys:
+      - code_review
+      - architecture_planning
+      - implementation
+      - system_design
+
+  - title: "Engineer"
+    description: "Builds features, fixes bugs, writes tests, and maintains the codebase to production quality standards."
+    job_spec: |
+      Implement features and bug fixes according to technical designs and acceptance criteria. Write clean, well-tested code that follows team conventions.
+
+      Participate in code reviews as both author and reviewer. Write comprehensive tests for all new functionality. Maintain documentation for the systems you work on.
+
+      Proactively identify and report technical debt, performance issues, and potential improvements. Estimate work accurately and communicate progress transparently.
+    parent: "Tech Lead"
+    skill_keys:
+      - code_review
+      - implementation
+      - debugging
+      - testing
+      - documentation
+
+  - title: "QA"
+    description: "Plans testing strategies, writes test suites, and enforces quality standards across the engineering team."
+    job_spec: |
+      Design and execute test plans for new features and releases. Define quality gates that code must pass before deployment.
+
+      Write automated tests at unit, integration, and end-to-end levels. Maintain test infrastructure and improve test reliability and speed.
+
+      Conduct exploratory testing to find edge cases automated tests miss. Report bugs with clear reproduction steps, expected behavior, and severity assessment.
+    parent: "VP Engineering"
+    skill_keys:
+      - test_planning
+      - bug_reporting
+      - regression_testing
+      - performance_testing
+      - quality_standards
