@@ -3,7 +3,10 @@
 <section class="roles-page">
   <div class="roles-page__header">
     <h1>Roles</h1>
-    <%= link_to "New Role", new_role_path, class: "btn btn--primary btn--sm" %>
+    <div class="roles-page__actions">
+      <%= link_to "Browse Templates", role_templates_path, class: "btn btn--ghost btn--sm" %>
+      <%= link_to "New Role", new_role_path, class: "btn btn--primary btn--sm" %>
+    </div>
   </div>
 
   <% if @roles.any? %>
@@ -14,8 +17,9 @@
     </div>
   <% else %>
     <div class="roles-page__empty">
-      <p>No roles yet. Create your first role to start building your org chart.</p>
-      <%= link_to "Create a role", new_role_path, class: "btn btn--primary" %>
+      <p>No roles yet. Create your first role or apply a department template to get started.</p>
+      <%= link_to "Browse Templates", role_templates_path, class: "btn btn--primary" %>
+      <%= link_to "Create a role", new_role_path, class: "btn btn--ghost" %>
     </div>
   <% end %>
 </section>
