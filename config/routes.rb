@@ -44,6 +44,13 @@ Rails.application.routes.draw do
   end
   resource :org_chart, only: [ :show ]
 
+  # Role Templates (browse and apply department templates)
+  resources :role_templates, only: [ :index, :show ] do
+    member do
+      post :apply
+    end
+  end
+
   # Skills (scoped to active company via Current.company)
   resources :skills do
     resources :skill_documents, only: [ :create, :destroy ]
