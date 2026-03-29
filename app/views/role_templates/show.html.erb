@@ -40,7 +40,7 @@
           </div>
           <% child_roles = children_map[role.title] || [] %>
           <% if child_roles.any? %>
-            <% new_prefix = prefix.empty? ? "" : prefix + (is_last ? "&nbsp;&nbsp;&nbsp; " : "&#9474;&nbsp;&nbsp; ") %>
+            <% new_prefix = prefix + (is_last ? "&nbsp;&nbsp;&nbsp;&nbsp;" : "&#9474;&nbsp;&nbsp;&nbsp;") %>
             <% render_tree.call(child_roles, new_prefix) %>
           <% end %>
         <% end %>
