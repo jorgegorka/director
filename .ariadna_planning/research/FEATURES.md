@@ -1,287 +1,427 @@
-# Feature Landscape: Agent Execution (v1.4)
+# Feature Landscape: Role Templates (Builtin Department Hierarchies)
 
-**Domain:** Agent execution platform — subprocess lifecycle, streaming output, HTTP delivery, result callbacks
-**Researched:** 2026-03-28
-**Milestone scope:** Claude Local adapter execution, HTTP adapter delivery, live streaming UI, autonomous execution loop
-
----
+**Domain:** AI agent company orchestration -- department template system
+**Researched:** 2026-03-29
+**Overall confidence:** HIGH (grounded in existing codebase analysis + industry patterns)
 
 ## Table Stakes
 
-Features that users expect from any real agent execution system. Missing = product feels incomplete or fake.
+Features users expect from a template system. Missing = templates feel incomplete or unusable.
 
 | Feature | Why Expected | Complexity | Dependencies |
 |---------|--------------|------------|--------------|
-| Claude CLI subprocess spawning | Core promise of claude_local adapter — currently stubbed | High | ANTHROPIC_API_KEY, claude binary on PATH |
-| Streaming output to task view | Agents visibly "working" is essential UX signal | High | Action Cable channel, task show view |
-| HTTP POST delivery in WakeAgentService | http adapter currently fakes delivery — wire it up | Medium | Net::HTTP already used in ExecuteHookService |
-| Agent status transitions during execution | idle → running → idle/error must reflect real execution state | Medium | Agent.status enum already exists |
-| Result posting back to task messages | Agent reports completion by creating a Message on the task | Medium | Message model, API auth already exist |
-| Task status update via API callback | Agent marks task in_progress/completed via callback | Medium | API auth, Task.status enum already exist |
-| Error capture and storage | Subprocess stderr, HTTP failures, timeouts recorded durably | Medium | HeartbeatEvent.metadata already stores errors |
-| Session ID persistence for Claude | claude -p returns session_id in JSON result — store it | Medium | adapter_config JSON column on Agent |
+| Pre-built department hierarchies (5 departments) | Core value prop -- users skip manual org chart setup | Medium | Role model with parent_id |
+| Stackable application | Users apply multiple departments incrementally | Low | Unique title constraint per company |
+| Duplicate-skip on re-application | Applying "Engineering" twice should not create duplicate roles | Low | Role title uniqueness scope: company_id |
+| CEO as shared root node | All departments report to CEO; CEO created once, reused | Low | TreeHierarchy concern |
+| Skill auto-assignment per template role | Roles come pre-wired with relevant builtin skills | Low | Existing default_skills.yml + assign_default_skills |
+| Role descriptions and job specs | Every template role has a meaningful description and job_spec | Medium (content) | Role model description/job_spec fields |
+| Correct reporting lines within departments | VP Engineering -> CTO, not VP Engineering -> CEO | Low | parent_id FK |
+| Template preview before applying | Users see what will be created before committing | Low | Read-only rendering of YAML |
+| Idempotent application | Safe to run multiple times without side effects | Low | find_or_create_by on title+company_id |
+| Flash feedback after apply | User sees "Created 7 roles, skipped 2 existing" | Low | Service tracks created vs found counts |
+
+## Department Templates -- Concrete Structures
+
+Each template below is designed to be written as a single YAML file. The hierarchy uses 3-4 levels: C-suite -> VP/Director -> Manager/Lead -> Individual Contributor. This mirrors both traditional org structures and how AI agent platforms (Paperclip, CrewAI) model hierarchical delegation chains.
+
+**Design principle:** Keep departments at 4-8 roles each. Too few roles and the template adds no value over manual creation. Too many and it overwhelms the org chart before users have agents to fill them. The Paperclip Company Wizard uses 5-12 roles per preset; we target the lower end because Director users manually connect agents to roles.
 
 ---
+
+### Department 1: Engineering
+
+**Reports to:** CEO (via CTO)
+**Roles:** 7 (including CTO)
+
+```
+CEO (shared root -- created if missing)
+  CTO
+    VP Engineering
+      Tech Lead
+      Senior Engineer
+      QA Lead
+    DevOps Engineer
+```
+
+| Role | Description | Job Spec Summary | Skills (from builtin catalog) |
+|------|-------------|------------------|-------------------------------|
+| CTO | Sets technical vision, evaluates build-vs-buy decisions, owns architecture standards | Defines technology strategy, reviews architecture decisions, evaluates technical risks, ensures engineering quality standards across the organization | technical_strategy, architecture_planning, system_design, security_assessment, decision_making |
+| VP Engineering | Manages engineering execution, sprint cadence, and team delivery | Owns engineering delivery: sprint planning, resource allocation, technical hiring priorities, cross-team coordination, engineering metrics and velocity tracking | project_planning, sprint_management, progress_reporting, requirements_gathering |
+| Tech Lead | Hands-on technical leader who reviews code, mentors engineers, and owns implementation quality | Reviews all pull requests, sets coding standards, leads technical design discussions, unblocks engineers on hard problems, owns the codebase health | code_review, implementation, system_design, debugging, documentation |
+| Senior Engineer | Primary implementer of features and systems | Implements features end-to-end, writes tests, debugs production issues, contributes to architecture discussions, mentors junior engineers | implementation, debugging, testing, code_review, documentation |
+| QA Lead | Owns quality assurance strategy and test coverage | Defines test strategy, creates test plans, runs regression testing, tracks defect trends, ensures release quality, manages performance testing | test_planning, bug_reporting, regression_testing, performance_testing, quality_standards |
+| DevOps Engineer | Owns infrastructure, CI/CD, and operational reliability | Manages deployment pipelines, monitors system health, responds to incidents, automates infrastructure provisioning, maintains uptime and performance | infrastructure_management, ci_cd_pipelines, monitoring_alerting, deployment_automation, incident_response |
+
+**Why this structure:** The CTO-as-department-head pattern matches how AI agent companies work -- the CTO makes strategic technical decisions and delegates execution through a VP. The VP handles sprint cadence and delivery. Below that, a Tech Lead owns code quality while a QA Lead owns testing. DevOps reports directly to CTO because infrastructure decisions are strategic, not just execution.
+
+**Skill mapping notes:** All skills listed exist in the current 48-skill builtin catalog. Every role maps to 4-6 skills. The `default_skills.yml` already maps `cto`, `engineer`, `qa`, and `devops` titles; the template system should extend these mappings to cover VP Engineering, Tech Lead, Senior Engineer, and QA Lead.
+
+---
+
+### Department 2: Marketing
+
+**Reports to:** CEO (via CMO)
+**Roles:** 6 (including CMO)
+
+```
+CEO (shared root)
+  CMO
+    Content Strategist
+    SEO Analyst
+    Social Media Manager
+    Brand Designer
+```
+
+| Role | Description | Job Spec Summary | Skills (from builtin catalog) |
+|------|-------------|------------------|-------------------------------|
+| CMO | Drives marketing strategy, brand positioning, and go-to-market execution | Owns marketing strategy and brand direction: market positioning, campaign portfolio management, marketing budget allocation, competitive intelligence, growth metrics | market_analysis, content_strategy, brand_management, campaign_planning, audience_research |
+| Content Strategist | Plans and creates content that drives awareness and engagement | Develops content calendar, writes blog posts and thought leadership, ensures brand voice consistency, measures content performance, manages editorial workflow | content_strategy, documentation, report_writing, communication |
+| SEO Analyst | Optimizes discoverability and organic traffic through data-driven analysis | Conducts keyword research, audits site structure for SEO, tracks ranking performance, analyzes competitor content strategies, recommends content optimizations | data_analysis, market_analysis, audience_research, report_writing |
+| Social Media Manager | Manages brand presence and engagement across social platforms | Creates and schedules social content, monitors engagement metrics, responds to community interactions, runs social campaigns, tracks brand sentiment | campaign_planning, communication, audience_research, content_strategy |
+| Brand Designer | Owns visual identity, design systems, and creative assets | Creates marketing visuals, maintains brand design system, designs campaign assets, ensures visual consistency across channels, produces presentation materials | ui_design, design_systems, prototyping, brand_management |
+
+**Why this structure:** The CMO owns strategy; below that, roles map to the core marketing functions an AI company actually needs. Content Strategist and SEO Analyst handle inbound; Social Media Manager handles distribution; Brand Designer handles visual identity. This is the "Hub-and-Agent" model described in AI marketing team research -- a senior strategist (CMO) directing specialist agents.
+
+**Skill mapping notes:** CMO skills already exist in `default_skills.yml`. Content Strategist and SEO Analyst use research + creative skills. Brand Designer reuses designer skills. New entries needed in `default_skills.yml` for: content_strategist, seo_analyst, social_media_manager, brand_designer.
+
+---
+
+### Department 3: Operations
+
+**Reports to:** CEO (via COO)
+**Roles:** 5 (including COO)
+
+```
+CEO (shared root)
+  COO
+    Project Manager
+    Operations Analyst
+    Process Coordinator
+```
+
+| Role | Description | Job Spec Summary | Skills (from builtin catalog) |
+|------|-------------|------------------|-------------------------------|
+| COO | Oversees daily operations, resource allocation, and cross-department coordination | Executes strategy set by CEO: manages operational processes, coordinates between departments, tracks company-wide KPIs, identifies workflow inefficiencies, ensures resource utilization | project_planning, sprint_management, progress_reporting, decision_making, risk_assessment |
+| Project Manager | Plans and tracks projects from initiation to completion | Defines project scope and milestones, manages timelines and dependencies, runs status meetings, tracks deliverables against deadlines, escalates blockers | project_planning, requirements_gathering, sprint_management, progress_reporting, communication |
+| Operations Analyst | Analyzes operational data to surface insights and improvement opportunities | Monitors operational metrics, identifies bottlenecks and inefficiencies, produces weekly operations reports, benchmarks performance against targets, recommends process improvements | data_analysis, report_writing, problem_solving, cost_optimization |
+| Process Coordinator | Ensures processes run smoothly and documentation stays current | Maintains process documentation, coordinates handoffs between teams, tracks SLA compliance, manages operational checklists, onboards new processes and tools | documentation, task_execution, communication, quality_standards |
+
+**Why this structure:** Operations is the "glue" department. The COO orchestrates -- in AI agent terms, this is the agent that runs daily standups and maintains the sprint board (as described by practitioners running AI companies). The PM handles project execution, the analyst handles data, and the coordinator handles process hygiene. This is deliberately lean; operations roles expand based on company size.
+
+**Skill mapping notes:** COO maps to a mix of leadership + operations skills. PM reuses the existing `pm` mapping in `default_skills.yml`. New entries needed for: coo, operations_analyst, process_coordinator.
+
+---
+
+### Department 4: Finance
+
+**Reports to:** CEO (via CFO)
+**Roles:** 5 (including CFO)
+
+```
+CEO (shared root)
+  CFO
+    Financial Analyst
+    Budget Controller
+    Revenue Analyst
+```
+
+| Role | Description | Job Spec Summary | Skills (from builtin catalog) |
+|------|-------------|------------------|-------------------------------|
+| CFO | Owns financial strategy, budgeting, and fiscal governance | Sets financial strategy: budget allocation, cash flow management, revenue forecasting, cost structure optimization, financial risk assessment, board-level financial reporting | financial_analysis, budget_planning, revenue_forecasting, cost_optimization, compliance_reporting |
+| Financial Analyst | Produces financial analyses that inform leadership decisions | Analyzes financial statements and trends, calculates key performance ratios, benchmarks against industry averages, models scenarios for strategic decisions, produces monthly financial reports | financial_analysis, data_analysis, report_writing, risk_assessment |
+| Budget Controller | Monitors and enforces spending against approved budgets | Tracks actual spend vs. budget across departments, flags overruns and variances, manages budget reallocation requests, produces budget utilization reports, enforces spending policies | budget_planning, cost_optimization, compliance_reporting, progress_reporting |
+| Revenue Analyst | Tracks revenue performance and forecasts future growth | Monitors revenue streams and growth rates, builds revenue forecasting models, analyzes customer acquisition costs and lifetime value, tracks conversion funnel metrics, identifies revenue optimization opportunities | revenue_forecasting, data_analysis, market_analysis, report_writing |
+
+**Why this structure:** Finance departments in AI companies focus on the metrics that matter for autonomous operations: budget enforcement (already a core Director feature), cost optimization, and revenue analysis. The CFO sits at C-level making strategic calls; below that, three specialist roles cover the core financial functions. Budget Controller maps naturally to Director's existing budget_cents and spend tracking features.
+
+**Skill mapping notes:** CFO skills already exist in `default_skills.yml`. Financial Analyst and Revenue Analyst use existing research-category skills. New entries needed for: financial_analyst, budget_controller, revenue_analyst.
+
+---
+
+### Department 5: Human Resources
+
+**Reports to:** CEO (via CHRO)
+**Roles:** 5 (including CHRO)
+
+```
+CEO (shared root)
+  CHRO
+    Talent Acquisition Lead
+    People Operations Manager
+    Learning & Development Lead
+```
+
+| Role | Description | Job Spec Summary | Skills (from builtin catalog) |
+|------|-------------|------------------|-------------------------------|
+| CHRO | Sets people strategy, organizational design, and culture standards | Owns people strategy: workforce planning, organizational design, culture definition, performance framework design, agent lifecycle management (onboarding through retirement) | strategic_planning, decision_making, risk_assessment, communication |
+| Talent Acquisition Lead | Manages recruitment pipeline and agent onboarding | Defines role requirements, evaluates candidate agents, manages the hiring pipeline, conducts capability assessments, runs onboarding workflows for new agents | requirements_gathering, quality_standards, communication, task_execution |
+| People Operations Manager | Runs day-to-day people processes and agent lifecycle operations | Manages agent performance reviews, tracks agent utilization and satisfaction metrics, handles agent reassignment requests, maintains agent capability inventory, runs offboarding processes | project_planning, progress_reporting, documentation, problem_solving |
+| Learning & Development Lead | Designs and delivers training programs and skill development | Identifies skill gaps across the organization, designs training curricula and skill-building programs, evaluates training effectiveness, manages the company skill library, recommends new skill additions | experiment_design, documentation, quality_standards, literature_review |
+
+**Why this structure:** HR in an AI agent company means managing agent lifecycles rather than employee benefits. The CHRO role maps to the emerging "HR for agents" function described in industry research -- organizations must create an "HR for agents" function for recruiting, onboarding, evaluating, retraining, and retiring AI agents. Talent Acquisition handles agent sourcing and onboarding. People Ops runs the operational side. L&D manages skill development -- which maps directly to Director's existing skills system.
+
+**Why "CHRO" not "VP HR":** In an AI company, the head of people strategy sits at C-level because agent lifecycle management is a core strategic function, not a support function. This matches the Moderna model (merged tech + HR) and the industry trend of elevating agent management to the C-suite.
+
+**Skill mapping notes:** CHRO uses leadership skills. Other roles use operations + research skills. New entries needed for: chro, talent_acquisition, people_operations, learning_development.
+
+---
+
+## Feature Dependencies
+
+```
+Template YAML files
+  -> Template Application Service (reads YAML, creates roles)
+    -> Role model (title, description, job_spec, parent_id, company_id)
+    -> Skill auto-assignment (role_skills via default_skills.yml mappings)
+    -> Duplicate detection (find_or_create_by title within company)
+
+Template Preview UI
+  -> Template YAML files (read-only parse + render)
+
+CEO Shared Root
+  -> All templates depend on CEO existing or being created
+  -> CEO is always the root; departments are subtrees under CEO
+```
+
+**Key dependency chain:** Templates depend on the existing Role model, Skill model, and the `default_skills.yml` skill-mapping config. No new models are needed. The primary new code is a service that reads template YAML and creates/links roles.
+
+**Prerequisites (already met):**
+- Company has builtin skills seeded (v1.2 `Company#after_create`)
+- Role model supports hierarchy (v1.0 TreeHierarchy concern)
+- RoleSkill join table exists (v1.2)
 
 ## Differentiators
 
-Features that make this feel like a real orchestration platform, not just plumbing.
+Features that set Director's templates apart from manual setup. Not expected, but valued.
 
 | Feature | Value Proposition | Complexity | Notes |
 |---------|-------------------|------------|-------|
-| Session resumption for Claude | Multi-task continuity — agent remembers previous work | Medium | --resume flag + stored session_id; requires same cwd |
-| Tool-use indicators in stream UI | Show "[Using Bash...]" during tool calls, not just text | Medium | Requires parsing content_block_start events |
-| Live output ordering guarantee | Sequence numbers on broadcast chunks prevent scrambled display | High | Action Cable threading causes out-of-order delivery |
-| Execution cancellation | Kill running subprocess, mark task blocked/cancelled | High | Requires PID storage + Process.kill signal |
-| Budget-gated execution start | Block claude_local spawn if agent has exhausted budget | Low | budget_exhausted? already on Agent model |
-| Cost tracking from Claude result | ResultMessage contains total_cost_usd — write to task.cost_cents | Low | Task.cost_cents already exists |
-
----
+| Template preview with diff | Show which roles will be created vs. which already exist before applying | Low | Parse YAML, compare against existing company roles |
+| Skill-wired roles on creation | Template roles arrive with skills already assigned -- no manual skill setup | Low | Extend default_skills.yml with new role titles |
+| Stackable partial application | Apply Engineering now, Marketing later; CEO shared | Low | Idempotent find_or_create_by |
+| Job spec content quality | Rich, AI-agent-specific job specs (not generic HR copy) | Medium (content) | Each role needs a multi-paragraph job_spec |
+| "Quick start" one-click full company | Apply all 5 departments at once for instant org chart | Low | Loop over all template files |
+| Template count badge | Show "3 new roles, 2 existing" before applying | Low | Count new vs. existing |
 
 ## Anti-Features
 
-Features to explicitly NOT build in v1.4.
+Features to explicitly NOT build in this milestone.
 
 | Anti-Feature | Why Avoid | What to Do Instead |
 |--------------|-----------|-------------------|
-| AnyCable or custom cable server | Ordering is a real problem but AnyCable requires infra changes; overkill for v1.4 | Mitigate with sequence numbers on chunk payloads; accumulate text in DB |
-| Persistent connection polling loop | Long-running jobs that poll a process in a tight loop will exhaust Solid Queue workers | Use IO.select with a timeout; yield between reads |
-| Streaming via SSE (ActionController::Live) | Conflicts with Puma thread pool; requires separate connection; incompatible with existing Turbo Streams approach | Use Action Cable channel broadcasting from background job |
-| Multi-process parallelism for one agent | Spawning multiple claude processes per agent creates budget and session chaos | One active subprocess per agent at a time; guard with agent.running? check |
-| Webhook signature verification for outbound | v1.4 is delivery, not security hardening | Add HMAC signatures in a later milestone |
-| Interactive Claude sessions (stdin) | Non-interactive headless mode (-p flag) is the right model for automation | Use claude -p always; never interactive sessions |
-| Fork-based session management | Forking sessions adds state explosion; v1.4 needs one session per agent | Continue or resume a single session per agent |
+| Custom template creation by users | Scope creep; users can already create roles manually | Defer to a future milestone if requested |
+| Template marketplace / sharing | Requires user-generated content infrastructure, moderation | Note as future consideration only |
+| Template versioning / updates | Templates are applied once; updating applied templates is complex and risky | Templates are seed data, not live-linked; users customize after applying |
+| Auto-connecting agents to template roles | Agent connection requires adapter configuration that is user-specific | Roles are created empty; users connect agents at their own pace |
+| Goal templates bundled with departments | Goals are company-specific strategy; generic goals would be misleading | Users define goals after seeing their org structure |
+| Budget auto-assignment to template roles | Budget amounts are highly context-dependent | Users configure budgets per-role after applying templates |
+| Department deletion / rollback | Roles may have agents, tasks, or skills attached after creation | Not safe to bulk-delete; users remove roles individually |
+| Nested department templates (sub-departments) | Over-engineering for 3-4 level hierarchies | Keep templates flat: C-suite -> VP -> IC, max 4 levels |
+| Partial template application ("just QA Lead") | Adds subtree picker UI complexity for marginal value | Apply full template; user deletes unwanted roles |
+| Auto-apply on company creation | Seeding default roles for every new company is presumptuous | Let users browse and choose. Empty company is valid starting state. |
+| Template editing/customization before apply | "Adjust titles before applying" adds form complexity | Apply standard template, then edit individual roles via existing edit UI. |
 
----
+## Content Guidance for Job Specs
 
-## Feature Breakdown by Execution Component
+Each role's `job_spec` field should follow this structure (matching the quality bar set by existing builtin skill YAML files):
 
-### 1. Subprocess Lifecycle (claude_local adapter)
+```markdown
+## Responsibilities
+- 4-6 bullet points describing what this agent does day-to-day
+- Written in active voice, specific to AI agent context
+- Example: "Review all pull requests within 4 hours of submission"
 
-**What to build:**
+## Decision Authority
+- What this agent can decide autonomously
+- What requires escalation to their manager
+- Example: "Can approve deployments to staging; production deploys require CTO approval"
 
-- `ClaudeLocalAdapter.execute(agent, context)` — the actual implementation that:
-  - Invokes `claude -p "<prompt>" --output-format stream-json --verbose --include-partial-messages --bare`
-  - Passes `--resume <session_id>` if `adapter_config["session_id"]` is present
-  - Uses `Open3.popen3` (not `popen2e`) to separate stdout (JSON stream) from stderr (errors/diagnostics)
-  - Reads stdout line-by-line with `io.each_line` inside a background job
-  - Uses `IO.select` with a timeout to avoid blocking indefinitely
-  - Captures the `session_id` from the final `ResultMessage` JSON and persists it back to `adapter_config`
+## Key Metrics
+- 2-4 measurable outcomes this role is accountable for
+- Example: "Code review turnaround time < 4 hours, test coverage > 90%"
 
-**Stream JSON event types to handle** (HIGH confidence — verified against official Claude docs):
-
-| Event type | Field path | Use |
-|-----------|------------|-----|
-| `stream_event` | `.event.type == "content_block_delta"` + `.event.delta.type == "text_delta"` | Broadcast text chunk to UI |
-| `stream_event` | `.event.type == "content_block_start"` + `.event.content_block.type == "tool_use"` | Broadcast tool indicator `[Using X...]` |
-| `stream_event` | `.event.type == "content_block_stop"` | Broadcast tool completion |
-| `result` | `.subtype == "success"`, `.result`, `.session_id`, `.total_cost_usd` | Store result, cost, session ID |
-| `system` | `.subtype == "api_retry"` | Log retry event; surface to UI optionally |
-| `assistant` | Complete message object | Store as Message on task when received |
-
-**Session resumption** (HIGH confidence — official Claude docs):
-- `session_id` is available on the final `ResultMessage` as `.session_id`
-- CLI equivalent: `claude -p "..." --resume <session_id>`
-- Sessions stored at `~/.claude/projects/<encoded-cwd>/*.jsonl` — resumption requires matching `cwd`
-- Store `session_id` in `adapter_config["session_id"]` on agent after each run
-- Use `--continue` (most recent session) vs `--resume <id>` (specific session) — prefer `--resume` for multi-agent systems
-
-**Process cleanup requirements:**
-- Store subprocess PID in the HeartbeatEvent or a new execution record during the run
-- Call `Process.waitpid(pid, Process::WNOHANG)` to avoid zombie processes
-- On job timeout or cancellation, send `Process.kill("TERM", pid)` then `Process.kill("KILL", pid)` after grace period
-- `Process.detach(pid)` if not waiting — required to prevent zombie accumulation
-
-**Background job pattern:**
-- `ExecuteClaudeJob` — one job per task assignment
-- Job enqueued by `WakeAgentService` when `adapter_type == :claude_local`
-- Job transitions agent to `running`, spawns subprocess, streams output, transitions back to `idle` or `error`
-- Job timeout set to `adapter_config["max_turns"] * estimated_turn_time` (conservatively long)
-
----
-
-### 2. HTTP Adapter Delivery
-
-**What to build** (implementation is already partially wired via `ExecuteHookService` pattern):
-
-- `WakeAgentService#deliver_http` — replace the TODO stub with real `Net::HTTP.post`
-- POST to `adapter_config["url"]` with `build_request_payload` as JSON body
-- Include `Authorization: Bearer <adapter_config["auth_token"]>` if configured
-- Respect `adapter_config["timeout"]` (default 30s)
-- Classify response codes:
-  - 2xx → `mark_delivered!`
-  - 4xx → `mark_failed!` without retry (permanent error; endpoint rejected the request)
-  - 5xx / timeout / connection refused → `mark_failed!` and re-raise (let job retry with backoff)
-
-**Retry pattern** (MEDIUM confidence — community practice, consistent with existing `ExecuteHookJob` pattern in codebase):
-- Reuse `retry_on` pattern already established in `ExecuteHookJob`
-- 3 attempts with polynomial backoff (existing pattern) for transient failures
-- Add jitter to avoid thundering herd (multiple agents failing simultaneously)
-- After all retries exhausted: HeartbeatEvent stays `failed`; no silent discard
-
-**Headers to send** (standard convention):
-- `Content-Type: application/json`
-- `X-Director-Event: <trigger_type>` (signature-less for now)
-- `User-Agent: Director/1.0`
-- Custom headers from `adapter_config["headers"]` (already in schema)
-
----
-
-### 3. Live Streaming UI
-
-**What to build:**
-
-- `AgentOutputStream` channel (Action Cable) — subscribes clients to a task-scoped stream
-- Frontend subscribes to `"agent_output_task_<task_id>"` stream when viewing a task
-- Background job broadcasts each parsed chunk as it arrives from the subprocess
-- Task show view renders a `<div id="agent-output">` that receives `turbo_stream` appends
-
-**Broadcast payload shape per chunk:**
-```json
-{
-  "sequence": 42,
-  "type": "text",
-  "content": "Analyzing the codebase...",
-  "tool_name": null
-}
+## Collaboration
+- Which roles this agent works with most frequently
+- Expected handoff patterns
+- Example: "Receives task assignments from VP Engineering, reviews work from Senior Engineers"
 ```
 
-**Message ordering mitigation** (HIGH confidence — Evil Martians analysis, December 2025):
-- Action Cable's threaded architecture gives NO ordering guarantee
-- Chunks broadcast in rapid succession arrive scrambled because multiple Ruby threads pick them up concurrently
-- Mitigation: include a `sequence` counter in each broadcast payload; client-side Stimulus controller sorts by sequence before rendering
-- Alternative mitigation: broadcast accumulated text (full output so far) instead of deltas — more bandwidth, guaranteed correctness
+**Why this format:** It gives agents (and the humans managing them) clear boundaries. The "Decision Authority" section maps directly to Director's approval gate feature. The "Collaboration" section maps to the org chart hierarchy and delegation patterns.
 
-**Recommendation:** Start with accumulated-text broadcasts (simpler, correct). Add delta + sequence if bandwidth becomes a concern.
+## Mapping to default_skills.yml
 
-**Frontend pattern:**
-- Stimulus controller on `#agent-output` subscribes via `turbo_stream_from`
-- On each broadcast, replace the entire output div with updated content
-- Scroll-to-bottom on each update
-- Show spinner while agent is `running`, hide on `idle`/`error`
+The template system needs to extend `config/default_skills.yml` with new role-title-to-skill mappings. All skill keys below already exist in the 48-skill builtin catalog. No new skills need to be created.
 
-**Turbo Streams vs SSE** (MEDIUM confidence — aha.io analysis):
-- Turbo Streams: integrates with existing Hotwire setup; works with background jobs; matches codebase conventions
-- SSE (ActionController::Live): simpler for pure streaming but conflicts with Puma thread pool; disconnected from existing Turbo infrastructure
-- **Use Turbo Streams** — consistent with existing `Turbo::StreamsChannel.broadcast_append_to` already used in the codebase
+**New mappings required (17 total):**
 
----
+```yaml
+vp_engineering:
+  - project_planning
+  - sprint_management
+  - progress_reporting
+  - requirements_gathering
 
-### 4. Result Callbacks (Agent Reports Back via API)
+tech_lead:
+  - code_review
+  - implementation
+  - system_design
+  - debugging
+  - documentation
 
-**What to build** (extending existing `Api::AgentEventsController`):
+senior_engineer:
+  - implementation
+  - debugging
+  - testing
+  - code_review
+  - documentation
 
-- `POST /api/tasks/:id/result` — agent posts its completion result
-  - Auth: existing `AgentApiAuthenticatable` concern (Bearer token)
-  - Body: `{ status: "completed", output: "...", cost_cents: 1234 }`
-  - Creates a `Message` on the task authored by the agent
-  - Updates `task.status` to `:completed` (or `:blocked` on failure)
-  - Updates `task.cost_cents` if provided
-  - Wakes manager agent via `WakeAgentService` with `trigger_type: :task_completed`
+qa_lead:
+  - test_planning
+  - bug_reporting
+  - regression_testing
+  - performance_testing
+  - quality_standards
 
-- `POST /api/tasks/:id/progress` — agent posts intermediate progress (optional)
-  - Creates a `Message` with `body` containing progress update
-  - Does not change task status
+content_strategist:
+  - content_strategy
+  - documentation
+  - report_writing
+  - communication
 
-- `PATCH /api/tasks/:id/status` — agent explicitly transitions task status
-  - Validates transition is legal (open → in_progress → completed/blocked)
-  - Auth-scoped: agent can only update tasks assigned to it
+seo_analyst:
+  - data_analysis
+  - market_analysis
+  - audience_research
+  - report_writing
 
-**What already exists:**
-- `Api::AgentEventsController` with `AgentApiAuthenticatable` — extend this pattern
-- `Message` model with polymorphic `author` — agents can author messages
-- Task status enum with all needed states
-- Bearer token on each agent (`api_token`)
+social_media_manager:
+  - campaign_planning
+  - communication
+  - audience_research
+  - content_strategy
 
-**Payload conventions for agent → Director API:**
-```json
-{
-  "status": "completed",
-  "output": "I've analyzed the codebase and found 3 issues...",
-  "cost_cents": 1450,
-  "session_id": "abc123def456"
-}
+brand_designer:
+  - ui_design
+  - design_systems
+  - prototyping
+  - brand_management
+
+coo:
+  - project_planning
+  - sprint_management
+  - progress_reporting
+  - decision_making
+  - risk_assessment
+
+operations_analyst:
+  - data_analysis
+  - report_writing
+  - problem_solving
+  - cost_optimization
+
+process_coordinator:
+  - documentation
+  - task_execution
+  - communication
+  - quality_standards
+
+financial_analyst:
+  - financial_analysis
+  - data_analysis
+  - report_writing
+  - risk_assessment
+
+budget_controller:
+  - budget_planning
+  - cost_optimization
+  - compliance_reporting
+  - progress_reporting
+
+revenue_analyst:
+  - revenue_forecasting
+  - data_analysis
+  - market_analysis
+  - report_writing
+
+chro:
+  - strategic_planning
+  - decision_making
+  - risk_assessment
+  - communication
+
+talent_acquisition:
+  - requirements_gathering
+  - quality_standards
+  - communication
+  - task_execution
+
+people_operations:
+  - project_planning
+  - progress_reporting
+  - documentation
+  - problem_solving
+
+learning_development:
+  - experiment_design
+  - documentation
+  - quality_standards
+  - literature_review
 ```
 
----
-
-### 5. Session Management
-
-**What to build:**
-
-- Store `session_id` in `agent.adapter_config["session_id"]` after each successful run
-- Pass `--resume <session_id>` on subsequent invocations for the same agent
-- Validate that the session file exists at `~/.claude/projects/<encoded-cwd>/<session-id>.jsonl` before attempting resume; fall back to fresh session if missing
-- Expose `session_id` in agent show view (read-only) so operators can see the current session
-- Add "Clear Session" action on agent that nullifies `adapter_config["session_id"]` — forces fresh context next invocation
-
-**Session resumption caveats** (HIGH confidence — official docs):
-- Session files are local to the machine; cross-host resumption requires copying `~/.claude/projects/` files
-- `cwd` must match exactly at resume time — encode the working directory when storing the session
-- Session stores conversation history, NOT filesystem state — agent re-reads files each run
-- A new `session_id` is assigned even when using `--resume` if the session file is missing
-
----
-
-## Feature Dependencies Map
-
-```
-HTTP adapter delivery
-  └── WakeAgentService (already exists, replace TODO stub)
-  └── Net::HTTP with error classification
-  └── Background job retry_on pattern (already in ExecuteHookJob)
-
-Claude subprocess spawning
-  └── Open3.popen3 with stdout/stderr separation
-  └── ExecuteClaudeJob (new)
-  └── WakeAgentService (already exists, add claude_local branch)
-  └── Session ID stored in adapter_config
-
-Live streaming UI
-  └── Claude subprocess (above) — produces the stream
-  └── Action Cable channel (new) subscribed to task-scoped stream
-  └── Turbo::StreamsChannel.broadcast_replace_to (already in codebase)
-  └── Stimulus controller on task show view (new)
-
-Result callbacks
-  └── Api::AgentEventsController pattern (already exists) — add new endpoints
-  └── AgentApiAuthenticatable (already exists)
-  └── Message model (already exists, agents as author)
-  └── Task status transitions (already exist)
-
-Full autonomous loop (all of the above +)
-  └── Task assignment triggers WakeAgentService (already via Task#trigger_assignment_wake)
-  └── Agent receives task payload → works → posts result → manager woken
-```
-
----
+**Existing mappings that already cover template roles (no changes needed):**
+- `ceo` -> strategic_planning, decision_making, risk_assessment
+- `cto` -> code_review, architecture_planning, technical_strategy, system_design, security_assessment
+- `cmo` -> market_analysis, content_strategy, brand_management, campaign_planning, audience_research
+- `cfo` -> financial_analysis, budget_planning, revenue_forecasting, cost_optimization, compliance_reporting
+- `engineer` -> code_review, implementation, debugging, testing, documentation
+- `pm` -> project_planning, requirements_gathering, sprint_management, progress_reporting
+- `qa` -> test_planning, bug_reporting, regression_testing, performance_testing, quality_standards
+- `devops` -> infrastructure_management, ci_cd_pipelines, monitoring_alerting, deployment_automation, incident_response
+- `designer` -> ui_design, ux_research, prototyping, design_systems, accessibility_review
+- `researcher` -> data_analysis, literature_review, experiment_design, report_writing, market_analysis
 
 ## MVP Recommendation
 
-Prioritize in this order:
+**Must ship:**
+1. Five department YAML template files with full role definitions (title, description, job_spec, skills, parent references)
+2. Extended `default_skills.yml` with 17 new role-title-to-skill mappings
+3. Template application service (idempotent, stackable, CEO-sharing, wrapped in transaction)
+4. Templates index page showing available departments with role count and hierarchy preview
+5. "Apply template" action with confirmation and flash summary of created/skipped roles
 
-1. **HTTP adapter real delivery** — smallest scope, removes a TODO stub, validates the delivery pipeline before building the harder subprocess work
-2. **Claude subprocess spawning + result storage** — core of the milestone; get non-streaming invocation working first (`--output-format json`), then add streaming
-3. **Result callback API endpoints** — required for autonomous loop; builds on existing API auth infrastructure
-4. **Live streaming UI** — most visible feature, but depends on subprocess streaming being stable
-5. **Session resumption** — differentiator; only add after basic execution works reliably
+**Ship together if time permits:**
+6. Diff preview showing new-vs-existing roles before applying
+7. "Apply all departments" one-click action for instant full company setup
+8. Audit events for template application (leverages existing Auditable concern)
 
-**Defer from v1.4:**
-- Execution cancellation (PID-based kill) — complex process lifecycle; add in v1.5
-- Multi-agent concurrent execution — need single-agent stability first
-- Webhook signature verification on outbound delivery — security hardening for later
+**Defer entirely:**
+- Custom template creation
+- Template marketplace
+- Goal templates bundled with departments
+- Template versioning
 
----
+## Role Count Summary
+
+| Department | Roles (excl. shared CEO) | New default_skills mappings needed |
+|------------|--------------------------|-------------------------------------|
+| Engineering | 6 | 3 (vp_engineering, tech_lead, senior_engineer -- qa_lead can reuse qa; cto/devops already mapped) |
+| Marketing | 5 | 4 (content_strategist, seo_analyst, social_media_manager, brand_designer -- cmo already mapped) |
+| Operations | 4 | 3 (coo, operations_analyst, process_coordinator -- pm already mapped) |
+| Finance | 4 | 3 (financial_analyst, budget_controller, revenue_analyst -- cfo already mapped) |
+| HR | 4 | 4 (chro, talent_acquisition, people_operations, learning_development) |
+| **Total** | **23 + 1 CEO = 24** | **17 new mappings** |
 
 ## Sources
 
-- [Run Claude Code programmatically (Headless/CLI)](https://code.claude.com/docs/en/headless) — HIGH confidence, official docs
-- [Claude Agent SDK: Streaming Output](https://platform.claude.com/docs/en/agent-sdk/streaming-output) — HIGH confidence, official docs
-- [Claude Agent SDK: Sessions and Resumption](https://platform.claude.com/docs/en/agent-sdk/sessions) — HIGH confidence, official docs
-- [AnyCable, Rails, and the pitfalls of LLM streaming](https://evilmartians.com/chronicles/anycable-rails-and-the-pitfalls-of-llm-streaming) — HIGH confidence, Evil Martians Dec 2025, verified Action Cable ordering issue
-- [Streaming LLM Responses with Rails: SSE vs Turbo Streams (aha.io)](https://www.aha.io/engineering/articles/streaming-llm-responses-rails-sse-turbo-streams) — MEDIUM confidence, production experience post
-- [Rails Action Cable Overview (official guides)](https://guides.rubyonrails.org/action_cable_overview.html) — HIGH confidence
-- [Sending Webhooks with Exponential Backoff (GoRails)](https://gorails.com/episodes/sending-webhooks-with-exponential-backoff) — MEDIUM confidence, community practice
-- [Building Reliable Webhook Delivery (DEV Community, 2026)](https://dev.to/young_gao/building-reliable-webhook-delivery-retries-signatures-and-failure-handling-40ff) — MEDIUM confidence
-- [Ruby Open3 subprocess documentation](https://github.com/ruby/open3) — HIGH confidence, stdlib
-- Existing codebase: `ExecuteHookService`, `WakeAgentService`, `Api::AgentEventsController`, `Task`, `Agent`, `Message` models — HIGH confidence, ground truth
+- [Paperclip AI GitHub](https://github.com/paperclipai/paperclip) -- reference architecture for AI agent companies
+- [Paperclip Company Wizard Plugin](https://github.com/yesterday-ai/paperclip-plugin-company-wizard) -- template preset patterns (fast, quality, startup, secure, gtm)
+- [CrewAI Hierarchical Process Docs](https://docs.crewai.com/en/learn/hierarchical-process) -- manager-agent delegation model
+- [Fortune: AI is changing the corporate org chart](https://fortune.com/2025/08/07/ai-corporate-org-chart-workplace-agents-flattening/) -- org flattening trends
+- [DEV Community: Solo company with AI agent departments](https://dev.to/setas/i-run-a-solo-company-with-ai-agent-departments-50nf) -- practical department structure (CEO, CFO, COO, CTO, Marketing, Accountant, Lawyer, Improver)
+- [Heinz Marketing: AI-Enhanced Org Chart](https://www.heinzmarketing.com/blog/ai-enhanced-marketing-org-chart/) -- Hub-and-Agent marketing model
+- [DOJO AI: AI-First Marketing Team Structure 2026](https://www.dojoai.com/blog/ai-first-marketing-team-structure-guide-2025) -- marketing role evolution
+- [PWC: AI agents for finance](https://www.pwc.com/us/en/tech-effect/ai-analytics/ai-agents-for-finance.html) -- CFO and finance agent functions
+- [HR Executive: AI agents need human managers and job descriptions](https://hrexecutive.com/why-every-ai-agent-needs-a-human-manager-and-clear-job-description/) -- agent lifecycle management
+- [MIT Sloan: The Emerging Agentic Enterprise](https://sloanreview.mit.edu/projects/the-emerging-agentic-enterprise-how-leaders-must-navigate-a-new-age-of-ai/) -- cross-functional AI governance
+- Existing codebase: `config/default_skills.yml`, `db/seeds/skills/*.yml`, `app/models/role.rb`, `app/models/skill.rb`, `db/schema.rb`

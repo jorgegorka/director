@@ -1,529 +1,649 @@
-# Architecture Patterns: v1.4 Agent Execution
+# Architecture Patterns: v1.5 Role Templates
 
-**Domain:** AI agent execution — subprocess management, HTTP delivery, live streaming UI
-**Researched:** 2026-03-28
-**Confidence:** HIGH (existing codebase fully read; Claude CLI docs fetched from official source)
+**Domain:** Builtin role template system — YAML-defined department hierarchies applied to companies
+**Researched:** 2026-03-29
+**Confidence:** HIGH (entire existing codebase read; skill seeding pattern verified as working precedent)
 
 ---
 
 ## Current Architecture (What Exists)
 
-The execution chain today terminates in a stub. The full path is:
+### Skill Seeding Pattern (The Precedent)
+
+The v1.2 skill system established the exact pattern role templates should follow:
 
 ```
-Task status change (after_commit)
-  → Hookable#enqueue_hooks_for_transition
-    → HookExecution.create! + ExecuteHookJob.perform_later
-      → ExecuteHookService#dispatch_trigger_agent
-        → WakeAgentService.call(agent, trigger_type:, context:)
-          → HeartbeatEvent.create!(status: :queued)
-          → deliver(event)
-            → if agent.http?  → deliver_http [STUB — marks delivered, no real HTTP]
-            → else            → event (no-op for process/claude_local)
+db/seeds/skills/*.yml          → 48 individual YAML files, one per skill
+config/default_skills.yml      → role-title-to-skill-key mapping
+Company#seed_default_skills!   → instance method, called after_create + rake task
+Company.default_skill_definitions → class method, loads + caches YAML at boot
+skills.rake                    → rake skills:reseed (for existing companies)
 ```
 
-**The stub is in `WakeAgentService#deliver_http`** (line 51-54). For `process` and `claude_local` adapter agents, `deliver` does nothing at all — the HeartbeatEvent sits queued forever.
+**Key characteristics of the skill pattern:**
+- YAML files are the source of truth (not a database table)
+- Each company gets its own copies of builtin skills (company-scoped via Tenantable)
+- `find_or_create_by!(key:)` provides idempotent seeding (skip-duplicate)
+- No separate "SkillTemplate" model exists — YAML files ARE the templates
+- Class-level caching (`@default_skill_definitions ||=`) avoids re-reading YAML on every call
 
-v1.4 replaces the stub with real execution across three adapter types:
+### Role Model (The Target)
 
-| Adapter Type | Current Behavior | v1.4 Behavior |
-|---|---|---|
-| `http` | POST stub (marks delivered only) | Real HTTP POST to `adapter_config["url"]` |
-| `process` | No-op | Shell subprocess via `Open3.popen3` with streaming |
-| `claude_local` | No-op | `claude -p` subprocess with `--output-format stream-json` |
+Roles already have everything templates need to populate:
+
+| Attribute | Source | Template Populates? |
+|-----------|--------|---------------------|
+| `title` | User input | YES — template defines it |
+| `description` | User input | YES — template defines it |
+| `job_spec` | User input | YES — template defines it |
+| `parent_id` | User selects | YES — template defines hierarchy |
+| `company_id` | Current.company | Automatic (Tenantable) |
+| `adapter_type` | Agent config | NO — agent assignment is separate |
+| `adapter_config` | Agent config | NO |
+| `budget_cents` | User input | NO — budget is operational, not structural |
+| `status` | System | NO — defaults to :idle |
+
+### Existing Role Uniqueness
+
+Role titles are unique per company: `validates :title, uniqueness: { scope: :company_id }`. This is the natural skip-duplicate key, exactly analogous to `Skill#key` uniqueness.
+
+### Default Skills Auto-Assignment
+
+`config/default_skills.yml` maps role titles (case-insensitive) to skill keys. When a role gets its first agent assignment, `Role#assign_default_skills` uses this mapping. Role templates can leverage this existing mapping — if a template role is titled "CTO", it already gets CTO skills on agent assignment.
 
 ---
 
 ## Recommended Architecture
 
+### Design Decision: YAML-Only Templates (No New Model)
+
+**Use YAML files as templates. Do NOT create a RoleTemplate model.**
+
+Rationale:
+1. **Precedent:** Skills use YAML-only with no SkillTemplate model. Same pattern = less cognitive load.
+2. **Builtin-only scope:** v1.5 is explicitly builtin templates only. Custom templates are out of scope (deferred to v2 "Clipmart"). A database model for 3-5 static definitions is over-engineering.
+3. **No runtime state:** Templates have no mutable state — they are read-only definitions applied to create roles. A model adds migration, associations, tests, and maintenance burden for a glorified config file.
+4. **Easy to add later:** If v2 needs user-created templates, adding a `RoleTemplate` model then (with migration from YAML) is straightforward. Starting with YAML keeps v1.5 focused.
+
 ### Overview
 
 ```
-WakeAgentService#deliver
-  ├── agent.http?         → HttpExecutionService   (HTTP POST with async response)
-  ├── agent.process?      → ProcessExecutionService (Open3 subprocess)
-  └── agent.claude_local? → ClaudeExecutionService  (claude CLI subprocess + stream-json)
-            │
-            ▼ (all three)
-    AgentRun (new model — execution record with status, logs, session_id)
-            │
-            ▼
-    StreamingBroadcastJob (line-by-line Turbo broadcast during execution)
-            │
-            ▼
-    "agent_run_#{agent_run_id}" Action Cable stream
-            │
-            ▼
-    AgentRunsController#show (live log view)
+db/seeds/role_templates/engineering.yml     → Template definitions (YAML)
+db/seeds/role_templates/marketing.yml
+db/seeds/role_templates/operations.yml
+db/seeds/role_templates/finance.yml
+db/seeds/role_templates/hr.yml
+
+RoleTemplateRegistry (Plain Ruby class)     → Loads, caches, exposes template data
+ApplyRoleTemplateService (Service object)   → Creates roles from template for a company
+
+RoleTemplatesController                     → Browse + preview + apply (3 actions)
+  GET  /role_templates                      → index (browse all templates)
+  GET  /role_templates/:id                  → show (preview a template)
+  POST /role_templates/:id/apply            → apply (create roles in company)
 ```
 
-### New Components
+### Component Architecture
 
-| Component | Type | Purpose |
-|---|---|---|
-| `AgentRun` | Model | Persistent execution record (replaces HeartbeatEvent as execution tracking) |
-| `ExecuteAgentJob` | Job | Enqueues adapter execution, owns the subprocess lifecycle |
-| `ClaudeExecutionService` | Service | Spawns `claude -p` subprocess, parses stream-json, broadcasts |
-| `ProcessExecutionService` | Service | Spawns shell command via `Open3.popen3`, broadcasts lines |
-| `HttpExecutionService` | Service | Real HTTP POST to agent URL, handles response |
-| `AgentRunChannel` (optional) | Action Cable Channel | Per-run stream subscription (if Action Cable channel JS needed) |
-| `AgentRunsController` | Controller | Shows execution history and live log view |
-| `Api::AgentRunsController` | API Controller | Agents POST completion/results back to Director |
-
-### Modified Components
-
-| Component | Change |
-|---|---|
-| `WakeAgentService#deliver` | Replace stubs with `ExecuteAgentJob.perform_later(event.id)` |
-| `WakeAgentService#initial_status` | All types start as `:queued` (not `:delivered` for http) |
-| `BaseAdapter` | Add `.execute(agent, context, run:)` signature; add `.stream_execute` for streaming adapters |
-| `ClaudeLocalAdapter` | Implement `.execute` using `ClaudeExecutionService` |
-| `ProcessAdapter` | Implement `.execute` using `ProcessExecutionService` |
-| `HttpAdapter` | Implement `.execute` using `HttpExecutionService` |
-| `HeartbeatEvent` | Add `agent_run_id` FK (optional: link heartbeat event to execution record) |
+```
+User clicks "Apply Engineering"
+        │
+        ▼
+RoleTemplatesController#apply
+        │
+        ▼
+ApplyRoleTemplateService.call(
+  company: Current.company,
+  template_key: "engineering",
+  parent_role: @ceo_role      ← optional, attach under existing role
+)
+        │
+        ├── Load template from RoleTemplateRegistry
+        │
+        ├── For each role definition (topological order):
+        │     ├── Check: company.roles.exists?(title: role_def["title"])
+        │     │     YES → skip, record as "skipped"
+        │     │     NO  → create role with description + job_spec
+        │     │
+        │     ├── Resolve parent_id:
+        │     │     top-level in template? → use parent_role param (or nil)
+        │     │     has template parent?   → look up just-created role by title
+        │     │
+        │     └── Assign skills:
+        │           role_def["skills"] → company.skills.where(key: skill_keys)
+        │           → RoleSkill.create! for each
+        │
+        └── Return result object:
+              { created: [...], skipped: [...], errors: [...] }
+```
 
 ---
 
 ## Component Boundaries
 
-### AgentRun Model
+### RoleTemplateRegistry (New — Plain Ruby Class)
 
-New table. Owns the complete execution lifecycle.
+Not a model. A registry class that loads and caches YAML template definitions. Follows the same pattern as `Company.default_skill_definitions` but as a standalone class.
 
-```
-agent_runs
-  id
-  agent_id           FK agents
-  company_id         FK companies
-  heartbeat_event_id FK heartbeat_events (nullable — links wake event to run)
-  adapter_type       integer enum (mirrors Agent.adapter_type)
-  status             integer enum: queued/running/completed/failed/cancelled
-  prompt_payload     json      (what was sent to the agent)
-  result_payload     json      (what came back)
-  session_id_before  string    (claude_local: session before run)
-  session_id_after   string    (claude_local: session after run — for resumption)
-  exit_code          integer
-  error_message      text
-  log_text           text      (accumulated stdout, line by line — final log)
-  cost_cents         integer   (populated after run completes)
-  started_at         datetime
-  completed_at       datetime
-  created_at
-  updated_at
-```
-
-**Concerns to include:** `Tenantable`, `Chronological`
-
-**State machine methods:** `mark_running!`, `mark_completed!(result:)`, `mark_failed!(error:)` — same pattern as `HookExecution` and `HeartbeatEvent`.
-
-### ExecuteAgentJob
-
-Replaces the stub. Called from `WakeAgentService#deliver`.
+**Location:** `app/models/role_template_registry.rb` (or `app/services/role_template_registry.rb` — either works, but `app/models/` matches how `AdapterRegistry` lives in the codebase)
 
 ```ruby
-class ExecuteAgentJob < ApplicationJob
-  queue_as :default
-  retry_on StandardError, wait: :polynomially_longer, attempts: 3
-  discard_on ActiveJob::DeserializationError
+class RoleTemplateRegistry
+  TEMPLATES_PATH = Rails.root.join("db/seeds/role_templates")
 
-  def perform(heartbeat_event_id)
-    event = HeartbeatEvent.find_by(id: heartbeat_event_id)
-    return unless event
-    return if event.delivered?
+  class << self
+    def all
+      @all ||= load_all_templates.freeze
+    end
 
-    agent = event.agent
-    run = AgentRun.create!(
-      agent: agent,
-      company_id: agent.company_id,
-      heartbeat_event: event,
-      adapter_type: agent.adapter_type,
-      status: :queued,
-      prompt_payload: event.request_payload
-    )
+    def find(key)
+      all.fetch(key.to_s) { raise KeyError, "Unknown role template: #{key}" }
+    end
 
-    agent.adapter_class.execute(agent, run)
+    def keys
+      all.keys
+    end
+
+    def reset!  # For tests
+      @all = nil
+    end
+
+    private
+
+    def load_all_templates
+      Dir[TEMPLATES_PATH.join("*.yml")].each_with_object({}) do |file, hash|
+        data = YAML.load_file(file)
+        hash[data.fetch("key")] = data.freeze
+      end
+    end
   end
 end
 ```
 
-This preserves the same `find_by + return unless` guard pattern used in `ExecuteHookJob`.
+### YAML Template Format
 
-### ClaudeExecutionService
+Each template file defines a complete department hierarchy:
 
-The most complex service. Spawns `claude -p` with `--output-format stream-json` and reads NDJSON lines.
+```yaml
+# db/seeds/role_templates/engineering.yml
+key: engineering
+name: Engineering Department
+description: >
+  A full engineering department with CTO, team leads,
+  and individual contributors across backend, frontend,
+  QA, and DevOps.
+icon: code  # For UI display (maps to CSS icon system)
+roles:
+  - title: CTO
+    description: Chief Technology Officer. Oversees all engineering and technical strategy.
+    job_spec: |
+      Lead technical vision and architecture decisions.
+      Manage engineering team leads and set coding standards.
+      Evaluate and adopt new technologies.
+      Report technical progress to the CEO.
+    parent: ~  # null = top of this template's hierarchy
+    skills:
+      - code_review
+      - architecture_planning
+      - technical_strategy
+      - system_design
+      - security_assessment
 
-**Claude CLI invocation pattern** (HIGH confidence — from official docs):
+  - title: Backend Lead
+    description: Leads the backend engineering team.
+    job_spec: |
+      Architect server-side systems and APIs.
+      Mentor backend engineers on best practices.
+      Own backend code review and deployment pipeline.
+    parent: CTO  # References title of another role in this template
+    skills:
+      - code_review
+      - architecture_planning
+      - implementation
+      - system_design
 
-```bash
-claude -p "{prompt}" \
-  --output-format stream-json \
-  --include-partial-messages \
-  --dangerously-skip-permissions \
-  --model "{model}" \
-  --max-turns {max_turns} \
-  [--resume "{session_id}"]  # only if session_id_before present
+  - title: Backend Engineer
+    description: Implements server-side features, APIs, and data models.
+    job_spec: |
+      Write clean, tested backend code.
+      Fix bugs and optimize query performance.
+      Participate in code reviews.
+    parent: Backend Lead
+    skills:
+      - code_review
+      - implementation
+      - debugging
+      - testing
+      - documentation
+
+  # ... more roles
 ```
 
-**Stream-JSON event types** the CLI emits (verified from official Claude Code docs):
+**Design decisions in the YAML format:**
 
-| JSON line `type` | When emitted | Key fields |
-|---|---|---|
-| `system` | Session init | `subtype: "init"`, `session_id` |
-| `assistant` | Complete turn | `message.content[].text` |
-| `stream_event` | Per-token delta (with `--include-partial-messages`) | `event.type`, `event.delta.type`, `event.delta.text` |
-| `result` | Final completion | `result` (text), `session_id`, `usage`, `duration_ms` |
-| `system` | API retry notification | `subtype: "api_retry"`, `attempt`, `error` |
+1. **`parent` uses title string, not index** — More readable than array indices. Resolved at apply-time by looking up the just-created role with that title.
+2. **`parent: ~` (null)** — Means this role is the top of the template hierarchy. At apply-time, this attaches to the user-specified parent (CEO) or becomes a root role.
+3. **`skills` uses skill keys** — Same keys as `db/seeds/skills/*.yml`. Looked up via `company.skills.where(key: keys)`.
+4. **Roles listed in dependency order** — Parents appear before children. The service processes them in array order, so parent roles exist by the time children reference them.
+5. **No `adapter_type` or `budget_cents`** — Templates define organizational structure only. Agent configuration and budgets are operational concerns set after template application.
 
-**Service skeleton:**
+### ApplyRoleTemplateService (New — Service Object)
+
+Follows the established service pattern (`self.call` class method, instance `#call`).
 
 ```ruby
-class ClaudeExecutionService
-  def self.call(agent, run)
-    new(agent, run).call
+class ApplyRoleTemplateService
+  Result = Data.define(:created, :skipped, :errors)
+
+  attr_reader :company, :template_key, :parent_role
+
+  def initialize(company:, template_key:, parent_role: nil)
+    @company = company
+    @template_key = template_key
+    @parent_role = parent_role
+  end
+
+  def self.call(**args)
+    new(**args).call
   end
 
   def call
-    run.mark_running!
-    agent.update_column(:status, :running)
+    template = RoleTemplateRegistry.find(template_key)
+    created = []
+    skipped = []
+    errors = []
+    title_to_role = {}  # Maps template title → created Role record
 
-    cmd = build_command
-    accumulated_log = []
-    session_id_after = nil
+    template["roles"].each do |role_def|
+      title = role_def["title"]
 
-    Open3.popen2e(*cmd) do |_stdin, stdout_err, wait_thread|
-      stdout_err.each_line do |raw_line|
-        line = raw_line.chomp
-        next if line.blank?
-
-        accumulated_log << line
-        event = JSON.parse(line) rescue nil
-        next unless event
-
-        # Extract session_id from result event
-        session_id_after = event["session_id"] if event["type"] == "result"
-
-        # Broadcast to live UI
-        broadcast_line(line)
+      # Skip-duplicate: check if role with this title already exists
+      existing = company.roles.find_by(title: title)
+      if existing
+        skipped << title
+        title_to_role[title] = existing  # Still track for child references
+        next
       end
-      @exit_code = wait_thread.value.exitstatus
+
+      # Resolve parent
+      parent_id = resolve_parent_id(role_def, title_to_role)
+
+      # Create role
+      role = company.roles.create!(
+        title: title,
+        description: role_def["description"],
+        job_spec: role_def["job_spec"],
+        parent_id: parent_id
+      )
+
+      # Assign skills
+      assign_skills(role, role_def["skills"] || [])
+
+      created << title
+      title_to_role[title] = role
+    rescue ActiveRecord::RecordInvalid => e
+      errors << { title: title, error: e.message }
     end
 
-    if @exit_code == 0
-      run.update!(
-        status: :completed,
-        session_id_after: session_id_after,
-        log_text: accumulated_log.join("\n"),
-        completed_at: Time.current
-      )
-      agent.update_column(:status, :idle)
-    else
-      run.mark_failed!(error_message: "Exit code #{@exit_code}")
-      agent.update_column(:status, :error)
-    end
-  rescue => e
-    run.mark_failed!(error_message: e.message)
-    agent.update_column(:status, :error)
-    raise
+    Result.new(created: created, skipped: skipped, errors: errors)
   end
 
   private
 
-  def build_command
-    config = agent.adapter_config
-    cmd = ["claude", "-p", prompt_text,
-           "--output-format", "stream-json",
-           "--include-partial-messages",
-           "--dangerously-skip-permissions"]
-    cmd += ["--model", config["model"]] if config["model"]
-    cmd += ["--max-turns", config["max_turns"].to_s] if config["max_turns"]
-    cmd += ["--resume", run.session_id_before] if run.session_id_before.present?
-    cmd
-  end
+  def resolve_parent_id(role_def, title_to_role)
+    template_parent = role_def["parent"]
 
-  def broadcast_line(json_line)
-    Turbo::StreamsChannel.broadcast_append_to(
-      "agent_run_#{run.id}",
-      target: "agent-run-log",
-      partial: "agent_runs/log_line",
-      locals: { line: json_line }
-    )
-  end
-end
-```
-
-**Important:** `Open3.popen2e` (not `popen3`) combines stdout and stderr into one stream. This matches the `claude` CLI behavior where all output — including error messages — goes to stdout when using `--output-format stream-json`. Using `popen3` would require threading to avoid deadlock when stderr fills its pipe buffer.
-
-**Known issue:** `claude -p --output-format stream-json` stdout is block-buffered when piped (not TTY). This means lines may not arrive individually. Mitigation: use `stdbuf -oL claude -p ...` or `unbuffer` on the subprocess command to force line buffering. This is a confirmed bug in the Claude CLI (GitHub issue #25670). Alternatively, set a read timeout and drain periodically.
-
-### ProcessExecutionService
-
-Simpler than Claude — just runs a shell command and streams lines.
-
-```ruby
-class ProcessExecutionService
-  def call
-    run.mark_running!
-    agent.update_column(:status, :running)
-
-    config = agent.adapter_config
-    cmd = config["command"]
-    accumulated = []
-
-    Open3.popen2e(config.fetch("env", {}), cmd,
-                  chdir: config["working_directory"] || Dir.pwd) do |_stdin, out_err, wt|
-      out_err.each_line do |line|
-        accumulated << line.chomp
-        broadcast_line(line.chomp)
-      end
-      @exit_code = wt.value.exitstatus
+    if template_parent.nil?
+      # Top of template hierarchy — attach to user-specified parent
+      parent_role&.id
+    else
+      # Look up the parent role (already created or existing)
+      title_to_role[template_parent]&.id
     end
+  end
 
-    # ... same complete/fail logic
+  def assign_skills(role, skill_keys)
+    return if skill_keys.empty?
+
+    company_skills = company.skills.where(key: skill_keys)
+    company_skills.each do |skill|
+      role.role_skills.create!(skill: skill)
+    end
   end
 end
 ```
 
-### HttpExecutionService
+**Key design choices:**
 
-Real POST to the agent URL. Non-streaming response (synchronous request-response cycle).
+1. **Sequential processing, not bulk insert** — Role creation triggers `ConfigVersioned` callbacks, `Auditable` hooks, and validates `TreeHierarchy` constraints. Bulk insert would skip all of this. With 5-10 roles per template, sequential creation is fast enough.
+2. **`title_to_role` hash for parent resolution** — When a child references `parent: "CTO"`, we look up the just-created CTO role. If the CTO was skipped (already existed), we still track it so children can attach correctly.
+3. **`Result` data class** — Returns structured result with created/skipped/errors arrays. The controller uses this for flash messages and redirect logic.
+4. **No transaction wrapping** — Partial application is acceptable. If roles 1-3 succeed and role 4 fails, the user keeps roles 1-3 and gets an error message about role 4. This matches the skip-duplicate philosophy (additive, not atomic).
+5. **Skills assigned at creation time** — Unlike the default_skills.yml auto-assignment (which fires on first agent config), template skills are assigned immediately. The template explicitly declares which skills each role needs.
+
+### RoleTemplatesController (New)
+
+Three actions: browse, preview, apply.
 
 ```ruby
-class HttpExecutionService
-  def call
-    run.mark_running!
+class RoleTemplatesController < ApplicationController
+  before_action :require_company!
 
-    config = agent.adapter_config
-    uri = URI.parse(config["url"])
-    # ... same Net::HTTP pattern as ExecuteHookService#dispatch_webhook
-    # POST run.prompt_payload, parse response, mark_completed! or mark_failed!
+  def index
+    @templates = RoleTemplateRegistry.all
+    @existing_titles = Current.company.roles.pluck(:title).to_set
+  end
+
+  def show
+    @template = RoleTemplateRegistry.find(params[:id])
+    @existing_titles = Current.company.roles.pluck(:title).to_set
+    @root_roles = Current.company.roles.roots.order(:title)
+  end
+
+  def apply
+    template = RoleTemplateRegistry.find(params[:id])
+    parent_role = params[:parent_role_id].present? ?
+      Current.company.roles.find(params[:parent_role_id]) : nil
+
+    result = ApplyRoleTemplateService.call(
+      company: Current.company,
+      template_key: params[:id],
+      parent_role: parent_role
+    )
+
+    if result.errors.empty?
+      notice = build_success_message(result)
+      redirect_to roles_path, notice: notice
+    else
+      alert = "Some roles could not be created: #{result.errors.map { |e| e[:title] }.join(', ')}"
+      redirect_to role_template_path(params[:id]), alert: alert
+    end
+  end
+
+  private
+
+  def build_success_message(result)
+    parts = []
+    parts << "Created #{result.created.size} roles" if result.created.any?
+    parts << "Skipped #{result.skipped.size} existing" if result.skipped.any?
+    parts.join(". ") + "."
   end
 end
 ```
 
-This is the same Net::HTTP pattern already used in `ExecuteHookService#dispatch_webhook`. Reuse that implementation strategy.
-
 ---
 
-## Data Flow: Wake Event to Live UI to Result
+## Data Flow: Browse -> Preview -> Apply -> Roles Created
+
+### Step 1: Browse Templates (GET /role_templates)
 
 ```
-1. Task transitions to :in_progress or :completed
-   → Hookable#enqueue_hooks_for_transition
-   → ExecuteHookJob → ExecuteHookService#dispatch_trigger_agent
-   → WakeAgentService.call(agent, trigger_type: :hook_triggered)
+User visits /role_templates
+  → RoleTemplatesController#index
+  → RoleTemplateRegistry.all (cached Hash of template data)
+  → @existing_titles = Current.company.roles.pluck(:title).to_set
+  → Render index: grid of template cards
+     Each card shows: name, description, role count, "X of Y roles already exist"
+```
 
-2. WakeAgentService#deliver (MODIFIED)
-   → HeartbeatEvent.create!(status: :queued)
-   → ExecuteAgentJob.perform_later(event.id)        [replaces stubs]
+### Step 2: Preview Template (GET /role_templates/:id)
 
-3. ExecuteAgentJob#perform
-   → AgentRun.create!(status: :queued, heartbeat_event: event)
-   → agent.adapter_class.execute(agent, run)
+```
+User clicks a template card
+  → RoleTemplatesController#show
+  → RoleTemplateRegistry.find("engineering")
+  → @existing_titles for visual skip indicators
+  → @root_roles for "attach under" dropdown
+  → Render show:
+     - Template name + description
+     - Visual hierarchy tree of roles
+     - Each role shows: title, description snippet, skill badges
+     - Roles already existing in company: grayed out with "Already exists" badge
+     - "Attach under" dropdown (root roles + None)
+     - "Apply Template" button (POST)
+```
 
-4. ClaudeExecutionService#call (or Process/Http variants)
-   → agent.status = :running
-   → run.mark_running!
-   → Open3.popen2e(*claude_cmd) do |out_err|
-       out_err.each_line do |json_line|
-         → Turbo::StreamsChannel.broadcast_append_to(
-              "agent_run_#{run.id}",
-              target: "agent-run-log",
-              partial: "agent_runs/log_line",
-              locals: { line: json_line }
-            )
-       end
-   → session_id extracted from "result" type JSON line
-   → run.mark_completed!(session_id_after: session_id)
-   → agent.status = :idle
-   → HeartbeatEvent marks delivered
+### Step 3: Apply Template (POST /role_templates/:id/apply)
 
-5. Browser (AgentRunsController#show)
-   → turbo_stream_from "agent_run_#{@run.id}"
-   → Turbo::StreamsChannel broadcasts append log lines in real time
-   → "Complete" indicator when run transitions to :completed
-      (broadcast_replace_to "agent-run-status" partial)
+```
+User clicks "Apply Template"
+  → POST /role_templates/engineering/apply
+     params: { parent_role_id: 42 }  (optional)
+  → ApplyRoleTemplateService.call(
+      company: Current.company,
+      template_key: "engineering",
+      parent_role: roles.find(42)    (CEO role)
+    )
+  → Service iterates role definitions:
+     1. CTO → not exists → create(parent: CEO) → assign 5 skills
+     2. Backend Lead → not exists → create(parent: CTO) → assign 4 skills
+     3. Backend Engineer → not exists → create(parent: Backend Lead) → assign 5 skills
+     ...
+  → Returns Result(created: ["CTO", "Backend Lead", ...], skipped: [], errors: [])
+  → Redirect to /roles with flash: "Created 8 roles."
+```
+
+### Step 4: Re-Apply (Idempotent)
+
+```
+User applies Engineering template again
+  → ApplyRoleTemplateService runs
+  → CTO → exists → skip
+  → Backend Lead → exists → skip
+  → ... all skipped
+  → Returns Result(created: [], skipped: ["CTO", "Backend Lead", ...], errors: [])
+  → Redirect with flash: "Skipped 8 existing."
 ```
 
 ---
 
-## Action Cable Integration
+## Routes
 
-**No new Action Cable channel class needed.** The existing `Turbo::StreamsChannel` (via turbo-rails) handles everything. The pattern is identical to how `dashboard_company_#{company_id}` works today.
+```ruby
+# config/routes.rb (addition)
+resources :role_templates, only: [:index, :show] do
+  member do
+    post :apply
+  end
+end
+```
 
-Stream names follow the existing convention:
-- `"agent_run_#{run.id}"` — per-run stream for live log output
-- `"agent_#{agent.id}"` — per-agent stream for status updates (agent status: idle → running → idle)
+This produces:
+- `GET    /role_templates`          → `role_templates#index`
+- `GET    /role_templates/:id`      → `role_templates#show`
+- `POST   /role_templates/:id/apply` → `role_templates#apply`
 
-The `turbo_stream_from` tag in the view auto-subscribes the browser via `turbo-cable-stream-source`. No JS controller needed beyond the existing Action Cable setup.
-
-The `ApplicationCable::Connection` already identifies users via `cookies.signed[:session_id]` — no changes needed there.
-
----
-
-## Build Order
-
-Dependencies drive the order:
-
-### Phase 22: AgentRun Data Model
-**Why first:** All subsequent services need the AgentRun table. No feature can execute without it.
-- Migration: `agent_runs` table
-- `AgentRun` model with status enum, `mark_running!`, `mark_completed!`, `mark_failed!`
-- `ExecuteAgentJob` (skeleton — calls adapter, logs, no streaming yet)
-- Modify `WakeAgentService#deliver` to enqueue `ExecuteAgentJob`
-- Tests: model + job + wake service integration
-
-### Phase 23: HTTP and Process Execution
-**Why second:** Simpler adapters before the complex streaming one. No new UI needed.
-- `HttpExecutionService` — real Net::HTTP POST (reuse ExecuteHookService pattern)
-- `ProcessExecutionService` — Open3 subprocess with output accumulation
-- Wire into `BaseAdapter` `.execute` interface
-- Implement in `HttpAdapter` and `ProcessAdapter`
-- Tests: service + adapter (webmock for HTTP, subprocess stubbing for process)
-
-### Phase 24: Claude CLI Execution and Session Resumption
-**Why third:** Depends on `AgentRun` model for `session_id_before/session_id_after`. Most complex.
-- `ClaudeExecutionService` — stream-json parsing, session ID capture
-- Implement in `ClaudeLocalAdapter`
-- Session resumption: `run.session_id_before = agent_runtime_state.last_session_id`
-- Tests: subprocess mock (capture commands issued, feed fake JSON lines)
-
-### Phase 25: Live Streaming UI
-**Why fourth:** Depends on all execution services + AgentRun model.
-- `AgentRunsController` (nested under agents)
-- `AgentRunsController#show` with `turbo_stream_from "agent_run_#{@run.id}"`
-- `ClaudeExecutionService#broadcast_line` — wires broadcast into execution
-- `agent_runs/log_line` partial — render one JSON line as formatted output
-- Agent status broadcast (idle → running → idle on `"agent_#{agent.id}"` stream)
-- Tests: controller + broadcast assertions
+The `:id` param is the template key (string), not a database ID. Rails routing handles string IDs fine.
 
 ---
 
-## Existing Files That Change
+## Integration Points with Existing Architecture
 
-| File | Change | Why |
-|---|---|---|
-| `app/services/wake_agent_service.rb` | `deliver_http` replaced, `deliver` dispatches `ExecuteAgentJob` for all adapter types | Remove stub, add real dispatch |
-| `app/adapters/base_adapter.rb` | Add `.execute(agent, run)` signature (raise NotImplementedError) | Interface contract |
-| `app/adapters/claude_local_adapter.rb` | Implement `.execute` via `ClaudeExecutionService.call` | Real execution |
-| `app/adapters/http_adapter.rb` | Implement `.execute` via `HttpExecutionService.call` | Real execution |
-| `app/adapters/process_adapter.rb` | Implement `.execute` via `ProcessExecutionService.call` | Real execution |
-| `app/models/heartbeat_event.rb` | Add `belongs_to :agent_run, optional: true` | Link wake event to run |
-| `app/models/agent.rb` | Add `has_many :agent_runs` | Association |
-| `config/routes.rb` | Add `resources :agent_runs` nested under agents | UI routes |
+### TreeHierarchy Concern
+
+Templates create parent-child relationships. The concern validates:
+- `parent_belongs_to_same_company` — Always true (all roles created for `Current.company`)
+- `parent_is_not_self` — Always true (new roles have no `id` yet when parent is set)
+- `parent_is_not_descendant` — Always true (parents created before children in template order)
+
+No changes to TreeHierarchy needed.
+
+### ConfigVersioned Concern
+
+Every role creation triggers `create_config_version` via `after_save`. Template-applied roles will generate ConfigVersion records automatically. This is correct behavior — the audit trail should reflect template-created roles.
+
+The `author` will be `Current.user` (the person who clicked "Apply"). The `action` will be `"create"`. No changes needed.
+
+### Tenantable Concern
+
+Roles created via `company.roles.create!` automatically get `company_id` set. No changes needed.
+
+### Default Skills (config/default_skills.yml)
+
+The existing `assign_default_skills` callback fires on first agent configuration (`after_save :assign_default_skills, if: :first_agent_configuration?`). Template roles get skills assigned at creation by the service. When an agent is later configured on a template role, `assign_default_skills` will try to add default skills but `RoleSkill` uniqueness (`validates :skill_id, uniqueness: { scope: :role_id }`) prevents duplicates. The two systems coexist without conflict.
+
+### Auditable Concern
+
+Template application does NOT need to fire audit events per role. The `ConfigVersioned` audit trail is sufficient. However, a single audit event on the company (or the top-level created role) recording "template_applied" with metadata `{ template: "engineering", created: 8, skipped: 0 }` would be valuable. This can be added as an optional enhancement.
+
+### Skill Seeding
+
+Templates reference skill keys. Skills must exist in the company before template application. Since `Company#seed_default_skills!` runs `after_create`, all builtin skills are present. If a template references a skill key that does not exist (typo or custom skill), the service silently skips that skill assignment — it does not error. This is the defensive approach.
 
 ---
 
-## New Files
+## New Components
 
-| File | Type | Purpose |
-|---|---|---|
-| `db/migrate/..._create_agent_runs.rb` | Migration | `agent_runs` table |
-| `app/models/agent_run.rb` | Model | Execution record with status machine |
-| `app/jobs/execute_agent_job.rb` | Job | Dequeues execution from Solid Queue |
-| `app/services/claude_execution_service.rb` | Service | `claude -p` subprocess + stream-json parsing |
-| `app/services/process_execution_service.rb` | Service | `Open3.popen2e` subprocess |
-| `app/services/http_execution_service.rb` | Service | Net::HTTP POST (real delivery) |
-| `app/controllers/agent_runs_controller.rb` | Controller | Execution history + live view |
-| `app/views/agent_runs/index.html.erb` | View | Run history list |
-| `app/views/agent_runs/show.html.erb` | View | Live log view with turbo_stream_from |
-| `app/views/agent_runs/_log_line.html.erb` | Partial | Single log line render |
-| `app/views/agent_runs/_run.html.erb` | Partial | Run summary card |
-| `test/models/agent_run_test.rb` | Test | Model state machine |
-| `test/jobs/execute_agent_job_test.rb` | Test | Job dispatch |
-| `test/services/claude_execution_service_test.rb` | Test | Mock subprocess |
-| `test/services/process_execution_service_test.rb` | Test | Mock subprocess |
-| `test/services/http_execution_service_test.rb` | Test | Webmock |
-| `test/controllers/agent_runs_controller_test.rb` | Test | Controller tests |
+| Component | Type | Location | Purpose |
+|-----------|------|----------|---------|
+| `RoleTemplateRegistry` | Plain Ruby class | `app/models/role_template_registry.rb` | Load, cache, expose YAML templates |
+| `ApplyRoleTemplateService` | Service object | `app/services/apply_role_template_service.rb` | Create roles + skills from template |
+| `RoleTemplatesController` | Controller | `app/controllers/role_templates_controller.rb` | Browse, preview, apply UI |
+| Template YAML files (5) | Data | `db/seeds/role_templates/*.yml` | Template definitions |
+| `role_templates/index.html.erb` | View | `app/views/role_templates/` | Browse grid |
+| `role_templates/show.html.erb` | View | `app/views/role_templates/` | Preview with hierarchy tree |
+| `role_templates/_template_card.html.erb` | Partial | `app/views/role_templates/` | Card for index grid |
+| `role_templates/_role_tree.html.erb` | Partial | `app/views/role_templates/` | Recursive tree for preview |
+| `test/models/role_template_registry_test.rb` | Test | `test/models/` | Registry loading + caching |
+| `test/services/apply_role_template_service_test.rb` | Test | `test/services/` | Service: create, skip, hierarchy, skills |
+| `test/controllers/role_templates_controller_test.rb` | Test | `test/controllers/` | Controller: index, show, apply |
+
+## Modified Components
+
+| Component | Change | Why |
+|-----------|--------|-----|
+| `config/routes.rb` | Add `resources :role_templates` | Routes for browse/preview/apply |
+| `app/views/roles/index.html.erb` | Add "Browse Templates" link | Discovery entry point |
+| `app/views/dashboard/show.html.erb` | Optional: add templates CTA in empty state | Onboarding flow |
+
+**No model changes. No migrations. No schema changes.**
+
+This is a zero-migration feature. All data lives in YAML files and existing tables.
 
 ---
 
 ## Patterns to Follow
 
-### Pattern 1: Service Object with Class-Method Entry Point
-All existing services use `self.call(**args)` as the entry point. Match this:
+### Pattern 1: Registry Class (Match AdapterRegistry)
+
+The codebase already has `AdapterRegistry` as a class-level registry. `RoleTemplateRegistry` follows the same pattern: class methods, no instances, cached data.
+
+### Pattern 2: Service with self.call (Match WakeRoleService)
+
 ```ruby
-class ClaudeExecutionService
-  def self.call(agent, run) = new(agent, run).call
+class ApplyRoleTemplateService
+  def self.call(**args)
+    new(**args).call
+  end
 end
 ```
 
-### Pattern 2: Job Guard Clauses
-`ExecuteHookJob` and `ProcessValidationResultJob` both use `find_by + return unless + state check`. Match exactly:
-```ruby
-def perform(heartbeat_event_id)
-  event = HeartbeatEvent.find_by(id: heartbeat_event_id)
-  return unless event
-  return if event.delivered?
-  # ...
-end
-```
+Every service in the codebase uses this exact pattern.
 
-### Pattern 3: Mark-State Methods on Models
-`HookExecution` and `HeartbeatEvent` have `mark_running!`, `mark_completed!`, `mark_failed!`. `AgentRun` follows the same interface.
+### Pattern 3: find_or_skip by Title (Match Skill Seeding)
 
-### Pattern 4: Turbo Broadcast from Service Layer
-`Agent#broadcast_overview_stats` and `Task#broadcast_kanban_update` call `Turbo::StreamsChannel.broadcast_*_to` directly from the model. Services can do the same — no special channel class needed.
+Skills use `find_or_create_by!(key:)`. Roles use `find_by(title:)` + skip. The logic is equivalent: idempotent application with duplicate detection by natural key.
 
-### Pattern 5: Re-raise After mark_failed!
-`ExecuteHookService` calls `mark_failed!` then re-raises so `retry_on` in the job can catch it:
-```ruby
-rescue StandardError => e
-  run.mark_failed!(error_message: e.message)
-  raise
-end
-```
-Apply identically in all three execution services.
+### Pattern 4: Structured Result Object
 
-### Pattern 6: Webmock for HTTP Services
-`webmock` is already in the Gemfile (added in Phase 19). Use it for `HttpExecutionService` tests.
+Use `Data.define` for the result (Ruby 3.2+ immutable value object). Cleaner than returning a hash, more lightweight than a full Result class.
+
+### Pattern 5: YAML in db/seeds/ (Match Skills)
+
+Template YAML files live in `db/seeds/role_templates/`, parallel to `db/seeds/skills/`. Consistent project structure.
 
 ---
 
 ## Anti-Patterns to Avoid
 
-### Anti-Pattern 1: Blocking the Job Queue with Long-Running Subprocesses
-**What goes wrong:** `claude -p` can run for minutes. If Solid Queue has limited workers and a job blocks for 10 minutes, other hooks starve.
-**Prevention:** Use a dedicated `execution` queue for `ExecuteAgentJob` with separate concurrency from the `default` queue. Add `queue_as :execution` and configure Solid Queue workers accordingly.
+### Anti-Pattern 1: Creating a RoleTemplate Model
 
-### Anti-Pattern 2: popen3 Without Concurrent Thread Reading
-**What goes wrong:** `Open3.popen3` with separate stdout/stderr pipes deadlocks when stderr fills its fixed-size buffer before stdout is drained.
-**Prevention:** Use `Open3.popen2e` (combined stdout+stderr) for all adapter services. This avoids the threading requirement.
+**Why bad:** Over-engineering for 3-5 static definitions. Adds migration, model, associations, tests, and maintenance. The data never changes at runtime.
+**Instead:** YAML files + registry class. If user-created templates are needed later (v2), add the model then.
 
-### Anti-Pattern 3: Accumulating All Output in Memory for Large Runs
-**What goes wrong:** A long claude run can produce megabytes of stream-json. Accumulating `accumulated_log.join` in one string causes memory pressure.
-**Prevention:** Write log lines to `AgentRun#log_text` incrementally (or use `update_column` for a running append). For Phase 25, truncate displayed log to last N lines if run is still active.
+### Anti-Pattern 2: Wrapping Template Application in a Transaction
 
-### Anti-Pattern 4: Agent Status Left as :running on Job Failure
-**What goes wrong:** If the job fails mid-execution and is retried, the agent is stuck as `:running`. The retry creates a second execution path on the same agent.
-**Prevention:** `ExecuteAgentJob` rescue must call `agent.update_column(:status, :idle_or_error)` before re-raising. Add an `OrphanRunRecoveryJob` (recurring, every 5 min) that finds `AgentRun` records with `status: :running` and `started_at < 30.minutes.ago` and marks them failed.
+**Why bad:** If role 5 of 8 fails, a transaction rolls back roles 1-4 too. The user gets nothing. With skip-duplicate logic, partial success is expected and useful.
+**Instead:** Process sequentially, collect errors, return Result with created/skipped/errors.
 
-### Anti-Pattern 5: Hardcoded claude Binary Path
-**What goes wrong:** `claude` is not at a predictable PATH in production Docker containers.
-**Prevention:** Add `claude_binary_path` to adapter config schema (optional). Default to `"claude"` (PATH lookup). Document in agent creation UI.
+### Anti-Pattern 3: Using Array Indices for Parent References
 
-### Anti-Pattern 6: Broadcasting Before run.id Exists
-**What goes wrong:** `broadcast_append_to "agent_run_#{run.id}"` called before the AgentRun record is persisted gives a stream name of `"agent_run_"` — a shared garbage stream.
-**Prevention:** `AgentRun.create!` in the job before calling the service. Service receives the persisted record.
+```yaml
+# BAD
+roles:
+  - title: CTO
+    parent_index: ~
+  - title: Backend Lead
+    parent_index: 0  # Fragile, unreadable
+```
+
+**Instead:** Use title strings (`parent: CTO`). Readable, self-documenting, robust to reordering.
+
+### Anti-Pattern 4: Duplicating Skill Definitions in Templates
+
+Templates should reference skill keys, not embed full skill markdown. Skills are already seeded. Templates just reference them by key.
+
+### Anti-Pattern 5: Applying Templates Without Company Scoping
+
+The service receives `company:` explicitly. Never rely on `Current.company` inside the service — pass it as a parameter. This makes the service testable without thread-local state.
 
 ---
 
-## Scalability Considerations
+## Build Order
 
-| Concern | Now (v1.4) | Future |
-|---|---|---|
-| Concurrent agent runs | Single Solid Queue process, limited concurrency | Multiple Solid Queue workers with dedicated `execution` queue |
-| Log storage | `agent_runs.log_text` text column | Extract to separate `agent_run_logs` table with pagination |
-| Session state | `session_id_before/after` on `AgentRun` | Dedicated `AgentRuntimeState` model (one row per agent) for current session tracking |
-| Long-running runs | Job occupies worker thread | Consider async subprocess management with polling |
+Dependencies drive the order. Three phases, all lightweight:
+
+### Phase 1: Template Data + Registry (Foundation)
+
+**Why first:** Everything depends on being able to load template definitions.
+
+- Write 5 YAML template files in `db/seeds/role_templates/`
+- Implement `RoleTemplateRegistry` (load, cache, find, keys)
+- Tests: registry loading, find, unknown key error, reset for test isolation
+
+### Phase 2: Application Service (Core Logic)
+
+**Why second:** The service is the heart of the feature. Needs templates to exist (Phase 1).
+
+- Implement `ApplyRoleTemplateService`
+- Tests: fresh apply (all created), re-apply (all skipped), partial overlap, hierarchy construction, skill assignment, missing parent handling, missing skill key handling
+
+### Phase 3: Controller + Views (UI)
+
+**Why third:** Needs both registry (Phase 1) and service (Phase 2).
+
+- Routes
+- `RoleTemplatesController` with index, show, apply
+- Views: index (card grid), show (hierarchy preview + apply form), flash messages
+- Link from roles index page
+- Tests: controller actions, flash messages, redirect targets
+
+---
+
+## Template Content Plan
+
+Five departments, 3-8 roles each, covering the standard AI company structure:
+
+| Template | Key | Roles | Top Role |
+|----------|-----|-------|----------|
+| Engineering | `engineering` | CTO, Backend Lead, Frontend Lead, Backend Engineer, Frontend Engineer, QA Engineer, DevOps Engineer | CTO |
+| Marketing | `marketing` | CMO, Content Lead, SEO Specialist, Social Media Manager, Campaign Manager | CMO |
+| Operations | `operations` | COO, Project Manager, Operations Analyst, Customer Support Lead | COO |
+| Finance | `finance` | CFO, Financial Analyst, Budget Controller, Compliance Officer | CFO |
+| Human Resources | `hr` | CHRO, Recruiter, People Ops Manager | CHRO |
+
+Total: ~25-27 roles across 5 templates. Each role gets a description, a 4-8 line job spec, and 3-5 skill key assignments referencing existing builtin skills.
 
 ---
 
 ## Sources
 
-- Claude CLI reference (official): https://code.claude.ai/docs/en/cli-reference — HIGH confidence
-- Claude CLI headless/programmatic usage: https://code.claude.com/docs/en/headless — HIGH confidence
-- Claude Agent SDK streaming output: https://platform.claude.com/docs/en/agent-sdk/streaming-output — HIGH confidence
-- Stream-json flush bug (pipelining): https://github.com/anthropics/claude-code/issues/25670 — HIGH confidence
-- Ruby Open3 documentation: https://docs.ruby-lang.org/en/master/Open3.html — HIGH confidence
-- Turbo Streams broadcast pattern: existing codebase (`app/models/agent.rb`, `app/models/task.rb`) — HIGH confidence (read directly)
-- ExecuteHookService pattern: existing codebase — HIGH confidence (read directly)
+- Role model with TreeHierarchy, Tenantable, ConfigVersioned: `app/models/role.rb` — HIGH confidence (read directly)
+- Skill model and seeding pattern: `app/models/skill.rb`, `app/models/company.rb` — HIGH confidence (read directly)
+- RoleSkill join table with company validation: `app/models/role_skill.rb` — HIGH confidence (read directly)
+- TreeHierarchy concern validations: `app/models/concerns/tree_hierarchy.rb` — HIGH confidence (read directly)
+- Default skills auto-assignment: `app/models/role.rb` lines 41-47, 226-241 — HIGH confidence (read directly)
+- Skill seeding rake task pattern: `lib/tasks/skills.rake` — HIGH confidence (read directly)
+- Service object pattern: `app/services/wake_role_service.rb` — HIGH confidence (read directly)
+- Routes structure: `config/routes.rb` — HIGH confidence (read directly)
+- Schema (no migration needed): `db/schema.rb` — HIGH confidence (read directly)
