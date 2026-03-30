@@ -1,6 +1,6 @@
 require "test_helper"
 
-class CreateDocumentServiceTest < ActiveSupport::TestCase
+class Documents::CreatorTest < ActiveSupport::TestCase
   setup do
     @company = companies(:acme)
     @role = roles(:cto)
@@ -8,7 +8,7 @@ class CreateDocumentServiceTest < ActiveSupport::TestCase
   end
 
   test "creates document with role author" do
-    doc = CreateDocumentService.call(
+    doc = Documents::Creator.call(
       author: @role,
       company: @company,
       title: "Role Report",
@@ -22,7 +22,7 @@ class CreateDocumentServiceTest < ActiveSupport::TestCase
   end
 
   test "creates document with user author" do
-    doc = CreateDocumentService.call(
+    doc = Documents::Creator.call(
       author: @user,
       company: @company,
       title: "User Doc",
@@ -34,7 +34,7 @@ class CreateDocumentServiceTest < ActiveSupport::TestCase
   end
 
   test "creates and links tags by name" do
-    doc = CreateDocumentService.call(
+    doc = Documents::Creator.call(
       author: @role,
       company: @company,
       title: "Tagged Doc",
@@ -52,7 +52,7 @@ class CreateDocumentServiceTest < ActiveSupport::TestCase
     existing_tag = document_tags(:acme_policy_tag)
 
     assert_no_difference("DocumentTag.where(name: 'policy', company: @company).count") do
-      CreateDocumentService.call(
+      Documents::Creator.call(
         author: @role,
         company: @company,
         title: "Doc with existing tag",
@@ -64,7 +64,7 @@ class CreateDocumentServiceTest < ActiveSupport::TestCase
 
   test "raises on invalid document" do
     assert_raises(ActiveRecord::RecordInvalid) do
-      CreateDocumentService.call(
+      Documents::Creator.call(
         author: @role,
         company: @company,
         title: "",
@@ -74,7 +74,7 @@ class CreateDocumentServiceTest < ActiveSupport::TestCase
   end
 
   test "does not auto-link document to author role" do
-    doc = CreateDocumentService.call(
+    doc = Documents::Creator.call(
       author: @role,
       company: @company,
       title: "Standalone Doc",
