@@ -155,7 +155,7 @@ class GoalEvaluationService
     return unless role
     return if role.terminated?
 
-    WakeRoleService.call(
+    Roles::Waking.call(
       role: role,
       trigger_type: :goal_evaluation_failed,
       trigger_source: "GoalEvaluation##{evaluation.id}",

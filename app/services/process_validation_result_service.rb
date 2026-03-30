@@ -72,7 +72,7 @@ class ProcessValidationResultService
     return unless parent_role
     return if parent_role.terminated?
 
-    WakeRoleService.call(
+    Roles::Waking.call(
       role: parent_role,
       trigger_type: :review_validation,
       trigger_source: "Task##{validation_task.id}",

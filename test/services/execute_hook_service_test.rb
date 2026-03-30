@@ -55,7 +55,7 @@ class ExecuteHookServiceTest < ActiveSupport::TestCase
     assert_includes subtask.description, @task.title
   end
 
-  test "trigger_agent wakes target role via WakeRoleService with hook_triggered" do
+  test "trigger_agent wakes target role via Roles::Waking with hook_triggered" do
     assert_difference "HeartbeatEvent.count", 2 do
       ExecuteHookService.call(@trigger_execution)
     end

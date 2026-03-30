@@ -24,7 +24,7 @@ class TaskQuestionsController < ApplicationController
       message_type: :question
     )
 
-    WakeRoleService.call(
+    Roles::Waking.call(
       role: manager_role,
       trigger_type: :question_asked,
       trigger_source: "Message##{message.id}",

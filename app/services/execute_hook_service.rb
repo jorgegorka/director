@@ -50,7 +50,7 @@ class ExecuteHookService
       priority: task.priority
     )
 
-    WakeRoleService.call(
+    Roles::Waking.call(
       role: target,
       trigger_type: :hook_triggered,
       trigger_source: "RoleHook##{role_hook.id}",

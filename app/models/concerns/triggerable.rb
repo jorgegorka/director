@@ -6,7 +6,7 @@ module Triggerable
   def trigger_role_wake(role:, trigger_type:, trigger_source:, context: {})
     return if role.nil? || role.terminated?
 
-    WakeRoleService.call(
+    Roles::Waking.call(
       role: role,
       trigger_type: trigger_type,
       trigger_source: trigger_source,

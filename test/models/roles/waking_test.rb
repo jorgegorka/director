@@ -1,6 +1,6 @@
 require "test_helper"
 
-class WakeRoleServiceTest < ActiveSupport::TestCase
+class Roles::WakingTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
 
   setup do
@@ -12,7 +12,7 @@ class WakeRoleServiceTest < ActiveSupport::TestCase
   end
 
   test "creates heartbeat event for http role with delivered status" do
-    event = WakeRoleService.call(
+    event = Roles::Waking.call(
       role: @developer,
       trigger_type: :scheduled,
       trigger_source: "schedule"
@@ -25,7 +25,7 @@ class WakeRoleServiceTest < ActiveSupport::TestCase
   end
 
   test "creates heartbeat event for process role with queued status" do
-    event = WakeRoleService.call(
+    event = Roles::Waking.call(
       role: @process_role,
       trigger_type: :task_assigned,
       trigger_source: "Task#42"
@@ -37,7 +37,7 @@ class WakeRoleServiceTest < ActiveSupport::TestCase
   end
 
   test "creates heartbeat event for claude_local role with queued status" do
-    event = WakeRoleService.call(
+    event = Roles::Waking.call(
       role: @cto,
       trigger_type: :mention,
       trigger_source: "Message#7"
@@ -49,18 +49,18 @@ class WakeRoleServiceTest < ActiveSupport::TestCase
 
   test "updates role last_heartbeat_at" do
     assert_changes -> { @developer.reload.last_heartbeat_at } do
-      WakeRoleService.call(role: @developer, trigger_type: :scheduled)
+      Roles::Waking.call(role: @developer, trigger_type: :scheduled)
     end
   end
 
   test "returns nil for terminated role" do
     @developer.update_column(:status, Role.statuses[:terminated])
-    result = WakeRoleService.call(role: @developer, trigger_type: :scheduled)
+    result = Roles::Waking.call(role: @developer, trigger_type: :scheduled)
     assert_nil result
   end
 
   test "request_payload includes trigger context" do
-    event = WakeRoleService.call(
+    event = Roles::Waking.call(
       role: @developer,
       trigger_type: :task_assigned,
       trigger_source: "Task#99",
@@ -74,7 +74,7 @@ class WakeRoleServiceTest < ActiveSupport::TestCase
 
   test "increments heartbeat_event count" do
     assert_difference -> { HeartbeatEvent.count }, 1 do
-      WakeRoleService.call(role: @developer, trigger_type: :scheduled)
+      Roles::Waking.call(role: @developer, trigger_type: :scheduled)
     end
   end
 
@@ -82,7 +82,7 @@ class WakeRoleServiceTest < ActiveSupport::TestCase
 
   test "creates RoleRun record when waking role" do
     assert_difference -> { RoleRun.count }, 1 do
-      WakeRoleService.call(
+      Roles::Waking.call(
         role: @developer,
         trigger_type: :task_assigned,
         trigger_source: "Task#99",
@@ -99,7 +99,7 @@ class WakeRoleServiceTest < ActiveSupport::TestCase
   end
 
   test "creates RoleRun with nil task for taskless triggers" do
-    WakeRoleService.call(
+    Roles::Waking.call(
       role: @cto,
       trigger_type: :scheduled,
       trigger_source: "schedule"
@@ -113,7 +113,7 @@ class WakeRoleServiceTest < ActiveSupport::TestCase
 
   test "enqueues ExecuteRoleJob when waking role" do
     assert_enqueued_with(job: ExecuteRoleJob, queue: "execution") do
-      WakeRoleService.call(
+      Roles::Waking.call(
         role: @developer,
         trigger_type: :task_assigned,
         context: { task_id: tasks(:fix_login_bug).id }
@@ -124,7 +124,7 @@ class WakeRoleServiceTest < ActiveSupport::TestCase
   test "creates both HeartbeatEvent and RoleRun" do
     assert_difference -> { HeartbeatEvent.count }, 1 do
       assert_difference -> { RoleRun.count }, 1 do
-        WakeRoleService.call(
+        Roles::Waking.call(
           role: @developer,
           trigger_type: :task_assigned,
           context: { task_id: tasks(:fix_login_bug).id }
@@ -136,12 +136,12 @@ class WakeRoleServiceTest < ActiveSupport::TestCase
   test "does not create RoleRun for terminated role" do
     @developer.update_column(:status, Role.statuses[:terminated])
     assert_no_difference -> { RoleRun.count } do
-      WakeRoleService.call(role: @developer, trigger_type: :scheduled)
+      Roles::Waking.call(role: @developer, trigger_type: :scheduled)
     end
   end
 
   test "handles string task_id from context" do
-    WakeRoleService.call(
+    Roles::Waking.call(
       role: @developer,
       trigger_type: :task_assigned,
       context: { "task_id" => tasks(:fix_login_bug).id.to_s }

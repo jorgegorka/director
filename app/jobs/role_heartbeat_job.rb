@@ -7,7 +7,7 @@ class RoleHeartbeatJob < ApplicationJob
     return unless role.heartbeat_scheduled?
     return if role.terminated?
 
-    WakeRoleService.call(
+    Roles::Waking.call(
       role: role,
       trigger_type: :scheduled,
       trigger_source: "schedule"
