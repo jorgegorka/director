@@ -15,6 +15,7 @@ Director transforms the chaos of managing multiple AI agents into a structured b
 - v1.3 Agent Hooks - Phases 18-21 (shipped 2026-03-28)
 - v1.4 Agent Execution - Phases 22-25 (shipped 2026-03-28)
 - v1.5 Role Templates - Phases 26-28 (shipped 2026-03-30)
+- **v1.6 Service Refactor & Cleanup - Phases 29-33 (in progress)**
 
 ## Phases
 
@@ -266,10 +267,77 @@ Full details: [v1.5-ROADMAP.md](milestones/v1.5-ROADMAP.md)
 
 </details>
 
+### v1.6 Service Refactor & Cleanup (Phases 29-33) - IN PROGRESS
+
+- [ ] **Phase 29: Roles Domain** - WakeRoleService, GateCheckService, EmergencyStopService relocate to `app/models/roles/`
+- [ ] **Phase 30: Hooks & Budgets** - ExecuteHookService, ProcessValidationResultService, BudgetEnforcementService relocate to domain namespaces
+- [ ] **Phase 31: Agents, Goals, Heartbeats & Documents** - AiClient, GoalEvaluationService, HeartbeatScheduleManager, CreateDocumentService relocate to domain namespaces
+- [ ] **Phase 32: Role Templates** - RoleTemplateRegistry, ApplyRoleTemplateService, ApplyAllRoleTemplatesService relocate to `app/models/role_templates/`
+- [ ] **Phase 33: Final Cleanup** - Verify all references updated, all tests pass, delete `app/services/`, address code quality
+
+Full details: [v1.6-ROADMAP.md](milestones/v1.6-ROADMAP.md)
+
+### Phase 29: Roles Domain
+**Goal**: Relocate the three role-related services (WakeRoleService, GateCheckService, EmergencyStopService) to `app/models/roles/`
+**Why this matters**: WakeRoleService is the most widely depended-on service in the codebase -- it is called by hooks, goals, the triggerable concern, and controllers. Moving it first establishes the foundation that all subsequent phases build on. GateCheckService and EmergencyStopService share the roles domain and have no outward dependencies.
+**Depends on**: Nothing (first phase of milestone)
+**Requirements**: ROLE-01, ROLE-02, ROLE-03
+**Success Criteria** (what must be TRUE):
+  1. `Roles::Waking.call(role:, trigger_type:)` works identically to the old `WakeRoleService.call` -- agents still wake on schedule and in response to events
+  2. `Roles::GateCheck.check!(role:, action_type:)` correctly pauses actions requiring approval -- governance gates still block unauthorized agent actions
+  3. `Roles::EmergencyStop.call!(company:, user:)` pauses all active roles in a company -- the emergency stop button on the company page still works
+  4. All callers of the old service names (jobs, controllers, concerns, other services) reference the new namespaced classes
+  5. All existing tests pass with the relocated classes
+
+### Phase 30: Hooks & Budgets
+**Goal**: Relocate ExecuteHookService, ProcessValidationResultService, and BudgetEnforcementService to their respective domain namespaces
+**Why this matters**: Hooks are a critical execution path -- they fire on task lifecycle events and trigger agent-to-agent validation. Budget enforcement is the safety gate that prevents runaway spending. Both must work flawlessly after relocation.
+**Depends on**: Phase 29 (ExecuteHookService and ProcessValidationResultService both call Roles::Waking)
+**Requirements**: HOOK-01, HOOK-02, BUDG-01
+**Success Criteria** (what must be TRUE):
+  1. `Hooks::Executor.call(execution)` dispatches trigger_agent and webhook hooks identically to the old service -- hook executions still fire on task state changes
+  2. `Hooks::ValidationProcessor.call(task)` feeds validation results back to the parent task and wakes the original agent -- the validation feedback loop still works end-to-end
+  3. `Budgets::Enforcement.check!(role)` atomically pauses agents that exceed their budget and sends threshold alerts -- budget safety still prevents overspending
+  4. All existing tests pass with the relocated classes
+
+### Phase 31: Agents, Goals, Heartbeats & Documents
+**Goal**: Relocate AiClient, GoalEvaluationService, HeartbeatScheduleManager, and CreateDocumentService to their domain namespaces
+**Why this matters**: These four services span the remaining domains. GoalEvaluationService depends on AiClient (co-moved here) and Roles::Waking (moved in Phase 29), making this the right time to relocate both together. HeartbeatScheduleManager and CreateDocumentService are standalone leaf services with no cross-dependencies.
+**Depends on**: Phase 29 (GoalEvaluationService calls Roles::Waking)
+**Requirements**: AGNT-01, GOAL-01, BEAT-01, DOCS-01
+**Success Criteria** (what must be TRUE):
+  1. `Agents::AiClient.chat(system:, prompt:)` communicates with the Anthropic API identically -- goal evaluation still gets AI-generated assessments
+  2. `Goals::Evaluation.call(task)` evaluates completed tasks against company goals, records results, and wakes relevant agents -- goal alignment still works after task completion
+  3. `Heartbeats::ScheduleManager.sync(role)` creates and removes recurring Solid Queue jobs -- heartbeat schedules still sync when role settings change
+  4. `Documents::Creator.call(company:, title:, content:)` creates documents scoped to the company -- document creation still works from all entry points
+  5. All existing tests pass with the relocated classes
+
+### Phase 32: Role Templates
+**Goal**: Relocate RoleTemplateRegistry, ApplyRoleTemplateService, and ApplyAllRoleTemplatesService to `app/models/role_templates/`
+**Why this matters**: The three template services form a tightly coupled chain -- the registry loads templates, the applicator creates individual departments, and the bulk applicator orchestrates full company setup. They must move together to maintain internal coherence.
+**Depends on**: Phase 29 (roles/hiring.rb already references RoleTemplateRegistry, but that is in app/models/ already)
+**Requirements**: TMPL-01, TMPL-02, TMPL-03
+**Success Criteria** (what must be TRUE):
+  1. `RoleTemplates::Registry.all` and `RoleTemplates::Registry.find(key)` load and cache YAML templates identically -- the templates browse page still displays all 5 departments
+  2. `RoleTemplates::Applicator.call(company:, template_key:)` creates role hierarchies with skill pre-assignment and skip-duplicate logic -- applying a template still creates the correct roles
+  3. `RoleTemplates::BulkApplicator.call(company:)` creates all departments under a shared CEO -- the "Apply All" button still sets up a complete company
+  4. All callers (role_templates_controller, roles/hiring.rb) reference the new namespaced classes
+
+### Phase 33: Final Cleanup
+**Goal**: Verify all references are updated, all tests pass, delete `app/services/`, and address code quality issues discovered during migration
+**Why this matters**: The milestone is not complete until the old directory is gone and the codebase is cleaner than we found it. This phase catches any stale references, confirms the full test suite passes, and addresses incidental quality issues.
+**Depends on**: Phases 29-32 (all services must be relocated before cleanup)
+**Requirements**: CLEN-01, CLEN-02, CLEN-03, CLEN-04
+**Success Criteria** (what must be TRUE):
+  1. No file in the codebase references any of the 13 old service class names -- grep confirms zero hits
+  2. The full test suite passes (`bin/rails test`) with zero failures and zero errors
+  3. The `app/services/` directory no longer exists
+  4. At least one code quality improvement is made (dead code removal, naming fix, or unused import cleanup discovered during migration)
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14 -> 15 -> 16 -> 17 -> 18 -> 19 -> 20 -> 21 -> 22 -> 23 -> 24 -> 25 -> 26 -> 27 -> 28
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14 -> 15 -> 16 -> 17 -> 18 -> 19 -> 20 -> 21 -> 22 -> 23 -> 24 -> 25 -> 26 -> 27 -> 28 -> 29 -> 30 -> 31 -> 32 -> 33
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -301,3 +369,8 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 26. Template Data and Registry | v1.5 | 2/2 | Complete | 2026-03-29 |
 | 27. Template Application Service | v1.5 | 2/2 | Complete | 2026-03-29 |
 | 28. Templates Browse and Apply UI | v1.5 | 2/2 | Complete | 2026-03-30 |
+| 29. Roles Domain | v1.6 | 0/0 | Not started | — |
+| 30. Hooks & Budgets | v1.6 | 0/0 | Not started | — |
+| 31. Agents, Goals, Heartbeats & Documents | v1.6 | 0/0 | Not started | — |
+| 32. Role Templates | v1.6 | 0/0 | Not started | — |
+| 33. Final Cleanup | v1.6 | 0/0 | Not started | — |

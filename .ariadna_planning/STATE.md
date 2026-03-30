@@ -9,10 +9,10 @@ See: .ariadna_planning/PROJECT.md (updated 2026-03-30)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 29 - Roles Domain
 Plan: --
-Status: Defining requirements
-Last activity: 2026-03-30 -- Milestone v1.6 started
+Status: Planning (roadmap created, awaiting phase planning)
+Last activity: 2026-03-30 -- Roadmap created for v1.6
 
 Progress: ░░░░░░░░░░ 0%
 
@@ -80,6 +80,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-30
-Stopped at: v1.6 milestone started, defining requirements.
+Stopped at: v1.6 roadmap created. Ready for phase 29 planning.
 Resume file: --
-Next step: Define requirements, create roadmap
+Next step: `/ariadna:plan-phase 29`
