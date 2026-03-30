@@ -288,6 +288,11 @@ Full details: [v1.6-ROADMAP.md](milestones/v1.6-ROADMAP.md)
   3. `Roles::EmergencyStop.call!(company:, user:)` pauses all active roles in a company -- the emergency stop button on the company page still works
   4. All callers of the old service names (jobs, controllers, concerns, other services) reference the new namespaced classes
   5. All existing tests pass with the relocated classes
+**Plans**: 2/2 complete
+
+Plans:
+- [x] 29-01: Relocate WakeRoleService to Roles::Waking and update all 6 callers
+- [x] 29-02: Relocate GateCheckService to Roles::GateCheck and EmergencyStopService to Roles::EmergencyStop
 
 ### Phase 30: Hooks & Budgets
 **Goal**: Relocate ExecuteHookService, ProcessValidationResultService, and BudgetEnforcementService to their respective domain namespaces
@@ -369,7 +374,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 26. Template Data and Registry | v1.5 | 2/2 | Complete | 2026-03-29 |
 | 27. Template Application Service | v1.5 | 2/2 | Complete | 2026-03-29 |
 | 28. Templates Browse and Apply UI | v1.5 | 2/2 | Complete | 2026-03-30 |
-| 29. Roles Domain | v1.6 | 0/0 | Not started | — |
+| 29. Roles Domain | v1.6 | 2/2 | Complete | 2026-03-30 |
 | 30. Hooks & Budgets | v1.6 | 0/0 | Not started | — |
 | 31. Agents, Goals, Heartbeats & Documents | v1.6 | 0/0 | Not started | — |
 | 32. Role Templates | v1.6 | 0/0 | Not started | — |

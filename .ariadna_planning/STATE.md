@@ -60,7 +60,7 @@ Progress: ████████████ 100%
 **Recent Trend:**
 - v1.5 plans: 26-01 (~2 min), 26-02 (~2 min), 27-01 (~3 min), 27-02 (~2 min), 28-01 (~12 min), 28-02 (~10 min)
 - v1.6 plans: 29-01 (~10 min), 29-02 (~10 min)
-- All milestones complete: v1.0, v1.1, v1.2, v1.3, v1.4, v1.5, v1.6
+- All milestones complete: v1.0, v1.1, v1.2, v1.3, v1.4, v1.5
 
 *Updated after each plan completion*
 
@@ -84,4 +84,4 @@ None.
 Last session: 2026-03-30
 Stopped at: Phase 29 complete. All role-domain services relocated to Roles namespace (Hiring, Waking, GateCheck, EmergencyStop). app/services/ clear of role-domain logic.
 Resume file: --
-Next step: Plan next phase (v1.6 complete)
+Next step: `/ariadna:plan-phase 30`
