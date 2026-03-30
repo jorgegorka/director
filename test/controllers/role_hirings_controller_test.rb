@@ -118,4 +118,56 @@ class RoleHiringsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to role_path(@cto)
     assert flash[:alert].present?
   end
+
+  # ==========================================================================
+  # Approval flow tests
+  # ==========================================================================
+
+  test "approving a role with pending hire creates the hired role" do
+    pending_hire = PendingHire.create!(
+      role: @cto,
+      company: @company,
+      template_role_title: "VP Engineering",
+      budget_cents: 20000
+    )
+    @cto.update!(status: :pending_approval, pause_reason: "Awaiting approval to hire VP Engineering")
+
+    assert_difference "Role.count", 1 do
+      post approve_role_url(@cto)
+    end
+
+    assert_redirected_to role_path(@cto)
+
+    @cto.reload
+    assert @cto.idle?
+
+    pending_hire.reload
+    assert pending_hire.approved?
+
+    new_role = @company.roles.find_by(title: "VP Engineering")
+    assert_not_nil new_role
+    assert_equal @cto, new_role.parent
+  end
+
+  test "rejecting a role with pending hire does not create role" do
+    pending_hire = PendingHire.create!(
+      role: @cto,
+      company: @company,
+      template_role_title: "VP Engineering",
+      budget_cents: 20000
+    )
+    @cto.update!(status: :pending_approval, pause_reason: "Awaiting approval to hire VP Engineering")
+
+    assert_no_difference "Role.count" do
+      post reject_role_url(@cto), params: { reason: "Not needed now" }
+    end
+
+    assert_redirected_to role_path(@cto)
+
+    @cto.reload
+    assert @cto.paused?
+
+    pending_hire.reload
+    assert pending_hire.rejected?
+  end
 end

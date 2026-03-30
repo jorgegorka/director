@@ -101,6 +101,12 @@ class RolesController < ApplicationController
       return
     end
 
+    pending_hire = @role.pending_hires.actionable.last
+    if pending_hire
+      @role.execute_hire!(pending_hire)
+      pending_hire.approve!(Current.user)
+    end
+
     @role.update!(
       status: :idle,
       pause_reason: nil,
@@ -115,6 +121,9 @@ class RolesController < ApplicationController
       redirect_to @role, alert: "#{@role.title} is not pending approval."
       return
     end
+
+    pending_hire = @role.pending_hires.actionable.last
+    pending_hire&.reject!(Current.user)
 
     @role.update!(
       status: :paused,
