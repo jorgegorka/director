@@ -9,19 +9,19 @@ See: .ariadna_planning/PROJECT.md (updated 2026-03-30)
 
 ## Current Position
 
-Phase: 32 - Role Templates
-Plan: 02 complete
+Phase: 33 - Final Cleanup
+Plan: 01 complete
 Status: Complete
-Last activity: 2026-03-30 -- RoleTemplates::BulkApplicator relocated from app/services/ to app/models/role_templates/; app/services/ now empty
+Last activity: 2026-03-30 -- v1.6 Service Refactor & Cleanup milestone complete. app/services/ deleted. Three code quality improvements committed. 1243 tests passing, rubocop clean, brakeman pre-existing only.
 
 Progress: ████████████ 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 58
+- Total plans completed: 59
 - Average duration: ~7 minutes
-- Total execution time: ~294 minutes
+- Total execution time: ~304 minutes
 
 **By Phase:**
 
@@ -59,11 +59,12 @@ Progress: ████████████ 100%
 | 30-hooks-and-budgets | 2/2 | ~6 min | ~3 min |
 | 31-agents-goals-heartbeats-documents | 2/2 | ~5 min | ~2.5 min |
 | 32-role-templates | 2/2 | ~6 min | ~3 min |
+| 33-final-cleanup | 1/1 | ~10 min | ~10 min |
 
 **Recent Trend:**
 - v1.5 plans: 26-01 (~2 min), 26-02 (~2 min), 27-01 (~3 min), 27-02 (~2 min), 28-01 (~12 min), 28-02 (~10 min)
-- v1.6 plans: 29-01 (~10 min), 29-02 (~10 min), 30-01 (~4 min), 30-02 (~2 min), 31-01 (~2 min), 31-02 (~3 min), 32-01 (~3 min), 32-02 (~3 min)
-- All milestones complete: v1.0, v1.1, v1.2, v1.3, v1.4, v1.5
+- v1.6 plans: 29-01 (~10 min), 29-02 (~10 min), 30-01 (~4 min), 30-02 (~2 min), 31-01 (~2 min), 31-02 (~3 min), 32-01 (~3 min), 32-02 (~3 min), 33-01 (~10 min)
+- All milestones complete: v1.0, v1.1, v1.2, v1.3, v1.4, v1.5, v1.6
 
 *Updated after each plan completion*
 
@@ -85,6 +86,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-30
-Stopped at: Phase 32 plan 02 complete. RoleTemplates::BulkApplicator relocated. app/services/ is now empty. Phase 32 complete.
+Stopped at: Phase 33 plan 01 complete. v1.6 Service Refactor & Cleanup milestone complete. All 13 service classes relocated, app/services/ deleted, CI suite clean.
 Resume file: --
-Next step: Phase 33 (delete app/services/ directory and any remaining cleanup)
+Next step: v1.6 milestone shipped. No remaining planned work.
