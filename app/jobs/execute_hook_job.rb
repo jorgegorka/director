@@ -9,6 +9,6 @@ class ExecuteHookJob < ApplicationJob
     return unless execution
     return if execution.completed?
 
-    ExecuteHookService.call(execution)
+    Hooks::Executor.call(execution)
   end
 end

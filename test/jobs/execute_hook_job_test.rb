@@ -49,7 +49,7 @@ class ExecuteHookJobTest < ActiveSupport::TestCase
     assert_equal "default", ExecuteHookJob.new.queue_name
   end
 
-  test "calls ExecuteHookService for queued execution" do
+  test "calls Hooks::Executor for queued execution" do
     hook = role_hooks(:cto_validation_hook)
 
     execution = HookExecution.create!(
@@ -68,7 +68,7 @@ class ExecuteHookJobTest < ActiveSupport::TestCase
     assert execution.completed?
   end
 
-  test "calls ExecuteHookService for running execution" do
+  test "calls Hooks::Executor for running execution" do
     hook = role_hooks(:cto_validation_hook)
 
     execution = HookExecution.create!(

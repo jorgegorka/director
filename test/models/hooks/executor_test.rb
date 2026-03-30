@@ -1,7 +1,7 @@
 require "test_helper"
 require "webmock/minitest"
 
-class ExecuteHookServiceTest < ActiveSupport::TestCase
+class Hooks::ExecutorTest < ActiveSupport::TestCase
   setup do
     @company = companies(:acme)
     @cto = roles(:cto)
@@ -33,7 +33,7 @@ class ExecuteHookServiceTest < ActiveSupport::TestCase
   # --- trigger_agent dispatch ---
 
   test "trigger_agent creates validation subtask assigned to target role" do
-    ExecuteHookService.call(@trigger_execution)
+    Hooks::Executor.call(@trigger_execution)
 
     subtask = Task.find_by(parent_task: @task, assignee: @developer)
     assert subtask.present?, "Validation subtask should be created"
@@ -44,20 +44,20 @@ class ExecuteHookServiceTest < ActiveSupport::TestCase
   end
 
   test "trigger_agent subtask description includes hook prompt" do
-    ExecuteHookService.call(@trigger_execution)
+    Hooks::Executor.call(@trigger_execution)
     subtask = Task.find_by(parent_task: @task, assignee: @developer)
     assert_includes subtask.description, "Review the completed work for correctness and quality."
   end
 
   test "trigger_agent subtask description includes original task title" do
-    ExecuteHookService.call(@trigger_execution)
+    Hooks::Executor.call(@trigger_execution)
     subtask = Task.find_by(parent_task: @task, assignee: @developer)
     assert_includes subtask.description, @task.title
   end
 
   test "trigger_agent wakes target role via Roles::Waking with hook_triggered" do
     assert_difference "HeartbeatEvent.count", 2 do
-      ExecuteHookService.call(@trigger_execution)
+      Hooks::Executor.call(@trigger_execution)
     end
 
     hook_event = HeartbeatEvent.where(trigger_type: :hook_triggered).last
@@ -67,7 +67,7 @@ class ExecuteHookServiceTest < ActiveSupport::TestCase
   end
 
   test "trigger_agent marks execution as completed with output" do
-    ExecuteHookService.call(@trigger_execution)
+    Hooks::Executor.call(@trigger_execution)
     @trigger_execution.reload
 
     assert @trigger_execution.completed?
@@ -81,7 +81,7 @@ class ExecuteHookServiceTest < ActiveSupport::TestCase
     @trigger_hook.update_columns(action_config: { "target_role_id" => 999999 })
 
     assert_raises(RuntimeError, /Target role not found/) do
-      ExecuteHookService.call(@trigger_execution)
+      Hooks::Executor.call(@trigger_execution)
     end
 
     @trigger_execution.reload
@@ -95,7 +95,7 @@ class ExecuteHookServiceTest < ActiveSupport::TestCase
     stub_request(:post, "https://hooks.example.com/task-started")
       .to_return(status: 200, body: '{"ok": true}')
 
-    ExecuteHookService.call(@webhook_execution)
+    Hooks::Executor.call(@webhook_execution)
 
     assert_requested(:post, "https://hooks.example.com/task-started") do |req|
       payload = JSON.parse(req.body)
@@ -109,7 +109,7 @@ class ExecuteHookServiceTest < ActiveSupport::TestCase
     stub_request(:post, "https://hooks.example.com/task-started")
       .to_return(status: 200, body: '{"ok": true}')
 
-    ExecuteHookService.call(@webhook_execution)
+    Hooks::Executor.call(@webhook_execution)
 
     assert_requested(:post, "https://hooks.example.com/task-started") do |req|
       req.headers["Authorization"] == "Bearer test-token" &&
@@ -121,7 +121,7 @@ class ExecuteHookServiceTest < ActiveSupport::TestCase
     stub_request(:post, "https://hooks.example.com/task-started")
       .to_return(status: 200, body: '{"ok": true}')
 
-    ExecuteHookService.call(@webhook_execution)
+    Hooks::Executor.call(@webhook_execution)
     @webhook_execution.reload
 
     assert @webhook_execution.completed?
@@ -134,7 +134,7 @@ class ExecuteHookServiceTest < ActiveSupport::TestCase
       .to_return(status: 500, body: "Internal Server Error")
 
     assert_raises(RuntimeError, /Webhook returned 500/) do
-      ExecuteHookService.call(@webhook_execution)
+      Hooks::Executor.call(@webhook_execution)
     end
 
     @webhook_execution.reload
@@ -147,7 +147,7 @@ class ExecuteHookServiceTest < ActiveSupport::TestCase
       .to_timeout
 
     assert_raises do
-      ExecuteHookService.call(@webhook_execution)
+      Hooks::Executor.call(@webhook_execution)
     end
 
     @webhook_execution.reload
@@ -158,7 +158,7 @@ class ExecuteHookServiceTest < ActiveSupport::TestCase
 
   test "records audit event on successful execution" do
     assert_difference "AuditEvent.count", 1 do
-      ExecuteHookService.call(@trigger_execution)
+      Hooks::Executor.call(@trigger_execution)
     end
 
     audit = AuditEvent.last
@@ -174,7 +174,7 @@ class ExecuteHookServiceTest < ActiveSupport::TestCase
 
     audit_count_before = AuditEvent.count
     assert_raises(RuntimeError) do
-      ExecuteHookService.call(@trigger_execution)
+      Hooks::Executor.call(@trigger_execution)
     end
     assert_equal audit_count_before, AuditEvent.count
   end
@@ -186,7 +186,7 @@ class ExecuteHookServiceTest < ActiveSupport::TestCase
       .to_return(status: 200, body: '{"ok": true}')
 
     assert @webhook_execution.queued?
-    ExecuteHookService.call(@webhook_execution)
+    Hooks::Executor.call(@webhook_execution)
     @webhook_execution.reload
 
     assert @webhook_execution.completed?
@@ -199,7 +199,7 @@ class ExecuteHookServiceTest < ActiveSupport::TestCase
       .to_return(status: 503, body: "Service Unavailable")
 
     assert_raises(RuntimeError) do
-      ExecuteHookService.call(@webhook_execution)
+      Hooks::Executor.call(@webhook_execution)
     end
     @webhook_execution.reload
 
