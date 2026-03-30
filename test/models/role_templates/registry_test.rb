@@ -1,51 +1,51 @@
 require "test_helper"
 
-class RoleTemplateRegistryTest < ActiveSupport::TestCase
+class RoleTemplates::RegistryTest < ActiveSupport::TestCase
   teardown do
-    RoleTemplateRegistry.reset!
+    RoleTemplates::Registry.reset!
   end
 
   # --- .all ---
 
   test "all returns five templates" do
-    templates = RoleTemplateRegistry.all
+    templates = RoleTemplates::Registry.all
     assert_equal 5, templates.size
   end
 
   test "all returns frozen array" do
-    templates = RoleTemplateRegistry.all
+    templates = RoleTemplates::Registry.all
     assert templates.frozen?
   end
 
   test "all includes every expected template" do
-    keys = RoleTemplateRegistry.all.map(&:key)
+    keys = RoleTemplates::Registry.all.map(&:key)
     %w[engineering marketing operations finance hr].each do |expected|
       assert_includes keys, expected
     end
   end
 
   test "all caches results across calls" do
-    first_call = RoleTemplateRegistry.all
-    second_call = RoleTemplateRegistry.all
+    first_call = RoleTemplates::Registry.all
+    second_call = RoleTemplates::Registry.all
     assert_same first_call, second_call
   end
 
   # --- .find ---
 
   test "find returns template by key" do
-    template = RoleTemplateRegistry.find("engineering")
+    template = RoleTemplates::Registry.find("engineering")
     assert_equal "engineering", template.key
     assert_equal "Engineering", template.name
   end
 
   test "find accepts symbol key" do
-    template = RoleTemplateRegistry.find(:marketing)
+    template = RoleTemplates::Registry.find(:marketing)
     assert_equal "marketing", template.key
   end
 
   test "find raises TemplateNotFound for unknown key" do
-    error = assert_raises(RoleTemplateRegistry::TemplateNotFound) do
-      RoleTemplateRegistry.find("nonexistent")
+    error = assert_raises(RoleTemplates::Registry::TemplateNotFound) do
+      RoleTemplates::Registry.find("nonexistent")
     end
     assert_match(/nonexistent/, error.message)
   end
@@ -53,7 +53,7 @@ class RoleTemplateRegistryTest < ActiveSupport::TestCase
   # --- .keys ---
 
   test "keys returns all template keys" do
-    keys = RoleTemplateRegistry.keys
+    keys = RoleTemplates::Registry.keys
     assert_equal 5, keys.size
     assert_includes keys, "engineering"
     assert_includes keys, "marketing"
@@ -65,7 +65,7 @@ class RoleTemplateRegistryTest < ActiveSupport::TestCase
   # --- Template structure ---
 
   test "template has key name description and roles" do
-    template = RoleTemplateRegistry.find("engineering")
+    template = RoleTemplates::Registry.find("engineering")
     assert_kind_of String, template.key
     assert_kind_of String, template.name
     assert_kind_of String, template.description
@@ -73,7 +73,7 @@ class RoleTemplateRegistryTest < ActiveSupport::TestCase
   end
 
   test "template description is not blank" do
-    RoleTemplateRegistry.all.each do |template|
+    RoleTemplates::Registry.all.each do |template|
       assert template.description.present?, "#{template.key} has blank description"
     end
   end
@@ -81,7 +81,7 @@ class RoleTemplateRegistryTest < ActiveSupport::TestCase
   # --- Template roles structure ---
 
   test "each template has 4 to 7 roles" do
-    RoleTemplateRegistry.all.each do |template|
+    RoleTemplates::Registry.all.each do |template|
       count = template.roles.size
       assert count >= 4 && count <= 7,
         "#{template.key} has #{count} roles, expected 4-7"
@@ -89,7 +89,7 @@ class RoleTemplateRegistryTest < ActiveSupport::TestCase
   end
 
   test "role exposes expected attributes" do
-    role = RoleTemplateRegistry.find("engineering").roles.first
+    role = RoleTemplates::Registry.find("engineering").roles.first
     assert_kind_of String, role.title
     assert_kind_of String, role.description
     assert_kind_of String, role.job_spec
@@ -97,7 +97,7 @@ class RoleTemplateRegistryTest < ActiveSupport::TestCase
   end
 
   test "each role has 3 to 5 skill keys" do
-    RoleTemplateRegistry.all.each do |template|
+    RoleTemplates::Registry.all.each do |template|
       template.roles.each do |role|
         count = role.skill_keys.size
         assert count >= 3 && count <= 5,
@@ -107,7 +107,7 @@ class RoleTemplateRegistryTest < ActiveSupport::TestCase
   end
 
   test "each role has non-blank title and description" do
-    RoleTemplateRegistry.all.each do |template|
+    RoleTemplates::Registry.all.each do |template|
       template.roles.each do |role|
         assert role.title.present?, "#{template.key} has role with blank title"
         assert role.description.present?, "#{template.key}/#{role.title} has blank description"
@@ -116,7 +116,7 @@ class RoleTemplateRegistryTest < ActiveSupport::TestCase
   end
 
   test "each role has multi-paragraph job_spec" do
-    RoleTemplateRegistry.all.each do |template|
+    RoleTemplates::Registry.all.each do |template|
       template.roles.each do |role|
         paragraphs = role.job_spec.strip.split(/\n\n+/)
         assert paragraphs.size >= 2,
@@ -126,14 +126,14 @@ class RoleTemplateRegistryTest < ActiveSupport::TestCase
   end
 
   test "first role in each template has nil parent (is root)" do
-    RoleTemplateRegistry.all.each do |template|
+    RoleTemplates::Registry.all.each do |template|
       root = template.roles.first
       assert_nil root.parent, "#{template.key} first role '#{root.title}' should have nil parent"
     end
   end
 
   test "each template has exactly one root role" do
-    RoleTemplateRegistry.all.each do |template|
+    RoleTemplates::Registry.all.each do |template|
       root_count = template.roles.count { |r| r.parent.nil? }
       assert_equal 1, root_count,
         "#{template.key} has #{root_count} root roles, expected 1"
@@ -143,7 +143,7 @@ class RoleTemplateRegistryTest < ActiveSupport::TestCase
   # --- Parent ordering validation ---
 
   test "all templates have valid parent ordering" do
-    RoleTemplateRegistry.all.each do |template|
+    RoleTemplates::Registry.all.each do |template|
       seen = Set.new
       template.roles.each do |role|
         if role.parent.present?
@@ -156,7 +156,7 @@ class RoleTemplateRegistryTest < ActiveSupport::TestCase
   end
 
   test "all parent references match actual role titles in same template" do
-    RoleTemplateRegistry.all.each do |template|
+    RoleTemplates::Registry.all.each do |template|
       titles = template.roles.map(&:title).to_set
       template.roles.each do |role|
         next if role.parent.nil?
@@ -172,7 +172,7 @@ class RoleTemplateRegistryTest < ActiveSupport::TestCase
     skill_files = Dir[Rails.root.join("db/seeds/skills/*.yml")]
     valid_keys = skill_files.map { |f| YAML.load_file(f)["key"] }.to_set
 
-    RoleTemplateRegistry.all.each do |template|
+    RoleTemplates::Registry.all.each do |template|
       template.roles.each do |role|
         role.skill_keys.each do |key|
           assert_includes valid_keys, key,
@@ -185,7 +185,7 @@ class RoleTemplateRegistryTest < ActiveSupport::TestCase
   # --- Specific template content ---
 
   test "engineering template has correct role hierarchy" do
-    template = RoleTemplateRegistry.find("engineering")
+    template = RoleTemplates::Registry.find("engineering")
     titles = template.roles.map(&:title)
     assert_includes titles, "CTO"
     assert_includes titles, "VP Engineering"
@@ -195,31 +195,31 @@ class RoleTemplateRegistryTest < ActiveSupport::TestCase
   end
 
   test "marketing template has CMO as root" do
-    template = RoleTemplateRegistry.find("marketing")
+    template = RoleTemplates::Registry.find("marketing")
     assert_equal "CMO", template.roles.first.title
   end
 
   test "operations template has COO as root" do
-    template = RoleTemplateRegistry.find("operations")
+    template = RoleTemplates::Registry.find("operations")
     assert_equal "COO", template.roles.first.title
   end
 
   test "finance template has CFO as root" do
-    template = RoleTemplateRegistry.find("finance")
+    template = RoleTemplates::Registry.find("finance")
     assert_equal "CFO", template.roles.first.title
   end
 
   test "hr template has HR Director as root" do
-    template = RoleTemplateRegistry.find("hr")
+    template = RoleTemplates::Registry.find("hr")
     assert_equal "HR Director", template.roles.first.title
   end
 
   # --- reset! ---
 
   test "reset clears cached templates" do
-    first = RoleTemplateRegistry.all
-    RoleTemplateRegistry.reset!
-    second = RoleTemplateRegistry.all
+    first = RoleTemplates::Registry.all
+    RoleTemplates::Registry.reset!
+    second = RoleTemplates::Registry.all
     refute_same first, second
   end
 end

@@ -3,7 +3,7 @@ class RoleTemplatesController < ApplicationController
   before_action :set_template, only: [ :show, :apply ]
 
   def index
-    @templates = RoleTemplateRegistry.all
+    @templates = RoleTemplates::Registry.all
   end
 
   def show
@@ -25,8 +25,8 @@ class RoleTemplatesController < ApplicationController
   private
 
   def set_template
-    @template = RoleTemplateRegistry.find(params[:id])
-  rescue RoleTemplateRegistry::TemplateNotFound
+    @template = RoleTemplates::Registry.find(params[:id])
+  rescue RoleTemplates::Registry::TemplateNotFound
     raise ActiveRecord::RecordNotFound
   end
 end

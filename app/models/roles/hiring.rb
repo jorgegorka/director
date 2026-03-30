@@ -12,7 +12,7 @@ module Roles
       root_role = find_department_root
       return nil if root_role.nil?
 
-      RoleTemplateRegistry.all.find do |template|
+      RoleTemplates::Registry.all.find do |template|
         template.roles.first&.title == root_role.title
       end
     end
@@ -52,7 +52,7 @@ module Roles
 
     def find_department_root
       current = self
-      template_root_titles = RoleTemplateRegistry.all.map { |t| t.roles.first&.title }.compact
+      template_root_titles = RoleTemplates::Registry.all.map { |t| t.roles.first&.title }.compact
 
       while current
         return current if template_root_titles.include?(current.title)
