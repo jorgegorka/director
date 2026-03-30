@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_30_092756) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_30_112221) do
   create_table "approval_gates", force: :cascade do |t|
     t.string "action_type", null: false
     t.datetime "created_at", null: false
@@ -291,6 +291,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_30_092756) do
     t.json "adapter_config", default: {}, null: false
     t.integer "adapter_type"
     t.string "api_token"
+    t.boolean "auto_hire_enabled", default: false, null: false
     t.integer "budget_cents"
     t.date "budget_period_start"
     t.bigint "company_id", null: false
