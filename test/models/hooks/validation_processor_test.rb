@@ -1,6 +1,6 @@
 require "test_helper"
 
-class ProcessValidationResultServiceTest < ActiveSupport::TestCase
+class Hooks::ValidationProcessorTest < ActiveSupport::TestCase
   setup do
     @company = companies(:acme)
     @cto = roles(:cto)
@@ -36,7 +36,7 @@ class ProcessValidationResultServiceTest < ActiveSupport::TestCase
 
   test "posts feedback message on parent task" do
     assert_difference "Message.count", 1 do
-      ProcessValidationResultService.call(@validation_task)
+      Hooks::ValidationProcessor.call(@validation_task)
     end
 
     feedback = @parent_task.messages.order(:created_at).last
@@ -44,26 +44,26 @@ class ProcessValidationResultServiceTest < ActiveSupport::TestCase
   end
 
   test "feedback message author is the validation role" do
-    ProcessValidationResultService.call(@validation_task)
+    Hooks::ValidationProcessor.call(@validation_task)
     feedback = @parent_task.messages.order(:created_at).last
     assert_equal @developer, feedback.author
   end
 
   test "feedback message body contains validation task title" do
-    ProcessValidationResultService.call(@validation_task)
+    Hooks::ValidationProcessor.call(@validation_task)
     feedback = @parent_task.messages.order(:created_at).last
     assert_includes feedback.body, @validation_task.title
   end
 
   test "feedback message body contains validation messages" do
-    ProcessValidationResultService.call(@validation_task)
+    Hooks::ValidationProcessor.call(@validation_task)
     feedback = @parent_task.messages.order(:created_at).last
     assert_includes feedback.body, "navigation needs work"
     assert_includes feedback.body, "mobile menu is missing"
   end
 
   test "feedback message body contains validation role title" do
-    ProcessValidationResultService.call(@validation_task)
+    Hooks::ValidationProcessor.call(@validation_task)
     feedback = @parent_task.messages.order(:created_at).last
     assert_includes feedback.body, @developer.title
   end
@@ -71,7 +71,7 @@ class ProcessValidationResultServiceTest < ActiveSupport::TestCase
   test "feedback message body handles no validation messages" do
     @validation_task.messages.delete_all
 
-    ProcessValidationResultService.call(@validation_task)
+    Hooks::ValidationProcessor.call(@validation_task)
     feedback = @parent_task.messages.order(:created_at).last
     assert_includes feedback.body, "No messages were posted during validation"
   end
@@ -80,7 +80,7 @@ class ProcessValidationResultServiceTest < ActiveSupport::TestCase
 
   test "wakes parent task assignee with review_validation trigger" do
     assert_difference "HeartbeatEvent.count", 1 do
-      ProcessValidationResultService.call(@validation_task)
+      Hooks::ValidationProcessor.call(@validation_task)
     end
 
     event = HeartbeatEvent.order(:created_at).last
@@ -90,7 +90,7 @@ class ProcessValidationResultServiceTest < ActiveSupport::TestCase
   end
 
   test "wake context includes validation and parent task IDs" do
-    ProcessValidationResultService.call(@validation_task)
+    Hooks::ValidationProcessor.call(@validation_task)
 
     event = HeartbeatEvent.order(:created_at).last
     payload = event.request_payload
@@ -103,7 +103,7 @@ class ProcessValidationResultServiceTest < ActiveSupport::TestCase
 
     assert_difference "Message.count", 1 do
       assert_no_difference "HeartbeatEvent.count" do
-        ProcessValidationResultService.call(@validation_task)
+        Hooks::ValidationProcessor.call(@validation_task)
       end
     end
   end
@@ -113,7 +113,7 @@ class ProcessValidationResultServiceTest < ActiveSupport::TestCase
 
     assert_difference "Message.count", 1 do
       assert_no_difference "HeartbeatEvent.count" do
-        ProcessValidationResultService.call(@validation_task)
+        Hooks::ValidationProcessor.call(@validation_task)
       end
     end
   end
@@ -122,7 +122,7 @@ class ProcessValidationResultServiceTest < ActiveSupport::TestCase
 
   test "records validation_feedback_received audit event on parent task" do
     assert_difference "AuditEvent.count", 1 do
-      ProcessValidationResultService.call(@validation_task)
+      Hooks::ValidationProcessor.call(@validation_task)
     end
 
     audit = AuditEvent.where(action: "validation_feedback_received").last
@@ -134,7 +134,7 @@ class ProcessValidationResultServiceTest < ActiveSupport::TestCase
   end
 
   test "audit event metadata includes message count" do
-    ProcessValidationResultService.call(@validation_task)
+    Hooks::ValidationProcessor.call(@validation_task)
 
     audit = AuditEvent.where(action: "validation_feedback_received").last
     assert_equal 2, audit.metadata["message_count"]
@@ -153,7 +153,7 @@ class ProcessValidationResultServiceTest < ActiveSupport::TestCase
     orphan_task.reload
 
     assert_no_difference [ "Message.count", "HeartbeatEvent.count", "AuditEvent.count" ] do
-      ProcessValidationResultService.call(orphan_task)
+      Hooks::ValidationProcessor.call(orphan_task)
     end
   end
 
@@ -162,7 +162,7 @@ class ProcessValidationResultServiceTest < ActiveSupport::TestCase
     @validation_task.reload
 
     assert_no_difference [ "Message.count", "HeartbeatEvent.count", "AuditEvent.count" ] do
-      ProcessValidationResultService.call(@validation_task)
+      Hooks::ValidationProcessor.call(@validation_task)
     end
   end
 
@@ -170,7 +170,7 @@ class ProcessValidationResultServiceTest < ActiveSupport::TestCase
     assert_difference "Message.count", 1 do
       assert_difference "HeartbeatEvent.count", 1 do
         assert_difference "AuditEvent.count", 1 do
-          ProcessValidationResultService.call(@validation_task)
+          Hooks::ValidationProcessor.call(@validation_task)
         end
       end
     end

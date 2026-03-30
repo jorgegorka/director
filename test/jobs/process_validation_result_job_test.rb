@@ -36,7 +36,7 @@ class ProcessValidationResultJobTest < ActiveSupport::TestCase
     end
   end
 
-  test "calls ProcessValidationResultService for completed subtask with parent" do
+  test "calls Hooks::ValidationProcessor for completed subtask with parent" do
     subtask = Task.create!(
       title: "Validate: #{@parent_task.title}",
       company: @company,

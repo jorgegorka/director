@@ -10,6 +10,6 @@ class ProcessValidationResultJob < ApplicationJob
     return unless task.completed?
     return unless task.parent_task_id.present?
 
-    ProcessValidationResultService.call(task)
+    Hooks::ValidationProcessor.call(task)
   end
 end
