@@ -15,7 +15,7 @@ Director transforms the chaos of managing multiple AI agents into a structured b
 - v1.3 Agent Hooks - Phases 18-21 (shipped 2026-03-28)
 - v1.4 Agent Execution - Phases 22-25 (shipped 2026-03-28)
 - v1.5 Role Templates - Phases 26-28 (shipped 2026-03-30)
-- **v1.6 Service Refactor & Cleanup - Phases 29-33 (in progress)**
+- v1.6 Service Refactor & Cleanup - Phases 29-33 (shipped 2026-03-30)
 
 ## Phases
 
@@ -267,13 +267,13 @@ Full details: [v1.5-ROADMAP.md](milestones/v1.5-ROADMAP.md)
 
 </details>
 
-### v1.6 Service Refactor & Cleanup (Phases 29-33) - IN PROGRESS
+### v1.6 Service Refactor & Cleanup (Phases 29-33) - SHIPPED 2026-03-30
 
 - [x] **Phase 29: Roles Domain** - WakeRoleService, GateCheckService, EmergencyStopService relocate to `app/models/roles/`
 - [x] **Phase 30: Hooks & Budgets** - ExecuteHookService, ProcessValidationResultService, BudgetEnforcementService relocate to domain namespaces
 - [x] **Phase 31: Agents, Goals, Heartbeats & Documents** - AiClient, GoalEvaluationService, HeartbeatScheduleManager, CreateDocumentService relocate to domain namespaces
 - [x] **Phase 32: Role Templates** - RoleTemplateRegistry, ApplyRoleTemplateService, ApplyAllRoleTemplatesService relocate to `app/models/role_templates/`
-- [ ] **Phase 33: Final Cleanup** - Verify all references updated, all tests pass, delete `app/services/`, address code quality
+- [x] **Phase 33: Final Cleanup** - Verify all references updated, all tests pass, delete `app/services/`, address code quality
 
 Full details: [v1.6-ROADMAP.md](milestones/v1.6-ROADMAP.md)
 
@@ -354,6 +354,10 @@ Plans:
   2. The full test suite passes (`bin/rails test`) with zero failures and zero errors
   3. The `app/services/` directory no longer exists
   4. At least one code quality improvement is made (dead code removal, naming fix, or unused import cleanup discovered during migration)
+**Plans**: 1/1 complete
+
+Plans:
+- [x] 33-01: Verify zero stale references, commit code quality improvements, delete app/services/, run full CI
 
 ## Progress
 
@@ -394,4 +398,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 30. Hooks & Budgets | v1.6 | 2/2 | Complete | 2026-03-30 |
 | 31. Agents, Goals, Heartbeats & Documents | v1.6 | 2/2 | Complete | 2026-03-30 |
 | 32. Role Templates | v1.6 | 2/2 | Complete | 2026-03-30 |
-| 33. Final Cleanup | v1.6 | 0/0 | Not started | — |
+| 33. Final Cleanup | v1.6 | 1/1 | Complete | 2026-03-30 |
