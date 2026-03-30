@@ -62,7 +62,15 @@ Users can organize AI agents into a functioning company structure and confidentl
 
 ### Active
 
-<!-- Next milestone scope TBD -->
+## Current Milestone: v1.6 Service Refactor & Cleanup
+
+**Goal:** Eliminate the `app/services/` directory by relocating all business logic to namespaced model objects under `app/models/<resource>/`, aligning the codebase with the established convention of concerns and plain Ruby objects in the models directory.
+
+**Target features:**
+- Relocate all 13 services to `app/models/<namespace>/` as concerns or plain Ruby objects
+- Update all references across controllers, jobs, views, and tests
+- Address related code quality issues discovered during migration
+- Remove `app/services/` directory entirely
 
 ### Out of Scope
 
@@ -123,4 +131,4 @@ Users can organize AI agents into a functioning company structure and confidentl
 - tmux availability not verified in Docker image (deployment dependency)
 
 ---
-*Last updated: 2026-03-30 after v1.5 milestone completion*
+*Last updated: 2026-03-30 after v1.6 milestone started*
