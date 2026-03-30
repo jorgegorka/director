@@ -67,6 +67,7 @@ Rails.application.routes.draw do
     member do
       post :delegate, to: "task_delegations#create"
       post :escalate, to: "task_escalations#create"
+      post :ask_question, to: "task_questions#create"
     end
   end
 

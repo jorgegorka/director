@@ -19,6 +19,19 @@ bug_report_msg:
   author: two (User)
   body: "I can reproduce this consistently with passwords containing & and < characters."
 
+question_msg:
+  task: fix_login_bug
+  author: developer (Role)
+  body: "Should I use bcrypt or argon2 for the password hashing fix?"
+  message_type: 1
+
+answer_msg:
+  task: fix_login_bug
+  author: cto (Role)
+  parent: question_msg
+  body: "Use bcrypt — it's already our standard."
+  message_type: 2
+
 widgets_msg:
   task: widgets_task
   author: one (User)

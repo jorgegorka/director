@@ -8,12 +8,15 @@ class Message < ApplicationRecord
 
   has_many :replies, class_name: "Message", foreign_key: :parent_id, inverse_of: :parent, dependent: :destroy
 
+  enum :message_type, { comment: 0, question: 1, answer: 2 }
+
   validates :body, presence: true
   validate :parent_belongs_to_same_task
 
   scope :roots, -> { where(parent_id: nil) }
 
   after_commit :trigger_mention_wake, on: :create
+  after_commit :trigger_answer_wake, on: :create
 
   private
 
@@ -40,5 +43,22 @@ class Message < ApplicationRecord
         }
       )
     end
+  end
+
+  def trigger_answer_wake
+    return unless answer? && parent&.question?
+    return unless parent.author_type == "Role"
+
+    trigger_role_wake(
+      role: parent.author,
+      trigger_type: :question_answered,
+      trigger_source: "Message##{id}",
+      context: {
+        answer_message_id: id,
+        question_message_id: parent.id,
+        task_id: task_id,
+        answered_by: author_type == "User" ? "user" : "role"
+      }
+    )
   end
 end

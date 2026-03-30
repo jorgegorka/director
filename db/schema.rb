@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_29_100553) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_30_092756) do
   create_table "approval_gates", force: :cascade do |t|
     t.string "action_type", null: false
     t.datetime "created_at", null: false
@@ -196,6 +196,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_29_100553) do
     t.string "author_type", null: false
     t.text "body", null: false
     t.datetime "created_at", null: false
+    t.integer "message_type", default: 0, null: false
     t.bigint "parent_id"
     t.bigint "task_id", null: false
     t.datetime "updated_at", null: false

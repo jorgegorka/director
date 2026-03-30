@@ -2,7 +2,9 @@ module HeartbeatsHelper
   TRIGGER_LABELS = {
     "scheduled" => "Scheduled",
     "task_assigned" => "Task Assigned",
-    "mention" => "Mentioned"
+    "mention" => "Mentioned",
+    "question_asked" => "Question Asked",
+    "question_answered" => "Question Answered"
   }.freeze
 
   def heartbeat_trigger_badge(event)

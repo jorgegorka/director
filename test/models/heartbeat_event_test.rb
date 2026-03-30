@@ -148,6 +148,24 @@ class HeartbeatEventTest < ActiveSupport::TestCase
     assert role.valid?
   end
 
+  test "trigger_type enum: question_asked?" do
+    event = HeartbeatEvent.new(
+      role: roles(:cto),
+      trigger_type: :question_asked,
+      status: :queued
+    )
+    assert event.question_asked?
+  end
+
+  test "trigger_type enum: question_answered?" do
+    event = HeartbeatEvent.new(
+      role: roles(:cto),
+      trigger_type: :question_answered,
+      status: :queued
+    )
+    assert event.question_answered?
+  end
+
   test "role reverse_chronological heartbeat events returns most recent first" do
     cto = roles(:cto)
     events = cto.heartbeat_events.reverse_chronological

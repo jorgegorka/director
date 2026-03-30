@@ -8,6 +8,11 @@
         <%= message.author.try(:email_address) || "Unknown" %>
       <% end %>
     </span>
+    <% if message.question? %>
+      <span class="message__type-badge message__type-badge--question">Question</span>
+    <% elsif message.answer? %>
+      <span class="message__type-badge message__type-badge--answer">Answer</span>
+    <% end %>
     <time class="message__timestamp" datetime="<%= message.created_at.iso8601 %>">
       <%= time_ago_in_words(message.created_at) %> ago
     </time>

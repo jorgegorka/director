@@ -3,7 +3,7 @@ class HeartbeatEvent < ApplicationRecord
 
   belongs_to :role
 
-  enum :trigger_type, { scheduled: 0, task_assigned: 1, mention: 2, hook_triggered: 3, review_validation: 4, goal_evaluation_failed: 5 }
+  enum :trigger_type, { scheduled: 0, task_assigned: 1, mention: 2, hook_triggered: 3, review_validation: 4, goal_evaluation_failed: 5, question_asked: 6, question_answered: 7 }
   enum :status, { queued: 0, delivered: 1, failed: 2 }
 
   validates :trigger_type, presence: true

@@ -107,4 +107,76 @@ class MessageTest < ActiveSupport::TestCase
     assert_equal reply, nested.parent
     assert_includes reply.replies, nested
   end
+
+  # --- Message Type ---
+
+  test "message_type enum defaults to comment" do
+    message = Message.new(body: "Hello", task: @task, author: @user)
+    assert message.comment?
+  end
+
+  test "message_type enum: question?" do
+    assert messages(:question_msg).question?
+  end
+
+  test "message_type enum: answer?" do
+    assert messages(:answer_msg).answer?
+  end
+
+  test "regular messages are comment type" do
+    assert @message.comment?
+  end
+
+  # --- Answer Wake Callback ---
+
+  test "replying to a question creates a question_answered heartbeat event" do
+    question = messages(:question_msg)
+    asking_role = question.author  # developer
+
+    assert_difference -> { HeartbeatEvent.where(trigger_type: :question_answered).count }, 1 do
+      Message.create!(
+        body: "Use bcrypt.",
+        task: question.task,
+        author: @role,
+        parent: question,
+        message_type: :answer
+      )
+    end
+
+    event = HeartbeatEvent.where(trigger_type: :question_answered).last
+    assert_equal asking_role, event.role
+    assert_equal question.id, event.request_payload["question_message_id"]
+  end
+
+  test "replying to a regular comment does not create question_answered event" do
+    parent = messages(:agent_reply)
+
+    assert_no_difference -> { HeartbeatEvent.where(trigger_type: :question_answered).count } do
+      Message.create!(
+        body: "Just a reply",
+        task: @task,
+        author: @user,
+        parent: parent
+      )
+    end
+  end
+
+  test "answer wake does not fire when question author is not a Role" do
+    user_question = Message.create!(
+      body: "What about this?",
+      task: @task,
+      author: @user,
+      message_type: :question
+    )
+
+    assert_no_difference -> { HeartbeatEvent.where(trigger_type: :question_answered).count } do
+      Message.create!(
+        body: "Here's the answer",
+        task: @task,
+        author: @role,
+        parent: user_question,
+        message_type: :answer
+      )
+    end
+  end
 end
