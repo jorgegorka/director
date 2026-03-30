@@ -269,10 +269,10 @@ Full details: [v1.5-ROADMAP.md](milestones/v1.5-ROADMAP.md)
 
 ### v1.6 Service Refactor & Cleanup (Phases 29-33) - IN PROGRESS
 
-- [ ] **Phase 29: Roles Domain** - WakeRoleService, GateCheckService, EmergencyStopService relocate to `app/models/roles/`
+- [x] **Phase 29: Roles Domain** - WakeRoleService, GateCheckService, EmergencyStopService relocate to `app/models/roles/`
 - [x] **Phase 30: Hooks & Budgets** - ExecuteHookService, ProcessValidationResultService, BudgetEnforcementService relocate to domain namespaces
 - [x] **Phase 31: Agents, Goals, Heartbeats & Documents** - AiClient, GoalEvaluationService, HeartbeatScheduleManager, CreateDocumentService relocate to domain namespaces
-- [ ] **Phase 32: Role Templates** - RoleTemplateRegistry, ApplyRoleTemplateService, ApplyAllRoleTemplatesService relocate to `app/models/role_templates/`
+- [x] **Phase 32: Role Templates** - RoleTemplateRegistry, ApplyRoleTemplateService, ApplyAllRoleTemplatesService relocate to `app/models/role_templates/`
 - [ ] **Phase 33: Final Cleanup** - Verify all references updated, all tests pass, delete `app/services/`, address code quality
 
 Full details: [v1.6-ROADMAP.md](milestones/v1.6-ROADMAP.md)
@@ -338,6 +338,11 @@ Plans:
   2. `RoleTemplates::Applicator.call(company:, template_key:)` creates role hierarchies with skill pre-assignment and skip-duplicate logic -- applying a template still creates the correct roles
   3. `RoleTemplates::BulkApplicator.call(company:)` creates all departments under a shared CEO -- the "Apply All" button still sets up a complete company
   4. All callers (role_templates_controller, roles/hiring.rb) reference the new namespaced classes
+**Plans**: 2/2 complete
+
+Plans:
+- [x] 32-01: Relocate RoleTemplateRegistry to RoleTemplates::Registry and ApplyRoleTemplateService to RoleTemplates::Applicator
+- [x] 32-02: Relocate ApplyAllRoleTemplatesService to RoleTemplates::BulkApplicator
 
 ### Phase 33: Final Cleanup
 **Goal**: Verify all references are updated, all tests pass, delete `app/services/`, and address code quality issues discovered during migration
@@ -388,5 +393,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 29. Roles Domain | v1.6 | 2/2 | Complete | 2026-03-30 |
 | 30. Hooks & Budgets | v1.6 | 2/2 | Complete | 2026-03-30 |
 | 31. Agents, Goals, Heartbeats & Documents | v1.6 | 2/2 | Complete | 2026-03-30 |
-| 32. Role Templates | v1.6 | 0/0 | Not started | — |
+| 32. Role Templates | v1.6 | 2/2 | Complete | 2026-03-30 |
 | 33. Final Cleanup | v1.6 | 0/0 | Not started | — |
