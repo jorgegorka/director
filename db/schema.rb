@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_30_112221) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_30_112226) do
   create_table "approval_gates", force: :cascade do |t|
     t.string "action_type", null: false
     t.datetime "created_at", null: false
@@ -225,6 +225,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_30_112221) do
     t.index ["recipient_type", "recipient_id", "read_at"], name: "index_notifications_on_recipient_and_read"
   end
 
+  create_table "pending_hires", force: :cascade do |t|
+    t.integer "budget_cents", null: false
+    t.integer "company_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "resolved_at"
+    t.integer "resolved_by_id"
+    t.integer "role_id", null: false
+    t.integer "status", default: 0, null: false
+    t.string "template_role_title", null: false
+    t.datetime "updated_at", null: false
+    t.index ["company_id", "status"], name: "index_pending_hires_on_company_id_and_status"
+    t.index ["company_id"], name: "index_pending_hires_on_company_id"
+    t.index ["resolved_by_id"], name: "index_pending_hires_on_resolved_by_id"
+    t.index ["role_id"], name: "index_pending_hires_on_role_id"
+  end
+
   create_table "role_documents", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "document_id", null: false
@@ -415,6 +431,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_30_112221) do
   add_foreign_key "messages", "messages", column: "parent_id"
   add_foreign_key "messages", "tasks"
   add_foreign_key "notifications", "companies"
+  add_foreign_key "pending_hires", "companies"
+  add_foreign_key "pending_hires", "roles"
+  add_foreign_key "pending_hires", "users", column: "resolved_by_id"
   add_foreign_key "role_documents", "documents"
   add_foreign_key "role_documents", "roles"
   add_foreign_key "role_hooks", "companies"
