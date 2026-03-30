@@ -10,11 +10,11 @@ See: .ariadna_planning/PROJECT.md (updated 2026-03-30)
 ## Current Position
 
 Phase: 29 - Roles Domain
-Plan: --
-Status: Planning (roadmap created, awaiting phase planning)
-Last activity: 2026-03-30 -- Roadmap created for v1.6
+Plan: 01 complete
+Status: In progress
+Last activity: 2026-03-30 -- Plan 29-01 complete: Roles::Waking relocated from WakeRoleService
 
-Progress: ░░░░░░░░░░ 0%
+Progress: ██░░░░░░░░ 20%
 
 ## Performance Metrics
 
@@ -80,6 +80,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-30
-Stopped at: v1.6 roadmap created. Ready for phase 29 planning.
+Stopped at: Plan 29-01 complete. Roles::Waking established, all callers updated, zero WakeRoleService references.
 Resume file: --
-Next step: `/ariadna:plan-phase 29`
+Next step: Execute plan 29-02 (or next available plan in phase 29)
