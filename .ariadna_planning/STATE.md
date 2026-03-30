@@ -10,16 +10,16 @@ See: .ariadna_planning/PROJECT.md (updated 2026-03-30)
 ## Current Position
 
 Phase: 32 - Role Templates
-Plan: 01 complete
-Status: In Progress
-Last activity: 2026-03-30 -- RoleTemplates::Registry and RoleTemplates::Applicator relocated from app/services/ to app/models/role_templates/
+Plan: 02 complete
+Status: Complete
+Last activity: 2026-03-30 -- RoleTemplates::BulkApplicator relocated from app/services/ to app/models/role_templates/; app/services/ now empty
 
 Progress: ████████████ 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 57
+- Total plans completed: 58
 - Average duration: ~7 minutes
 - Total execution time: ~294 minutes
 
@@ -58,11 +58,11 @@ Progress: ████████████ 100%
 | 29-roles-domain | 2/2 | ~20 min | ~10 min |
 | 30-hooks-and-budgets | 2/2 | ~6 min | ~3 min |
 | 31-agents-goals-heartbeats-documents | 2/2 | ~5 min | ~2.5 min |
-| 32-role-templates | 1/2 | ~3 min | ~3 min |
+| 32-role-templates | 2/2 | ~6 min | ~3 min |
 
 **Recent Trend:**
 - v1.5 plans: 26-01 (~2 min), 26-02 (~2 min), 27-01 (~3 min), 27-02 (~2 min), 28-01 (~12 min), 28-02 (~10 min)
-- v1.6 plans: 29-01 (~10 min), 29-02 (~10 min), 30-01 (~4 min), 30-02 (~2 min), 31-01 (~2 min), 31-02 (~3 min), 32-01 (~3 min)
+- v1.6 plans: 29-01 (~10 min), 29-02 (~10 min), 30-01 (~4 min), 30-02 (~2 min), 31-01 (~2 min), 31-02 (~3 min), 32-01 (~3 min), 32-02 (~3 min)
 - All milestones complete: v1.0, v1.1, v1.2, v1.3, v1.4, v1.5
 
 *Updated after each plan completion*
@@ -85,6 +85,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-30
-Stopped at: Phase 32 plan 01 complete. RoleTemplates::Registry and RoleTemplates::Applicator relocated. app/models/role_templates/ established.
+Stopped at: Phase 32 plan 02 complete. RoleTemplates::BulkApplicator relocated. app/services/ is now empty. Phase 32 complete.
 Resume file: --
-Next step: Execute plan 32-02 (RoleTemplates::BulkApplicator relocation)
+Next step: Phase 33 (delete app/services/ directory and any remaining cleanup)
