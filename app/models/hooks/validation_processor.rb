@@ -29,8 +29,6 @@ module Hooks
       @parent_role ||= parent_task.assignee
     end
 
-    # --- Feedback message ---
-
     def post_feedback_message
       @feedback_message = Message.create!(
         task: parent_task,
@@ -51,11 +49,11 @@ module Hooks
       parts << "**Status:** #{validation_task.status}"
       parts << ""
 
-      validation_messages = validation_task.messages.order(:created_at)
-      if validation_messages.any?
+      @validation_messages = validation_task.messages.includes(:author).order(:created_at).to_a
+      if @validation_messages.any?
         parts << "### Validation Results"
         parts << ""
-        validation_messages.each do |msg|
+        @validation_messages.each do |msg|
           author_name = msg.author.respond_to?(:title) ? msg.author.title : msg.author.email_address
           parts << "> **#{author_name}:** #{msg.body}"
           parts << ""
@@ -66,8 +64,6 @@ module Hooks
 
       parts.join("\n")
     end
-
-    # --- Wake original role ---
 
     def wake_original_role
       return unless parent_role
@@ -87,8 +83,6 @@ module Hooks
       )
     end
 
-    # --- Audit event ---
-
     def record_audit_event
       parent_task.record_audit_event!(
         actor: validation_author,
@@ -100,7 +94,7 @@ module Hooks
           parent_task_id: parent_task.id,
           parent_task_title: parent_task.title,
           feedback_message_id: @feedback_message&.id,
-          message_count: validation_task.messages.count
+          message_count: @validation_messages.size
         }
       )
     end

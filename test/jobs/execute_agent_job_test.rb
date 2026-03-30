@@ -6,6 +6,14 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
     @role = roles(:cto)
     @task = tasks(:design_homepage)
     @company = companies(:acme)
+    # Prevent real tmux sessions — specific adapter tests override as needed
+    ClaudeLocalAdapter.define_singleton_method(:spawn_session) { |_cmd| false }
+  end
+
+  teardown do
+    if ClaudeLocalAdapter.singleton_class.method_defined?(:spawn_session, false)
+      ClaudeLocalAdapter.singleton_class.remove_method(:spawn_session)
+    end
   end
 
   test "job is enqueued to execution queue" do

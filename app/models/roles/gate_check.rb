@@ -52,8 +52,7 @@ module Roles
     end
 
     def record_audit_event!(audit_action)
-      AuditEvent.create!(
-        auditable: role,
+      role.record_audit_event!(
         actor: role,
         action: audit_action,
         company: role.company,
