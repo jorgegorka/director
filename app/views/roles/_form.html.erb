@@ -15,12 +15,12 @@
   <div class="form__field">
     <%= f.label :description, "Description" %>
     <%= f.text_area :description, rows: 3, placeholder: "Brief description of this role's purpose" %>
-    <p class="form__hint">Will be used as prompt if present.</p>
   </div>
 
   <div class="form__field">
     <%= f.label :job_spec, "Job specification" %>
     <%= f.text_area :job_spec, rows: 6, placeholder: "Detailed job spec: responsibilities, skills, expected outputs..." %>
+    <p class="form__hint">Will be used as prompt if present.</p>
   </div>
 
   <div class="form__field">
@@ -158,6 +158,20 @@
               min: 0.01,
               placeholder: "e.g. 500.00",
               class: "form__input--with-prefix" %>
+      </div>
+    </div>
+  </fieldset>
+
+  <!-- Auto-Hire Configuration -->
+  <fieldset class="form__fieldset">
+    <legend>Automatic Hiring</legend>
+    <p class="form__hint">When enabled, this role can hire subordinate roles from its department template without human approval.</p>
+
+    <div class="form__field">
+      <%= f.label :auto_hire_enabled, "Enable automatic hiring" %>
+      <div class="form__toggle">
+        <%= f.check_box :auto_hire_enabled, class: "form__checkbox" %>
+        <span class="form__toggle-label">Role can hire subordinates automatically</span>
       </div>
     </div>
   </fieldset>

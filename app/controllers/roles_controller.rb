@@ -151,7 +151,7 @@ class RolesController < ApplicationController
   end
 
   def role_params
-    permitted = params.require(:role).permit(:title, :description, :job_spec, :parent_id, :adapter_type, :heartbeat_enabled, :heartbeat_interval, :budget_dollars)
+    permitted = params.require(:role).permit(:title, :description, :job_spec, :parent_id, :adapter_type, :heartbeat_enabled, :heartbeat_interval, :budget_dollars, :auto_hire_enabled)
 
     # Convert budget_dollars to budget_cents
     if permitted.key?(:budget_dollars)
