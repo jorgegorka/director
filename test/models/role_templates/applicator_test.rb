@@ -1,18 +1,18 @@
 require "test_helper"
 
-class ApplyRoleTemplateServiceTest < ActiveSupport::TestCase
+class RoleTemplates::ApplicatorTest < ActiveSupport::TestCase
   # widgets company is nearly clean (only Operations Lead role) -- used for clean hierarchy tests
   # acme company has CEO, CTO, Senior Developer, Script Runner -- used for skip-duplicate tests
 
   teardown do
-    RoleTemplateRegistry.reset!
+    RoleTemplates::Registry.reset!
   end
 
   # --- Hierarchy creation (APPLY-01) ---
 
   test "creates full engineering hierarchy with correct parent-child relationships" do
     company = companies(:widgets)
-    result = ApplyRoleTemplateService.call(company: company, template_key: "engineering")
+    result = RoleTemplates::Applicator.call(company: company, template_key: "engineering")
 
     assert_equal 5, result.created
     cto = company.roles.find_by!(title: "CTO")
@@ -30,7 +30,7 @@ class ApplyRoleTemplateServiceTest < ActiveSupport::TestCase
 
   test "creates roles in dependency order -- parents exist before children" do
     company = companies(:widgets)
-    ApplyRoleTemplateService.call(company: company, template_key: "engineering")
+    RoleTemplates::Applicator.call(company: company, template_key: "engineering")
 
     vp  = company.roles.find_by!(title: "VP Engineering")
     tl  = company.roles.find_by!(title: "Tech Lead")
@@ -45,7 +45,7 @@ class ApplyRoleTemplateServiceTest < ActiveSupport::TestCase
 
   test "root role has nil parent when no parent_role provided" do
     company = companies(:widgets)
-    ApplyRoleTemplateService.call(company: company, template_key: "engineering")
+    RoleTemplates::Applicator.call(company: company, template_key: "engineering")
 
     cto = company.roles.find_by!(title: "CTO")
     assert_nil cto.parent_id
@@ -54,7 +54,7 @@ class ApplyRoleTemplateServiceTest < ActiveSupport::TestCase
   test "root role is nested under parent_role when provided" do
     company = companies(:widgets)
     ceo = company.roles.create!(title: "CEO", description: "Chief Executive")
-    result = ApplyRoleTemplateService.call(company: company, template_key: "engineering", parent_role: ceo)
+    result = RoleTemplates::Applicator.call(company: company, template_key: "engineering", parent_role: ceo)
 
     assert result.success?
     cto = company.roles.find_by!(title: "CTO")
@@ -66,7 +66,7 @@ class ApplyRoleTemplateServiceTest < ActiveSupport::TestCase
   test "skips roles whose title already exists in company" do
     # acme already has a CTO role
     company = companies(:acme)
-    result = ApplyRoleTemplateService.call(company: company, template_key: "engineering")
+    result = RoleTemplates::Applicator.call(company: company, template_key: "engineering")
 
     assert result.skipped >= 1
     assert_equal 1, company.roles.where(title: "CTO").count, "Should not create duplicate CTO"
@@ -74,8 +74,8 @@ class ApplyRoleTemplateServiceTest < ActiveSupport::TestCase
 
   test "applying same template twice creates no new roles on second run" do
     company = companies(:widgets)
-    first  = ApplyRoleTemplateService.call(company: company, template_key: "engineering")
-    second = ApplyRoleTemplateService.call(company: company, template_key: "engineering")
+    first  = RoleTemplates::Applicator.call(company: company, template_key: "engineering")
+    second = RoleTemplates::Applicator.call(company: company, template_key: "engineering")
 
     assert_equal 5, first.created
     assert_equal 0, second.created
@@ -85,7 +85,7 @@ class ApplyRoleTemplateServiceTest < ActiveSupport::TestCase
   test "children of skipped roles still get correct parent" do
     # acme has CTO already; VP Engineering should be parented to existing CTO
     company = companies(:acme)
-    ApplyRoleTemplateService.call(company: company, template_key: "engineering")
+    RoleTemplates::Applicator.call(company: company, template_key: "engineering")
 
     existing_cto = company.roles.find_by!(title: "CTO")
     vp = company.roles.find_by!(title: "VP Engineering")
@@ -100,7 +100,7 @@ class ApplyRoleTemplateServiceTest < ActiveSupport::TestCase
     company = companies(:widgets)
     company.roles.create!(title: "cto", description: "lowercase cto")
 
-    result = ApplyRoleTemplateService.call(company: company, template_key: "engineering")
+    result = RoleTemplates::Applicator.call(company: company, template_key: "engineering")
 
     # "cto" != "CTO" in SQLite without COLLATE NOCASE, so CTO from template is created
     assert company.roles.exists?(title: "CTO"),
@@ -115,7 +115,7 @@ class ApplyRoleTemplateServiceTest < ActiveSupport::TestCase
     # acme has code_review, architecture_planning, technical_strategy, system_design, security_assessment
     # These overlap with CTO's skill_keys in the engineering template
     company = companies(:acme)
-    ApplyRoleTemplateService.call(company: company, template_key: "engineering")
+    RoleTemplates::Applicator.call(company: company, template_key: "engineering")
 
     # VP Engineering was not in acme (no VP Engineering fixture) -- check its skills
     vp = company.roles.find_by(title: "VP Engineering")
@@ -129,7 +129,7 @@ class ApplyRoleTemplateServiceTest < ActiveSupport::TestCase
 
   test "does not assign skills from another company" do
     company = companies(:widgets)
-    ApplyRoleTemplateService.call(company: company, template_key: "engineering")
+    RoleTemplates::Applicator.call(company: company, template_key: "engineering")
 
     acme = companies(:acme)
     new_role_titles = %w[CTO VP\ Engineering Tech\ Lead Engineer QA]
@@ -156,7 +156,7 @@ class ApplyRoleTemplateServiceTest < ActiveSupport::TestCase
   test "handles missing skills gracefully -- no error if skill key not in company" do
     # widgets only has strategic_planning skill; engineering template needs code_review etc.
     company = companies(:widgets)
-    result = ApplyRoleTemplateService.call(company: company, template_key: "engineering")
+    result = RoleTemplates::Applicator.call(company: company, template_key: "engineering")
 
     assert result.success?, "Should succeed even when skill keys don't match company skills"
     assert_equal 5, result.created
@@ -166,43 +166,43 @@ class ApplyRoleTemplateServiceTest < ActiveSupport::TestCase
 
   test "result reports correct created count" do
     company = companies(:widgets)
-    result = ApplyRoleTemplateService.call(company: company, template_key: "engineering")
+    result = RoleTemplates::Applicator.call(company: company, template_key: "engineering")
 
     assert_equal 5, result.created
   end
 
   test "result reports correct skipped count" do
     company = companies(:widgets)
-    ApplyRoleTemplateService.call(company: company, template_key: "engineering")
-    result = ApplyRoleTemplateService.call(company: company, template_key: "engineering")
+    RoleTemplates::Applicator.call(company: company, template_key: "engineering")
+    result = RoleTemplates::Applicator.call(company: company, template_key: "engineering")
 
     assert_equal 5, result.skipped
   end
 
   test "result success? returns true when no errors" do
     company = companies(:widgets)
-    result = ApplyRoleTemplateService.call(company: company, template_key: "engineering")
+    result = RoleTemplates::Applicator.call(company: company, template_key: "engineering")
 
     assert result.success?
   end
 
   test "result summary returns human-readable string" do
     company = companies(:widgets)
-    result = ApplyRoleTemplateService.call(company: company, template_key: "engineering")
+    result = RoleTemplates::Applicator.call(company: company, template_key: "engineering")
 
     assert_includes result.summary, "Created 5 roles"
   end
 
   test "result summary includes skipped when applicable" do
     company = companies(:acme)  # has CTO already
-    result = ApplyRoleTemplateService.call(company: company, template_key: "engineering")
+    result = RoleTemplates::Applicator.call(company: company, template_key: "engineering")
 
     assert_includes result.summary, "Skipped"
   end
 
   test "result created_roles contains the actual Role records" do
     company = companies(:widgets)
-    result = ApplyRoleTemplateService.call(company: company, template_key: "engineering")
+    result = RoleTemplates::Applicator.call(company: company, template_key: "engineering")
 
     assert_equal 5, result.created_roles.size
     result.created_roles.each do |role|
@@ -213,21 +213,21 @@ class ApplyRoleTemplateServiceTest < ActiveSupport::TestCase
 
   test "result total equals created plus skipped" do
     company = companies(:acme)
-    result = ApplyRoleTemplateService.call(company: company, template_key: "engineering")
+    result = RoleTemplates::Applicator.call(company: company, template_key: "engineering")
 
     assert_equal result.created + result.skipped, result.total
   end
 
   test "result errors list is frozen" do
     company = companies(:widgets)
-    result = ApplyRoleTemplateService.call(company: company, template_key: "engineering")
+    result = RoleTemplates::Applicator.call(company: company, template_key: "engineering")
 
     assert result.errors.frozen?
   end
 
   test "result created_roles list is frozen" do
     company = companies(:widgets)
-    result = ApplyRoleTemplateService.call(company: company, template_key: "engineering")
+    result = RoleTemplates::Applicator.call(company: company, template_key: "engineering")
 
     assert result.created_roles.frozen?
   end
@@ -237,7 +237,7 @@ class ApplyRoleTemplateServiceTest < ActiveSupport::TestCase
   test "parent_role nests department root under specified role" do
     company = companies(:widgets)
     ceo = company.roles.create!(title: "CEO", description: "Chief Executive")
-    ApplyRoleTemplateService.call(company: company, template_key: "engineering", parent_role: ceo)
+    RoleTemplates::Applicator.call(company: company, template_key: "engineering", parent_role: ceo)
 
     cto = company.roles.find_by!(title: "CTO")
     assert_equal ceo.id, cto.parent_id
@@ -245,7 +245,7 @@ class ApplyRoleTemplateServiceTest < ActiveSupport::TestCase
 
   test "parent_role nil leaves department root as root" do
     company = companies(:widgets)
-    ApplyRoleTemplateService.call(company: company, template_key: "engineering", parent_role: nil)
+    RoleTemplates::Applicator.call(company: company, template_key: "engineering", parent_role: nil)
 
     cto = company.roles.find_by!(title: "CTO")
     assert_nil cto.parent_id
@@ -255,7 +255,7 @@ class ApplyRoleTemplateServiceTest < ActiveSupport::TestCase
 
   test "does not create roles in wrong company" do
     acme_role_count_before = companies(:acme).roles.count
-    ApplyRoleTemplateService.call(company: companies(:widgets), template_key: "engineering")
+    RoleTemplates::Applicator.call(company: companies(:widgets), template_key: "engineering")
 
     assert_equal acme_role_count_before, companies(:acme).roles.count,
       "Applying template to widgets should not create roles in acme"
@@ -265,14 +265,14 @@ class ApplyRoleTemplateServiceTest < ActiveSupport::TestCase
 
   test "raises TemplateNotFound for invalid template key" do
     company = companies(:widgets)
-    assert_raises(RoleTemplateRegistry::TemplateNotFound) do
-      ApplyRoleTemplateService.call(company: company, template_key: "nonexistent_template")
+    assert_raises(RoleTemplates::Registry::TemplateNotFound) do
+      RoleTemplates::Applicator.call(company: company, template_key: "nonexistent_template")
     end
   end
 
   test "result summary is empty string when nothing happened" do
     # If somehow 0 created, 0 skipped, 0 errors -- summary should be empty
-    result = ApplyRoleTemplateService::Result.new(created: 0, skipped: 0, errors: [], created_roles: [])
+    result = RoleTemplates::Applicator::Result.new(created: 0, skipped: 0, errors: [], created_roles: [])
     assert_equal "", result.summary
   end
 
@@ -280,10 +280,10 @@ class ApplyRoleTemplateServiceTest < ActiveSupport::TestCase
 
   test "does not create duplicate role_skills on re-application" do
     company = companies(:acme)
-    ApplyRoleTemplateService.call(company: company, template_key: "engineering")
+    RoleTemplates::Applicator.call(company: company, template_key: "engineering")
 
     # Apply again -- skips roles but the pre-existing skills should not be duplicated
-    ApplyRoleTemplateService.call(company: company, template_key: "engineering")
+    RoleTemplates::Applicator.call(company: company, template_key: "engineering")
 
     company.roles.each do |role|
       skill_ids = role.role_skills.pluck(:skill_id)
@@ -295,13 +295,13 @@ class ApplyRoleTemplateServiceTest < ActiveSupport::TestCase
   # --- Summary method edge cases ---
 
   test "result summary pluralizes role correctly for single role" do
-    result = ApplyRoleTemplateService::Result.new(created: 1, skipped: 0, errors: [], created_roles: [])
+    result = RoleTemplates::Applicator::Result.new(created: 1, skipped: 0, errors: [], created_roles: [])
     assert_includes result.summary, "Created 1 role"
     assert_not_includes result.summary, "roles"
   end
 
   test "result summary pluralizes error correctly for single error" do
-    result = ApplyRoleTemplateService::Result.new(created: 0, skipped: 0, errors: [ "oops" ], created_roles: [])
+    result = RoleTemplates::Applicator::Result.new(created: 0, skipped: 0, errors: [ "oops" ], created_roles: [])
     assert_includes result.summary, "1 error"
     assert_not_includes result.summary, "errors"
   end

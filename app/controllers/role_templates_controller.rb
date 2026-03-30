@@ -10,7 +10,7 @@ class RoleTemplatesController < ApplicationController
   end
 
   def apply
-    result = ApplyRoleTemplateService.call(
+    result = RoleTemplates::Applicator.call(
       company: Current.company,
       template_key: @template.key
     )
