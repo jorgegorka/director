@@ -51,9 +51,9 @@ module AgentApiAuthenticatable
     respond_not_found unless @task
   end
 
-  def respond_success(task, message)
+  def respond_success(task, message, **extra)
     respond_to do |format|
-      format.json { render json: { status: "ok", task_id: task.id, assignee_id: task.assignee_id, message: message }, status: :ok }
+      format.json { render json: { status: "ok", task_id: task.id, assignee_id: task.assignee_id, message: message, **extra }, status: :ok }
       format.html { redirect_to task, notice: message }
     end
   end

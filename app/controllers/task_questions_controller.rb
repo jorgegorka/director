@@ -47,10 +47,7 @@ class TaskQuestionsController < ApplicationController
       }
     )
 
-    respond_to do |format|
-      format.json { render json: { status: "ok", message_id: message.id, task_id: @task.id, message: "Question sent to #{manager_role.title}." }, status: :ok }
-      format.html { redirect_to @task, notice: "Question sent to #{manager_role.title}." }
-    end
+    respond_success(@task, "Question sent to #{manager_role.title}.", message_id: message.id)
   end
 
   private
