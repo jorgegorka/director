@@ -59,18 +59,13 @@ Users can organize AI agents into a functioning company structure and confidentl
 - ApplyAllRoleTemplatesService for one-click full company setup (CEO + all 5 departments) — v1.5
 - Templates browse page with card grid, hierarchy tree preview, and one-click apply — v1.5
 - 18 new default_skills.yml mappings for template role titles (total: 29) — v1.5
+- All 13 service classes relocated from app/services/ to domain namespaces under app/models/ — v1.6
+- app/services/ directory eliminated — v1.6
+- Code quality improvements: N+1 fix in ValidationProcessor, Auditable consistency in GateCheck, tmux stub safety — v1.6
 
 ### Active
 
-## Current Milestone: v1.6 Service Refactor & Cleanup
-
-**Goal:** Eliminate the `app/services/` directory by relocating all business logic to namespaced model objects under `app/models/<resource>/`, aligning the codebase with the established convention of concerns and plain Ruby objects in the models directory.
-
-**Target features:**
-- Relocate all 13 services to `app/models/<namespace>/` as concerns or plain Ruby objects
-- Update all references across controllers, jobs, views, and tests
-- Address related code quality issues discovered during migration
-- Remove `app/services/` directory entirely
+(No active milestone — all planned work through v1.6 is shipped)
 
 ### Out of Scope
 
@@ -117,13 +112,15 @@ Users can organize AI agents into a functioning company structure and confidentl
 | Data.define for value objects | Immutable, lightweight, named attributes (Ruby 3.2+) — safer than OpenStruct, lighter than full class | ✓ Good — clean Template/TemplateRole/Result types |
 | No transaction for template apply | Partial success preferred over all-or-nothing — matches additive skip-duplicate philosophy | ✓ Good — users see exactly what was created vs skipped |
 | No new gems/migrations for v1.5 | YAML files + plain Ruby registry + service object + standard controller | ✓ Good — zero dependency/schema growth |
+| Business logic in models, not services | app/models/<domain>/ with concerns and plain Ruby objects — no app/services/ | ✓ Good — consistent convention, autoloading-friendly |
+| Dependency-ordered migration | Move most-depended-on services first (Roles::Waking) so downstream consumers update incrementally | ✓ Good — zero broken references at any commit |
 
 ## Current State
 
-**Shipped:** v1.0 (Core Platform) + v1.1 (SQLite Migration) + v1.2 (Agent Skills) + v1.3 (Agent Hooks) + v1.4 (Agent Execution) + v1.5 (Role Templates)
-**Codebase:** ~24,900 LOC (Ruby + ERB + YAML), 1184 tests, 28 phases, 53 plans
+**Shipped:** v1.0 (Core Platform) + v1.1 (SQLite Migration) + v1.2 (Agent Skills) + v1.3 (Agent Hooks) + v1.4 (Agent Execution) + v1.5 (Role Templates) + v1.6 (Service Refactor & Cleanup)
+**Codebase:** ~19,800 LOC Ruby, 1243 tests, 33 phases, 59 plans
 **Stack:** Rails 8, SQLite (all databases), Hotwire, modern CSS, Solid Queue/Cache/Cable
-**Status:** Fully functional orchestration platform with real agent execution and role templates. Auth, multi-tenancy, org charts with one-click department templates, agents with skill management, tasks, goals, heartbeats, budgets, governance, dashboard with real-time updates. HTTP and Claude Local adapters execute real work. Live streaming UI shows agent output in real time. API callbacks close the autonomous execution loop. Five builtin department templates (Engineering, Marketing, Operations, Finance, HR) with browse, preview, and one-click apply.
+**Status:** Fully functional orchestration platform with real agent execution and role templates. Auth, multi-tenancy, org charts with one-click department templates, agents with skill management, tasks, goals, heartbeats, budgets, governance, dashboard with real-time updates. HTTP and Claude Local adapters execute real work. Live streaming UI shows agent output in real time. API callbacks close the autonomous execution loop. Five builtin department templates (Engineering, Marketing, Operations, Finance, HR) with browse, preview, and one-click apply. All business logic lives in domain namespaces under app/models/ — no service objects layer.
 
 **Known tech debt:**
 - permit! on action_config params in AgentHooksController (mitigated by model validation)
@@ -131,4 +128,4 @@ Users can organize AI agents into a functioning company structure and confidentl
 - tmux availability not verified in Docker image (deployment dependency)
 
 ---
-*Last updated: 2026-03-30 after v1.6 milestone started*
+*Last updated: 2026-03-30 after v1.6 milestone*

@@ -2,6 +2,13 @@
 
 ## Completed
 
+### v1.6 -- Service Refactor & Cleanup
+**Completed:** 2026-03-30
+**Phases:** 29-33 (5 phases, 9 plans)
+**Summary:** Eliminated app/services/ directory by relocating all 13 service classes to domain namespaces under app/models/. Roles::Waking, Roles::GateCheck, Roles::EmergencyStop, Hooks::Executor, Hooks::ValidationProcessor, Budgets::Enforcement, Agents::AiClient, Goals::Evaluation, Heartbeats::ScheduleManager, Documents::Creator, RoleTemplates::Registry, RoleTemplates::Applicator, RoleTemplates::BulkApplicator. Three code quality fixes: N+1 in ValidationProcessor, Auditable consistency in GateCheck, tmux stub safety in tests.
+**Stats:** 17 requirements, 9 plans, 1243 tests, ~47 minutes total execution
+**Archive:** [v1.6-ROADMAP.md](milestones/v1.6-ROADMAP.md) | [v1.6-REQUIREMENTS.md](milestones/v1.6-REQUIREMENTS.md)
+
 ### v1.5 -- Role Templates
 **Completed:** 2026-03-30
 **Phases:** 26-28 (3 phases, 6 plans, 13 tasks)

@@ -5,7 +5,7 @@
 See: .ariadna_planning/PROJECT.md (updated 2026-03-30)
 
 **Core value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
-**Current focus:** v1.6 Service Refactor & Cleanup
+**Current focus:** Planning next milestone
 
 ## Current Position
 
@@ -86,6 +86,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-30
-Stopped at: Phase 33 plan 01 complete. v1.6 Service Refactor & Cleanup milestone complete. All 13 service classes relocated, app/services/ deleted, CI suite clean.
+Stopped at: v1.6 milestone archived. All 7 milestones shipped (v1.0-v1.6).
 Resume file: --
-Next step: v1.6 milestone shipped. No remaining planned work.
+Next step: /ariadna:new-milestone to start v1.7 or v2.0
