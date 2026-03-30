@@ -7,8 +7,6 @@ class EvaluateGoalAlignmentJob < ApplicationJob
   def perform(task_id)
     task = Task.find_by(id: task_id)
     return unless task
-    return unless task.completed?
-    return unless task.goal.present?
 
     Goals::Evaluation.call(task)
   end

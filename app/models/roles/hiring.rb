@@ -9,11 +9,13 @@ module Roles
     end
 
     def department_template
-      root_role = find_department_root
-      return nil if root_role.nil?
+      @department_template ||= begin
+        root_role = find_department_root
+        return nil if root_role.nil?
 
-      RoleTemplates::Registry.all.find do |template|
-        template.roles.first&.title == root_role.title
+        RoleTemplates::Registry.all.find do |template|
+          template.roles.first&.title == root_role.title
+        end
       end
     end
 

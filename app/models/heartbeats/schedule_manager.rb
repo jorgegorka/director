@@ -39,10 +39,17 @@ module Heartbeats
     def solid_queue_available?
       return true if self.class.task_store
 
-      defined?(SolidQueue::RecurringTask) &&
-        ActiveRecord::Base.connection.table_exists?("solid_queue_recurring_tasks")
-    rescue ActiveRecord::NoDatabaseError, ActiveRecord::StatementInvalid
-      false
+      self.class.instance_variable_defined?(:@solid_queue_checked) ?
+        self.class.instance_variable_get(:@solid_queue_available) :
+        begin
+          available = defined?(SolidQueue::RecurringTask) &&
+            ActiveRecord::Base.connection.table_exists?("solid_queue_recurring_tasks")
+          self.class.instance_variable_set(:@solid_queue_checked, true)
+          self.class.instance_variable_set(:@solid_queue_available, available)
+          available
+        rescue ActiveRecord::NoDatabaseError, ActiveRecord::StatementInvalid
+          false
+        end
     end
 
     def recurring_task_class
