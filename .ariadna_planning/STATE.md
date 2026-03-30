@@ -9,17 +9,17 @@ See: .ariadna_planning/PROJECT.md (updated 2026-03-30)
 
 ## Current Position
 
-Phase: 31 - Agents, Goals, Heartbeats, Documents
+Phase: 31 - Agents, Goals, Heartbeats & Documents
 Plan: 02 complete
-Status: In Progress
-Last activity: 2026-03-30 -- Plan 31-02 complete: Heartbeats::ScheduleManager and Documents::Creator relocated
+Status: Complete
+Last activity: 2026-03-30 -- Phase 31 complete: Agents::AiClient, Goals::Evaluation, Heartbeats::ScheduleManager, Documents::Creator relocated
 
-Progress: ████████░░░░ 67%
+Progress: ████████████ 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 56
+- Total plans completed: 57
 - Average duration: ~7 minutes
 - Total execution time: ~294 minutes
 
@@ -57,7 +57,7 @@ Progress: ████████░░░░ 67%
 | 28-templates-browse-and-apply-ui | 2/2 | ~22 min | ~11 min |
 | 29-roles-domain | 2/2 | ~20 min | ~10 min |
 | 30-hooks-and-budgets | 2/2 | ~6 min | ~3 min |
-| 31-agents-goals-heartbeats-documents | 2/? | ~5 min | ~2.5 min |
+| 31-agents-goals-heartbeats-documents | 2/2 | ~5 min | ~2.5 min |
 
 **Recent Trend:**
 - v1.5 plans: 26-01 (~2 min), 26-02 (~2 min), 27-01 (~3 min), 27-02 (~2 min), 28-01 (~12 min), 28-02 (~10 min)
@@ -84,6 +84,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-30
-Stopped at: Plan 31-02 complete. Heartbeats::ScheduleManager and Documents::Creator relocated. app/models/heartbeats/ and app/models/documents/ established.
+Stopped at: Phase 31 complete. All four services relocated: Agents::AiClient, Goals::Evaluation, Heartbeats::ScheduleManager, Documents::Creator. app/models/agents/, app/models/goals/, app/models/heartbeats/, app/models/documents/ established.
 Resume file: --
-Next step: Execute plan 31-03
+Next step: `/ariadna:plan-phase 32`

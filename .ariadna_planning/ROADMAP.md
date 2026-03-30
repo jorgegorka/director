@@ -271,7 +271,7 @@ Full details: [v1.5-ROADMAP.md](milestones/v1.5-ROADMAP.md)
 
 - [ ] **Phase 29: Roles Domain** - WakeRoleService, GateCheckService, EmergencyStopService relocate to `app/models/roles/`
 - [x] **Phase 30: Hooks & Budgets** - ExecuteHookService, ProcessValidationResultService, BudgetEnforcementService relocate to domain namespaces
-- [ ] **Phase 31: Agents, Goals, Heartbeats & Documents** - AiClient, GoalEvaluationService, HeartbeatScheduleManager, CreateDocumentService relocate to domain namespaces
+- [x] **Phase 31: Agents, Goals, Heartbeats & Documents** - AiClient, GoalEvaluationService, HeartbeatScheduleManager, CreateDocumentService relocate to domain namespaces
 - [ ] **Phase 32: Role Templates** - RoleTemplateRegistry, ApplyRoleTemplateService, ApplyAllRoleTemplatesService relocate to `app/models/role_templates/`
 - [ ] **Phase 33: Final Cleanup** - Verify all references updated, all tests pass, delete `app/services/`, address code quality
 
@@ -295,6 +295,7 @@ Plans:
 - [x] 29-02: Relocate GateCheckService to Roles::GateCheck and EmergencyStopService to Roles::EmergencyStop
 
 ### Phase 30: Hooks & Budgets
+
 **Goal**: Relocate ExecuteHookService, ProcessValidationResultService, and BudgetEnforcementService to their respective domain namespaces
 **Why this matters**: Hooks are a critical execution path -- they fire on task lifecycle events and trigger agent-to-agent validation. Budget enforcement is the safety gate that prevents runaway spending. Both must work flawlessly after relocation.
 **Depends on**: Phase 29 (ExecuteHookService and ProcessValidationResultService both call Roles::Waking)
@@ -321,6 +322,11 @@ Plans:
   3. `Heartbeats::ScheduleManager.sync(role)` creates and removes recurring Solid Queue jobs -- heartbeat schedules still sync when role settings change
   4. `Documents::Creator.call(company:, title:, content:)` creates documents scoped to the company -- document creation still works from all entry points
   5. All existing tests pass with the relocated classes
+**Plans**: 2/2 complete
+
+Plans:
+- [x] 31-01: Relocate AiClient to Agents::AiClient and GoalEvaluationService to Goals::Evaluation
+- [x] 31-02: Relocate HeartbeatScheduleManager to Heartbeats::ScheduleManager and CreateDocumentService to Documents::Creator
 
 ### Phase 32: Role Templates
 **Goal**: Relocate RoleTemplateRegistry, ApplyRoleTemplateService, and ApplyAllRoleTemplatesService to `app/models/role_templates/`
@@ -381,6 +387,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 28. Templates Browse and Apply UI | v1.5 | 2/2 | Complete | 2026-03-30 |
 | 29. Roles Domain | v1.6 | 2/2 | Complete | 2026-03-30 |
 | 30. Hooks & Budgets | v1.6 | 2/2 | Complete | 2026-03-30 |
-| 31. Agents, Goals, Heartbeats & Documents | v1.6 | 0/0 | Not started | — |
+| 31. Agents, Goals, Heartbeats & Documents | v1.6 | 2/2 | Complete | 2026-03-30 |
 | 32. Role Templates | v1.6 | 0/0 | Not started | — |
 | 33. Final Cleanup | v1.6 | 0/0 | Not started | — |
