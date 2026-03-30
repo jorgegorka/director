@@ -1,5 +1,7 @@
 # Director
 
+AI agent orchestration platform for building and managing anything from simple projects to AI companies.
+
 **Run your AI agents like a real company.**
 
 Managing multiple AI agents gets messy fast. They run in different tabs, lose context between sessions, burn through money with no oversight, and nobody knows what any of them are actually doing. Director fixes this by letting you organize your AI agents into a structured company — with an org chart, task assignments, budgets, and human oversight — so you can let them work autonomously while staying in control.
