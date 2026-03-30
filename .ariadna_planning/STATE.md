@@ -10,11 +10,11 @@ See: .ariadna_planning/PROJECT.md (updated 2026-03-30)
 ## Current Position
 
 Phase: 29 - Roles Domain
-Plan: 01 complete
-Status: In progress
-Last activity: 2026-03-30 -- Plan 29-01 complete: Roles::Waking relocated from WakeRoleService
+Plan: 02 complete
+Status: Complete
+Last activity: 2026-03-30 -- Plan 29-02 complete: Roles::GateCheck and Roles::EmergencyStop relocated
 
-Progress: ██░░░░░░░░ 20%
+Progress: ████████████ 100%
 
 ## Performance Metrics
 
@@ -55,10 +55,12 @@ Progress: ██░░░░░░░░ 20%
 | 26-template-data-and-registry | 2/2 | ~4 min | ~2 min |
 | 27-template-application-service | 2/2 | ~5 min | ~2.5 min |
 | 28-templates-browse-and-apply-ui | 2/2 | ~22 min | ~11 min |
+| 29-roles-domain | 2/2 | ~20 min | ~10 min |
 
 **Recent Trend:**
 - v1.5 plans: 26-01 (~2 min), 26-02 (~2 min), 27-01 (~3 min), 27-02 (~2 min), 28-01 (~12 min), 28-02 (~10 min)
-- All milestones complete: v1.0, v1.1, v1.2, v1.3, v1.4, v1.5
+- v1.6 plans: 29-01 (~10 min), 29-02 (~10 min)
+- All milestones complete: v1.0, v1.1, v1.2, v1.3, v1.4, v1.5, v1.6
 
 *Updated after each plan completion*
 
@@ -80,6 +82,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-30
-Stopped at: Plan 29-01 complete. Roles::Waking established, all callers updated, zero WakeRoleService references.
+Stopped at: Phase 29 complete. All role-domain services relocated to Roles namespace (Hiring, Waking, GateCheck, EmergencyStop). app/services/ clear of role-domain logic.
 Resume file: --
-Next step: Execute plan 29-02 (or next available plan in phase 29)
+Next step: Plan next phase (v1.6 complete)
