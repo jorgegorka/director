@@ -1,6 +1,6 @@
 require "test_helper"
 
-class AiClientTest < ActiveSupport::TestCase
+class Agents::AiClientTest < ActiveSupport::TestCase
   setup do
     ENV["ANTHROPIC_API_KEY"] = "test-key"
   end
@@ -14,7 +14,7 @@ class AiClientTest < ActiveSupport::TestCase
     stub_request(:post, "https://api.anthropic.com/v1/messages")
       .to_return(status: 200, body: mock_response, headers: { "Content-Type" => "application/json" })
 
-    result = AiClient.chat(
+    result = Agents::AiClient.chat(
       system: "You are an evaluator.",
       prompt: "Evaluate this task."
     )
@@ -29,8 +29,8 @@ class AiClientTest < ActiveSupport::TestCase
     stub_request(:post, "https://api.anthropic.com/v1/messages")
       .to_return(status: 500, body: '{"error":{"message":"Internal error"}}')
 
-    assert_raises(AiClient::ApiError) do
-      AiClient.chat(system: "test", prompt: "test")
+    assert_raises(Agents::AiClient::ApiError) do
+      Agents::AiClient.chat(system: "test", prompt: "test")
     end
   end
 
@@ -43,14 +43,14 @@ class AiClientTest < ActiveSupport::TestCase
     stub_request(:post, "https://api.anthropic.com/v1/messages")
       .to_return(status: 200, body: mock_response, headers: { "Content-Type" => "application/json" })
 
-    assert_raises(AiClient::ParseError) do
-      AiClient.chat(system: "test", prompt: "test")
+    assert_raises(Agents::AiClient::ParseError) do
+      Agents::AiClient.chat(system: "test", prompt: "test")
     end
   end
 
   test "estimate_cost_cents calculates from usage" do
     usage = { "input_tokens" => 1000, "output_tokens" => 500 }
-    cost = AiClient.estimate_cost_cents(usage)
+    cost = Agents::AiClient.estimate_cost_cents(usage)
     assert_kind_of Integer, cost
     assert cost >= 0
   end
