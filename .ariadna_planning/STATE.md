@@ -9,21 +9,19 @@ See: .ariadna_planning/PROJECT.md (updated 2026-03-30)
 
 ## Current Position
 
-Phase: 30 - Hooks and Budgets
+Phase: 30 - Hooks & Budgets
 Plan: 02 complete
 Status: Complete
-Last activity: 2026-03-30 -- Plan 30-02 complete: Budgets::Enforcement relocated from BudgetEnforcementService
+Last activity: 2026-03-30 -- Phase 30 complete: Hooks::Executor, Hooks::ValidationProcessor, Budgets::Enforcement relocated
 
 Progress: ████████████ 100%
-
-| 30-hooks-and-budgets | 2/2 | ~4 min | ~2 min |
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 53
+- Total plans completed: 55
 - Average duration: ~7 minutes
-- Total execution time: ~288 minutes
+- Total execution time: ~294 minutes
 
 **By Phase:**
 
@@ -58,10 +56,11 @@ Progress: ████████████ 100%
 | 27-template-application-service | 2/2 | ~5 min | ~2.5 min |
 | 28-templates-browse-and-apply-ui | 2/2 | ~22 min | ~11 min |
 | 29-roles-domain | 2/2 | ~20 min | ~10 min |
+| 30-hooks-and-budgets | 2/2 | ~6 min | ~3 min |
 
 **Recent Trend:**
 - v1.5 plans: 26-01 (~2 min), 26-02 (~2 min), 27-01 (~3 min), 27-02 (~2 min), 28-01 (~12 min), 28-02 (~10 min)
-- v1.6 plans: 29-01 (~10 min), 29-02 (~10 min)
+- v1.6 plans: 29-01 (~10 min), 29-02 (~10 min), 30-01 (~4 min), 30-02 (~2 min)
 - All milestones complete: v1.0, v1.1, v1.2, v1.3, v1.4, v1.5
 
 *Updated after each plan completion*
@@ -84,6 +83,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-30
-Stopped at: Phase 30 complete. BudgetEnforcementService relocated to Budgets::Enforcement. app/services/ is now clear of all domain logic (role-domain and budget-domain). app/models/budgets/ established.
+Stopped at: Phase 30 complete. All three services relocated: Hooks::Executor, Hooks::ValidationProcessor, Budgets::Enforcement. app/models/hooks/ and app/models/budgets/ established.
 Resume file: --
-Next step: Plan next phase
+Next step: `/ariadna:plan-phase 31`

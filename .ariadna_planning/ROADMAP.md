@@ -270,7 +270,7 @@ Full details: [v1.5-ROADMAP.md](milestones/v1.5-ROADMAP.md)
 ### v1.6 Service Refactor & Cleanup (Phases 29-33) - IN PROGRESS
 
 - [ ] **Phase 29: Roles Domain** - WakeRoleService, GateCheckService, EmergencyStopService relocate to `app/models/roles/`
-- [ ] **Phase 30: Hooks & Budgets** - ExecuteHookService, ProcessValidationResultService, BudgetEnforcementService relocate to domain namespaces
+- [x] **Phase 30: Hooks & Budgets** - ExecuteHookService, ProcessValidationResultService, BudgetEnforcementService relocate to domain namespaces
 - [ ] **Phase 31: Agents, Goals, Heartbeats & Documents** - AiClient, GoalEvaluationService, HeartbeatScheduleManager, CreateDocumentService relocate to domain namespaces
 - [ ] **Phase 32: Role Templates** - RoleTemplateRegistry, ApplyRoleTemplateService, ApplyAllRoleTemplatesService relocate to `app/models/role_templates/`
 - [ ] **Phase 33: Final Cleanup** - Verify all references updated, all tests pass, delete `app/services/`, address code quality
@@ -300,10 +300,15 @@ Plans:
 **Depends on**: Phase 29 (ExecuteHookService and ProcessValidationResultService both call Roles::Waking)
 **Requirements**: HOOK-01, HOOK-02, BUDG-01
 **Success Criteria** (what must be TRUE):
-  1. `Hooks::Executor.call(execution)` dispatches trigger_agent and webhook hooks identically to the old service -- hook executions still fire on task state changes
-  2. `Hooks::ValidationProcessor.call(task)` feeds validation results back to the parent task and wakes the original agent -- the validation feedback loop still works end-to-end
-  3. `Budgets::Enforcement.check!(role)` atomically pauses agents that exceed their budget and sends threshold alerts -- budget safety still prevents overspending
+  1. `Hooks::Executor.call(execution)` dispatches trigger_agent and webhook hooks identically to the old service
+  2. `Hooks::ValidationProcessor.call(task)` feeds validation results back to the parent task and wakes the original agent
+  3. `Budgets::Enforcement.check!(role)` atomically pauses agents that exceed their budget and sends threshold alerts
   4. All existing tests pass with the relocated classes
+**Plans**: 2/2 complete
+
+Plans:
+- [x] 30-01: Relocate ExecuteHookService to Hooks::Executor and ProcessValidationResultService to Hooks::ValidationProcessor
+- [x] 30-02: Relocate BudgetEnforcementService to Budgets::Enforcement
 
 ### Phase 31: Agents, Goals, Heartbeats & Documents
 **Goal**: Relocate AiClient, GoalEvaluationService, HeartbeatScheduleManager, and CreateDocumentService to their domain namespaces
@@ -375,7 +380,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 27. Template Application Service | v1.5 | 2/2 | Complete | 2026-03-29 |
 | 28. Templates Browse and Apply UI | v1.5 | 2/2 | Complete | 2026-03-30 |
 | 29. Roles Domain | v1.6 | 2/2 | Complete | 2026-03-30 |
-| 30. Hooks & Budgets | v1.6 | 0/0 | Not started | — |
+| 30. Hooks & Budgets | v1.6 | 2/2 | Complete | 2026-03-30 |
 | 31. Agents, Goals, Heartbeats & Documents | v1.6 | 0/0 | Not started | — |
 | 32. Role Templates | v1.6 | 0/0 | Not started | — |
 | 33. Final Cleanup | v1.6 | 0/0 | Not started | — |
