@@ -9,12 +9,14 @@ See: .ariadna_planning/PROJECT.md (updated 2026-03-30)
 
 ## Current Position
 
-Phase: 29 - Roles Domain
+Phase: 30 - Hooks and Budgets
 Plan: 02 complete
 Status: Complete
-Last activity: 2026-03-30 -- Plan 29-02 complete: Roles::GateCheck and Roles::EmergencyStop relocated
+Last activity: 2026-03-30 -- Plan 30-02 complete: Budgets::Enforcement relocated from BudgetEnforcementService
 
 Progress: ████████████ 100%
+
+| 30-hooks-and-budgets | 2/2 | ~4 min | ~2 min |
 
 ## Performance Metrics
 
@@ -82,6 +84,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-30
-Stopped at: Phase 29 complete. All role-domain services relocated to Roles namespace (Hiring, Waking, GateCheck, EmergencyStop). app/services/ clear of role-domain logic.
+Stopped at: Phase 30 complete. BudgetEnforcementService relocated to Budgets::Enforcement. app/services/ is now clear of all domain logic (role-domain and budget-domain). app/models/budgets/ established.
 Resume file: --
-Next step: `/ariadna:plan-phase 30`
+Next step: Plan next phase
