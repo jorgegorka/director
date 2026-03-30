@@ -36,7 +36,7 @@ class EvaluateGoalAlignmentJobTest < ActiveSupport::TestCase
     end
   end
 
-  test "calls GoalEvaluationService for eligible task" do
+  test "calls Goals::Evaluation for eligible task" do
     task = Task.create!(
       title: "Eval job test",
       company: @company,

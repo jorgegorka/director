@@ -1,6 +1,6 @@
 require "test_helper"
 
-class GoalEvaluationServiceTest < ActiveSupport::TestCase
+class Goals::EvaluationTest < ActiveSupport::TestCase
   setup do
     ENV["ANTHROPIC_API_KEY"] = "test-key"
 
@@ -30,7 +30,7 @@ class GoalEvaluationServiceTest < ActiveSupport::TestCase
     stub_ai_response(result: "pass", feedback: "Search feature directly advances MVP launch.")
 
     assert_difference "GoalEvaluation.count", 1 do
-      GoalEvaluationService.call(@task)
+      Goals::Evaluation.call(@task)
     end
 
     evaluation = GoalEvaluation.last
@@ -46,7 +46,7 @@ class GoalEvaluationServiceTest < ActiveSupport::TestCase
   test "task stays completed on pass" do
     stub_ai_response(result: "pass", feedback: "Good.")
 
-    GoalEvaluationService.call(@task)
+    Goals::Evaluation.call(@task)
     @task.reload
 
     assert @task.completed?
@@ -56,7 +56,7 @@ class GoalEvaluationServiceTest < ActiveSupport::TestCase
     stub_ai_response(result: "pass", feedback: "Good.")
 
     assert_no_difference "HeartbeatEvent.count" do
-      GoalEvaluationService.call(@task)
+      Goals::Evaluation.call(@task)
     end
   end
 
@@ -66,7 +66,7 @@ class GoalEvaluationServiceTest < ActiveSupport::TestCase
     stub_ai_response(result: "fail", feedback: "This doesn't advance the goal.")
 
     assert_difference "GoalEvaluation.count", 1 do
-      GoalEvaluationService.call(@task)
+      Goals::Evaluation.call(@task)
     end
 
     evaluation = GoalEvaluation.last
@@ -77,7 +77,7 @@ class GoalEvaluationServiceTest < ActiveSupport::TestCase
   test "reopens task to in_progress on fail" do
     stub_ai_response(result: "fail", feedback: "Not aligned.")
 
-    GoalEvaluationService.call(@task)
+    Goals::Evaluation.call(@task)
     @task.reload
 
     assert @task.in_progress?
@@ -88,7 +88,7 @@ class GoalEvaluationServiceTest < ActiveSupport::TestCase
     stub_ai_response(result: "fail", feedback: "Needs more alignment.")
 
     assert_difference "Message.count", 1 do
-      GoalEvaluationService.call(@task)
+      Goals::Evaluation.call(@task)
     end
 
     message = @task.messages.order(:created_at).last
@@ -100,7 +100,7 @@ class GoalEvaluationServiceTest < ActiveSupport::TestCase
     stub_ai_response(result: "fail", feedback: "Not aligned.")
 
     assert_difference "HeartbeatEvent.count", 1 do
-      GoalEvaluationService.call(@task)
+      Goals::Evaluation.call(@task)
     end
 
     event = HeartbeatEvent.order(:created_at).last
@@ -118,7 +118,7 @@ class GoalEvaluationServiceTest < ActiveSupport::TestCase
 
     stub_ai_response(result: "fail", feedback: "Still not aligned.")
 
-    GoalEvaluationService.call(@task)
+    Goals::Evaluation.call(@task)
     @task.reload
 
     assert @task.blocked?
@@ -133,7 +133,7 @@ class GoalEvaluationServiceTest < ActiveSupport::TestCase
     stub_ai_response(result: "fail", feedback: "Still not aligned.")
 
     assert_difference "AuditEvent.count" do
-      GoalEvaluationService.call(@task)
+      Goals::Evaluation.call(@task)
     end
 
     audit = AuditEvent.where(action: "goal_evaluation_exhausted").last
@@ -147,7 +147,7 @@ class GoalEvaluationServiceTest < ActiveSupport::TestCase
     end
 
     assert_no_difference "GoalEvaluation.count" do
-      GoalEvaluationService.call(@task)
+      Goals::Evaluation.call(@task)
     end
   end
 
@@ -158,7 +158,7 @@ class GoalEvaluationServiceTest < ActiveSupport::TestCase
     @task.reload
 
     assert_no_difference "GoalEvaluation.count" do
-      GoalEvaluationService.call(@task)
+      Goals::Evaluation.call(@task)
     end
   end
 
@@ -167,7 +167,7 @@ class GoalEvaluationServiceTest < ActiveSupport::TestCase
     @task.reload
 
     assert_no_difference "GoalEvaluation.count" do
-      GoalEvaluationService.call(@task)
+      Goals::Evaluation.call(@task)
     end
   end
 
@@ -176,7 +176,7 @@ class GoalEvaluationServiceTest < ActiveSupport::TestCase
   test "adds evaluation cost to task cost_cents" do
     stub_ai_response(result: "pass", feedback: "Good.", input_tokens: 500, output_tokens: 100)
 
-    GoalEvaluationService.call(@task)
+    Goals::Evaluation.call(@task)
     @task.reload
 
     assert @task.cost_cents.present?

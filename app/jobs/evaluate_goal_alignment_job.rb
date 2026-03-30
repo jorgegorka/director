@@ -10,6 +10,6 @@ class EvaluateGoalAlignmentJob < ApplicationJob
     return unless task.completed?
     return unless task.goal.present?
 
-    GoalEvaluationService.call(task)
+    Goals::Evaluation.call(task)
   end
 end
