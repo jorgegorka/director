@@ -53,18 +53,16 @@ Users can organize AI agents into a functioning company structure and confidentl
 - Live streaming UI with turbo_stream_from, tool-use indicators, broadcast batching — v1.4
 - Cancel button kills tmux sessions and marks runs cancelled — v1.4
 - API result/progress callbacks close autonomous execution loop with task status updates — v1.4
+- Builtin YAML role templates for 5 departments (Engineering, Marketing, Operations, Finance, HR) with 23 roles — v1.5
+- RoleTemplateRegistry with Data.define value objects and load-time parent-ordering validation — v1.5
+- ApplyRoleTemplateService with skip-duplicate logic and tenant-scoped skill pre-assignment — v1.5
+- ApplyAllRoleTemplatesService for one-click full company setup (CEO + all 5 departments) — v1.5
+- Templates browse page with card grid, hierarchy tree preview, and one-click apply — v1.5
+- 18 new default_skills.yml mappings for template role titles (total: 29) — v1.5
 
 ### Active
 
-<!-- Current scope: v1.5 Role Templates -->
-
-- [ ] Builtin YAML role templates shipped with the app (3-5 core departments)
-- [ ] Each template defines a full department hierarchy with titles, descriptions, job specs, and skill assignments
-- [ ] Templates are stackable — multiple departments can be applied to the same company
-- [ ] Apply-then-edit workflow — one click creates the whole department
-- [ ] Skip-duplicate logic — existing roles by title are not recreated
-- [ ] Dedicated templates browse page with preview and apply
-- [ ] Templates attach under CEO (root role)
+<!-- Next milestone scope TBD -->
 
 ### Out of Scope
 
@@ -72,6 +70,7 @@ Users can organize AI agents into a functioning company structure and confidentl
 - Hosting AI models — agents are always external (BYOA)
 - Enterprise SSO/SAML — standard auth sufficient for v1
 - Company templates marketplace ("Clipmart") — defer to v2
+- Custom template creation by users — defer to v2
 - Plugin system — defer to v2, focus on core features first
 
 ## Context
@@ -107,24 +106,16 @@ Users can organize AI agents into a functioning company structure and confidentl
 | SQLite for all databases | Simplifies deployment (no external DB server), aligns all databases on one engine, Rails 8.1 has excellent SQLite support | ✓ Good — broadcast batching (100ms) protects SQLite from write pressure |
 | tmux for Claude subprocess management | Real TTY (solves stdout buffering), session persistence, zombie-free lifecycle, no new gems | ✓ Good — clean process isolation, session naming by run ID |
 | No new gems for v1.4 | Net::HTTP (stdlib), tmux (system dep), Turbo::StreamsChannel (already in Gemfile) | ✓ Good — zero dependency growth |
-
-## Current Milestone: v1.5 Role Templates
-
-**Goal:** Add builtin role templates — predefined department structures (Engineering, Marketing, Operations, Finance, HR) that users can apply to their companies with one click, creating full hierarchies with job specs and skill assignments.
-
-**Target features:**
-- Builtin YAML template definitions (3-5 departments)
-- Template browse page with department preview
-- One-click apply with skip-duplicate logic
-- Pre-assigned skills and full job specs on template roles
-- Stackable — multiple departments under the same CEO
+| Data.define for value objects | Immutable, lightweight, named attributes (Ruby 3.2+) — safer than OpenStruct, lighter than full class | ✓ Good — clean Template/TemplateRole/Result types |
+| No transaction for template apply | Partial success preferred over all-or-nothing — matches additive skip-duplicate philosophy | ✓ Good — users see exactly what was created vs skipped |
+| No new gems/migrations for v1.5 | YAML files + plain Ruby registry + service object + standard controller | ✓ Good — zero dependency/schema growth |
 
 ## Current State
 
-**Shipped:** v1.0 (Core Platform) + v1.1 (SQLite Migration) + v1.2 (Agent Skills) + v1.3 (Agent Hooks) + v1.4 (Agent Execution)
-**Codebase:** ~17,700 LOC Ruby, 1124 tests, 25 phases, 47 plans
+**Shipped:** v1.0 (Core Platform) + v1.1 (SQLite Migration) + v1.2 (Agent Skills) + v1.3 (Agent Hooks) + v1.4 (Agent Execution) + v1.5 (Role Templates)
+**Codebase:** ~24,900 LOC (Ruby + ERB + YAML), 1184 tests, 28 phases, 53 plans
 **Stack:** Rails 8, SQLite (all databases), Hotwire, modern CSS, Solid Queue/Cache/Cable
-**Status:** Fully functional orchestration platform with real agent execution. Auth, multi-tenancy, org charts, agents with skill management, tasks, goals, heartbeats, budgets, governance, dashboard with real-time updates. HTTP and Claude Local adapters execute real work. Live streaming UI shows agent output in real time. API callbacks close the autonomous execution loop.
+**Status:** Fully functional orchestration platform with real agent execution and role templates. Auth, multi-tenancy, org charts with one-click department templates, agents with skill management, tasks, goals, heartbeats, budgets, governance, dashboard with real-time updates. HTTP and Claude Local adapters execute real work. Live streaming UI shows agent output in real time. API callbacks close the autonomous execution loop. Five builtin department templates (Engineering, Marketing, Operations, Finance, HR) with browse, preview, and one-click apply.
 
 **Known tech debt:**
 - permit! on action_config params in AgentHooksController (mitigated by model validation)
@@ -132,4 +123,4 @@ Users can organize AI agents into a functioning company structure and confidentl
 - tmux availability not verified in Docker image (deployment dependency)
 
 ---
-*Last updated: 2026-03-29 after v1.5 milestone start*
+*Last updated: 2026-03-30 after v1.5 milestone completion*

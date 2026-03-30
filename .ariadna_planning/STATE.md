@@ -2,26 +2,26 @@
 
 ## Project Reference
 
-See: .ariadna_planning/PROJECT.md (updated 2026-03-29)
+See: .ariadna_planning/PROJECT.md (updated 2026-03-30)
 
 **Core value:** Users can organize AI agents into a functioning company structure and confidently let them work autonomously -- knowing budgets are enforced, tasks are tracked, and humans retain control through governance.
-**Current focus:** v1.5 Role Templates -- builtin department structures users can apply to their companies.
+**Current focus:** Planning next milestone
 
 ## Current Position
 
-Phase: 28 - Templates Browse and Apply UI
-Plan: All complete
-Status: Complete
-Last activity: 2026-03-29 -- Phase 28 verified and complete. v1.5 milestone shipped.
+Phase: --
+Plan: --
+Status: Between milestones
+Last activity: 2026-03-30 -- v1.5 Role Templates milestone completed and archived.
 
-Progress: [██████████████████████████] 100%
+Progress: [██████████████████████████] 100% (v1.5 shipped)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 45
+- Total plans completed: 53
 - Average duration: ~7 minutes
-- Total execution time: ~257 minutes
+- Total execution time: ~288 minutes
 
 **By Phase:**
 
@@ -52,10 +52,13 @@ Progress: [███████████████████████
 | 23-http-adapter-real-execution | 1/1 | ~6 min | ~6 min |
 | 24-claude-local-adapter-with-tmux | 1/1 | ~11 min | ~11 min |
 | 25-live-streaming-ui-and-result-callbacks | 3/3 | ~22 min | ~7.3 min |
+| 26-template-data-and-registry | 2/2 | ~4 min | ~2 min |
+| 27-template-application-service | 2/2 | ~5 min | ~2.5 min |
+| 28-templates-browse-and-apply-ui | 2/2 | ~22 min | ~11 min |
 
 **Recent Trend:**
-- Last 5 plans: 27-01 (~3 min), 27-02 (~2 min), 28-01 (~12 min), 28-02 (~10 min)
-- Trend: consistent, stable. v1.0 COMPLETE. v1.1 COMPLETE. v1.2 COMPLETE. v1.3 COMPLETE. v1.4 COMPLETE. v1.5 COMPLETE.
+- v1.5 plans: 26-01 (~2 min), 26-02 (~2 min), 27-01 (~3 min), 27-02 (~2 min), 28-01 (~12 min), 28-02 (~10 min)
+- All milestones complete: v1.0, v1.1, v1.2, v1.3, v1.4, v1.5
 
 *Updated after each plan completion*
 
@@ -64,25 +67,6 @@ Progress: [███████████████████████
 ### Decisions
 
 Decisions are logged in PROJECT.md Key Decisions table.
-Recent decisions affecting current work:
-
-- [v1.5-Roadmap]: 3 phases (26-28) derived from 13 requirements across 4 categories -- template data, application service, UI, skill mappings
-- [v1.5-Roadmap]: Phase 26 (Template Data + Registry) is foundation -- YAML files + registry class must exist before service or UI can function
-- [v1.5-Roadmap]: Phase 27 (Application Service) before Phase 28 (UI) -- service logic tested in isolation before adding the HTTP layer
-- [v1.5-Roadmap]: No new gems, no migrations, no new models -- YAML files + plain Ruby registry + service object + standard controller
-- [v1.5-Roadmap]: SKILL-01 (default_skills.yml extensions) grouped with Phase 26 because skill mappings are data definitions, not service logic
-- [v1.5-Roadmap]: Flat YAML with parent title references (matches db/seeds.rb pattern), not nested children
-- [v1.5-Roadmap]: No transaction wrapper for template application -- partial success preferred over all-or-nothing (matches additive skip-duplicate philosophy)
-- [v1.5-Research]: Critical pitfalls: parent ordering in YAML (validate at load time), cross-tenant skill lookup (always scope through company.skills), case-sensitive title matching (COLLATE NOCASE)
-- [26-02]: Data.define (Ruby 3.2+) used for Template and TemplateRole value objects -- immutable, lightweight, named attributes; validate_parent_ordering! fires at load time not at query time
-- [27-01]: No transaction wrapper for ApplyRoleTemplateService -- partial success preferred; roles_by_title tracks both created and skipped roles for correct parent resolution
-- [27-01]: SQLite title column has no COLLATE NOCASE -- find_by(title:) is case-sensitive; skip-duplicate is title-exact-match only
-- [27-02]: Reused ApplyRoleTemplateService::Result for ApplyAllRoleTemplatesService combined output -- no new types needed
-- [28-01]: params[:id] is string template key, not integer DB ID -- RoleTemplateRegistry.find(key) does lookup, TemplateNotFound re-raised as RecordNotFound for 404
-- [28-01]: Hierarchy tree rendered via recursive ERB lambda (render_tree) -- self-contained in show.html.erb, avoids recursive partial complexity
-- [28-02]: button_to renders button[type=submit], not input[type=submit] -- use button selector in controller tests
-- [28-02]: Rails handles RecordNotFound as 404 response in tests -- use assert_response :not_found, not assert_raises
-- [28-02]: Acme fixture has "CTO" role matching engineering template -- first apply creates 4 roles, not 5
 
 ### Pending Todos
 
@@ -95,7 +79,7 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-29
-Stopped at: Phase 28 verified and complete. v1.5 Role Templates milestone shipped — all 3 phases (26-28) done.
+Last session: 2026-03-30
+Stopped at: v1.5 Role Templates milestone completed and archived.
 Resume file: --
-Next step: `/ariadna:complete-milestone`
+Next step: `/ariadna:new-milestone`

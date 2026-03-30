@@ -17,29 +17,11 @@ class RoleTemplateRegistryTest < ActiveSupport::TestCase
     assert templates.frozen?
   end
 
-  test "all includes engineering template" do
+  test "all includes every expected template" do
     keys = RoleTemplateRegistry.all.map(&:key)
-    assert_includes keys, "engineering"
-  end
-
-  test "all includes marketing template" do
-    keys = RoleTemplateRegistry.all.map(&:key)
-    assert_includes keys, "marketing"
-  end
-
-  test "all includes operations template" do
-    keys = RoleTemplateRegistry.all.map(&:key)
-    assert_includes keys, "operations"
-  end
-
-  test "all includes finance template" do
-    keys = RoleTemplateRegistry.all.map(&:key)
-    assert_includes keys, "finance"
-  end
-
-  test "all includes hr template" do
-    keys = RoleTemplateRegistry.all.map(&:key)
-    assert_includes keys, "hr"
+    %w[engineering marketing operations finance hr].each do |expected|
+      assert_includes keys, expected
+    end
   end
 
   test "all caches results across calls" do
@@ -84,10 +66,6 @@ class RoleTemplateRegistryTest < ActiveSupport::TestCase
 
   test "template has key name description and roles" do
     template = RoleTemplateRegistry.find("engineering")
-    assert_respond_to template, :key
-    assert_respond_to template, :name
-    assert_respond_to template, :description
-    assert_respond_to template, :roles
     assert_kind_of String, template.key
     assert_kind_of String, template.name
     assert_kind_of String, template.description
@@ -110,13 +88,12 @@ class RoleTemplateRegistryTest < ActiveSupport::TestCase
     end
   end
 
-  test "role has title description job_spec parent and skill_keys" do
+  test "role exposes expected attributes" do
     role = RoleTemplateRegistry.find("engineering").roles.first
-    assert_respond_to role, :title
-    assert_respond_to role, :description
-    assert_respond_to role, :job_spec
-    assert_respond_to role, :parent
-    assert_respond_to role, :skill_keys
+    assert_kind_of String, role.title
+    assert_kind_of String, role.description
+    assert_kind_of String, role.job_spec
+    assert_kind_of Array, role.skill_keys
   end
 
   test "each role has 3 to 5 skill keys" do
@@ -166,8 +143,6 @@ class RoleTemplateRegistryTest < ActiveSupport::TestCase
   # --- Parent ordering validation ---
 
   test "all templates have valid parent ordering" do
-    # This test implicitly passes if .all doesn't raise -- validation happens at load time.
-    # Explicitly verify: for each template, every parent reference points to a title that appears earlier.
     RoleTemplateRegistry.all.each do |template|
       seen = Set.new
       template.roles.each do |role|

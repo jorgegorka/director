@@ -7,30 +7,35 @@ class RoleTemplateRegistry
 
   class << self
     def all
-      @templates ||= load_and_validate_templates
+      load_templates unless @templates
+      @templates
     end
 
     def find(key)
-      template = all.find { |t| t.key == key.to_s }
+      load_templates unless @index
+      template = @index[key.to_s]
       raise TemplateNotFound, "Template not found: #{key}" unless template
       template
     end
 
     def keys
-      all.map(&:key)
+      load_templates unless @keys
+      @keys
     end
 
     def reset!
-      @templates = nil
+      @templates = @index = @keys = nil
     end
 
     private
 
-    def load_and_validate_templates
+    def load_templates
       template_files = Dir[Rails.root.join("db/seeds/role_templates/*.yml")].sort
       templates = template_files.map { |file| load_template(file) }
       templates.each { |t| validate_parent_ordering!(t) }
-      templates.freeze
+      @templates = templates.freeze
+      @index = templates.index_by(&:key).freeze
+      @keys = templates.map(&:key).freeze
     end
 
     def load_template(file)

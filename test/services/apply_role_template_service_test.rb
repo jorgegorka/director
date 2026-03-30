@@ -169,7 +169,6 @@ class ApplyRoleTemplateServiceTest < ActiveSupport::TestCase
     result = ApplyRoleTemplateService.call(company: company, template_key: "engineering")
 
     assert_equal 5, result.created
-    assert_equal 5, result.created_count
   end
 
   test "result reports correct skipped count" do
@@ -178,7 +177,6 @@ class ApplyRoleTemplateServiceTest < ActiveSupport::TestCase
     result = ApplyRoleTemplateService.call(company: company, template_key: "engineering")
 
     assert_equal 5, result.skipped
-    assert_equal 5, result.skipped_count
   end
 
   test "result success? returns true when no errors" do

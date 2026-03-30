@@ -1,7 +1,5 @@
 class ApplyRoleTemplateService
   Result = Data.define(:created, :skipped, :errors, :created_roles) do
-    def created_count = created
-    def skipped_count = skipped
     def success? = errors.empty?
     def total = created + skipped
     def summary
@@ -27,6 +25,10 @@ class ApplyRoleTemplateService
 
   def call
     template = RoleTemplateRegistry.find(template_key)
+    existing_roles = company.roles.where(title: template.roles.map(&:title)).index_by(&:title)
+    all_skill_keys = template.roles.flat_map(&:skill_keys).uniq
+    skills_by_key = company.skills.where(key: all_skill_keys).index_by(&:key)
+
     created = 0
     skipped = 0
     errors = []
@@ -34,7 +36,7 @@ class ApplyRoleTemplateService
     roles_by_title = {}
 
     template.roles.each do |template_role|
-      existing = company.roles.find_by(title: template_role.title)
+      existing = existing_roles[template_role.title]
       if existing
         skipped += 1
         roles_by_title[template_role.title] = existing
@@ -53,7 +55,7 @@ class ApplyRoleTemplateService
         created += 1
         created_roles << role
         roles_by_title[template_role.title] = role
-        assign_skills(role, template_role.skill_keys)
+        assign_skills(role, template_role.skill_keys, skills_by_key)
       else
         errors << "#{template_role.title}: #{role.errors.full_messages.join(", ")}"
       end
@@ -72,14 +74,10 @@ class ApplyRoleTemplateService
     end
   end
 
-  def assign_skills(role, skill_keys)
+  def assign_skills(role, skill_keys, skills_by_key)
     return if skill_keys.empty?
 
-    skills = company.skills.where(key: skill_keys)
-    skills.each do |skill|
-      role.role_skills.create(skill: skill)
-    rescue ActiveRecord::RecordInvalid
-      # skip duplicates silently (RoleSkill validates uniqueness)
-    end
+    records = skill_keys.filter_map { |key| { role_id: role.id, skill_id: skills_by_key[key]&.id } if skills_by_key[key] }
+    RoleSkill.insert_all(records) if records.any?
   end
 end

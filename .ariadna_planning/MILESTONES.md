@@ -1,14 +1,13 @@
 # Milestones: Director
 
-## Active
+## Completed
 
 ### v1.5 -- Role Templates
-**Started:** 2026-03-29
-**Phases:** 26-28 (3 phases, 3 plans estimated)
-**Summary:** Builtin YAML role templates for 5 departments (Engineering, Marketing, Operations, Finance, HR) that users can browse, preview, and apply with one click. Each template creates a full department hierarchy with job specs and skill pre-assignment. Stackable with skip-duplicate logic.
-**Requirements:** 13 (4 TMPL, 5 APPLY, 4 UI, 1 SKILL)
-
-## Completed
+**Completed:** 2026-03-30
+**Phases:** 26-28 (3 phases, 6 plans, 13 tasks)
+**Summary:** Builtin YAML role templates for 5 departments (Engineering, Marketing, Operations, Finance, HR) with 23 roles total. Users browse templates as cards, preview full hierarchy trees with skill badges, and apply with one click. ApplyRoleTemplateService handles skip-duplicate logic and tenant-scoped skill pre-assignment. ApplyAllRoleTemplatesService creates all departments under a shared CEO. RoleTemplateRegistry uses Data.define value objects with load-time parent-ordering validation.
+**Stats:** 13 requirements, 6 plans, 1184 tests, ~31 minutes total execution
+**Archive:** [v1.5-ROADMAP.md](milestones/v1.5-ROADMAP.md) | [v1.5-REQUIREMENTS.md](milestones/v1.5-REQUIREMENTS.md)
 
 ### v1.4 -- Agent Execution
 **Completed:** 2026-03-28
