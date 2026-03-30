@@ -40,6 +40,7 @@ Rails.application.routes.draw do
       post :terminate
       post :approve
       post :reject
+      post :hire, to: "role_hirings#create"
     end
   end
   resource :org_chart, only: [ :show ]
