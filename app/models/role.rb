@@ -4,6 +4,7 @@ class Role < ApplicationRecord
   include Notifiable
   include Auditable
   include ConfigVersioned
+  include Roles::Hiring
 
   has_many :role_skills, dependent: :destroy, inverse_of: :role
   has_many :skills, through: :role_skills
