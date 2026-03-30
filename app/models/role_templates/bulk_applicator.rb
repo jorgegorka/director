@@ -1,0 +1,69 @@
+module RoleTemplates
+  class BulkApplicator
+    CEO_TITLE = "CEO"
+    CEO_DESCRIPTION = "Chief Executive Officer who sets company vision, approves budgets, and drives strategic direction."
+    CEO_JOB_SPEC = "You are an experienced and skilled CEO. Your responsibilities:\n" \
+      "1. Perform the goals assigned to you efficiently and thoroughly.\n" \
+      "2. Optimise the use of your assigned budget — minimise spend while maximising output.\n" \
+      "3. Evaluate reports from your direct reportees and make decisions based on those reports and your assigned goals."
+
+    attr_reader :company
+
+    def initialize(company:)
+      @company = company
+    end
+
+    def self.call(**kwargs)
+      new(**kwargs).call
+    end
+
+    def call
+      ceo = find_or_create_ceo
+      total_created = ceo_was_created? ? 1 : 0
+      total_skipped = ceo_was_created? ? 0 : 1
+      total_errors = []
+      all_created_roles = ceo_was_created? ? [ ceo ] : []
+
+      RoleTemplates::Registry.keys.each do |key|
+        result = RoleTemplates::Applicator.call(
+          company: company,
+          template_key: key,
+          parent_role: ceo
+        )
+        total_created += result.created
+        total_skipped += result.skipped
+        total_errors.concat(result.errors)
+        all_created_roles.concat(result.created_roles)
+      end
+
+      RoleTemplates::Applicator::Result.new(
+        created: total_created,
+        skipped: total_skipped,
+        errors: total_errors.freeze,
+        created_roles: all_created_roles.freeze
+      )
+    end
+
+    private
+
+    def find_or_create_ceo
+      existing = company.roles.find_by(title: CEO_TITLE)
+      if existing
+        @ceo_was_created = false
+        existing
+      else
+        role = company.roles.create!(
+          title: CEO_TITLE,
+          description: CEO_DESCRIPTION,
+          job_spec: CEO_JOB_SPEC
+        )
+        @ceo_was_created = true
+        role
+      end
+    end
+
+    def ceo_was_created?
+      @ceo_was_created
+    end
+  end
+end

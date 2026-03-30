@@ -1,37 +1,37 @@
 require "test_helper"
 
-class ApplyAllRoleTemplatesServiceTest < ActiveSupport::TestCase
+class RoleTemplates::BulkApplicatorTest < ActiveSupport::TestCase
   # widgets company: 1 role ("Operations Lead") -- used for clean-slate full company creation tests
   # acme company: CEO, CTO, Senior Developer, Script Runner -- used for partial overlap and CEO find tests
 
   teardown do
-    RoleTemplateRegistry.reset!
+    RoleTemplates::Registry.reset!
   end
 
   # --- Full company creation (APPLY-05) ---
 
   test "creates CEO plus all department roles on empty company" do
     company = companies(:widgets)
-    expected_template_roles = RoleTemplateRegistry.all.sum { |t| t.roles.size }
+    expected_template_roles = RoleTemplates::Registry.all.sum { |t| t.roles.size }
     # CEO (1) + all template roles
     assert_difference "company.roles.count", 1 + expected_template_roles do
-      ApplyAllRoleTemplatesService.call(company: company)
+      RoleTemplates::BulkApplicator.call(company: company)
     end
   end
 
   test "result created count matches actual new roles created" do
     company = companies(:widgets)
-    expected_template_roles = RoleTemplateRegistry.all.sum { |t| t.roles.size }
+    expected_template_roles = RoleTemplates::Registry.all.sum { |t| t.roles.size }
     expected_created = 1 + expected_template_roles # CEO + all template roles
 
-    result = ApplyAllRoleTemplatesService.call(company: company)
+    result = RoleTemplates::BulkApplicator.call(company: company)
 
     assert_equal expected_created, result.created
   end
 
   test "all five department roots are children of CEO" do
     company = companies(:widgets)
-    ApplyAllRoleTemplatesService.call(company: company)
+    RoleTemplates::BulkApplicator.call(company: company)
 
     ceo = company.roles.find_by!(title: "CEO")
     department_roots = %w[CTO CMO COO CFO HR\ Director]
@@ -44,7 +44,7 @@ class ApplyAllRoleTemplatesServiceTest < ActiveSupport::TestCase
 
   test "department hierarchies are correct within each department" do
     company = companies(:widgets)
-    ApplyAllRoleTemplatesService.call(company: company)
+    RoleTemplates::BulkApplicator.call(company: company)
 
     # Spot-check Engineering hierarchy
     cto = company.roles.find_by!(title: "CTO")
@@ -65,7 +65,7 @@ class ApplyAllRoleTemplatesServiceTest < ActiveSupport::TestCase
     company = companies(:widgets)
     assert_nil company.roles.find_by(title: "CEO"), "widgets should start with no CEO"
 
-    ApplyAllRoleTemplatesService.call(company: company)
+    RoleTemplates::BulkApplicator.call(company: company)
 
     ceo = company.roles.find_by(title: "CEO")
     assert_not_nil ceo, "CEO should be created"
@@ -73,7 +73,7 @@ class ApplyAllRoleTemplatesServiceTest < ActiveSupport::TestCase
 
   test "CEO has meaningful description and job_spec" do
     company = companies(:widgets)
-    ApplyAllRoleTemplatesService.call(company: company)
+    RoleTemplates::BulkApplicator.call(company: company)
 
     ceo = company.roles.find_by!(title: "CEO")
     assert_not_empty ceo.description, "CEO description should not be blank"
@@ -83,7 +83,7 @@ class ApplyAllRoleTemplatesServiceTest < ActiveSupport::TestCase
 
   test "finds existing CEO instead of creating duplicate" do
     company = companies(:acme) # acme already has a CEO role
-    ApplyAllRoleTemplatesService.call(company: company)
+    RoleTemplates::BulkApplicator.call(company: company)
 
     assert_equal 1, company.roles.where(title: "CEO").count,
       "Should not create a duplicate CEO -- must find and reuse the existing one"
@@ -91,7 +91,7 @@ class ApplyAllRoleTemplatesServiceTest < ActiveSupport::TestCase
 
   test "CEO skipped count is 1 when CEO already exists" do
     company = companies(:acme)
-    result = ApplyAllRoleTemplatesService.call(company: company)
+    result = RoleTemplates::BulkApplicator.call(company: company)
 
     assert result.skipped >= 1,
       "Expected at least 1 skipped role (the existing CEO)"
@@ -101,10 +101,10 @@ class ApplyAllRoleTemplatesServiceTest < ActiveSupport::TestCase
 
   test "applying all twice creates no duplicates" do
     company = companies(:widgets)
-    first = ApplyAllRoleTemplatesService.call(company: company)
+    first = RoleTemplates::BulkApplicator.call(company: company)
     role_count_after_first = company.roles.count
 
-    second = ApplyAllRoleTemplatesService.call(company: company)
+    second = RoleTemplates::BulkApplicator.call(company: company)
 
     assert_equal role_count_after_first, company.roles.count,
       "Second apply all should not create any new roles"
@@ -114,9 +114,9 @@ class ApplyAllRoleTemplatesServiceTest < ActiveSupport::TestCase
 
   test "second apply all skips all roles" do
     company = companies(:widgets)
-    first = ApplyAllRoleTemplatesService.call(company: company)
+    first = RoleTemplates::BulkApplicator.call(company: company)
 
-    second = ApplyAllRoleTemplatesService.call(company: company)
+    second = RoleTemplates::BulkApplicator.call(company: company)
 
     assert_equal first.total, second.skipped,
       "Second call should skip exactly as many roles as the first call created+skipped"
@@ -126,32 +126,32 @@ class ApplyAllRoleTemplatesServiceTest < ActiveSupport::TestCase
 
   test "result aggregates created count from all templates" do
     company = companies(:widgets)
-    result = ApplyAllRoleTemplatesService.call(company: company)
+    result = RoleTemplates::BulkApplicator.call(company: company)
 
-    expected_template_roles = RoleTemplateRegistry.all.sum { |t| t.roles.size }
+    expected_template_roles = RoleTemplates::Registry.all.sum { |t| t.roles.size }
     assert_equal 1 + expected_template_roles, result.created
   end
 
   test "result aggregates skipped count from all templates" do
     company = companies(:widgets)
-    ApplyAllRoleTemplatesService.call(company: company)
+    RoleTemplates::BulkApplicator.call(company: company)
 
-    result = ApplyAllRoleTemplatesService.call(company: company)
+    result = RoleTemplates::BulkApplicator.call(company: company)
 
-    expected_total = 1 + RoleTemplateRegistry.all.sum { |t| t.roles.size }
+    expected_total = 1 + RoleTemplates::Registry.all.sum { |t| t.roles.size }
     assert_equal expected_total, result.skipped
   end
 
   test "result success? is true when all templates succeed" do
     company = companies(:widgets)
-    result = ApplyAllRoleTemplatesService.call(company: company)
+    result = RoleTemplates::BulkApplicator.call(company: company)
 
     assert result.success?
   end
 
   test "result summary describes total created and skipped" do
     company = companies(:widgets)
-    result = ApplyAllRoleTemplatesService.call(company: company)
+    result = RoleTemplates::BulkApplicator.call(company: company)
 
     assert_not_empty result.summary
     assert_includes result.summary, "Created"
@@ -159,7 +159,7 @@ class ApplyAllRoleTemplatesServiceTest < ActiveSupport::TestCase
 
   test "result created_roles contains all newly created Role records" do
     company = companies(:widgets)
-    result = ApplyAllRoleTemplatesService.call(company: company)
+    result = RoleTemplates::BulkApplicator.call(company: company)
 
     assert_equal result.created, result.created_roles.size
     result.created_roles.each do |role|
@@ -170,14 +170,14 @@ class ApplyAllRoleTemplatesServiceTest < ActiveSupport::TestCase
 
   test "result created_roles list is frozen" do
     company = companies(:widgets)
-    result = ApplyAllRoleTemplatesService.call(company: company)
+    result = RoleTemplates::BulkApplicator.call(company: company)
 
     assert result.created_roles.frozen?
   end
 
   test "result errors list is frozen" do
     company = companies(:widgets)
-    result = ApplyAllRoleTemplatesService.call(company: company)
+    result = RoleTemplates::BulkApplicator.call(company: company)
 
     assert result.errors.frozen?
   end
@@ -186,7 +186,7 @@ class ApplyAllRoleTemplatesServiceTest < ActiveSupport::TestCase
 
   test "does not affect other companies" do
     acme_count_before = companies(:acme).roles.count
-    ApplyAllRoleTemplatesService.call(company: companies(:widgets))
+    RoleTemplates::BulkApplicator.call(company: companies(:widgets))
 
     assert_equal acme_count_before, companies(:acme).roles.count,
       "Applying all templates to widgets should not create roles in acme"
@@ -197,7 +197,7 @@ class ApplyAllRoleTemplatesServiceTest < ActiveSupport::TestCase
   test "skips pre-existing roles while creating new ones" do
     # acme has CEO and CTO -- both should be skipped
     company = companies(:acme)
-    result = ApplyAllRoleTemplatesService.call(company: company)
+    result = RoleTemplates::BulkApplicator.call(company: company)
 
     # CEO and CTO are both pre-existing -> skipped count must be at least 2
     assert result.skipped >= 2,
@@ -212,7 +212,7 @@ class ApplyAllRoleTemplatesServiceTest < ActiveSupport::TestCase
 
   test "children of skipped CTO still get correct parent in acme" do
     company = companies(:acme)
-    ApplyAllRoleTemplatesService.call(company: company)
+    RoleTemplates::BulkApplicator.call(company: company)
 
     existing_cto = company.roles.find_by!(title: "CTO")
     vp = company.roles.find_by!(title: "VP Engineering")
