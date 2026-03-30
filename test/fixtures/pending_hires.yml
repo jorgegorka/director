@@ -1,0 +1,6 @@
+pending_vp_hire:
+  role: cto
+  company: acme
+  template_role_title: "VP Engineering"
+  budget_cents: 30000
+  status: 0  # pending
