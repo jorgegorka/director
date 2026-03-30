@@ -1,6 +1,6 @@
 require "test_helper"
 
-class EmergencyStopServiceTest < ActiveSupport::TestCase
+class Roles::EmergencyStopTest < ActiveSupport::TestCase
   setup do
     @company = companies(:acme)
     @user = users(:one)
@@ -9,37 +9,37 @@ class EmergencyStopServiceTest < ActiveSupport::TestCase
   end
 
   test "pauses all active agent-configured roles in the company" do
-    paused_count = EmergencyStopService.call!(company: @company, user: @user)
+    paused_count = Roles::EmergencyStop.call!(company: @company, user: @user)
     assert paused_count > 0
     @company.roles.where.not(adapter_type: nil).reload.each do |role|
       assert role.paused?, "Expected #{role.title} to be paused"
-      assert_equal EmergencyStopService::PAUSE_REASON, role.pause_reason
+      assert_equal Roles::EmergencyStop::PAUSE_REASON, role.pause_reason
     end
   end
 
   test "returns count of roles paused" do
     active_count = @company.roles.active.where.not(adapter_type: nil).where.not(status: [ :paused, :terminated ]).count
-    paused_count = EmergencyStopService.call!(company: @company, user: @user)
+    paused_count = Roles::EmergencyStop.call!(company: @company, user: @user)
     assert_equal active_count, paused_count
   end
 
   test "does not pause already-paused roles" do
     agent_roles = @company.roles.where.not(adapter_type: nil)
     agent_roles.first.update_columns(status: Role.statuses[:paused], pause_reason: "Manual pause")
-    paused_count = EmergencyStopService.call!(company: @company, user: @user)
+    paused_count = Roles::EmergencyStop.call!(company: @company, user: @user)
     assert_equal agent_roles.count - 1, paused_count
   end
 
   test "does not pause terminated roles" do
     agent_roles = @company.roles.where.not(adapter_type: nil)
     agent_roles.first.update_columns(status: Role.statuses[:terminated])
-    paused_count = EmergencyStopService.call!(company: @company, user: @user)
+    paused_count = Roles::EmergencyStop.call!(company: @company, user: @user)
     assert paused_count < agent_roles.count
   end
 
   test "records audit event on company" do
     assert_difference -> { AuditEvent.where(action: "emergency_stop").count } do
-      EmergencyStopService.call!(company: @company, user: @user)
+      Roles::EmergencyStop.call!(company: @company, user: @user)
     end
     audit = AuditEvent.where(action: "emergency_stop").last
     assert_equal @company.id, audit.company_id
@@ -50,7 +50,7 @@ class EmergencyStopServiceTest < ActiveSupport::TestCase
   test "creates notifications for owners and admins" do
     owner_admin_count = @company.memberships.where(role: [ :owner, :admin ]).count
     assert_difference -> { Notification.where(action: "emergency_stop").count }, owner_admin_count do
-      EmergencyStopService.call!(company: @company, user: @user)
+      Roles::EmergencyStop.call!(company: @company, user: @user)
     end
     notification = Notification.where(action: "emergency_stop").last
     assert notification.metadata["roles_paused"].present?
@@ -60,7 +60,7 @@ class EmergencyStopServiceTest < ActiveSupport::TestCase
   test "does not affect roles in other companies" do
     widgets_lead = roles(:widgets_lead)
     widgets_lead.update_columns(status: Role.statuses[:idle])
-    EmergencyStopService.call!(company: @company, user: @user)
+    Roles::EmergencyStop.call!(company: @company, user: @user)
     widgets_lead.reload
     assert widgets_lead.idle?, "Widgets role should not be affected"
   end
