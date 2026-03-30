@@ -115,7 +115,7 @@ class ClaudeLocalAdapter < BaseAdapter
   private_class_method def self.compose_system_prompt(role, context)
     parts = []
 
-    parts << role.description if role.description.present?
+    parts << role.job_spec if role.job_spec.present?
 
     if context[:skills].present?
       parts << build_skills_prompt(context[:skills])

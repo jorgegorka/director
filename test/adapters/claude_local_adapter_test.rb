@@ -300,8 +300,8 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     assert_includes prompt, "Your Skills"
   end
 
-  test "system prompt omits skills section when no skills and no description" do
-    @role.description = nil
+  test "system prompt omits skills section when no skills and no job spec" do
+    @role.job_spec = nil
 
     prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @role, { skills: [] })
 
@@ -323,14 +323,14 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     assert @spawn_calls.last.include?("--system-prompt"), "command should include --system-prompt flag"
   end
 
-  test "command omits --system-prompt when no skills and no description" do
+  test "command omits --system-prompt when no skills and no job spec" do
     run = RoleRun.create!(
       role: @role, task: @task, company: @company,
       status: :queued, trigger_type: "task_assigned"
     )
     @context[:run_id] = run.id
     @context[:skills] = []
-    @role.description = nil
+    @role.job_spec = nil
 
     ClaudeLocalAdapter.execute(@role, @context)
 
@@ -338,7 +338,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
   end
 
   test "system prompt combines role description with skills" do
-    @role.description = "You are a helpful assistant."
+    @role.job_spec = "You are a helpful assistant."
     skills = [
       { key: "testing", name: "Testing", description: "Write tests", category: "technical", markdown: "# Testing\n\n## Instructions\n1. Write tests" }
     ]

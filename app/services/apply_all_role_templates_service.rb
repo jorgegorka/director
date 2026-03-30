@@ -1,9 +1,10 @@
 class ApplyAllRoleTemplatesService
   CEO_TITLE = "CEO"
   CEO_DESCRIPTION = "Chief Executive Officer who sets company vision, approves budgets, and drives strategic direction."
-  CEO_JOB_SPEC = "Set the overall strategic direction for the company. " \
-    "Make key decisions on resource allocation, partnerships, and growth priorities. " \
-    "Oversee all department heads and ensure alignment across the organization."
+  CEO_JOB_SPEC = "You are an experienced and skilled CEO. Your responsibilities:\n" \
+    "1. Perform the goals assigned to you efficiently and thoroughly.\n" \
+    "2. Optimise the use of your assigned budget — minimise spend while maximising output.\n" \
+    "3. Evaluate reports from your direct reportees and make decisions based on those reports and your assigned goals."
 
   attr_reader :company
 

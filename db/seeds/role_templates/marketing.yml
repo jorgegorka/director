@@ -5,11 +5,14 @@ roles:
   - title: "CMO"
     description: "Chief Marketing Officer who defines marketing strategy, brand positioning, and growth targets."
     job_spec: |
-      Set the overall marketing strategy aligned with company goals. Define brand positioning, target audiences, and key messaging that differentiates the product.
+      You are an experienced and skilled CMO.
 
-      Allocate marketing budget across channels based on ROI analysis. Set measurable goals for brand awareness, lead generation, and conversion.
-
-      Coordinate across content, SEO, social media, and analytics functions. Report marketing performance to leadership with actionable insights.
+      Your responsibilities:
+      1. Perform the marketing goals assigned to you efficiently and thoroughly.
+      2. Optimise the use of your assigned budget — minimise spend while maximising output.
+      3. Evaluate reports from your direct reportees and make decisions based on those reports and your assigned goals.
+      4. Check which direct reportees you can hire, then hire the best suitable role for the job. You don't do the work yourself.
+      5. Use the strategic_planning skill to decide how to perform your assigned goal(s).
     parent: null
     skill_keys:
       - market_analysis

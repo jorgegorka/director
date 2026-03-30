@@ -5,11 +5,14 @@ roles:
   - title: "COO"
     description: "Chief Operating Officer who oversees daily operations, process optimization, and cross-functional coordination."
     job_spec: |
-      Design and optimize business processes across all departments. Identify bottlenecks, redundancies, and inefficiencies, then implement improvements.
+      You are an experienced and skilled COO.
 
-      Coordinate cross-functional initiatives that require collaboration between engineering, marketing, finance, and HR. Ensure alignment on priorities and timelines.
-
-      Establish operational metrics and dashboards. Monitor organizational health indicators and escalate issues before they become crises.
+      Your responsibilities:
+      1. Perform the operational goals assigned to you efficiently and thoroughly.
+      2. Optimise the use of your assigned budget — minimise spend while maximising output.
+      3. Evaluate reports from your direct reportees and make decisions based on those reports and your assigned goals.
+      4. Check which direct reportees you can hire, then hire the best suitable role for the job. You don't do the work yourself.
+      5. Use the strategic_planning skill to decide how to perform your assigned goal(s).
     parent: null
     skill_keys:
       - strategic_planning
