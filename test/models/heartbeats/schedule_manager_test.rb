@@ -1,6 +1,6 @@
 require "test_helper"
 
-class HeartbeatScheduleManagerTest < ActiveSupport::TestCase
+class Heartbeats::ScheduleManagerTest < ActiveSupport::TestCase
   class FakeTask
     attr_accessor :key, :class_name, :schedule, :arguments, :static, :description
 
@@ -45,18 +45,18 @@ class HeartbeatScheduleManagerTest < ActiveSupport::TestCase
   setup do
     @role = roles(:developer)
     FakeTaskStore.records = {}
-    HeartbeatScheduleManager.task_store = FakeTaskStore
+    Heartbeats::ScheduleManager.task_store = FakeTaskStore
   end
 
   teardown do
-    HeartbeatScheduleManager.task_store = nil
+    Heartbeats::ScheduleManager.task_store = nil
   end
 
   test "creates recurring task when role has schedule enabled" do
     @role.update_columns(heartbeat_enabled: true, heartbeat_interval: 15)
 
     assert_difference -> { FakeTaskStore.count }, 1 do
-      HeartbeatScheduleManager.sync(@role)
+      Heartbeats::ScheduleManager.sync(@role)
     end
 
     task = FakeTaskStore.find_by(key: "role_heartbeat_#{@role.id}")
@@ -69,11 +69,11 @@ class HeartbeatScheduleManagerTest < ActiveSupport::TestCase
 
   test "updates existing recurring task when interval changes" do
     @role.update_columns(heartbeat_enabled: true, heartbeat_interval: 15)
-    HeartbeatScheduleManager.sync(@role)
+    Heartbeats::ScheduleManager.sync(@role)
 
     @role.update_columns(heartbeat_interval: 30)
     assert_no_difference -> { FakeTaskStore.count } do
-      HeartbeatScheduleManager.sync(@role)
+      Heartbeats::ScheduleManager.sync(@role)
     end
 
     task = FakeTaskStore.find_by(key: "role_heartbeat_#{@role.id}")
@@ -82,44 +82,44 @@ class HeartbeatScheduleManagerTest < ActiveSupport::TestCase
 
   test "removes recurring task when schedule is disabled" do
     @role.update_columns(heartbeat_enabled: true, heartbeat_interval: 15)
-    HeartbeatScheduleManager.sync(@role)
+    Heartbeats::ScheduleManager.sync(@role)
     assert FakeTaskStore.exists?(key: "role_heartbeat_#{@role.id}")
 
     @role.update_columns(heartbeat_enabled: false)
-    HeartbeatScheduleManager.sync(@role)
+    Heartbeats::ScheduleManager.sync(@role)
     assert_not FakeTaskStore.exists?(key: "role_heartbeat_#{@role.id}")
   end
 
   test "removes recurring task when interval is nil" do
     @role.update_columns(heartbeat_enabled: true, heartbeat_interval: 15)
-    HeartbeatScheduleManager.sync(@role)
+    Heartbeats::ScheduleManager.sync(@role)
 
     @role.update_columns(heartbeat_interval: nil)
-    HeartbeatScheduleManager.sync(@role)
+    Heartbeats::ScheduleManager.sync(@role)
     assert_not FakeTaskStore.exists?(key: "role_heartbeat_#{@role.id}")
   end
 
   test "remove class method destroys task" do
     @role.update_columns(heartbeat_enabled: true, heartbeat_interval: 15)
-    HeartbeatScheduleManager.sync(@role)
+    Heartbeats::ScheduleManager.sync(@role)
     assert FakeTaskStore.exists?(key: "role_heartbeat_#{@role.id}")
 
-    HeartbeatScheduleManager.remove(@role)
+    Heartbeats::ScheduleManager.remove(@role)
     assert_not FakeTaskStore.exists?(key: "role_heartbeat_#{@role.id}")
   end
 
   test "remove does nothing when no task exists" do
     assert_nothing_raised do
-      HeartbeatScheduleManager.remove(@role)
+      Heartbeats::ScheduleManager.remove(@role)
     end
   end
 
   test "sync does nothing when solid queue not available" do
-    HeartbeatScheduleManager.task_store = nil
+    Heartbeats::ScheduleManager.task_store = nil
     @role.update_columns(heartbeat_enabled: true, heartbeat_interval: 15)
 
     assert_nothing_raised do
-      HeartbeatScheduleManager.sync(@role)
+      Heartbeats::ScheduleManager.sync(@role)
     end
     assert_equal 0, FakeTaskStore.records.size
   end

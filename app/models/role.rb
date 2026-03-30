@@ -213,7 +213,7 @@ class Role < ApplicationRecord
   end
 
   def sync_heartbeat_schedule
-    HeartbeatScheduleManager.sync(self)
+    Heartbeats::ScheduleManager.sync(self)
   end
 
   def validate_adapter_config_schema
