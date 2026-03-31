@@ -20,7 +20,8 @@ A heartbeat, @mention, question answer, task assignment, or hook calls `Roles::W
 |---|---|
 | `run_id`, `trigger_type` | From the `RoleRun` record |
 | `task_id`, `task_title`, `task_description` | Loaded from `role_run.task` (if task-triggered) |
-| `resume_session_id` | `role.latest_session_id` — the `claude_session_id` from the most recent completed `RoleRun` |
+| `goal_id`, `goal_title`, `goal_description` | Loaded from `task.goal` (if task has a goal) |
+| `resume_session_id` | `role.latest_session_id_for(task)` — goal-scoped session lookup (see below) |
 | `skills` | `role.skills` serialized with key, name, description, markdown |
 | `documents` | Three groups: skill docs, role docs, task docs |
 
@@ -28,7 +29,7 @@ A heartbeat, @mention, question answer, task assignment, or hook calls `Roles::W
 
 (`app/adapters/claude_local_adapter.rb:96-142`):
 
-- **System prompt** = `role.job_spec` + skills catalog (names/descriptions) + skill instructions (full markdown in `<skill>` XML tags)
+- **System prompt** = `role.job_spec` + goal context (if task has a goal) + skills catalog (names/descriptions) + skill instructions (full markdown in `<skill>` XML tags)
 - **User prompt** = `task_description` or `task_title`
 - **Session resumption** = `--resume {session_id}` flag if a previous session exists
 
@@ -56,7 +57,19 @@ Context includes `hook_id`, `hook_name`, `validation_task_id`, and `original_tas
 
 ## Session Resumption
 
-Session resumption is the primary memory mechanism. There is no explicit conversation history re-transmission. Claude CLI's `--resume` flag handles restoring the agent's prior context internally. The `claude_session_id` is persisted on `RoleRun` after each completed execution and retrieved via `role.latest_session_id`.
+Session resumption is the primary memory mechanism. There is no explicit conversation history re-transmission. Claude CLI's `--resume` flag handles restoring the agent's prior context internally. The `claude_session_id` is persisted on `RoleRun` after each completed execution.
+
+### Goal-Scoped Session Lookup
+
+When an agent is woken with a task, `role.latest_session_id_for(task)` selects the right session to resume:
+
+1. **Exact task match** — find the most recent session where this role worked on the same task
+2. **Same goal** — find the most recent session for any task under the same goal
+3. **No match** — return `nil` (start fresh rather than resuming an unrelated conversation)
+
+For heartbeat wakes (no task), the global `role.latest_session_id` is used instead.
+
+This prevents a parent agent managing multiple goals from accidentally resuming a session about Goal A when a child reports about Goal B.
 
 ## Key Files
 

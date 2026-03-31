@@ -39,14 +39,20 @@ class ExecuteRoleJob < ApplicationJob
       trigger_type: role_run.trigger_type
     }
 
-    if role_run.task_id.present?
-      task = role_run.task
-      ctx[:task_id] = role_run.task_id
+    task = role_run.task
+    if task
+      ctx[:task_id] = task.id
       ctx[:task_title] = task.title
       ctx[:task_description] = task.description
+
+      if task.goal
+        ctx[:goal_id] = task.goal.id
+        ctx[:goal_title] = task.goal.title
+        ctx[:goal_description] = task.goal.description
+      end
     end
 
-    session_id = role.latest_session_id
+    session_id = task ? role.latest_session_id_for(task) : role.latest_session_id
     ctx[:resume_session_id] = session_id if session_id.present?
 
     skills = role.skills.to_a

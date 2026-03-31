@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= content_for(:title) || "Director" %></title>
+    <title><%= content_for(:title) || "Director - AI orchestration made easy" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="application-name" content="Director">
     <meta name="mobile-web-app-capable" content="yes">
+    <meta name="author" content="Mario & Jorge Alvarez" />
+    <meta name="view-transition" content="same-origin" />
+    <%= turbo_refreshes_with method: :morph, scroll: :preserve %>
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 

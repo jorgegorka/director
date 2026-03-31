@@ -136,6 +136,88 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
   end
 
   # ---------------------------------------------------------------------------
+  # Goal-scoped session resumption and goal context
+  # ---------------------------------------------------------------------------
+
+  test "build_context uses task-scoped session resumption" do
+    task_a = tasks(:design_homepage)  # goal: acme_objective_one
+    task_b = tasks(:fix_login_bug)    # goal: acme_objective_one (same goal)
+
+    # Create a completed run for task_a with a session
+    RoleRun.create!(
+      role: @role, task: task_a, company: @company,
+      status: :completed, trigger_type: "task_assigned",
+      claude_session_id: "sess_goal_a", completed_at: 2.hours.ago
+    )
+    # Create a more recent completed run for an unrelated task (no goal)
+    unrelated_task = Task.create!(title: "Unrelated", company: @company, status: :open)
+    RoleRun.create!(
+      role: @role, task: unrelated_task, company: @company,
+      status: :completed, trigger_type: "task_assigned",
+      claude_session_id: "sess_unrelated_latest", completed_at: 1.hour.ago
+    )
+
+    # New run for task_b (same goal as task_a)
+    run = RoleRun.create!(
+      role: @role, task: task_b, company: @company,
+      status: :queued, trigger_type: "mention"
+    )
+
+    job = ExecuteRoleJob.new
+    context = job.send(:build_context, @role, run)
+
+    # Should pick the session from the same goal (task_a), not the latest global one
+    assert_equal "sess_goal_a", context[:resume_session_id]
+  end
+
+  test "build_context includes goal context when task has a goal" do
+    run = RoleRun.create!(
+      role: @role, task: @task, company: @company,
+      status: :queued, trigger_type: "task_assigned"
+    )
+
+    job = ExecuteRoleJob.new
+    context = job.send(:build_context, @role, run)
+
+    goal = @task.goal
+    assert_equal goal.id, context[:goal_id]
+    assert_equal goal.title, context[:goal_title]
+    assert_equal goal.description, context[:goal_description]
+  end
+
+  test "build_context omits goal context when task has no goal" do
+    task_no_goal = Task.create!(title: "No goal task", company: @company, status: :open)
+    run = RoleRun.create!(
+      role: @role, task: task_no_goal, company: @company,
+      status: :queued, trigger_type: "task_assigned"
+    )
+
+    job = ExecuteRoleJob.new
+    context = job.send(:build_context, @role, run)
+
+    assert_nil context[:goal_id]
+    assert_nil context[:goal_title]
+  end
+
+  test "build_context uses global session for heartbeats with no task" do
+    RoleRun.create!(
+      role: @role, task: nil, company: @company,
+      status: :completed, trigger_type: "scheduled",
+      claude_session_id: "sess_heartbeat_global", completed_at: 1.hour.ago
+    )
+
+    run = RoleRun.create!(
+      role: @role, task: nil, company: @company,
+      status: :queued, trigger_type: "scheduled"
+    )
+
+    job = ExecuteRoleJob.new
+    context = job.send(:build_context, @role, run)
+
+    assert_equal "sess_heartbeat_global", context[:resume_session_id]
+  end
+
+  # ---------------------------------------------------------------------------
   # HTTP adapter end-to-end integration tests
   # ---------------------------------------------------------------------------
 

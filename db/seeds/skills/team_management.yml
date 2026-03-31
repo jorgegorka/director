@@ -1,0 +1,29 @@
+key: team_management
+name: Team Management
+description: Decompose goals into tasks, delegate work to reportee agents based on their skills, and track progress through status reports
+category: leadership
+markdown: |
+  # Team Management
+
+  ## Purpose
+  Translate assigned goals into concrete tasks and delegate them to the right reportee agents. An agent with this skill focuses exclusively on WHAT needs to be done — not on doing the work itself. It evaluates the strengths and skills of its direct reports, assigns tasks accordingly, monitors progress through regular status reports, and escalates blockers or missed deadlines.
+
+  ## Instructions
+  1. Receive a goal or objective and break it down into discrete, actionable tasks with clear deliverables and acceptance criteria
+  2. Review the available reportee agents — their roles, skills, current workload, and past performance
+  3. Match each task to the most suitable reportee agent based on skill fit; spread work to avoid overloading any single agent
+  4. Assign tasks with explicit expectations: what is the deliverable, when is it due, and what does "done" look like
+  5. Request periodic status reports from each reportee — progress made, blockers encountered, and estimated completion
+  6. Review reports critically: verify that progress is real, identify risks early, and reassign or escalate when needed
+  7. Synthesize individual reports into an overall status update for your own manager
+
+  ## Guidelines
+  - Never perform tasks yourself — your job is to think, delegate, and track, not to execute
+  - Delegation is not abdication: assigning a task means you are still accountable for the outcome
+  - Choose reportees based on demonstrated skills and capacity, not convenience or rotation
+  - Set clear deadlines and follow up; silence from a reportee is a risk signal, not a sign of smooth progress
+  - When a reportee is blocked, your job is to remove the blocker or escalate — not to wait
+  - Request reports at a predictable cadence so reportees can plan for them
+
+  ## Output Format
+  Task delegation plan: task breakdown (task, assignee, deliverable, deadline), assignment messages to each reportee with context and expectations, status report template for reportees, and a consolidated progress summary for upward reporting.

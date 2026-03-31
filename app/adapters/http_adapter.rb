@@ -56,6 +56,11 @@ class HttpAdapter < BaseAdapter
         title: context[:task_title],
         description: context[:task_description]
       } : nil,
+      goal: context[:goal_id] ? {
+        id: context[:goal_id],
+        title: context[:goal_title],
+        description: context[:goal_description]
+      } : nil,
       skills: context[:skills].presence,
       resume_session_id: context[:resume_session_id],
       delivered_at: Time.current.iso8601

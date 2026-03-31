@@ -87,10 +87,12 @@ class ClaudeLocalAdapter < BaseAdapter
       "-e #{var}=#{value.shellescape}" if value.present?
     end
 
-    # Also check Rails credentials for API key
-    if ENV["ANTHROPIC_API_KEY"].blank?
-      api_key = Rails.application.credentials.dig(:anthropic, :api_key)
-      flags << "-e ANTHROPIC_API_KEY=#{api_key.shellescape}" if api_key.present?
+    # Fall back to Rails credentials for keys not in ENV
+    { "ANTHROPIC_API_KEY" => %i[anthropic api_key],
+      "CLAUDE_CODE_OAUTH_TOKEN" => %i[anthropic oauth_token] }.each do |var, path|
+      next if ENV[var].present?
+      value = Rails.application.credentials.dig(*path)
+      flags << "-e #{var}=#{value.shellescape}" if value.present?
     end
 
     flags.join(" ")
@@ -131,7 +133,6 @@ class ClaudeLocalAdapter < BaseAdapter
     parts = [ "claude", "-p" ]
     parts << prompt.shellescape
     parts << "--output-format stream-json --verbose"
-    parts << "--bare"  # CLAUDE-07: mandatory, prevents session file corruption
     parts << "--model #{config['model'].shellescape}" if config["model"].present?
     parts << "--max-turns #{config['max_turns'].to_i}" if config["max_turns"].present?
 
@@ -148,11 +149,21 @@ class ClaudeLocalAdapter < BaseAdapter
 
     parts << role.job_spec if role.job_spec.present?
 
+    if context[:goal_title].present?
+      parts << build_goal_prompt(context)
+    end
+
     if context[:skills].present?
       parts << build_skills_prompt(context[:skills])
     end
 
     parts.join("\n\n")
+  end
+
+  private_class_method def self.build_goal_prompt(context)
+    prompt = "## Current Goal\n\n**#{context[:goal_title]}**"
+    prompt += "\n\n#{context[:goal_description]}" if context[:goal_description].present?
+    prompt
   end
 
   private_class_method def self.build_skills_prompt(skills)

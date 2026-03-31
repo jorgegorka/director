@@ -561,6 +561,61 @@ class RoleTest < ActiveSupport::TestCase
     assert_nil child.working_directory
   end
 
+  # --- Goal-scoped session resumption ---
+
+  test "latest_session_id_for returns session from exact task match" do
+    task_a = tasks(:design_homepage)
+    task_b = tasks(:fix_login_bug)
+
+    RoleRun.create!(role: @cto, task: task_a, company: @company, status: :completed,
+      trigger_type: "task_assigned", claude_session_id: "sess_task_a", completed_at: 2.hours.ago)
+    RoleRun.create!(role: @cto, task: task_b, company: @company, status: :completed,
+      trigger_type: "task_assigned", claude_session_id: "sess_task_b", completed_at: 1.hour.ago)
+
+    assert_equal "sess_task_a", @cto.latest_session_id_for(task_a)
+  end
+
+  test "latest_session_id_for returns session from sibling task under same goal" do
+    task_a = tasks(:design_homepage) # goal: acme_objective_one
+    task_b = tasks(:eval_ready_task) # goal: acme_objective_one (same goal)
+
+    RoleRun.create!(role: @cto, task: task_a, company: @company, status: :completed,
+      trigger_type: "task_assigned", claude_session_id: "sess_sibling", completed_at: 1.hour.ago)
+
+    # task_b has no direct session, but shares a goal with task_a
+    assert_equal "sess_sibling", @cto.latest_session_id_for(task_b)
+  end
+
+  test "latest_session_id_for returns nil when no related sessions exist" do
+    task_obj_one = tasks(:design_homepage) # goal: acme_objective_one
+    task_unrelated = tasks(:widgets_task)  # different company, no goal
+
+    RoleRun.create!(role: @cto, task: task_obj_one, company: @company, status: :completed,
+      trigger_type: "task_assigned", claude_session_id: "sess_unrelated", completed_at: 1.hour.ago)
+
+    # A task with no goal and no prior sessions for this role should return nil
+    assert_nil @cto.latest_session_id_for(task_unrelated)
+  end
+
+  test "latest_session_id_for falls back to global when task is nil" do
+    RoleRun.create!(role: @cto, task: nil, company: @company, status: :completed,
+      trigger_type: "scheduled", claude_session_id: "sess_global", completed_at: 1.hour.ago)
+
+    assert_equal "sess_global", @cto.latest_session_id_for(nil)
+  end
+
+  test "latest_session_id_for prefers exact task match over sibling" do
+    task_a = tasks(:design_homepage) # goal: acme_objective_one
+    task_b = tasks(:eval_ready_task) # goal: acme_objective_one (same goal)
+
+    RoleRun.create!(role: @cto, task: task_b, company: @company, status: :completed,
+      trigger_type: "task_assigned", claude_session_id: "sess_sibling", completed_at: 2.hours.ago)
+    RoleRun.create!(role: @cto, task: task_a, company: @company, status: :completed,
+      trigger_type: "task_assigned", claude_session_id: "sess_exact", completed_at: 1.hour.ago)
+
+    assert_equal "sess_exact", @cto.latest_session_id_for(task_a)
+  end
+
   # --- Auto-assignment ---
 
   test "first agent configuration creates role_skills for role default skills" do

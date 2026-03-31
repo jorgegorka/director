@@ -150,9 +150,16 @@ class Role < ApplicationRecord
   end
 
   def latest_session_id
-    role_runs.where.not(claude_session_id: nil)
-             .order(created_at: :desc)
-             .pick(:claude_session_id)
+    pick_session(role_runs)
+  end
+
+  def latest_session_id_for(task)
+    return latest_session_id if task.nil?
+
+    pick_session(role_runs.where(task_id: task.id)) ||
+      (task.goal_id.present? &&
+        pick_session(role_runs.where(task_id: Task.where(goal_id: task.goal_id).where.not(id: task.id).select(:id)))) ||
+      nil
   end
 
   def all_documents
@@ -176,6 +183,12 @@ class Role < ApplicationRecord
   end
 
   private
+
+  def pick_session(scope)
+    scope.where.not(claude_session_id: nil)
+         .order(created_at: :desc)
+         .pick(:claude_session_id)
+  end
 
   def inherit_parent_working_directory
     self.working_directory = parent&.working_directory if working_directory.blank?

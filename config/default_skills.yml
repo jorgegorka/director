@@ -91,11 +91,16 @@ tech lead:
 
 # --- Marketing department template roles ---
 
-content manager:
-  - content_strategy
-  - documentation
-  - audience_research
-  - communication
+marketing planner:
+  - strategic_planning
+  - data_analysis
+  - market_analysis
+  - report_writing
+
+web analyst:
+  - data_analysis
+  - report_writing
+  - market_analysis
 
 seo specialist:
   - data_analysis
@@ -103,17 +108,31 @@ seo specialist:
   - market_analysis
   - report_writing
 
-social media manager:
-  - content_strategy
-  - audience_research
-  - communication
-  - campaign_planning
+marketing manager:
+  - team_management
+  - project_planning
+  - sprint_management
+  - progress_reporting
 
-marketing analyst:
-  - data_analysis
-  - report_writing
-  - market_analysis
-  - financial_analysis
+linkedin specialist:
+  - content_strategy
+  - communication
+  - audience_research
+
+blog content specialist:
+  - content_strategy
+  - communication
+  - audience_research
+
+page specialist:
+  - content_strategy
+  - communication
+  - audience_research
+
+email specialist:
+  - content_strategy
+  - communication
+  - audience_research
 
 # --- Operations department template roles ---
 

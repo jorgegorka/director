@@ -78,7 +78,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     assert result.is_a?(Hash), "Expected result hash"
   end
 
-  test "tmux command includes --bare flag" do
+  test "tmux command does not include --bare flag" do
     run = RoleRun.create!(
       role: @role, task: @task, company: @company,
       status: :queued, trigger_type: "task_assigned"
@@ -86,7 +86,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     @context[:run_id] = run.id
     ClaudeLocalAdapter.execute(@role, @context)
 
-    assert @spawn_calls.any? { |cmd| cmd.include?("--bare") }, "spawn command should include --bare"
+    assert @spawn_calls.none? { |cmd| cmd.include?("--bare") }, "spawn command should not include --bare (breaks Keychain auth)"
   end
 
   test "tmux command includes ANTHROPIC_API_KEY in environment" do
@@ -429,6 +429,44 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
 
     assert_equal 1, result[:exit_code]
     assert_equal "Something went wrong", result[:error_message]
+  end
+
+  test "system prompt includes goal section when goal context present" do
+    context = {
+      goal_title: "Improve SEO rankings",
+      goal_description: "Increase organic traffic by 30%"
+    }
+
+    prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @role, context)
+
+    assert_includes prompt, "## Current Goal"
+    assert_includes prompt, "**Improve SEO rankings**"
+    assert_includes prompt, "Increase organic traffic by 30%"
+  end
+
+  test "system prompt omits goal section when no goal context" do
+    prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @role, { skills: [] })
+
+    assert_not_includes prompt, "Current Goal"
+  end
+
+  test "goal section appears between job_spec and skills" do
+    @role.job_spec = "You are the CMO."
+    context = {
+      goal_title: "Improve SEO",
+      skills: [
+        { key: "seo", name: "SEO", description: "Optimize search", category: "marketing", markdown: "# SEO" }
+      ]
+    }
+
+    prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @role, context)
+
+    job_spec_pos = prompt.index("You are the CMO.")
+    goal_pos = prompt.index("Current Goal")
+    skills_pos = prompt.index("Your Skills")
+
+    assert job_spec_pos < goal_pos, "Job spec should appear before goal"
+    assert goal_pos < skills_pos, "Goal should appear before skills"
   end
 
   test "display_name, description, config_schema unchanged" do

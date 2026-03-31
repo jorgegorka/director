@@ -184,6 +184,35 @@ class HttpAdapterTest < ActiveSupport::TestCase
     end
   end
 
+  test "payload includes goal when goal_id in context" do
+    stub_request(:post, AGENT_URL).to_return(status: 200, body: '{"ok":true}')
+
+    @context[:goal_id] = 1
+    @context[:goal_title] = "Improve SEO"
+    @context[:goal_description] = "Increase organic traffic"
+
+    HttpAdapter.execute(@role, @context)
+
+    assert_requested(:post, AGENT_URL) do |req|
+      body = JSON.parse(req.body)
+      body["goal"].present? &&
+        body["goal"]["id"] == 1 &&
+        body["goal"]["title"] == "Improve SEO" &&
+        body["goal"]["description"] == "Increase organic traffic"
+    end
+  end
+
+  test "payload omits goal when no goal_id in context" do
+    stub_request(:post, AGENT_URL).to_return(status: 200, body: '{"ok":true}')
+
+    HttpAdapter.execute(@role, @context)
+
+    assert_requested(:post, AGENT_URL) do |req|
+      body = JSON.parse(req.body)
+      body["goal"].nil?
+    end
+  end
+
   test "display_name, description, config_schema unchanged" do
     assert_equal "HTTP API", HttpAdapter.display_name
     assert_equal "Connect to a cloud-hosted agent via HTTP POST requests", HttpAdapter.description

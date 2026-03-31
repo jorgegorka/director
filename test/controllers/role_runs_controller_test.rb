@@ -68,7 +68,7 @@ class RoleRunsControllerTest < ActionDispatch::IntegrationTest
     )
     get role_role_run_url(@role, run)
     assert_response :success
-    assert_select ".role-run-detail__kv-row--error"
+    assert_select ".role-run-detail__error-banner"
   end
 
   # --- Cancel ---

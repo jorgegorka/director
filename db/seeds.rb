@@ -33,9 +33,6 @@ role_defs = [
   { title: "Security Engineer",  description: "Conducts security audits, dependency scans, and reviews authentication flows.", job_spec: "Keep Director secure and free of vulnerabilities.",                      parent: "CTO", adapter_type: :claude_local, status: :idle,    budget_cents: 50_000 },
   { title: "DevOps",             description: "Manages CI/CD pipelines, deployment automation, and monitoring.",                job_spec: "Ensure Director deploys reliably and stays online.",                     parent: "CTO", adapter_type: :claude_local, status: :running, budget_cents: 60_000 },
   { title: "QA",                 description: "Plans test strategies, writes test suites, and enforces quality standards.",     job_spec: "Ensure Director ships with high quality and zero regressions.",          parent: "CTO", adapter_type: :claude_local, status: :idle,    budget_cents: 40_000 },
-  { title: "CMO",                description: "Drives marketing strategy, brand presence, and audience growth.",                job_spec: "You are an experienced and skilled CMO.\n\nYour responsibilities:\n1. Perform the marketing goals assigned to you efficiently and thoroughly.\n2. Optimise the use of your assigned budget — minimise spend while maximising output.\n3. Evaluate reports from your direct reportees and make decisions based on those reports and your assigned goals.\n4. Check which direct reportees you can hire, then hire the best suitable role for the job. You don't do the work yourself.\n5. Use the strategic_planning skill to decide how to perform your assigned goal(s).", parent: "CEO", adapter_type: :claude_local, status: :running, budget_cents: 120_000 },
-  { title: "SEO Specialist",     description: "Optimizes search rankings through keywords, metadata, and content strategy.",   job_spec: "Drive organic traffic to Director's marketing site.",                    parent: "CMO", adapter_type: :claude_local, status: :idle,    budget_cents: 30_000 },
-  { title: "Content Strategist", description: "Creates content calendars, writes blog posts, and maintains brand voice.",      job_spec: "Build Director's content marketing pipeline.",                           parent: "CMO", adapter_type: :claude_local, status: :running, budget_cents: 50_000 },
   { title: "PM",                 description: "Defines product roadmap, gathers requirements, and manages sprint cycles.",     job_spec: "Ensure Director builds the right features in the right order.",          parent: "CEO", adapter_type: :claude_local, status: :running, budget_cents: 100_000 },
   { title: "Researcher",         description: "Conducts user interviews, competitive analysis, and usability testing.",        job_spec: "Understand users and competitors to inform Director's product strategy.", parent: "CEO", adapter_type: :claude_local, status: :idle,    budget_cents: 40_000 }
 ]
@@ -58,13 +55,46 @@ role_defs.each do |attrs|
 end
 
 puts "  Created #{roles.size} roles in hierarchy (with agent configuration)"
+
+# Marketing department — roles created from template for consistent job_specs
+marketing_template = RoleTemplates::Registry.find("marketing")
+marketing_roles_by_title = marketing_template.roles.index_by(&:title)
+
+marketing_role_configs = [
+  { title: "CMO",                     parent: "CEO",               status: :running, budget_cents: 120_000 },
+  { title: "Marketing Planner",       parent: "CMO",               status: :running, budget_cents: 60_000 },
+  { title: "Web Analyst",             parent: "Marketing Planner",  status: :idle,    budget_cents: 30_000 },
+  { title: "SEO Specialist",          parent: "Marketing Planner",  status: :running, budget_cents: 30_000 },
+  { title: "Marketing Manager",       parent: "CMO",               status: :running, budget_cents: 60_000 },
+  { title: "LinkedIn Specialist",     parent: "Marketing Manager",  status: :idle,    budget_cents: 25_000 },
+  { title: "Blog Content Specialist", parent: "Marketing Manager",  status: :running, budget_cents: 40_000 },
+  { title: "Page Specialist",         parent: "Marketing Manager",  status: :running, budget_cents: 40_000 },
+  { title: "Email Specialist",        parent: "Marketing Manager",  status: :idle,    budget_cents: 25_000 }
+]
+
+marketing_role_configs.each do |config|
+  template_role = marketing_roles_by_title.fetch(config[:title])
+  parent_role = roles.fetch(config[:parent])
+  roles[config[:title]] = Role.create!(
+    company: company,
+    title: config[:title],
+    description: template_role.description,
+    job_spec: template_role.job_spec,
+    parent: parent_role,
+    adapter_type: :claude_local,
+    adapter_config: { "model" => "claude-sonnet-4-20250514" },
+    status: config[:status],
+    budget_cents: config[:budget_cents],
+    budget_period_start: Date.current.beginning_of_month
+  )
+end
+
+puts "  Created #{marketing_role_configs.size} marketing roles from template"
 puts "  Auto-assigned skills for matching role titles"
 
 # Manual skill assignments for roles that don't match default_skills.yml keys
 manual_skill_assignments = {
-  "Security Engineer"  => %w[security_assessment code_review risk_assessment monitoring_alerting incident_response],
-  "SEO Specialist"     => %w[content_strategy market_analysis data_analysis audience_research report_writing],
-  "Content Strategist" => %w[content_strategy brand_management audience_research documentation communication]
+  "Security Engineer" => %w[security_assessment code_review risk_assessment monitoring_alerting incident_response]
 }
 
 all_skill_keys = manual_skill_assignments.values.flatten.uniq
@@ -77,7 +107,7 @@ manual_skill_assignments.each do |role_title, skill_keys|
   skill_keys.each { |key| role.role_skills.find_or_create_by!(skill: skills_by_key.fetch(key)) }
 end
 
-puts "  Manually assigned skills to Security Engineer, SEO Specialist, Content Strategist"
+puts "  Manually assigned skills to Security Engineer"
 
 mission = Goal.create!(
   company: company,
@@ -198,7 +228,7 @@ end
 # --- Marketing Tasks ---
 
 tasks["design_wireframes"] = create_task!(company, user,
-  assignee: roles["CMO"],
+  assignee: roles["Page Specialist"],
   goal: sub_objectives["landing_page"],
   title: "Design landing page wireframes",
   description: "Create wireframes for the marketing landing page including hero section, features grid, pricing, and CTA.",
@@ -232,7 +262,7 @@ tasks["optimize_images"] = create_task!(company, user,
 )
 
 tasks["write_copy"] = create_task!(company, user,
-  assignee: roles["Content Strategist"],
+  assignee: roles["Page Specialist"],
   goal: sub_objectives["landing_page"],
   title: "Write landing page copy",
   description: "Write compelling headlines, feature descriptions, and CTA copy for the landing page.",
@@ -256,7 +286,7 @@ tasks["implement_meta"] = create_task!(company, user,
 )
 
 tasks["content_calendar"] = create_task!(company, user,
-  assignee: roles["Content Strategist"],
+  assignee: roles["Blog Content Specialist"],
   goal: sub_objectives["content_pipeline"],
   title: "Create blog content calendar",
   description: "Plan 3 months of blog content covering AI orchestration topics, tutorials, and case studies.",
@@ -264,11 +294,27 @@ tasks["content_calendar"] = create_task!(company, user,
 )
 
 tasks["analytics"] = create_task!(company, user,
-  assignee: roles["CMO"],
+  assignee: roles["Web Analyst"],
   goal: sub_objectives["seo"],
   title: "Set up analytics tracking",
   description: "Configure privacy-respecting analytics to track landing page conversions and traffic sources.",
   status: :open, priority: :high
+)
+
+tasks["marketing_audit"] = create_task!(company, user,
+  assignee: roles["Marketing Planner"],
+  goal: objectives["marketing"],
+  title: "Evaluate current marketing performance",
+  description: "Assess website traffic, SEO rankings, and content performance. Prepare a situational analysis with prioritised recommendations for Q2.",
+  status: :in_progress, priority: :high, cost_cents: 3000
+)
+
+tasks["coordinate_landing"] = create_task!(company, user,
+  assignee: roles["Marketing Manager"],
+  goal: sub_objectives["landing_page"],
+  title: "Coordinate landing page launch",
+  description: "Break down the landing page launch into atomic tasks, assign to specialists, and ensure all deliverables meet quality standards before go-live.",
+  status: :in_progress, priority: :high, cost_cents: 2000
 )
 
 tasks["email_capture"] = create_task!(company, user,
@@ -628,7 +674,7 @@ create_audit_event!(
 )
 
 create_audit_event!(
-  company: company, auditable: tasks["design_wireframes"], actor: roles["CMO"],
+  company: company, auditable: tasks["design_wireframes"], actor: roles["Page Specialist"],
   action: "cost_recorded", metadata: { cost_cents: 4500, task: "Design landing page wireframes" }, days_ago: 10
 )
 
@@ -745,10 +791,10 @@ create_notification!(
 )
 
 create_notification!(
-  company: company, recipient: user, actor: roles["CMO"],
+  company: company, recipient: user, actor: roles["Page Specialist"],
   notifiable: tasks["design_wireframes"],
   action: "task_completed",
-  metadata: { task_title: "Design landing page wireframes", role_title: "CMO" },
+  metadata: { task_title: "Design landing page wireframes", role_title: "Page Specialist" },
   days_ago: 10, read: true
 )
 

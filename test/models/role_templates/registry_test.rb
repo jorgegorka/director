@@ -80,11 +80,11 @@ class RoleTemplates::RegistryTest < ActiveSupport::TestCase
 
   # --- Template roles structure ---
 
-  test "each template has 4 to 7 roles" do
+  test "each template has 4 to 10 roles" do
     RoleTemplates::Registry.all.each do |template|
       count = template.roles.size
-      assert count >= 4 && count <= 7,
-        "#{template.key} has #{count} roles, expected 4-7"
+      assert count >= 4 && count <= 10,
+        "#{template.key} has #{count} roles, expected 4-10"
     end
   end
 
