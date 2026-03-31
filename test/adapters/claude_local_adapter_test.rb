@@ -23,7 +23,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
 
     ClaudeLocalAdapter.define_singleton_method(:poll_sleep) { |_n| nil }
     ClaudeLocalAdapter.define_singleton_method(:spawn_session) { |cmd| spawn_calls << cmd; true }
-    ClaudeLocalAdapter.define_singleton_method(:session_exists?) do |_name|
+    ClaudeLocalAdapter.define_singleton_method(:pane_alive?) do |_name|
       poll_count += 1
       poll_count <= 1
     end
@@ -35,7 +35,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
 
   teardown do
     ENV.delete("ANTHROPIC_API_KEY")
-    %i[poll_sleep spawn_session session_exists? capture_pane kill_session].each do |m|
+    %i[poll_sleep spawn_session pane_alive? session_exists? capture_pane kill_session].each do |m|
       if ClaudeLocalAdapter.singleton_class.method_defined?(m, false)
         ClaudeLocalAdapter.singleton_class.remove_method(m)
       end
@@ -99,8 +99,21 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     @context[:run_id] = run.id
     ClaudeLocalAdapter.execute(@role, @context)
 
-    assert @spawn_calls.any? { |cmd| cmd.include?("ANTHROPIC_API_KEY") && cmd.include?("test_key_123") },
+    assert @spawn_calls.any? { |cmd| cmd.include?("-e ANTHROPIC_API_KEY=test_key_123") },
       "spawn command should include ANTHROPIC_API_KEY"
+  end
+
+  test "tmux command always forwards HOME and PATH" do
+    run = RoleRun.create!(
+      role: @role, task: @task, company: @company,
+      status: :queued, trigger_type: "task_assigned"
+    )
+    @context[:run_id] = run.id
+    ClaudeLocalAdapter.execute(@role, @context)
+
+    cmd = @spawn_calls.last
+    assert_includes cmd, "-e HOME=", "spawn command should forward HOME"
+    assert_includes cmd, "-e PATH=", "spawn command should forward PATH"
   end
 
   test "tmux command includes --output-format stream-json" do
@@ -252,7 +265,16 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     assert_match(/failed to create tmux session/i, error.message)
   end
 
-  test "missing ANTHROPIC_API_KEY raises ExecutionError" do
+  test "missing ANTHROPIC_API_KEY omits it from env_flags but keeps HOME and PATH" do
+    ENV.delete("ANTHROPIC_API_KEY")
+
+    flags = ClaudeLocalAdapter.env_flags
+    assert_not_includes flags, "ANTHROPIC_API_KEY"
+    assert_includes flags, "-e HOME="
+    assert_includes flags, "-e PATH="
+  end
+
+  test "missing ANTHROPIC_API_KEY omits it from tmux command" do
     ENV.delete("ANTHROPIC_API_KEY")
 
     run = RoleRun.create!(
@@ -260,16 +282,14 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
       status: :queued, trigger_type: "task_assigned"
     )
     @context[:run_id] = run.id
+    ClaudeLocalAdapter.execute(@role, @context)
 
-    error = assert_raises(ClaudeLocalAdapter::ExecutionError) do
-      ClaudeLocalAdapter.execute(@role, @context)
-    end
-
-    assert_match(/ANTHROPIC_API_KEY not configured/i, error.message)
+    assert @spawn_calls.none? { |cmd| cmd.include?("ANTHROPIC_API_KEY") },
+      "spawn command should not include ANTHROPIC_API_KEY when no API key"
   end
 
   test "ensure block cleans up tmux session on error" do
-    ClaudeLocalAdapter.define_singleton_method(:session_exists?) { |_name| raise RuntimeError, "poll exploded" }
+    ClaudeLocalAdapter.define_singleton_method(:pane_alive?) { |_name| raise RuntimeError, "poll exploded" }
 
     run = RoleRun.create!(
       role: @role, task: @task, company: @company,
@@ -376,6 +396,39 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
 
     assert @spawn_calls.none? { |cmd| cmd.include?("-c ") },
       "spawn command should not include -c flag"
+  end
+
+  test "authentication_failed in assistant event raises ExecutionError" do
+    auth_failed_event = '{"type":"assistant","message":{"content":[{"type":"text","text":"Not logged in"}]},"error":"authentication_failed"}'
+    result_event = '{"type":"result","subtype":"success","is_error":true,"session_id":"sess_abc","total_cost_usd":0,"result":"Not logged in"}'
+    ClaudeLocalAdapter.define_singleton_method(:capture_pane) { |_name| auth_failed_event + "\n" + result_event }
+
+    run = RoleRun.create!(
+      role: @role, task: @task, company: @company,
+      status: :queued, trigger_type: "task_assigned"
+    )
+    @context[:run_id] = run.id
+
+    error = assert_raises(ClaudeLocalAdapter::ExecutionError) do
+      ClaudeLocalAdapter.execute(@role, @context)
+    end
+
+    assert_match(/not authenticated/i, error.message)
+  end
+
+  test "is_error true in result event sets exit_code 1 and error_message" do
+    error_result = '{"type":"result","subtype":"success","is_error":true,"session_id":"sess_err","total_cost_usd":0.01,"result":"Something went wrong"}'
+    ClaudeLocalAdapter.define_singleton_method(:capture_pane) { |_name| error_result }
+
+    run = RoleRun.create!(
+      role: @role, task: @task, company: @company,
+      status: :queued, trigger_type: "task_assigned"
+    )
+    @context[:run_id] = run.id
+    result = ClaudeLocalAdapter.execute(@role, @context)
+
+    assert_equal 1, result[:exit_code]
+    assert_equal "Something went wrong", result[:error_message]
   end
 
   test "display_name, description, config_schema unchanged" do

@@ -5505,6 +5505,153 @@
 }
 
 /* ============================================================
+   ROLE RUNS COMPONENTS
+   ============================================================ */
+@layer components {
+  /* Role Runs index */
+  .role-runs__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-block-end: var(--space-6);
+  }
+
+  .role-runs__subtitle {
+    color: var(--text-muted);
+    margin-block-start: var(--space-1);
+  }
+
+  .role-runs__table {
+    inline-size: 100%;
+  }
+
+  .role-runs__empty {
+    color: var(--text-subtle);
+    padding: var(--space-12);
+    text-align: center;
+  }
+
+  /* Role Run Detail */
+  .role-run-detail {
+    max-inline-size: 72rem;
+    margin-inline: auto;
+    padding-block: var(--space-8);
+    padding-inline: var(--space-4);
+  }
+
+  .role-run-detail__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-block-end: var(--space-6);
+  }
+
+  .role-run-detail__subtitle {
+    color: var(--text-muted);
+    margin-block-start: var(--space-1);
+  }
+
+  .role-run-detail__actions {
+    display: flex;
+    gap: var(--space-2);
+    align-items: center;
+  }
+
+  .role-run-detail__meta {
+    margin-block-end: var(--space-6);
+  }
+
+  .role-run-detail__kv {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--space-4);
+  }
+
+  .role-run-detail__kv-row {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .role-run-detail__kv-row dt {
+    font-size: var(--font-size-sm);
+    color: var(--text-subtle);
+    font-weight: 600;
+  }
+
+  .role-run-detail__kv-row--error dd {
+    color: var(--color-error-fg);
+  }
+
+  /* Role Run Output Stream */
+  .role-run-output {
+    background: var(--color-neutral-100);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    margin-block-start: var(--space-4);
+  }
+
+  .role-run-output__title {
+    padding: var(--space-3) var(--space-4);
+    border-block-end: 1px solid var(--border);
+    font-size: var(--font-size-base);
+  }
+
+  .role-run-output__stream {
+    padding: var(--space-3) var(--space-4);
+    font-family: var(--font-mono);
+    font-size: var(--font-size-sm);
+    line-height: 1.6;
+    max-block-size: 70vh;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+
+  .role-run-output__line {
+    padding-block: 1px;
+  }
+
+  .role-run-output__live-indicator {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    border-block-start: 1px solid var(--border);
+    font-size: var(--font-size-sm);
+    color: var(--color-success-fg);
+  }
+
+  .role-run-output__pulse {
+    display: inline-block;
+    inline-size: 8px;
+    block-size: 8px;
+    border-radius: 50%;
+    background: var(--color-success-fg);
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  /* Tool-use indicators */
+  .role-run-output__line--tool {
+    padding: var(--space-1) 0;
+  }
+
+  .role-run-output__tool-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: 2px var(--space-2);
+    border-radius: var(--radius-sm);
+    background: oklch(40% 0.08 250);
+    color: oklch(90% 0.02 250);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    font-family: var(--font-mono);
+    text-transform: lowercase;
+  }
+}
+
+/* ============================================================
    ROLE TEMPLATES — Browse and Detail
    ============================================================ */
 

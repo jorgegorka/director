@@ -57,6 +57,7 @@ REVISION
 .env.development
 .env.production
 /config/master.key
+/config/credentials.yml.enc
 /config/credentials/test.key
 /config/credentials/development.key
 /config/credentials/production.key

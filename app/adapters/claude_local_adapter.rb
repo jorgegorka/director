@@ -39,12 +39,16 @@ class ClaudeLocalAdapter < BaseAdapter
     role_run     = RoleRun.find(context[:run_id])
     session_name = "#{SESSION_PREFIX}_#{context[:run_id]}"
     claude_cmd   = build_claude_command(role, context)
-    prefix       = env_prefix
-    # -e sets an environment variable in the session; the last arg is the shell command to run.
+    env          = env_flags
+    # -e sets environment variables in the session; the last arg is the shell command to run.
     # claude_cmd already has its individual args shellescape-d, so just double-quote the whole string.
+    # remain-on-exit keeps the tmux pane alive after the command exits,
+    # so we can always capture output even if Claude finishes quickly.
     spawn_cmd    = "tmux new-session -d -s #{session_name.shellescape}"
     spawn_cmd   += " -c #{role.working_directory.shellescape}" if role.working_directory.present?
-    spawn_cmd   += " -e #{prefix} \"#{claude_cmd}\""
+    spawn_cmd   += " #{env}" if env.present?
+    spawn_cmd   += " \"#{claude_cmd}\""
+    spawn_cmd   += " \\; set-option remain-on-exit on"
 
     unless spawn_session(spawn_cmd)
       raise ExecutionError, "Failed to create tmux session: #{session_name}"
@@ -67,12 +71,29 @@ class ClaudeLocalAdapter < BaseAdapter
     sleep(seconds)
   end
 
-  # Builds the ANTHROPIC_API_KEY environment prefix for the tmux command.
-  # Public so tests can override it to simulate missing API key.
-  def self.env_prefix
-    api_key = ENV.fetch("ANTHROPIC_API_KEY") { Rails.application.credentials.dig(:anthropic, :api_key) }
-    raise ExecutionError, "ANTHROPIC_API_KEY not configured" if api_key.blank?
-    "ANTHROPIC_API_KEY=#{api_key.shellescape}"
+  # Auth priority for Claude CLI in tmux sessions:
+  #   1. ANTHROPIC_API_KEY — direct API billing, most reliable for automation
+  #   2. CLAUDE_CODE_OAUTH_TOKEN — subscription-based auth (Max/Pro), works headless
+  #   3. Keychain/credentials file — requires HOME+PATH, may fail in tmux on macOS
+  #
+  # Tmux sessions inherit the tmux server's environment, not the calling
+  # process's, so we explicitly forward all relevant variables.
+  # Public so tests can override it.
+  FORWARDED_ENV_VARS = %w[HOME PATH ANTHROPIC_API_KEY CLAUDE_CODE_OAUTH_TOKEN CLAUDE_CONFIG_DIR].freeze
+
+  def self.env_flags
+    flags = FORWARDED_ENV_VARS.filter_map do |var|
+      value = ENV[var]
+      "-e #{var}=#{value.shellescape}" if value.present?
+    end
+
+    # Also check Rails credentials for API key
+    if ENV["ANTHROPIC_API_KEY"].blank?
+      api_key = Rails.application.credentials.dig(:anthropic, :api_key)
+      flags << "-e ANTHROPIC_API_KEY=#{api_key.shellescape}" if api_key.present?
+    end
+
+    flags.join(" ")
   end
 
   # Spawns a tmux session with the given command string. Returns true on success.
@@ -83,6 +104,14 @@ class ClaudeLocalAdapter < BaseAdapter
   # Returns true if the named tmux session currently exists.
   def self.session_exists?(name)
     system("tmux has-session -t #{name.shellescape} 2>/dev/null")
+  end
+
+  # Returns true if the process inside the tmux pane is still running.
+  # With remain-on-exit, the session stays alive after exit — check pane_dead.
+  def self.pane_alive?(name)
+    return false unless session_exists?(name)
+    result = `tmux display-message -t #{name.shellescape} -p '#\{pane_dead\}' 2>/dev/null`.strip
+    result != "1"
   end
 
   # Captures the current pane output of the named tmux session from scrollback start.
@@ -101,7 +130,7 @@ class ClaudeLocalAdapter < BaseAdapter
 
     parts = [ "claude", "-p" ]
     parts << prompt.shellescape
-    parts << "--output-format stream-json"
+    parts << "--output-format stream-json --verbose"
     parts << "--bare"  # CLAUDE-07: mandatory, prevents session file corruption
     parts << "--model #{config['model'].shellescape}" if config["model"].present?
     parts << "--max-turns #{config['max_turns'].to_i}" if config["max_turns"].present?
@@ -150,9 +179,6 @@ class ClaudeLocalAdapter < BaseAdapter
     max_polls = (MAX_POLL_WAIT / POLL_INTERVAL).to_i
 
     loop do
-      # Break if tmux session is gone (process exited naturally).
-      break unless session_exists?(session_name)
-
       output = capture_pane(session_name)
       lines = output.split("\n")
 
@@ -165,22 +191,17 @@ class ClaudeLocalAdapter < BaseAdapter
         last_line_count = lines.size
       end
 
+      # With remain-on-exit the session stays alive after the process exits,
+      # so we check pane_dead instead of session_exists. This guarantees we
+      # capture all output before breaking.
+      break unless pane_alive?(session_name)
+
       poll_sleep(POLL_INTERVAL)
 
       poll_count += 1
       if poll_count >= max_polls
         kill_session(session_name)
         raise ExecutionError, "Execution timed out after #{MAX_POLL_WAIT} seconds"
-      end
-    end
-
-    # Final capture to collect any output produced after the last poll.
-    output = capture_pane(session_name)
-    lines = output.split("\n")
-    if lines.size > last_line_count
-      lines[last_line_count..].each do |line|
-        agent_run.broadcast_line!(line + "\n")
-        accumulated_lines << line
       end
     end
 
@@ -191,6 +212,7 @@ class ClaudeLocalAdapter < BaseAdapter
     session_id = nil
     cost_cents = nil
     exit_code  = 0
+    error_message = nil
 
     accumulated_lines.each do |line|
       next if line.blank?
@@ -200,16 +222,24 @@ class ClaudeLocalAdapter < BaseAdapter
         next
       end
 
+      # Detect authentication failures from assistant messages
+      if event["type"] == "assistant" && event["error"] == "authentication_failed"
+        raise ExecutionError, "Claude CLI not authenticated. Run `claude /login` to sign in."
+      end
+
       next unless event["type"] == "result"
 
       session_id = event["session_id"]  # CLAUDE-03
       if event["total_cost_usd"].present?
         cost_cents = (event["total_cost_usd"].to_f * 100).round  # CLAUDE-05
       end
-      exit_code = 1 if event["subtype"] == "error"
+      if event["subtype"] == "error" || event["is_error"] == true
+        exit_code = 1
+        error_message = event["result"]
+      end
     end
 
-    { exit_code: exit_code, session_id: session_id, cost_cents: cost_cents }
+    { exit_code: exit_code, session_id: session_id, cost_cents: cost_cents, error_message: error_message }
   end
 
   private_class_method def self.cleanup_session(name)
