@@ -130,6 +130,12 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "claude-sonnet-4-20250514", role.adapter_config["model"]
   end
 
+  test "should create role with working_directory" do
+    post roles_url, params: { role: { title: "Agent", working_directory: "/projects/website" } }
+    role = Role.find_by(title: "Agent")
+    assert_equal "/projects/website", role.working_directory
+  end
+
   # --- Edit / Update ---
 
   test "should get edit form" do
@@ -151,6 +157,13 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to role_url(@developer)
     @developer.reload
     assert_equal @ceo, @developer.parent
+  end
+
+  test "should update role working_directory" do
+    patch role_url(@cto), params: { role: { working_directory: "/projects/website" } }
+    assert_redirected_to role_url(@cto)
+    @cto.reload
+    assert_equal "/projects/website", @cto.working_directory
   end
 
   test "should not update role with blank title" do
@@ -343,6 +356,35 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
     post terminate_role_url(@cto)
     assert_redirected_to role_url(@cto)
     assert_equal "#{@cto.title} is already terminated.", flash[:alert]
+  end
+
+  test "should run idle role" do
+    @cto.update_columns(status: Role.statuses[:idle])
+    @cto.role_runs.active.update_all(status: RoleRun.statuses[:cancelled])
+    assert_difference("RoleRun.count") do
+      post run_role_url(@cto)
+    end
+    assert_redirected_to role_url(@cto)
+    assert_match /has been started/, flash[:notice]
+  end
+
+  test "should not run terminated role" do
+    @cto.update_columns(status: Role.statuses[:terminated])
+    assert_no_difference("RoleRun.count") do
+      post run_role_url(@cto)
+    end
+    assert_redirected_to role_url(@cto)
+    assert_equal "Cannot run a terminated role.", flash[:alert]
+  end
+
+  test "should not run role with active run" do
+    @cto.update_columns(status: Role.statuses[:idle])
+    @cto.role_runs.create!(company: @company, status: :queued, trigger_type: :scheduled)
+    assert_no_difference("RoleRun.count") do
+      post run_role_url(@cto)
+    end
+    assert_redirected_to role_url(@cto)
+    assert_match /already has an active run/, flash[:alert]
   end
 
   test "should approve pending_approval role" do

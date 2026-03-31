@@ -35,6 +35,7 @@ Rails.application.routes.draw do
       end
     end
     member do
+      post :run
       post :pause
       post :resume
       post :terminate

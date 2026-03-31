@@ -1,6 +1,6 @@
 class RolesController < ApplicationController
   before_action :require_company!
-  before_action :set_role, only: [ :show, :edit, :update, :destroy, :pause, :resume, :terminate, :approve, :reject ]
+  before_action :set_role, only: [ :show, :edit, :update, :destroy, :run, :pause, :resume, :terminate, :approve, :reject ]
 
   def index
     @roles = Current.company.roles.includes(:parent, :children, :skills).order(:title)
@@ -47,6 +47,25 @@ class RolesController < ApplicationController
   def destroy
     @role.destroy
     redirect_to roles_path, notice: "#{@role.title} has been deleted."
+  end
+
+  def run
+    if @role.terminated?
+      redirect_to @role, alert: "Cannot run a terminated role."
+      return
+    end
+
+    if @role.role_runs.active.exists?
+      redirect_to @role, alert: "#{@role.title} already has an active run."
+      return
+    end
+
+    Roles::Waking.call(
+      role: @role,
+      trigger_type: :manual,
+      trigger_source: "Manual run by #{Current.user.email_address}"
+    )
+    redirect_to @role, notice: "#{@role.title} has been started."
   end
 
   def pause
