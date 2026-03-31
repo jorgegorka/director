@@ -94,6 +94,14 @@ class Roles::HiringTest < ActiveSupport::TestCase
     assert_equal "VP Engineering", event.metadata["hired_role_title"]
   end
 
+  test "hire! inherits working_directory from hiring role" do
+    @cto.update!(auto_hire_enabled: true, working_directory: "/projects/website")
+
+    new_role = @cto.hire!(template_role_title: "VP Engineering", budget_cents: 20000)
+
+    assert_equal "/projects/website", new_role.working_directory
+  end
+
   test "hire! raises when budget_cents exceeds own budget" do
     @cto.update!(auto_hire_enabled: true)
 

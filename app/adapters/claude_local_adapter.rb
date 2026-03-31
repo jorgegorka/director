@@ -42,7 +42,9 @@ class ClaudeLocalAdapter < BaseAdapter
     prefix       = env_prefix
     # -e sets an environment variable in the session; the last arg is the shell command to run.
     # claude_cmd already has its individual args shellescape-d, so just double-quote the whole string.
-    spawn_cmd    = "tmux new-session -d -s #{session_name.shellescape} -e #{prefix} \"#{claude_cmd}\""
+    spawn_cmd    = "tmux new-session -d -s #{session_name.shellescape}"
+    spawn_cmd   += " -c #{role.working_directory.shellescape}" if role.working_directory.present?
+    spawn_cmd   += " -e #{prefix} \"#{claude_cmd}\""
 
     unless spawn_session(spawn_cmd)
       raise ExecutionError, "Failed to create tmux session: #{session_name}"

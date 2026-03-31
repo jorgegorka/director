@@ -108,6 +108,7 @@ module Roles
         parent: self,
         adapter_type: adapter_type,
         adapter_config: adapter_config,
+
         budget_cents: hire_budget_cents,
         budget_period_start: Date.current.beginning_of_month,
         status: :idle

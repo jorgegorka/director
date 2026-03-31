@@ -32,6 +32,12 @@
   </div>
 
   <div class="form__field">
+    <%= f.label :working_directory, "Working directory" %>
+    <%= f.text_field :working_directory, placeholder: "/path/to/project" %>
+    <p class="form__hint">Filesystem path the agent operates in. Inherited from parent if blank.</p>
+  </div>
+
+  <div class="form__field">
     <%= f.label :adapter_type, "Connection type" %>
     <%= f.select :adapter_type, adapter_type_options, {}, {
       class: "form__select",

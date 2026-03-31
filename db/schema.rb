@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_30_112226) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_31_091916) do
   create_table "approval_gates", force: :cascade do |t|
     t.string "action_type", null: false
     t.datetime "created_at", null: false
@@ -323,6 +323,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_30_112226) do
     t.integer "status", default: 0, null: false
     t.string "title", null: false
     t.datetime "updated_at", null: false
+    t.string "working_directory"
     t.index ["api_token"], name: "index_roles_on_api_token", unique: true
     t.index ["company_id", "title"], name: "index_roles_on_company_id_and_title", unique: true
     t.index ["company_id"], name: "index_roles_on_company_id"

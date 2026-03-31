@@ -533,6 +533,34 @@ class RoleTest < ActiveSupport::TestCase
     assert_nil goal.role_id
   end
 
+  # --- Working directory inheritance ---
+
+  test "inherits working_directory from parent on create" do
+    parent = Role.create!(title: "Team Lead", company: @company, working_directory: "/projects/website")
+    child = Role.create!(title: "Designer", company: @company, parent: parent)
+
+    assert_equal "/projects/website", child.working_directory
+  end
+
+  test "does not override explicit working_directory with parent's" do
+    parent = Role.create!(title: "Team Lead", company: @company, working_directory: "/projects/website")
+    child = Role.create!(title: "Designer", company: @company, parent: parent, working_directory: "/projects/design")
+
+    assert_equal "/projects/design", child.working_directory
+  end
+
+  test "working_directory is nil when no parent" do
+    role = Role.create!(title: "Lone Wolf", company: @company)
+
+    assert_nil role.working_directory
+  end
+
+  test "working_directory is nil when parent has no working_directory" do
+    child = Role.create!(title: "Designer", company: @company, parent: @ceo)
+
+    assert_nil child.working_directory
+  end
+
   # --- Auto-assignment ---
 
   test "first agent configuration creates role_skills for role default skills" do

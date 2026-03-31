@@ -350,6 +350,34 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     assert_includes prompt, "Your Skills"
   end
 
+  test "tmux command includes -c flag when working_directory present" do
+    @role.working_directory = "/projects/website"
+
+    run = RoleRun.create!(
+      role: @role, task: @task, company: @company,
+      status: :queued, trigger_type: "task_assigned"
+    )
+    @context[:run_id] = run.id
+    ClaudeLocalAdapter.execute(@role, @context)
+
+    assert @spawn_calls.any? { |cmd| cmd.include?("-c /projects/website") },
+      "spawn command should include -c with working directory"
+  end
+
+  test "tmux command omits -c flag when working_directory nil" do
+    @role.working_directory = nil
+
+    run = RoleRun.create!(
+      role: @role, task: @task, company: @company,
+      status: :queued, trigger_type: "task_assigned"
+    )
+    @context[:run_id] = run.id
+    ClaudeLocalAdapter.execute(@role, @context)
+
+    assert @spawn_calls.none? { |cmd| cmd.include?("-c ") },
+      "spawn command should not include -c flag"
+  end
+
   test "display_name, description, config_schema unchanged" do
     assert_equal "Claude Code (Local)", ClaudeLocalAdapter.display_name
     assert_equal "Run Claude CLI locally with streaming JSON output and session resumption", ClaudeLocalAdapter.description

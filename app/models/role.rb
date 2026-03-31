@@ -34,6 +34,9 @@ class Role < ApplicationRecord
 
   attr_writer :preloaded_monthly_spend_cents
 
+  validates :working_directory, format: { with: /\A\//, message: "must be an absolute path" }, allow_blank: true
+
+  before_validation :inherit_parent_working_directory, on: :create
   before_create :generate_api_token, if: :agent_configured?
   before_destroy :reparent_children
   after_save :assign_default_skills, if: :first_agent_configuration?
@@ -169,10 +172,14 @@ class Role < ApplicationRecord
   end
 
   def governance_attributes
-    %w[title description job_spec parent_id budget_cents budget_period_start status]
+    %w[title description job_spec parent_id budget_cents budget_period_start status working_directory]
   end
 
   private
+
+  def inherit_parent_working_directory
+    self.working_directory = parent&.working_directory if working_directory.blank?
+  end
 
   def broadcast_dashboard_update
     broadcast_overview_stats
