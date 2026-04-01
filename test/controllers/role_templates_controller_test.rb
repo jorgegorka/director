@@ -106,6 +106,29 @@ class RoleTemplatesControllerTest < ActionDispatch::IntegrationTest
     assert_match(/skipped/i, flash[:notice])
   end
 
+  test "should create CEO when applying department template to company without one" do
+    # Switch to widgets company (has no CEO)
+    post company_switch_url(companies(:widgets))
+    post apply_role_template_url("marketing")
+
+    ceo = companies(:widgets).roles.find_by(title: "CEO")
+    assert ceo, "CEO should have been created"
+
+    cmo = companies(:widgets).roles.find_by(title: "CMO")
+    assert cmo, "CMO should have been created"
+    assert_equal ceo, cmo.parent, "CMO should report to CEO"
+  end
+
+  test "should reuse existing CEO when applying department template" do
+    # acme already has a CEO fixture
+    assert_no_difference("@company.roles.where(title: 'CEO').count") do
+      post apply_role_template_url("marketing")
+    end
+
+    cmo = @company.roles.find_by(title: "CMO")
+    assert_equal roles(:ceo), cmo.parent
+  end
+
   test "should return 404 when applying unknown template" do
     post apply_role_template_url("nonexistent")
     assert_response :not_found
