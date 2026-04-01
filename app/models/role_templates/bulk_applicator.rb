@@ -1,8 +1,5 @@
 module RoleTemplates
   class BulkApplicator
-    EXECUTIVE_TEMPLATE_KEY = "executive"
-    CEO_TITLE = "CEO"
-
     attr_reader :company
 
     def initialize(company:)
@@ -14,23 +11,15 @@ module RoleTemplates
     end
 
     def call
-      executive_result = RoleTemplates::Applicator.call(
-        company: company,
-        template_key: EXECUTIVE_TEMPLATE_KEY
-      )
+      total_created = 0
+      total_skipped = 0
+      total_errors = []
+      all_created_roles = []
 
-      ceo = company.roles.find_by!(title: CEO_TITLE)
-
-      total_created = executive_result.created
-      total_skipped = executive_result.skipped
-      total_errors = executive_result.errors.dup
-      all_created_roles = executive_result.created_roles.dup
-
-      department_keys.each do |key|
+      RoleTemplates::Registry.keys.each do |key|
         result = RoleTemplates::Applicator.call(
           company: company,
-          template_key: key,
-          parent_role: ceo
+          template_key: key
         )
         total_created += result.created
         total_skipped += result.skipped
@@ -44,12 +33,6 @@ module RoleTemplates
         errors: total_errors.freeze,
         created_roles: all_created_roles.freeze
       )
-    end
-
-    private
-
-    def department_keys
-      RoleTemplates::Registry.keys - [ EXECUTIVE_TEMPLATE_KEY ]
     end
   end
 end

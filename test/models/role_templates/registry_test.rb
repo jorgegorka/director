@@ -7,9 +7,9 @@ class RoleTemplates::RegistryTest < ActiveSupport::TestCase
 
   # --- .all ---
 
-  test "all returns six templates" do
+  test "all returns one template" do
     templates = RoleTemplates::Registry.all
-    assert_equal 6, templates.size
+    assert_equal 1, templates.size
   end
 
   test "all returns frozen array" do
@@ -17,11 +17,9 @@ class RoleTemplates::RegistryTest < ActiveSupport::TestCase
     assert templates.frozen?
   end
 
-  test "all includes every expected template" do
+  test "all includes marketing template" do
     keys = RoleTemplates::Registry.all.map(&:key)
-    %w[executive engineering marketing operations finance hr].each do |expected|
-      assert_includes keys, expected
-    end
+    assert_includes keys, "marketing"
   end
 
   test "all caches results across calls" do
@@ -33,9 +31,9 @@ class RoleTemplates::RegistryTest < ActiveSupport::TestCase
   # --- .find ---
 
   test "find returns template by key" do
-    template = RoleTemplates::Registry.find("engineering")
-    assert_equal "engineering", template.key
-    assert_equal "Engineering", template.name
+    template = RoleTemplates::Registry.find("marketing")
+    assert_equal "marketing", template.key
+    assert_equal "Marketing", template.name
   end
 
   test "find accepts symbol key" do
@@ -54,19 +52,14 @@ class RoleTemplates::RegistryTest < ActiveSupport::TestCase
 
   test "keys returns all template keys" do
     keys = RoleTemplates::Registry.keys
-    assert_equal 6, keys.size
-    assert_includes keys, "executive"
-    assert_includes keys, "engineering"
+    assert_equal 1, keys.size
     assert_includes keys, "marketing"
-    assert_includes keys, "operations"
-    assert_includes keys, "finance"
-    assert_includes keys, "hr"
   end
 
   # --- Template structure ---
 
   test "template has key name description and roles" do
-    template = RoleTemplates::Registry.find("engineering")
+    template = RoleTemplates::Registry.find("marketing")
     assert_kind_of String, template.key
     assert_kind_of String, template.name
     assert_kind_of String, template.description
@@ -90,7 +83,7 @@ class RoleTemplates::RegistryTest < ActiveSupport::TestCase
   end
 
   test "role exposes expected attributes" do
-    role = RoleTemplates::Registry.find("engineering").roles.first
+    role = RoleTemplates::Registry.find("marketing").roles.first
     assert_kind_of String, role.title
     assert_kind_of String, role.description
     assert_kind_of String, role.job_spec
@@ -185,39 +178,17 @@ class RoleTemplates::RegistryTest < ActiveSupport::TestCase
 
   # --- Specific template content ---
 
-  test "engineering template has correct role hierarchy" do
-    template = RoleTemplates::Registry.find("engineering")
-    titles = template.roles.map(&:title)
-    assert_includes titles, "CTO"
-    assert_includes titles, "VP Engineering"
-    assert_includes titles, "Tech Lead"
-    assert_includes titles, "Engineer"
-    assert_includes titles, "QA"
-  end
-
   test "marketing template has CMO as root" do
     template = RoleTemplates::Registry.find("marketing")
     assert_equal "CMO", template.roles.first.title
   end
 
-  test "operations template has COO as root" do
-    template = RoleTemplates::Registry.find("operations")
-    assert_equal "COO", template.roles.first.title
-  end
-
-  test "finance template has CFO as root" do
-    template = RoleTemplates::Registry.find("finance")
-    assert_equal "CFO", template.roles.first.title
-  end
-
-  test "executive template has CEO as root" do
-    template = RoleTemplates::Registry.find("executive")
-    assert_equal "CEO", template.roles.first.title
-  end
-
-  test "hr template has HR Director as root" do
-    template = RoleTemplates::Registry.find("hr")
-    assert_equal "HR Director", template.roles.first.title
+  test "marketing template has correct role hierarchy" do
+    template = RoleTemplates::Registry.find("marketing")
+    titles = template.roles.map(&:title)
+    assert_includes titles, "CMO"
+    assert_includes titles, "Marketing Planner"
+    assert_includes titles, "Marketing Manager"
   end
 
   # --- reset! ---

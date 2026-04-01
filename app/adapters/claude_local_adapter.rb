@@ -142,6 +142,7 @@ class ClaudeLocalAdapter < BaseAdapter
     parts = [ "claude", "-p" ]
     parts << prompt.shellescape
     parts << "--output-format stream-json --verbose"
+    parts << "--dangerously-skip-permissions"
     parts << "--model #{config['model'].shellescape}" if config["model"].present?
     parts << "--max-turns #{config['max_turns'].to_i}" if config["max_turns"].present?
 
@@ -185,6 +186,7 @@ class ClaudeLocalAdapter < BaseAdapter
   private_class_method def self.compose_system_prompt(role, context)
     parts = []
 
+    parts << build_identity_prompt(role)
     parts << role.job_spec if role.job_spec.present?
 
     if context[:goal_title].present?
@@ -196,6 +198,43 @@ class ClaudeLocalAdapter < BaseAdapter
     end
 
     parts.join("\n\n")
+  end
+
+  private_class_method def self.build_identity_prompt(role)
+    company_name = role.company&.name || "Unknown Company"
+    manager = role.parent
+    children = role.children.active.order(:title)
+
+    manager_line = manager ? manager.title : "None (top-level role)"
+    reports_line = if children.any?
+      children.map(&:title).join(", ")
+    else
+      "None yet — you can hire subordinates using the hire_role tool"
+    end
+
+    <<~PROMPT.strip
+      ## Your Identity
+
+      You are **#{role.title}** at **#{company_name}**.
+      #{role.description.present? ? "\n#{role.description}\n" : ""}
+      ## Your Organization
+
+      Manager: #{manager_line}
+      Direct reports: #{reports_line}
+
+      ## How to Work
+
+      You have access to Director MCP tools for managing your organization:
+      - **list_my_tasks** / **get_task_details** — see your current work
+      - **create_task** — create tasks and assign them to your direct reports
+      - **update_task_status** — mark tasks as in_progress or completed
+      - **list_available_roles** — see who you can delegate to
+      - **hire_role** / **list_hirable_roles** — hire new subordinate roles
+      - **get_goal_details** / **create_goal** / **update_goal** — manage goals
+      - **add_message** — communicate on tasks
+
+      Use these Director MCP tools to accomplish your goals. Break goals into tasks, delegate to your reports, and track progress.
+    PROMPT
   end
 
   private_class_method def self.build_goal_prompt(context)

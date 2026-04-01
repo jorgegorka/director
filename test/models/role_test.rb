@@ -350,6 +350,29 @@ class RoleTest < ActiveSupport::TestCase
     assert_nil role.api_token
   end
 
+  test "generates api_token when existing role is updated to become an agent" do
+    role = Role.create!(title: "Vacant Agent", company: @company)
+    assert_nil role.api_token
+
+    role.update!(adapter_type: :http, adapter_config: { "url" => "https://example.com" })
+    assert role.api_token.present?, "API token should be generated on adapter update"
+    assert_equal 24, role.api_token.length
+  end
+
+  test "does not overwrite existing api_token on update" do
+    role = Role.create!(
+      title: "Existing Token",
+      company: @company,
+      adapter_type: :http,
+      adapter_config: { "url" => "https://example.com" }
+    )
+    original_token = role.api_token
+    assert original_token.present?
+
+    role.update!(adapter_config: { "url" => "https://new-url.com" })
+    assert_equal original_token, role.api_token
+  end
+
   # --- Budget ---
 
   test "valid with budget_cents" do

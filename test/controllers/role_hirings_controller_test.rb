@@ -7,7 +7,7 @@ class RoleHiringsControllerTest < ActionDispatch::IntegrationTest
     sign_in_as(@user)
     post company_switch_url(@company)
 
-    @cto = roles(:cto)
+    @cmo = roles(:cmo)
   end
 
   # ==========================================================================
@@ -16,28 +16,28 @@ class RoleHiringsControllerTest < ActionDispatch::IntegrationTest
 
   test "agent can hire subordinate role via API with auto_hire enabled" do
     sign_out
-    @cto.update!(auto_hire_enabled: true)
+    @cmo.update!(auto_hire_enabled: true)
 
     assert_difference "Role.count", 1 do
-      post hire_role_url(@cto, format: :json),
-           params: { template_role_title: "VP Engineering", budget_cents: 20000 },
-           headers: { "Authorization" => "Bearer #{@cto.api_token}" }
+      post hire_role_url(@cmo, format: :json),
+           params: { template_role_title: "Marketing Planner", budget_cents: 20000 },
+           headers: { "Authorization" => "Bearer #{@cmo.api_token}" }
     end
 
     assert_response :ok
     json = response.parsed_body
     assert_equal "ok", json["status"]
     assert json["role_id"].present?
-    assert_match "VP Engineering", json["message"]
+    assert_match "Marketing Planner", json["message"]
   end
 
   test "agent hire creates pending request when auto_hire disabled" do
     sign_out
 
     assert_difference "PendingHire.count", 1 do
-      post hire_role_url(@cto, format: :json),
-           params: { template_role_title: "VP Engineering", budget_cents: 20000 },
-           headers: { "Authorization" => "Bearer #{@cto.api_token}" }
+      post hire_role_url(@cmo, format: :json),
+           params: { template_role_title: "Marketing Planner", budget_cents: 20000 },
+           headers: { "Authorization" => "Bearer #{@cmo.api_token}" }
     end
 
     assert_response :ok
@@ -48,11 +48,11 @@ class RoleHiringsControllerTest < ActionDispatch::IntegrationTest
 
   test "agent cannot hire invalid role title via API" do
     sign_out
-    @cto.update!(auto_hire_enabled: true)
+    @cmo.update!(auto_hire_enabled: true)
 
-    post hire_role_url(@cto, format: :json),
+    post hire_role_url(@cmo, format: :json),
          params: { template_role_title: "CEO", budget_cents: 20000 },
-         headers: { "Authorization" => "Bearer #{@cto.api_token}" }
+         headers: { "Authorization" => "Bearer #{@cmo.api_token}" }
 
     assert_response :unprocessable_entity
     json = response.parsed_body
@@ -61,11 +61,11 @@ class RoleHiringsControllerTest < ActionDispatch::IntegrationTest
 
   test "agent cannot hire with excessive budget via API" do
     sign_out
-    @cto.update!(auto_hire_enabled: true)
+    @cmo.update!(auto_hire_enabled: true)
 
-    post hire_role_url(@cto, format: :json),
-         params: { template_role_title: "VP Engineering", budget_cents: 999_999 },
-         headers: { "Authorization" => "Bearer #{@cto.api_token}" }
+    post hire_role_url(@cmo, format: :json),
+         params: { template_role_title: "Marketing Planner", budget_cents: 999_999 },
+         headers: { "Authorization" => "Bearer #{@cmo.api_token}" }
 
     assert_response :unprocessable_entity
     json = response.parsed_body
@@ -75,8 +75,8 @@ class RoleHiringsControllerTest < ActionDispatch::IntegrationTest
   test "API returns 401 for invalid Bearer token" do
     sign_out
 
-    post hire_role_url(@cto, format: :json),
-         params: { template_role_title: "VP Engineering", budget_cents: 20000 },
+    post hire_role_url(@cmo, format: :json),
+         params: { template_role_title: "Marketing Planner", budget_cents: 20000 },
          headers: { "Authorization" => "Bearer invalid_token" }
 
     assert_response :unauthorized
@@ -86,8 +86,8 @@ class RoleHiringsControllerTest < ActionDispatch::IntegrationTest
     sign_out
     widgets_lead = roles(:widgets_lead)
 
-    post hire_role_url(@cto, format: :json),
-         params: { template_role_title: "VP Engineering", budget_cents: 20000 },
+    post hire_role_url(@cmo, format: :json),
+         params: { template_role_title: "Marketing Planner", budget_cents: 20000 },
          headers: { "Authorization" => "Bearer #{widgets_lead.api_token}" }
 
     assert_response :not_found
@@ -98,24 +98,24 @@ class RoleHiringsControllerTest < ActionDispatch::IntegrationTest
   # ==========================================================================
 
   test "human user can trigger hire for a role" do
-    @cto.update!(auto_hire_enabled: true)
+    @cmo.update!(auto_hire_enabled: true)
 
     assert_difference "Role.count", 1 do
-      post hire_role_url(@cto),
-           params: { template_role_title: "VP Engineering", budget_cents: 20000 }
+      post hire_role_url(@cmo),
+           params: { template_role_title: "Marketing Planner", budget_cents: 20000 }
     end
 
-    assert_redirected_to role_path(@cto)
-    assert_match "VP Engineering", flash[:notice]
+    assert_redirected_to role_path(@cmo)
+    assert_match "Marketing Planner", flash[:notice]
   end
 
   test "human user sees error for invalid hire" do
-    @cto.update!(auto_hire_enabled: true)
+    @cmo.update!(auto_hire_enabled: true)
 
-    post hire_role_url(@cto),
+    post hire_role_url(@cmo),
          params: { template_role_title: "Nonexistent", budget_cents: 20000 }
 
-    assert_redirected_to role_path(@cto)
+    assert_redirected_to role_path(@cmo)
     assert flash[:alert].present?
   end
 
@@ -125,47 +125,47 @@ class RoleHiringsControllerTest < ActionDispatch::IntegrationTest
 
   test "approving a role with pending hire creates the hired role" do
     pending_hire = PendingHire.create!(
-      role: @cto,
+      role: @cmo,
       company: @company,
-      template_role_title: "VP Engineering",
+      template_role_title: "Marketing Planner",
       budget_cents: 20000
     )
-    @cto.update!(status: :pending_approval, pause_reason: "Awaiting approval to hire VP Engineering")
+    @cmo.update!(status: :pending_approval, pause_reason: "Awaiting approval to hire Marketing Planner")
 
     assert_difference "Role.count", 1 do
-      post approve_role_url(@cto)
+      post approve_role_url(@cmo)
     end
 
-    assert_redirected_to role_path(@cto)
+    assert_redirected_to role_path(@cmo)
 
-    @cto.reload
-    assert @cto.idle?
+    @cmo.reload
+    assert @cmo.idle?
 
     pending_hire.reload
     assert pending_hire.approved?
 
-    new_role = @company.roles.find_by(title: "VP Engineering")
+    new_role = @company.roles.find_by(title: "Marketing Planner")
     assert_not_nil new_role
-    assert_equal @cto, new_role.parent
+    assert_equal @cmo, new_role.parent
   end
 
   test "rejecting a role with pending hire does not create role" do
     pending_hire = PendingHire.create!(
-      role: @cto,
+      role: @cmo,
       company: @company,
-      template_role_title: "VP Engineering",
+      template_role_title: "Marketing Planner",
       budget_cents: 20000
     )
-    @cto.update!(status: :pending_approval, pause_reason: "Awaiting approval to hire VP Engineering")
+    @cmo.update!(status: :pending_approval, pause_reason: "Awaiting approval to hire Marketing Planner")
 
     assert_no_difference "Role.count" do
-      post reject_role_url(@cto), params: { reason: "Not needed now" }
+      post reject_role_url(@cmo), params: { reason: "Not needed now" }
     end
 
-    assert_redirected_to role_path(@cto)
+    assert_redirected_to role_path(@cmo)
 
-    @cto.reload
-    assert @cto.paused?
+    @cmo.reload
+    assert @cmo.paused?
 
     pending_hire.reload
     assert pending_hire.rejected?

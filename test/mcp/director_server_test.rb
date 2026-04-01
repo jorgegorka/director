@@ -14,15 +14,17 @@ class DirectorServerTest < ActiveSupport::TestCase
     assert_equal DirectorServer::PROTOCOL_VERSION, response[:result][:protocolVersion]
   end
 
-  test "handle_tools_list returns all 9 tools" do
+  test "handle_tools_list returns all 11 tools" do
     response = @server.send(:handle, { "id" => 2, "method" => "tools/list" })
     tools = response[:result][:tools]
-    assert_equal 9, tools.size
+    assert_equal 11, tools.size
     tool_names = tools.map { |t| t[:name] }
     assert_includes tool_names, "create_task"
     assert_includes tool_names, "update_task_status"
     assert_includes tool_names, "list_my_tasks"
     assert_includes tool_names, "list_available_roles"
+    assert_includes tool_names, "hire_role"
+    assert_includes tool_names, "list_hirable_roles"
     assert_includes tool_names, "add_message"
     assert_includes tool_names, "get_task_details"
     assert_includes tool_names, "get_goal_details"

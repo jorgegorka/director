@@ -48,6 +48,20 @@ process_role:
   pause_reason: "Maintenance window"
   api_token: "test_token_proc_role_abc3"
 
+cmo:
+  title: CMO
+  description: Chief Marketing Officer
+  job_spec: "Define marketing strategy and brand positioning"
+  company: acme
+  parent: ceo
+  adapter_type: 2  # claude_local
+  adapter_config:
+    model: claude-sonnet-4-20250514
+  status: 0        # idle
+  api_token: "test_token_cmo_role_abc05"
+  budget_cents: 50000
+  budget_period_start: <%= Date.current.beginning_of_month.to_fs(:db) %>
+
 widgets_lead:
   title: Operations Lead
   description: Leads widget operations

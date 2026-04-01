@@ -39,7 +39,7 @@ class Role < ApplicationRecord
   validates :working_directory, format: { with: /\A\//, message: "must be an absolute path" }, allow_blank: true
 
   before_validation :inherit_parent_working_directory, on: :create
-  before_create :generate_api_token, if: :agent_configured?
+  before_save :ensure_api_token, if: :agent_configured?
   before_destroy :reparent_children
   after_save :assign_default_skills, if: :first_agent_configuration?
   after_commit :sync_heartbeat_schedule, if: :heartbeat_config_changed?
@@ -236,7 +236,7 @@ class Role < ApplicationRecord
     )
   end
 
-  def generate_api_token
+  def ensure_api_token
     self.api_token ||= self.class.generate_unique_api_token
   end
 

@@ -3,19 +3,16 @@ class RoleTemplatesController < ApplicationController
   before_action :set_template, only: [ :show, :apply ]
 
   def index
-    @templates = RoleTemplates::Registry.departments
+    @templates = RoleTemplates::Registry.all
   end
 
   def show
   end
 
   def apply
-    ceo = ensure_ceo_exists!
-
     result = RoleTemplates::Applicator.call(
       company: Current.company,
-      template_key: @template.key,
-      parent_role: ceo
+      template_key: @template.key
     )
 
     if result.success?
@@ -26,17 +23,6 @@ class RoleTemplatesController < ApplicationController
   end
 
   private
-
-  def ensure_ceo_exists!
-    Current.company.roles.find_by(title: RoleTemplates::BulkApplicator::CEO_TITLE) ||
-      begin
-        RoleTemplates::Applicator.call(
-          company: Current.company,
-          template_key: RoleTemplates::BulkApplicator::EXECUTIVE_TEMPLATE_KEY
-        )
-        Current.company.roles.find_by!(title: RoleTemplates::BulkApplicator::CEO_TITLE)
-      end
-  end
 
   def set_template
     @template = RoleTemplates::Registry.find(params[:id])

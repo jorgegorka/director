@@ -166,4 +166,46 @@ class Roles::WakingTest < ActiveSupport::TestCase
     assert_nil run.task
     assert_equal "goal_assigned", run.trigger_type
   end
+
+  # --- Goal context attachment on active run collision ---
+
+  test "attaches goal_id to active run when goal_assigned trigger finds existing run" do
+    # Create an active run without a goal
+    active_run = @cto.role_runs.create!(
+      company: @cto.company, status: :running, trigger_type: "scheduled"
+    )
+    assert_nil active_run.goal_id
+
+    goal = goals(:acme_mission)
+    assert_no_difference -> { RoleRun.count } do
+      Roles::Waking.call(
+        role: @cto,
+        trigger_type: :goal_assigned,
+        trigger_source: "Goal##{goal.id}",
+        context: { goal_id: goal.id, goal_title: goal.title }
+      )
+    end
+
+    active_run.reload
+    assert_equal goal.id, active_run.goal_id
+  end
+
+  test "does not overwrite existing goal_id on active run" do
+    original_goal = goals(:acme_mission)
+    active_run = @cto.role_runs.create!(
+      company: @cto.company, status: :running, trigger_type: "goal_assigned",
+      goal: original_goal
+    )
+
+    other_goal = goals(:acme_objective_one)
+    Roles::Waking.call(
+      role: @cto,
+      trigger_type: :goal_assigned,
+      trigger_source: "Goal##{other_goal.id}",
+      context: { goal_id: other_goal.id, goal_title: other_goal.title }
+    )
+
+    active_run.reload
+    assert_equal original_goal.id, active_run.goal_id
+  end
 end

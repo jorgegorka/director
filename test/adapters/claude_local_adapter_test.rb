@@ -322,12 +322,14 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     assert_includes prompt, "Your Skills"
   end
 
-  test "system prompt omits skills section when no skills and no job spec" do
+  test "system prompt always includes identity section" do
     @role.job_spec = nil
 
     prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @role, { skills: [] })
 
-    assert_equal "", prompt
+    assert_includes prompt, "Your Identity"
+    assert_includes prompt, @role.title
+    assert_includes prompt, @role.company.name
   end
 
   test "command includes --system-prompt-file flag when skills present" do
@@ -345,7 +347,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     assert @spawn_calls.last.include?("--system-prompt-file"), "command should include --system-prompt-file flag"
   end
 
-  test "command omits --system-prompt-file when no skills and no job spec" do
+  test "command always includes --system-prompt-file for identity context" do
     run = RoleRun.create!(
       role: @role, task: @task, company: @company,
       status: :queued, trigger_type: "task_assigned"
@@ -356,7 +358,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
 
     ClaudeLocalAdapter.execute(@role, @context)
 
-    assert_not @spawn_calls.last.include?("--system-prompt-file"), "command should not include --system-prompt-file"
+    assert @spawn_calls.last.include?("--system-prompt-file"), "command should always include --system-prompt-file for identity"
   end
 
   test "system prompt combines role description with skills" do
@@ -456,7 +458,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     assert_not_includes prompt, "Current Goal"
   end
 
-  test "goal section appears between job_spec and skills" do
+  test "section ordering: identity, job_spec, goal, skills" do
     @role.job_spec = "You are the CMO."
     context = {
       goal_title: "Improve SEO",
@@ -467,12 +469,29 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
 
     prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @role, context)
 
+    identity_pos = prompt.index("Your Identity")
     job_spec_pos = prompt.index("You are the CMO.")
     goal_pos = prompt.index("Current Goal")
     skills_pos = prompt.index("Your Skills")
 
+    assert identity_pos < job_spec_pos, "Identity should appear before job spec"
     assert job_spec_pos < goal_pos, "Job spec should appear before goal"
     assert goal_pos < skills_pos, "Goal should appear before skills"
+  end
+
+  test "identity prompt includes subordinates" do
+    prompt = ClaudeLocalAdapter.send(:compose_system_prompt, roles(:ceo), {})
+
+    assert_includes prompt, "Your Organization"
+    assert_includes prompt, "CTO"
+  end
+
+  test "identity prompt includes Director MCP tool catalog" do
+    prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @role, {})
+
+    assert_includes prompt, "Director MCP tools"
+    assert_includes prompt, "create_task"
+    assert_includes prompt, "hire_role"
   end
 
   test "display_name, description, config_schema unchanged" do

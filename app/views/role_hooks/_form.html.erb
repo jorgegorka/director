@@ -30,9 +30,8 @@
     <div class="form__field">
       <%= label_tag "role_hook_action_config_target_role_id", "Target role (for trigger_role hooks)" %>
       <%= select_tag "role_hook[action_config][target_role_id]",
-            options_from_collection_for_select(
-              Current.company.roles.where.not(id: @role.id).order(:title),
-              :id, :title,
+            options_for_select(
+              options_for_role_select(exclude: @role),
               role_hook.action_config&.dig("target_role_id")&.to_i
             ),
             include_blank: "Select role...",

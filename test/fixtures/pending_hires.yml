@@ -1,6 +1,6 @@
-pending_vp_hire:
-  role: cto
+pending_planner_hire:
+  role: cmo
   company: acme
-  template_role_title: "VP Engineering"
+  template_role_title: "Marketing Planner"
   budget_cents: 30000
   status: 0  # pending

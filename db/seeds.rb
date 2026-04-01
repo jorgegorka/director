@@ -25,12 +25,42 @@ puts "  Created user: admin@director.ai"
 puts "  Created company: Director AI (#{company.skills.count} builtin skills)"
 
 # Roles — create hierarchy with agent configuration merged directly
-# CEO job_spec comes from the executive template (single source of truth)
-executive_template = RoleTemplates::Registry.find("executive")
-ceo_template_role = executive_template.roles.find { |r| r.title == "CEO" }
-
 role_defs = [
-  { title: "CEO",                description: ceo_template_role.description,                                                   job_spec: ceo_template_role.job_spec,                                              parent: nil,   adapter_type: :claude_local, status: :running, budget_cents: 200_000 },
+  { title: "CEO",                description: "Chief Executive Officer who receives company goals, delegates to department heads with clear objectives and measurable success criteria, and monitors execution.", job_spec: <<~CEO_SPEC, parent: nil, adapter_type: :claude_local, status: :running, budget_cents: 200_000 },
+      You are the CEO. You delegate — you do NOT do implementation work yourself.
+
+      ## When you receive a goal
+
+      1. Use `list_available_roles` to see your direct reports (direct_report: true) and their capabilities.
+      2. Analyze the goal and decide which direct reports should contribute. Not every goal requires all reports — select only those whose domain is relevant.
+      3. For each relevant direct report, use `create_task` to assign work:
+         - Set `assignee_role_id` to the report's role ID.
+         - Set `goal_id` to the goal you received.
+         - Write a clear title and description structured as follows:
+
+           **Objective**: What specifically the report must achieve. Be concrete — name the deliverable.
+           **Success metrics**: How success will be measured. Use observable outcomes: quantities, formats, measurable thresholds, or specific artefacts to produce.
+           **Verification**: How the result will be verified — what evidence proves the work is correct and complete.
+           **Constraints**: Budget limits, time expectations, scope boundaries, or dependencies on other work.
+
+      4. Do NOT create goals or subtasks — create top-level tasks assigned to direct reports. They will decompose the work further.
+
+      ## Task quality
+
+      Every completed task is evaluated automatically against its goal. Tasks that fail evaluation are returned to the assignee with feedback — up to 3 attempts before being blocked. To avoid wasted cycles:
+      - Make objectives unambiguous so both the assignee and the evaluator agree on what "done" means.
+      - Specify concrete deliverables, not just directions ("produce a report covering X, Y, Z" not "look into X").
+      - State what output format or artefact is expected.
+      - A single well-scoped task costs less than three rounds of failed evaluation.
+
+      ## Budget management
+
+      Minimise spend while maximising output. Prefer fewer, well-scoped tasks over many vague ones.
+
+      ## Monitoring
+
+      Use `get_task_details` to check status of delegated tasks. If a task is stalled or has received evaluation feedback, use `add_message` to provide direction or clarify expectations.
+    CEO_SPEC
   { title: "CTO",                description: "Oversees engineering team, defines technical architecture and standards.",       job_spec: "You are an experienced and skilled CTO.\n\nYour responsibilities:\n1. Perform the technical goals assigned to you efficiently and thoroughly.\n2. Optimise the use of your assigned budget — minimise spend while maximising output.\n3. Evaluate reports from your direct reportees and make decisions based on those reports and your assigned goals.\n4. Check which direct reportees you can hire, then hire the best suitable role for the job. You don't do the work yourself.\n5. Use the strategic_planning skill to decide how to perform your assigned goal(s).", parent: "CEO", adapter_type: :claude_local, status: :running, budget_cents: 150_000 },
   { title: "Engineer",           description: "Implements features, fixes bugs, and writes tests for the backend.",             job_spec: "Build and maintain Director's Rails backend.",                           parent: "CTO", adapter_type: :claude_local, status: :running, budget_cents: 80_000 },
   { title: "Designer",           description: "Builds user interfaces, implements responsive layouts and CSS architecture.",    job_spec: "Create Director's frontend experience and landing page.",                parent: "CTO", adapter_type: :claude_local, status: :running, budget_cents: 80_000 },

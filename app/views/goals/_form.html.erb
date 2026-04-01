@@ -32,7 +32,7 @@
   <div class="form__field">
     <%= f.label :role_id, "Assigned Role" %>
     <%= f.select :role_id,
-          Current.company.roles.active.order(:title).map { |r| [r.title, r.id] },
+          options_for_role_select,
           { include_blank: "No role assigned" },
           { class: "form__select" } %>
     <p class="form__hint">The role responsible for this goal. Completed tasks under this goal will be evaluated against it.</p>

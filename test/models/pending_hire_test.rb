@@ -2,7 +2,7 @@ require "test_helper"
 
 class PendingHireTest < ActiveSupport::TestCase
   setup do
-    @pending_hire = pending_hires(:pending_vp_hire)
+    @pending_hire = pending_hires(:pending_planner_hire)
     @user = users(:one)
   end
 
@@ -39,7 +39,7 @@ class PendingHireTest < ActiveSupport::TestCase
   end
 
   test "default status is pending" do
-    hire = PendingHire.new(role: roles(:cto), company: companies(:acme), template_role_title: "QA", budget_cents: 10000)
+    hire = PendingHire.new(role: roles(:cmo), company: companies(:acme), template_role_title: "Marketing Planner", budget_cents: 10000)
     assert hire.pending?
   end
 

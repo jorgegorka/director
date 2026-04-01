@@ -56,7 +56,11 @@ module Roles
     end
 
     def dispatch_execution(event)
-      return if role.role_runs.active.exists?
+      active_run = role.role_runs.active.first
+      if active_run
+        attach_goal_to_active_run(active_run) if context[:goal_id].present?
+        return
+      end
 
       role_run = role.role_runs.create!(
         task_id: context[:task_id],
@@ -78,6 +82,11 @@ module Roles
         company_id: role.company_id,
         triggered_at: Time.current.iso8601
       }.merge(context)
+    end
+
+    def attach_goal_to_active_run(active_run)
+      return if active_run.goal_id.present?
+      active_run.update_column(:goal_id, context[:goal_id])
     end
 
     def update_role_heartbeat_timestamp

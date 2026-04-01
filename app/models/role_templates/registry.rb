@@ -6,16 +6,10 @@ module RoleTemplates
     Template = Data.define(:key, :name, :description, :roles)
     TemplateRole = Data.define(:title, :description, :job_spec, :parent, :skill_keys)
 
-    EXECUTIVE_KEY = "executive"
-
     class << self
       def all
         load_templates unless @templates
         @templates
-      end
-
-      def departments
-        all.reject { |t| t.key == EXECUTIVE_KEY }
       end
 
       def find(key)
