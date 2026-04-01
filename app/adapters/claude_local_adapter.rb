@@ -1,4 +1,6 @@
+require "open3"
 require "shellwords"
+require "tempfile"
 
 class ClaudeLocalAdapter < BaseAdapter
   # Error raised when the agent's budget is exhausted before execution starts.
@@ -38,26 +40,28 @@ class ClaudeLocalAdapter < BaseAdapter
 
     role_run     = RoleRun.find(context[:run_id])
     session_name = "#{SESSION_PREFIX}_#{context[:run_id]}"
-    claude_cmd   = build_claude_command(role, context)
+    working_dir  = resolve_working_directory(role.working_directory)
+    temp_files   = []
+    claude_cmd   = build_claude_command(role, context, temp_files)
     env          = env_flags
     # -e sets environment variables in the session; the last arg is the shell command to run.
     # claude_cmd already has its individual args shellescape-d, so just double-quote the whole string.
     # remain-on-exit keeps the tmux pane alive after the command exits,
     # so we can always capture output even if Claude finishes quickly.
     spawn_cmd    = "tmux new-session -d -s #{session_name.shellescape}"
-    spawn_cmd   += " -c #{role.working_directory.shellescape}" if role.working_directory.present?
+    spawn_cmd   += " -c #{working_dir.shellescape}" if working_dir.present?
     spawn_cmd   += " #{env}" if env.present?
     spawn_cmd   += " \"#{claude_cmd}\""
     spawn_cmd   += " \\; set-option remain-on-exit on"
 
-    unless spawn_session(spawn_cmd)
-      raise ExecutionError, "Failed to create tmux session: #{session_name}"
-    end
+    kill_session(session_name)
+    spawn_session(spawn_cmd)
 
     accumulated_lines = poll_session(session_name, role_run)
     parse_result(accumulated_lines)
   ensure
     cleanup_session(session_name) if defined?(session_name) && session_name
+    temp_files&.each { |f| f.close! rescue nil }
   end
 
   # ---------------------------------------------------------------------------
@@ -98,9 +102,14 @@ class ClaudeLocalAdapter < BaseAdapter
     flags.join(" ")
   end
 
-  # Spawns a tmux session with the given command string. Returns true on success.
+  # Spawns a tmux session with the given command string.
+  # Returns stdout on success, raises ExecutionError with stderr on failure.
   def self.spawn_session(cmd)
-    system(cmd)
+    stdout, stderr, status = Open3.capture3(cmd)
+    unless status.success?
+      raise ExecutionError, "tmux spawn failed: #{stderr.strip.presence || "unknown error (exit #{status.exitstatus})"}"
+    end
+    stdout
   end
 
   # Returns true if the named tmux session currently exists.
@@ -126,7 +135,7 @@ class ClaudeLocalAdapter < BaseAdapter
     system("tmux kill-session -t #{name.shellescape} 2>/dev/null")
   end
 
-  private_class_method def self.build_claude_command(role, context)
+  private_class_method def self.build_claude_command(role, context, temp_files)
     config = role.adapter_config
     prompt = context[:task_description] || context[:task_title] || "Execute assigned task"
 
@@ -137,7 +146,13 @@ class ClaudeLocalAdapter < BaseAdapter
     parts << "--max-turns #{config['max_turns'].to_i}" if config["max_turns"].present?
 
     system_prompt = compose_system_prompt(role, context)
-    parts << "--system-prompt #{system_prompt.shellescape}" if system_prompt.present?
+    if system_prompt.present?
+      file = Tempfile.new([ "director_sysprompt", ".txt" ])
+      file.write(system_prompt)
+      file.flush
+      temp_files << file
+      parts << "--system-prompt-file #{file.path.shellescape}"
+    end
 
     parts << "--allowedTools #{config['allowed_tools'].shellescape}" if config["allowed_tools"].present?
     parts << "--resume #{context[:resume_session_id].shellescape}" if context[:resume_session_id].present?  # CLAUDE-04
@@ -251,6 +266,18 @@ class ClaudeLocalAdapter < BaseAdapter
     end
 
     { exit_code: exit_code, session_id: session_id, cost_cents: cost_cents, error_message: error_message }
+  end
+
+  private_class_method def self.resolve_working_directory(path)
+    return nil if path.blank?
+
+    resolved = File.realpath(path)
+    unless File.directory?(resolved)
+      raise ExecutionError, "Working directory is not a directory: #{path} (resolved to #{resolved})"
+    end
+    resolved
+  rescue Errno::ENOENT
+    raise ExecutionError, "Working directory does not exist: #{path}"
   end
 
   private_class_method def self.cleanup_session(name)

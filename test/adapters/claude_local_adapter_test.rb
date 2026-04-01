@@ -250,7 +250,9 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
   end
 
   test "tmux session failure raises ExecutionError" do
-    ClaudeLocalAdapter.define_singleton_method(:spawn_session) { |_cmd| false }
+    ClaudeLocalAdapter.define_singleton_method(:spawn_session) do |_cmd|
+      raise ClaudeLocalAdapter::ExecutionError, "tmux spawn failed: session creation error"
+    end
 
     run = RoleRun.create!(
       role: @role, task: @task, company: @company,
@@ -262,7 +264,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
       ClaudeLocalAdapter.execute(@role, @context)
     end
 
-    assert_match(/failed to create tmux session/i, error.message)
+    assert_match(/tmux spawn failed/i, error.message)
   end
 
   test "missing ANTHROPIC_API_KEY omits it from env_flags but keeps HOME and PATH" do
@@ -328,7 +330,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     assert_equal "", prompt
   end
 
-  test "command includes --system-prompt flag when skills present" do
+  test "command includes --system-prompt-file flag when skills present" do
     run = RoleRun.create!(
       role: @role, task: @task, company: @company,
       status: :queued, trigger_type: "task_assigned"
@@ -340,10 +342,10 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
 
     ClaudeLocalAdapter.execute(@role, @context)
 
-    assert @spawn_calls.last.include?("--system-prompt"), "command should include --system-prompt flag"
+    assert @spawn_calls.last.include?("--system-prompt-file"), "command should include --system-prompt-file flag"
   end
 
-  test "command omits --system-prompt when no skills and no job spec" do
+  test "command omits --system-prompt-file when no skills and no job spec" do
     run = RoleRun.create!(
       role: @role, task: @task, company: @company,
       status: :queued, trigger_type: "task_assigned"
@@ -354,7 +356,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
 
     ClaudeLocalAdapter.execute(@role, @context)
 
-    assert_not @spawn_calls.last.include?("--system-prompt"), "command should not include --system-prompt"
+    assert_not @spawn_calls.last.include?("--system-prompt-file"), "command should not include --system-prompt-file"
   end
 
   test "system prompt combines role description with skills" do
@@ -371,7 +373,8 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
   end
 
   test "tmux command includes -c flag when working_directory present" do
-    @role.working_directory = "/projects/website"
+    dir = Dir.mktmpdir
+    @role.working_directory = dir
 
     run = RoleRun.create!(
       role: @role, task: @task, company: @company,
@@ -380,8 +383,11 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     @context[:run_id] = run.id
     ClaudeLocalAdapter.execute(@role, @context)
 
-    assert @spawn_calls.any? { |cmd| cmd.include?("-c /projects/website") },
-      "spawn command should include -c with working directory"
+    resolved = File.realpath(dir)
+    assert @spawn_calls.any? { |cmd| cmd.include?("-c #{resolved}") },
+      "spawn command should include -c with resolved working directory"
+  ensure
+    FileUtils.rm_rf(dir) if dir
   end
 
   test "tmux command omits -c flag when working_directory nil" do
