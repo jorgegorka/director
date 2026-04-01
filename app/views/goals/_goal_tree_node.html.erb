@@ -1,4 +1,4 @@
-<% percentage = goal.progress_percentage %>
+<% percentage = goal.completion_percentage %>
 <div class="goal-tree__node <%= "goal-tree__node--parent" if goal.children.any? %> <%= "goal-tree__node--child" if depth > 0 %>" style="--depth: <%= depth %>">
   <div class="goal-tree__content">
     <div class="goal-tree__info">

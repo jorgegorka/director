@@ -61,7 +61,7 @@ module Tools
           id: task.goal.id,
           title: task.goal.title,
           description: task.goal.description,
-          progress_percentage: task.goal.progress_percentage
+          completion_percentage: task.goal.completion_percentage
         }
       end
 

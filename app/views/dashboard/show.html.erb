@@ -20,7 +20,7 @@
         <%= link_to @mission.title, goal_path(@mission), class: "dashboard-mission__title" %>
       </div>
       <div class="dashboard-mission__progress">
-        <% percentage = @mission.progress_percentage %>
+        <% percentage = @mission.completion_percentage %>
         <%= render "shared/progress_bar", percentage: percentage %>
         <span class="dashboard-mission__pct"><%= percentage %>%</span>
       </div>

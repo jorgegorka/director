@@ -44,12 +44,15 @@ class ExecuteRoleJob < ApplicationJob
       ctx[:task_id] = task.id
       ctx[:task_title] = task.title
       ctx[:task_description] = task.description
+      goal = task.goal
+    end
 
-      if task.goal
-        ctx[:goal_id] = task.goal.id
-        ctx[:goal_title] = task.goal.title
-        ctx[:goal_description] = task.goal.description
-      end
+    goal ||= role_run.goal
+
+    if goal
+      ctx[:goal_id] = goal.id
+      ctx[:goal_title] = goal.title
+      ctx[:goal_description] = goal.description
     end
 
     session_id = task ? role.latest_session_id_for(task) : role.latest_session_id

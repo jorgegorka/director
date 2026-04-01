@@ -24,6 +24,7 @@ class Task < ApplicationRecord
 
   validates :title, presence: true
   validates :cost_cents, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, allow_nil: true
+  validates :completion_percentage, numericality: { only_integer: true, in: 0..100 }
   validate :assignee_belongs_to_same_company
   validate :creator_belongs_to_same_company
   validate :parent_task_belongs_to_same_company
@@ -42,10 +43,21 @@ class Task < ApplicationRecord
   after_commit :enqueue_hooks_for_transition, on: [ :create, :update ]
   after_commit :enqueue_validation_feedback, on: [ :create, :update ]
   after_commit :enqueue_goal_evaluation, on: [ :create, :update ]
+  after_commit :recalculate_goal_completion, on: [ :create, :update, :destroy ]
+  after_commit :recalculate_parent_task_completion, on: [ :create, :update, :destroy ]
 
   def cost_in_dollars
     return nil unless cost_cents
     cost_cents / 100.0
+  end
+
+  def recalculate_completion!
+    total, done = subtasks.pick(
+      Arel.sql("COUNT(*)"),
+      Arel.sql("COUNT(CASE WHEN status = #{Task.statuses[:completed]} THEN 1 END)")
+    )
+    pct = total > 0 ? ((done.to_f / total) * 100).round : 0
+    update_column(:completion_percentage, pct) unless completion_percentage == pct
   end
 
   private
@@ -156,5 +168,23 @@ class Task < ApplicationRecord
       trigger_source: "Task##{id}",
       context: { task_id: id, task_title: title, assignee_role_title: assignee&.title }
     )
+  end
+
+  def recalculate_goal_completion
+    return unless saved_change_to_status? || saved_change_to_goal_id? || previously_new_record? || destroyed?
+
+    affected_goal_id = goal_id || goal_id_before_last_save
+    return unless affected_goal_id
+
+    RecalculateGoalCompletionJob.perform_later(affected_goal_id)
+  end
+
+  def recalculate_parent_task_completion
+    return unless saved_change_to_status? || saved_change_to_parent_task_id? || previously_new_record? || destroyed?
+
+    affected_id = parent_task_id || parent_task_id_before_last_save
+    return unless affected_id
+
+    RecalculateTaskCompletionJob.perform_later(affected_id)
   end
 end

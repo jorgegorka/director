@@ -109,7 +109,9 @@ class DirectorServer
       Tools::ListAvailableRoles,
       Tools::AddMessage,
       Tools::GetTaskDetails,
-      Tools::GetGoalDetails
+      Tools::GetGoalDetails,
+      Tools::CreateGoal,
+      Tools::UpdateGoal
     ]
   end
 end

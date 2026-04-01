@@ -26,7 +26,7 @@ module Tools
       end
 
       children = goal.children.ordered.map do |child|
-        { id: child.id, title: child.title, progress_percentage: child.progress_percentage }
+        { id: child.id, title: child.title, completion_percentage: child.completion_percentage }
       end
 
       tasks = goal.tasks.includes(:assignee, :creator).map do |task|
@@ -38,7 +38,7 @@ module Tools
         title: goal.title,
         description: goal.description,
         role_id: goal.role_id,
-        progress_percentage: goal.progress_percentage,
+        completion_percentage: goal.completion_percentage,
         is_mission: goal.mission?,
         ancestry: ancestry,
         children: children,

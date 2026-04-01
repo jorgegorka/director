@@ -137,7 +137,7 @@ class ClaudeLocalAdapter < BaseAdapter
 
   private_class_method def self.build_claude_command(role, context, temp_files)
     config = role.adapter_config
-    prompt = context[:task_description] || context[:task_title] || "Execute assigned task"
+    prompt = context[:task_description] || context[:task_title] || context[:goal_description] || context[:goal_title] || "Execute assigned task"
 
     parts = [ "claude", "-p" ]
     parts << prompt.shellescape

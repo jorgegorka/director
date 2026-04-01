@@ -60,6 +60,7 @@ module Roles
 
       role_run = role.role_runs.create!(
         task_id: context[:task_id],
+        goal_id: context[:goal_id],
         company_id: role.company_id,
         status: :queued,
         trigger_type: trigger_type

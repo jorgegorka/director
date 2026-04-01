@@ -390,4 +390,39 @@ class TaskTest < ActiveSupport::TestCase
       task.update!(status: :in_progress)
     end
   end
+
+  # --- Completion percentage ---
+
+  test "recalculate_completion! computes from subtasks" do
+    parent = Task.create!(title: "Parent", company: @company, creator: @ceo, status: :open)
+    Task.create!(title: "Sub 1", company: @company, creator: @ceo, parent_task: parent, status: :completed)
+    Task.create!(title: "Sub 2", company: @company, creator: @ceo, parent_task: parent, status: :open)
+
+    parent.recalculate_completion!
+    assert_equal 50, parent.completion_percentage
+  end
+
+  test "recalculate_completion! returns 0 when no subtasks" do
+    parent = Task.create!(title: "No subs", company: @company, creator: @ceo, status: :open)
+    parent.recalculate_completion!
+    assert_equal 0, parent.completion_percentage
+  end
+
+  test "recalculate_completion! returns 100 when all subtasks completed" do
+    parent = Task.create!(title: "All done", company: @company, creator: @ceo, status: :open)
+    Task.create!(title: "Sub 1", company: @company, creator: @ceo, parent_task: parent, status: :completed)
+    Task.create!(title: "Sub 2", company: @company, creator: @ceo, parent_task: parent, status: :completed)
+
+    parent.recalculate_completion!
+    assert_equal 100, parent.completion_percentage
+  end
+
+  test "completing subtask enqueues RecalculateTaskCompletionJob for parent" do
+    parent = Task.create!(title: "Parent", company: @company, creator: @ceo, status: :open)
+    sub = Task.create!(title: "Sub", company: @company, creator: @ceo, parent_task: parent, status: :open)
+
+    assert_enqueued_with(job: RecalculateTaskCompletionJob, args: [parent.id]) do
+      sub.update!(status: :completed)
+    end
+  end
 end

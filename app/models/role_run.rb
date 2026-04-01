@@ -12,6 +12,7 @@ class RoleRun < ApplicationRecord
 
   belongs_to :role
   belongs_to :task, optional: true
+  belongs_to :goal, optional: true
 
   enum :status, { queued: 0, running: 1, completed: 2, failed: 3, cancelled: 4 }
 

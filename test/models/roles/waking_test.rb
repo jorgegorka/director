@@ -150,4 +150,20 @@ class Roles::WakingTest < ActiveSupport::TestCase
     run = RoleRun.last
     assert_equal tasks(:fix_login_bug), run.task
   end
+
+  test "creates RoleRun with goal_id for goal_assigned triggers" do
+    goal = goals(:acme_mission)
+    Roles::Waking.call(
+      role: @cto,
+      trigger_type: :goal_assigned,
+      trigger_source: "Goal##{goal.id}",
+      context: { goal_id: goal.id, goal_title: goal.title, goal_description: goal.description }
+    )
+
+    run = RoleRun.last
+    assert run.queued?
+    assert_equal goal, run.goal
+    assert_nil run.task
+    assert_equal "goal_assigned", run.trigger_type
+  end
 end

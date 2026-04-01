@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_01_140843) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_01_161432) do
   create_table "approval_gates", force: :cascade do |t|
     t.string "action_type", null: false
     t.datetime "created_at", null: false
@@ -116,6 +116,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_01_140843) do
 
   create_table "goals", force: :cascade do |t|
     t.bigint "company_id", null: false
+    t.integer "completion_percentage", default: 0, null: false
     t.datetime "created_at", null: false
     t.text "description"
     t.bigint "parent_id"
@@ -277,6 +278,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_01_140843) do
     t.datetime "created_at", null: false
     t.text "error_message"
     t.integer "exit_code"
+    t.integer "goal_id"
     t.text "log_output"
     t.integer "role_id", null: false
     t.datetime "started_at"
@@ -287,6 +289,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_01_140843) do
     t.index ["claude_session_id"], name: "index_role_runs_on_claude_session_id"
     t.index ["company_id", "created_at"], name: "index_role_runs_on_company_id_and_created_at"
     t.index ["company_id"], name: "index_role_runs_on_company_id"
+    t.index ["goal_id"], name: "index_role_runs_on_goal_id"
     t.index ["role_id", "created_at"], name: "index_role_runs_on_role_id_and_created_at"
     t.index ["role_id", "status"], name: "index_role_runs_on_role_id_and_status"
     t.index ["role_id"], name: "index_role_runs_on_role_id"
@@ -379,6 +382,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_01_140843) do
     t.bigint "assignee_id"
     t.bigint "company_id", null: false
     t.datetime "completed_at"
+    t.integer "completion_percentage", default: 0, null: false
     t.integer "cost_cents"
     t.datetime "created_at", null: false
     t.bigint "creator_id"

@@ -11,6 +11,7 @@ class Goal < ApplicationRecord
 
   validates :title, presence: true,
                     uniqueness: { scope: [ :company_id, :parent_id ], message: "already exists under this parent" }
+  validates :completion_percentage, numericality: { only_integer: true, in: 0..100 }
   validate :role_belongs_to_same_company
 
   scope :ordered, -> { order(:position, :title) }
@@ -25,17 +26,16 @@ class Goal < ApplicationRecord
     (ancestors.reverse << self)
   end
 
-  def progress
-    all_task_ids = subtree_task_ids
-    return 0.0 if all_task_ids.empty?
+  def recalculate_completion!
+    goal_ids = [ id ] + descendant_ids
+    counts = Task.where(goal_id: goal_ids).pick(
+      Arel.sql("COUNT(*)"),
+      Arel.sql("COUNT(CASE WHEN status = #{Task.statuses[:completed]} THEN 1 END)")
+    )
+    total, completed = counts
+    percentage = total > 0 ? ((completed.to_f / total) * 100).round : 0
 
-    total = all_task_ids.size
-    completed = Task.where(id: all_task_ids, status: :completed).count
-    completed.to_f / total
-  end
-
-  def progress_percentage
-    (progress * 100).round
+    update_column(:completion_percentage, percentage) unless completion_percentage == percentage
   end
 
   private
@@ -44,11 +44,6 @@ class Goal < ApplicationRecord
     if role.present? && role.company_id != company_id
       errors.add(:role, "must belong to the same company")
     end
-  end
-
-  def subtree_task_ids
-    goal_ids = [ id ] + descendant_ids
-    Task.where(goal_id: goal_ids).pluck(:id)
   end
 
   def role_just_assigned?

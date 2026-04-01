@@ -1,6 +1,8 @@
 require "test_helper"
 
 class GoalTest < ActiveSupport::TestCase
+  include ActiveJob::TestHelper
+
   setup do
     @company = companies(:acme)
     @other_company = companies(:widgets)
@@ -166,39 +168,46 @@ class GoalTest < ActiveSupport::TestCase
     assert_equal [ @mission, @objective_one, @sub_objective ], chain
   end
 
-  # --- Progress calculation ---
-  # Fixture setup:
-  #   acme_objective_one: design_homepage (in_progress) + fix_login_bug (open) = 0 completed / 2 total
-  #   acme_sub_objective: completed_task (completed) + write_tests (open) = 1 completed / 2 total
-  #   acme_objective_two: no tasks
-  #   acme_objective_one subtree: 4 tasks total, 1 completed = 0.25
-  #   acme_mission subtree: 4 tasks total, 1 completed = 0.25
+  # --- Completion percentage recalculation ---
 
-  test "progress of leaf goal with no tasks returns 0.0" do
-    assert_equal 0.0, @objective_two.progress
+  test "recalculate_completion! with no tasks returns 0" do
+    @objective_two.recalculate_completion!
+    assert_equal 0, @objective_two.reload.completion_percentage
   end
 
-  test "progress of leaf goal with mixed tasks" do
-    # acme_sub_objective: 1 completed + 1 open = 0.5
-    assert_equal 0.5, @sub_objective.progress
+  test "recalculate_completion! computes from task statuses" do
+    @sub_objective.recalculate_completion!
+    # acme_sub_objective: 1 completed + 1 open = 50%
+    assert_equal 50, @sub_objective.reload.completion_percentage
   end
 
-  test "progress rolls up through children" do
-    # acme_objective_one: 3 direct tasks (1 completed) + sub_objective 2 tasks (1 completed) = 2/5 = 0.4
-    assert_equal 0.4, @objective_one.progress
+  test "recalculate_completion! rolls up through children" do
+    @objective_one.recalculate_completion!
+    # acme_objective_one subtree: 5 tasks, 2 completed = 40%
+    assert_equal 40, @objective_one.reload.completion_percentage
   end
 
-  test "progress of mission rolls up entire tree" do
-    # acme_mission subtree: 5 goal-linked tasks, 2 completed = 0.4
-    assert_equal 0.4, @mission.progress
+  test "creating a task enqueues recalculation job" do
+    assert_enqueued_with(job: RecalculateGoalCompletionJob, args: [@objective_two.id]) do
+      Task.create!(title: "New task", company: @company, creator: roles(:ceo), goal: @objective_two)
+    end
   end
 
-  test "progress_percentage returns integer 0-100" do
-    assert_equal 50, @sub_objective.progress_percentage
+  test "updating a task enqueues recalculation job" do
+    task = tasks(:write_tests)  # under acme_sub_objective
+    assert_enqueued_with(job: RecalculateGoalCompletionJob, args: [@sub_objective.id]) do
+      task.update!(status: :completed)
+    end
   end
 
-  test "progress_percentage rounds correctly" do
-    assert_equal 40, @objective_one.progress_percentage
+  test "recalculation job updates goal and ancestor completion" do
+    RecalculateGoalCompletionJob.perform_now(@sub_objective.id)
+    # acme_sub_objective: 1 completed + 1 open = 50%
+    assert_equal 50, @sub_objective.reload.completion_percentage
+    # objective_one subtree: 5 tasks, 2 completed = 40%
+    assert_equal 40, @objective_one.reload.completion_percentage
+    # mission: same subtree = 40%
+    assert_equal 40, @mission.reload.completion_percentage
   end
 
   # --- Task-Goal association ---
