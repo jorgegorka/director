@@ -3,7 +3,7 @@ class RoleTemplatesController < ApplicationController
   before_action :set_template, only: [ :show, :apply ]
 
   def index
-    @templates = RoleTemplates::Registry.all
+    @templates = RoleTemplates::Registry.departments
   end
 
   def show

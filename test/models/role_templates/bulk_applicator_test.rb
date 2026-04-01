@@ -13,8 +13,7 @@ class RoleTemplates::BulkApplicatorTest < ActiveSupport::TestCase
   test "creates CEO plus all department roles on empty company" do
     company = companies(:widgets)
     expected_template_roles = RoleTemplates::Registry.all.sum { |t| t.roles.size }
-    # CEO (1) + all template roles
-    assert_difference "company.roles.count", 1 + expected_template_roles do
+    assert_difference "company.roles.count", expected_template_roles do
       RoleTemplates::BulkApplicator.call(company: company)
     end
   end
@@ -22,11 +21,10 @@ class RoleTemplates::BulkApplicatorTest < ActiveSupport::TestCase
   test "result created count matches actual new roles created" do
     company = companies(:widgets)
     expected_template_roles = RoleTemplates::Registry.all.sum { |t| t.roles.size }
-    expected_created = 1 + expected_template_roles # CEO + all template roles
 
     result = RoleTemplates::BulkApplicator.call(company: company)
 
-    assert_equal expected_created, result.created
+    assert_equal expected_template_roles, result.created
   end
 
   test "all five department roots are children of CEO" do
@@ -129,7 +127,7 @@ class RoleTemplates::BulkApplicatorTest < ActiveSupport::TestCase
     result = RoleTemplates::BulkApplicator.call(company: company)
 
     expected_template_roles = RoleTemplates::Registry.all.sum { |t| t.roles.size }
-    assert_equal 1 + expected_template_roles, result.created
+    assert_equal expected_template_roles, result.created
   end
 
   test "result aggregates skipped count from all templates" do
@@ -138,7 +136,7 @@ class RoleTemplates::BulkApplicatorTest < ActiveSupport::TestCase
 
     result = RoleTemplates::BulkApplicator.call(company: company)
 
-    expected_total = 1 + RoleTemplates::Registry.all.sum { |t| t.roles.size }
+    expected_total = RoleTemplates::Registry.all.sum { |t| t.roles.size }
     assert_equal expected_total, result.skipped
   end
 

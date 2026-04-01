@@ -7,9 +7,9 @@ class RoleTemplates::RegistryTest < ActiveSupport::TestCase
 
   # --- .all ---
 
-  test "all returns five templates" do
+  test "all returns six templates" do
     templates = RoleTemplates::Registry.all
-    assert_equal 5, templates.size
+    assert_equal 6, templates.size
   end
 
   test "all returns frozen array" do
@@ -19,7 +19,7 @@ class RoleTemplates::RegistryTest < ActiveSupport::TestCase
 
   test "all includes every expected template" do
     keys = RoleTemplates::Registry.all.map(&:key)
-    %w[engineering marketing operations finance hr].each do |expected|
+    %w[executive engineering marketing operations finance hr].each do |expected|
       assert_includes keys, expected
     end
   end
@@ -54,7 +54,8 @@ class RoleTemplates::RegistryTest < ActiveSupport::TestCase
 
   test "keys returns all template keys" do
     keys = RoleTemplates::Registry.keys
-    assert_equal 5, keys.size
+    assert_equal 6, keys.size
+    assert_includes keys, "executive"
     assert_includes keys, "engineering"
     assert_includes keys, "marketing"
     assert_includes keys, "operations"
@@ -80,11 +81,11 @@ class RoleTemplates::RegistryTest < ActiveSupport::TestCase
 
   # --- Template roles structure ---
 
-  test "each template has 4 to 10 roles" do
+  test "each template has 1 to 10 roles" do
     RoleTemplates::Registry.all.each do |template|
       count = template.roles.size
-      assert count >= 4 && count <= 10,
-        "#{template.key} has #{count} roles, expected 4-10"
+      assert count >= 1 && count <= 10,
+        "#{template.key} has #{count} roles, expected 1-10"
     end
   end
 
@@ -207,6 +208,11 @@ class RoleTemplates::RegistryTest < ActiveSupport::TestCase
   test "finance template has CFO as root" do
     template = RoleTemplates::Registry.find("finance")
     assert_equal "CFO", template.roles.first.title
+  end
+
+  test "executive template has CEO as root" do
+    template = RoleTemplates::Registry.find("executive")
+    assert_equal "CEO", template.roles.first.title
   end
 
   test "hr template has HR Director as root" do

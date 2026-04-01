@@ -6,8 +6,9 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
     @role = roles(:cto)
     @task = tasks(:design_homepage)
     @company = companies(:acme)
-    # Prevent real tmux sessions — specific adapter tests override as needed
-    ClaudeLocalAdapter.define_singleton_method(:spawn_session) { |_cmd| false }
+    # Prevent real tmux sessions — specific adapter tests override as needed.
+    # Raise like the real method does on failure so the job's rescue marks the run as failed.
+    ClaudeLocalAdapter.define_singleton_method(:spawn_session) { |_cmd| raise ClaudeLocalAdapter::ExecutionError, "tmux spawn failed: stub" }
   end
 
   teardown do
@@ -278,7 +279,7 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
     pane_output = '{"type":"assistant","message":{"content":[{"type":"text","text":"Hi"}]}}' + "\n" + result_event
 
     ClaudeLocalAdapter.define_singleton_method(:spawn_session) { |_cmd| true }
-    ClaudeLocalAdapter.define_singleton_method(:session_exists?) do |_name|
+    ClaudeLocalAdapter.define_singleton_method(:pane_alive?) do |_name|
       poll_count += 1
       poll_count <= 1
     end
@@ -300,7 +301,7 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
     assert @role.idle?, "Role should be idle, got #{@role.status}"
   ensure
     ENV.delete("ANTHROPIC_API_KEY")
-    %i[poll_sleep spawn_session session_exists? capture_pane kill_session].each do |m|
+    %i[poll_sleep spawn_session pane_alive? capture_pane kill_session].each do |m|
       if ClaudeLocalAdapter.singleton_class.method_defined?(m, false)
         ClaudeLocalAdapter.singleton_class.remove_method(m)
       end

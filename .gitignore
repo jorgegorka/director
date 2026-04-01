@@ -51,6 +51,7 @@ REVISION
 
 # Ignore certs
 /certs/
+/docs/*
 
 # Ignore master key for decrypting credentials and more.
 .env

@@ -1,11 +1,7 @@
 module RoleTemplates
   class BulkApplicator
+    EXECUTIVE_TEMPLATE_KEY = "executive"
     CEO_TITLE = "CEO"
-    CEO_DESCRIPTION = "Chief Executive Officer who sets company vision, approves budgets, and drives strategic direction."
-    CEO_JOB_SPEC = "You are an experienced and skilled CEO. Your responsibilities:\n" \
-      "1. Perform the goals assigned to you efficiently and thoroughly.\n" \
-      "2. Optimise the use of your assigned budget — minimise spend while maximising output.\n" \
-      "3. Evaluate reports from your direct reportees and make decisions based on those reports and your assigned goals."
 
     attr_reader :company
 
@@ -18,13 +14,19 @@ module RoleTemplates
     end
 
     def call
-      ceo = find_or_create_ceo
-      total_created = ceo_was_created? ? 1 : 0
-      total_skipped = ceo_was_created? ? 0 : 1
-      total_errors = []
-      all_created_roles = ceo_was_created? ? [ ceo ] : []
+      executive_result = RoleTemplates::Applicator.call(
+        company: company,
+        template_key: EXECUTIVE_TEMPLATE_KEY
+      )
 
-      RoleTemplates::Registry.keys.each do |key|
+      ceo = company.roles.find_by!(title: CEO_TITLE)
+
+      total_created = executive_result.created
+      total_skipped = executive_result.skipped
+      total_errors = executive_result.errors.dup
+      all_created_roles = executive_result.created_roles.dup
+
+      department_keys.each do |key|
         result = RoleTemplates::Applicator.call(
           company: company,
           template_key: key,
@@ -46,24 +48,8 @@ module RoleTemplates
 
     private
 
-    def find_or_create_ceo
-      existing = company.roles.find_by(title: CEO_TITLE)
-      if existing
-        @ceo_was_created = false
-        existing
-      else
-        role = company.roles.create!(
-          title: CEO_TITLE,
-          description: CEO_DESCRIPTION,
-          job_spec: CEO_JOB_SPEC
-        )
-        @ceo_was_created = true
-        role
-      end
-    end
-
-    def ceo_was_created?
-      @ceo_was_created
+    def department_keys
+      RoleTemplates::Registry.keys - [ EXECUTIVE_TEMPLATE_KEY ]
     end
   end
 end
