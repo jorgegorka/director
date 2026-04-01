@@ -13,7 +13,7 @@
       <% end %>
     </span>
     <% if task.creator.present? %>
-      <span class="task-card__creator">by <%= task.creator.email_address %></span>
+      <span class="task-card__creator">by <%= task.creator.title %></span>
     <% end %>
     <% if task.due_at.present? %>
       <span class="task-card__due">Due <%= task.due_at.strftime("%b %d, %Y") %></span>

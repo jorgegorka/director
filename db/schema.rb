@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_31_091916) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_01_140843) do
   create_table "approval_gates", force: :cascade do |t|
     t.string "action_type", null: false
     t.datetime "created_at", null: false
@@ -387,6 +387,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_31_091916) do
     t.bigint "goal_id"
     t.bigint "parent_task_id"
     t.integer "priority", default: 1, null: false
+    t.datetime "reviewed_at"
+    t.integer "reviewed_by_id"
     t.integer "status", default: 0, null: false
     t.string "title", null: false
     t.datetime "updated_at", null: false
@@ -397,6 +399,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_31_091916) do
     t.index ["creator_id"], name: "index_tasks_on_creator_id"
     t.index ["goal_id"], name: "index_tasks_on_goal_id"
     t.index ["parent_task_id"], name: "index_tasks_on_parent_task_id"
+    t.index ["reviewed_by_id"], name: "index_tasks_on_reviewed_by_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -455,6 +458,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_31_091916) do
   add_foreign_key "tasks", "companies"
   add_foreign_key "tasks", "goals"
   add_foreign_key "tasks", "roles", column: "assignee_id"
+  add_foreign_key "tasks", "roles", column: "creator_id"
+  add_foreign_key "tasks", "roles", column: "reviewed_by_id"
   add_foreign_key "tasks", "tasks", column: "parent_task_id"
-  add_foreign_key "tasks", "users", column: "creator_id"
 end

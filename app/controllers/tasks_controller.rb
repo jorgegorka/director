@@ -25,7 +25,6 @@ class TasksController < ApplicationController
 
   def create
     @task = Current.company.tasks.new(task_params)
-    @task.creator = Current.user
 
     if @task.save
       @task.record_audit_event!(
@@ -90,6 +89,6 @@ class TasksController < ApplicationController
   end
 
   def task_params
-    params.require(:task).permit(:title, :description, :status, :priority, :assignee_id, :due_at, :parent_task_id, :goal_id)
+    params.require(:task).permit(:title, :description, :status, :priority, :assignee_id, :creator_id, :due_at, :parent_task_id, :goal_id)
   end
 end

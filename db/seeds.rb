@@ -215,9 +215,9 @@ puts "  Created goal tree: 1 mission, #{objectives.size} objectives, #{sub_objec
 tasks = {}
 
 # Backdates completed tasks for a realistic timeline
-def create_task!(company, user, attrs)
+def create_task!(company, creator_role, attrs)
   completed_ago = attrs.delete(:completed_ago)
-  task = Task.create!(company: company, creator: user, **attrs)
+  task = Task.create!(company: company, creator: creator_role, **attrs)
   if task.completed? && completed_ago
     completed_at = completed_ago.ago
     task.update_columns(completed_at: completed_at, created_at: completed_at - 2.days)
@@ -227,7 +227,7 @@ end
 
 # --- Marketing Tasks ---
 
-tasks["design_wireframes"] = create_task!(company, user,
+tasks["design_wireframes"] = create_task!(company, roles["CEO"],
   assignee: roles["Page Specialist"],
   goal: sub_objectives["landing_page"],
   title: "Design landing page wireframes",
@@ -235,7 +235,7 @@ tasks["design_wireframes"] = create_task!(company, user,
   status: :completed, priority: :high, cost_cents: 4500, completed_ago: 10.days
 )
 
-tasks["implement_landing"] = create_task!(company, user,
+tasks["implement_landing"] = create_task!(company, roles["CEO"],
   assignee: roles["Designer"],
   goal: sub_objectives["landing_page"],
   title: "Implement landing page HTML/CSS",
@@ -243,7 +243,7 @@ tasks["implement_landing"] = create_task!(company, user,
   status: :in_progress, priority: :high, cost_cents: 12_000
 )
 
-tasks["responsive_styles"] = create_task!(company, user,
+tasks["responsive_styles"] = create_task!(company, roles["CEO"],
   assignee: roles["Designer"],
   goal: sub_objectives["landing_page"],
   parent_task: tasks["implement_landing"],
@@ -252,7 +252,7 @@ tasks["responsive_styles"] = create_task!(company, user,
   status: :open, priority: :medium
 )
 
-tasks["optimize_images"] = create_task!(company, user,
+tasks["optimize_images"] = create_task!(company, roles["CEO"],
   assignee: roles["Designer"],
   goal: sub_objectives["landing_page"],
   parent_task: tasks["implement_landing"],
@@ -261,7 +261,7 @@ tasks["optimize_images"] = create_task!(company, user,
   status: :open, priority: :low
 )
 
-tasks["write_copy"] = create_task!(company, user,
+tasks["write_copy"] = create_task!(company, roles["CEO"],
   assignee: roles["Page Specialist"],
   goal: sub_objectives["landing_page"],
   title: "Write landing page copy",
@@ -269,7 +269,7 @@ tasks["write_copy"] = create_task!(company, user,
   status: :completed, priority: :medium, cost_cents: 3000, completed_ago: 8.days
 )
 
-tasks["research_keywords"] = create_task!(company, user,
+tasks["research_keywords"] = create_task!(company, roles["CEO"],
   assignee: roles["SEO Specialist"],
   goal: sub_objectives["seo"],
   title: "Research target keywords",
@@ -277,7 +277,7 @@ tasks["research_keywords"] = create_task!(company, user,
   status: :completed, priority: :medium, cost_cents: 1500, completed_ago: 12.days
 )
 
-tasks["implement_meta"] = create_task!(company, user,
+tasks["implement_meta"] = create_task!(company, roles["CEO"],
   assignee: roles["SEO Specialist"],
   goal: sub_objectives["seo"],
   title: "Implement meta tags and structured data",
@@ -285,7 +285,7 @@ tasks["implement_meta"] = create_task!(company, user,
   status: :in_progress, priority: :medium, cost_cents: 2000
 )
 
-tasks["content_calendar"] = create_task!(company, user,
+tasks["content_calendar"] = create_task!(company, roles["CEO"],
   assignee: roles["Blog Content Specialist"],
   goal: sub_objectives["content_pipeline"],
   title: "Create blog content calendar",
@@ -293,7 +293,7 @@ tasks["content_calendar"] = create_task!(company, user,
   status: :open, priority: :medium
 )
 
-tasks["analytics"] = create_task!(company, user,
+tasks["analytics"] = create_task!(company, roles["CEO"],
   assignee: roles["Web Analyst"],
   goal: sub_objectives["seo"],
   title: "Set up analytics tracking",
@@ -301,7 +301,7 @@ tasks["analytics"] = create_task!(company, user,
   status: :open, priority: :high
 )
 
-tasks["marketing_audit"] = create_task!(company, user,
+tasks["marketing_audit"] = create_task!(company, roles["CEO"],
   assignee: roles["Marketing Planner"],
   goal: objectives["marketing"],
   title: "Evaluate current marketing performance",
@@ -309,7 +309,7 @@ tasks["marketing_audit"] = create_task!(company, user,
   status: :in_progress, priority: :high, cost_cents: 3000
 )
 
-tasks["coordinate_landing"] = create_task!(company, user,
+tasks["coordinate_landing"] = create_task!(company, roles["CEO"],
   assignee: roles["Marketing Manager"],
   goal: sub_objectives["landing_page"],
   title: "Coordinate landing page launch",
@@ -317,7 +317,7 @@ tasks["coordinate_landing"] = create_task!(company, user,
   status: :in_progress, priority: :high, cost_cents: 2000
 )
 
-tasks["email_capture"] = create_task!(company, user,
+tasks["email_capture"] = create_task!(company, roles["CEO"],
   assignee: roles["Designer"],
   goal: sub_objectives["content_pipeline"],
   title: "Design email capture flow",
@@ -327,7 +327,7 @@ tasks["email_capture"] = create_task!(company, user,
 
 # --- Product Tasks ---
 
-tasks["write_prd"] = create_task!(company, user,
+tasks["write_prd"] = create_task!(company, roles["CEO"],
   assignee: roles["PM"],
   goal: sub_objectives["product_roadmap"],
   title: "Write product requirements document",
@@ -335,7 +335,7 @@ tasks["write_prd"] = create_task!(company, user,
   status: :completed, priority: :high, cost_cents: 3500, completed_ago: 14.days
 )
 
-tasks["competitor_matrix"] = create_task!(company, user,
+tasks["competitor_matrix"] = create_task!(company, roles["CEO"],
   assignee: roles["Researcher"],
   goal: sub_objectives["competitive_analysis"],
   title: "Map competitor feature matrix",
@@ -343,7 +343,7 @@ tasks["competitor_matrix"] = create_task!(company, user,
   status: :completed, priority: :medium, cost_cents: 2500, completed_ago: 11.days
 )
 
-tasks["user_interviews"] = create_task!(company, user,
+tasks["user_interviews"] = create_task!(company, roles["CEO"],
   assignee: roles["Researcher"],
   goal: sub_objectives["feedback_loop"],
   title: "Conduct user interviews",
@@ -351,7 +351,7 @@ tasks["user_interviews"] = create_task!(company, user,
   status: :in_progress, priority: :high, cost_cents: 4000
 )
 
-tasks["prioritize_roadmap"] = create_task!(company, user,
+tasks["prioritize_roadmap"] = create_task!(company, roles["CEO"],
   assignee: roles["PM"],
   goal: sub_objectives["product_roadmap"],
   title: "Prioritize Q2 roadmap",
@@ -359,7 +359,7 @@ tasks["prioritize_roadmap"] = create_task!(company, user,
   status: :open, priority: :urgent
 )
 
-tasks["define_kpis"] = create_task!(company, user,
+tasks["define_kpis"] = create_task!(company, roles["CEO"],
   assignee: roles["PM"],
   goal: sub_objectives["feedback_loop"],
   title: "Define success metrics and KPIs",
@@ -367,7 +367,7 @@ tasks["define_kpis"] = create_task!(company, user,
   status: :in_progress, priority: :medium, cost_cents: 1500
 )
 
-tasks["user_personas"] = create_task!(company, user,
+tasks["user_personas"] = create_task!(company, roles["CEO"],
   assignee: roles["Researcher"],
   goal: sub_objectives["feedback_loop"],
   title: "Create user persona documents",
@@ -377,7 +377,7 @@ tasks["user_personas"] = create_task!(company, user,
 
 # --- Engineering Tasks ---
 
-tasks["rate_limiting"] = create_task!(company, user,
+tasks["rate_limiting"] = create_task!(company, roles["CEO"],
   assignee: roles["Engineer"],
   goal: sub_objectives["performance"],
   title: "Implement API rate limiting",
@@ -385,7 +385,7 @@ tasks["rate_limiting"] = create_task!(company, user,
   status: :completed, priority: :high, cost_cents: 6000, completed_ago: 7.days
 )
 
-tasks["input_validation"] = create_task!(company, user,
+tasks["input_validation"] = create_task!(company, roles["CEO"],
   assignee: roles["Engineer"],
   goal: sub_objectives["security_audit"],
   title: "Add request input validation",
@@ -393,7 +393,7 @@ tasks["input_validation"] = create_task!(company, user,
   status: :completed, priority: :medium, cost_cents: 4000, completed_ago: 5.days
 )
 
-tasks["fix_n1"] = create_task!(company, user,
+tasks["fix_n1"] = create_task!(company, roles["CEO"],
   assignee: roles["Engineer"],
   goal: sub_objectives["performance"],
   title: "Fix N+1 query on dashboard",
@@ -401,7 +401,7 @@ tasks["fix_n1"] = create_task!(company, user,
   status: :in_progress, priority: :urgent, cost_cents: 2500
 )
 
-tasks["owasp_scan"] = create_task!(company, user,
+tasks["owasp_scan"] = create_task!(company, roles["CEO"],
   assignee: roles["Security Engineer"],
   goal: sub_objectives["security_audit"],
   title: "Run OWASP dependency scan",
@@ -409,7 +409,7 @@ tasks["owasp_scan"] = create_task!(company, user,
   status: :completed, priority: :high, cost_cents: 2000, completed_ago: 4.days
 )
 
-tasks["audit_auth"] = create_task!(company, user,
+tasks["audit_auth"] = create_task!(company, roles["CEO"],
   assignee: roles["Security Engineer"],
   goal: sub_objectives["security_audit"],
   title: "Audit authentication flow",
@@ -417,7 +417,7 @@ tasks["audit_auth"] = create_task!(company, user,
   status: :in_progress, priority: :urgent, cost_cents: 3500
 )
 
-tasks["controller_tests"] = create_task!(company, user,
+tasks["controller_tests"] = create_task!(company, roles["CEO"],
   assignee: roles["QA"],
   goal: sub_objectives["test_coverage"],
   title: "Write controller test suite",
@@ -425,7 +425,7 @@ tasks["controller_tests"] = create_task!(company, user,
   status: :in_progress, priority: :high, cost_cents: 5000
 )
 
-tasks["perf_benchmarks"] = create_task!(company, user,
+tasks["perf_benchmarks"] = create_task!(company, roles["CEO"],
   assignee: roles["QA"],
   goal: sub_objectives["performance"],
   title: "Set up performance benchmarks",
@@ -433,7 +433,7 @@ tasks["perf_benchmarks"] = create_task!(company, user,
   status: :open, priority: :medium
 )
 
-tasks["design_tokens"] = create_task!(company, user,
+tasks["design_tokens"] = create_task!(company, roles["CEO"],
   assignee: roles["Designer"],
   goal: sub_objectives["landing_page"],
   title: "Refactor CSS to use design tokens",
@@ -443,7 +443,7 @@ tasks["design_tokens"] = create_task!(company, user,
 
 # --- DevOps Tasks ---
 
-tasks["ci_pipeline"] = create_task!(company, user,
+tasks["ci_pipeline"] = create_task!(company, roles["CEO"],
   assignee: roles["DevOps"],
   goal: sub_objectives["ci_cd"],
   title: "Configure GitHub Actions CI pipeline",
@@ -451,7 +451,7 @@ tasks["ci_pipeline"] = create_task!(company, user,
   status: :completed, priority: :high, cost_cents: 3000, completed_ago: 13.days
 )
 
-tasks["staging_env"] = create_task!(company, user,
+tasks["staging_env"] = create_task!(company, roles["CEO"],
   assignee: roles["DevOps"],
   goal: sub_objectives["ci_cd"],
   title: "Set up staging environment",
@@ -459,7 +459,7 @@ tasks["staging_env"] = create_task!(company, user,
   status: :completed, priority: :high, cost_cents: 4500, completed_ago: 9.days
 )
 
-tasks["zero_downtime"] = create_task!(company, user,
+tasks["zero_downtime"] = create_task!(company, roles["CEO"],
   assignee: roles["DevOps"],
   goal: sub_objectives["ci_cd"],
   title: "Implement zero-downtime deploys",
@@ -467,7 +467,7 @@ tasks["zero_downtime"] = create_task!(company, user,
   status: :in_progress, priority: :medium, cost_cents: 5500
 )
 
-tasks["error_monitoring"] = create_task!(company, user,
+tasks["error_monitoring"] = create_task!(company, roles["CEO"],
   assignee: roles["DevOps"],
   goal: sub_objectives["monitoring"],
   title: "Configure error monitoring",
@@ -475,7 +475,7 @@ tasks["error_monitoring"] = create_task!(company, user,
   status: :open, priority: :high
 )
 
-tasks["uptime_alerting"] = create_task!(company, user,
+tasks["uptime_alerting"] = create_task!(company, roles["CEO"],
   assignee: roles["DevOps"],
   goal: sub_objectives["monitoring"],
   title: "Set up uptime alerting",
@@ -485,7 +485,7 @@ tasks["uptime_alerting"] = create_task!(company, user,
 
 # --- Leadership Tasks ---
 
-tasks["tech_debt"] = create_task!(company, user,
+tasks["tech_debt"] = create_task!(company, roles["CEO"],
   assignee: roles["CTO"],
   goal: objectives["engineering"],
   title: "Review Q1 technical debt report",
@@ -493,7 +493,7 @@ tasks["tech_debt"] = create_task!(company, user,
   status: :completed, priority: :medium, cost_cents: 1000, completed_ago: 3.days
 )
 
-tasks["approve_budget"] = create_task!(company, user,
+tasks["approve_budget"] = create_task!(company, roles["CEO"],
   assignee: roles["CEO"],
   goal: objectives["marketing"],
   title: "Approve marketing budget allocation",
@@ -501,7 +501,7 @@ tasks["approve_budget"] = create_task!(company, user,
   status: :completed, priority: :low, cost_cents: 500, completed_ago: 6.days
 )
 
-tasks["hiring_plan"] = create_task!(company, user,
+tasks["hiring_plan"] = create_task!(company, roles["CEO"],
   assignee: roles["CEO"],
   goal: mission,
   title: "Define hiring plan for Q3",

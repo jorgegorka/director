@@ -1,6 +1,7 @@
 class Goal < ApplicationRecord
   include Tenantable
   include TreeHierarchy
+  include Triggerable
 
   belongs_to :role, optional: true
 
@@ -13,6 +14,8 @@ class Goal < ApplicationRecord
   validate :role_belongs_to_same_company
 
   scope :ordered, -> { order(:position, :title) }
+
+  after_commit :trigger_goal_assignment_wake, on: [ :create, :update ], if: :role_just_assigned?
 
   def mission?
     root?
@@ -46,5 +49,22 @@ class Goal < ApplicationRecord
   def subtree_task_ids
     goal_ids = [ id ] + descendant_ids
     Task.where(goal_id: goal_ids).pluck(:id)
+  end
+
+  def role_just_assigned?
+    return role_id.present? if previously_new_record?
+
+    saved_change_to_role_id? && role_id.present?
+  end
+
+  def trigger_goal_assignment_wake
+    return unless role&.online?
+
+    trigger_role_wake(
+      role: role,
+      trigger_type: :goal_assigned,
+      trigger_source: "Goal##{id}",
+      context: { goal_id: id, goal_title: title, goal_description: description }
+    )
   end
 end

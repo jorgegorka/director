@@ -1,0 +1,21 @@
+#!/usr/bin/env ruby
+require_relative "../config/environment"
+
+api_token = ENV["DIRECTOR_API_TOKEN"]
+
+unless api_token.present?
+  $stderr.puts "DIRECTOR_API_TOKEN environment variable is required"
+  exit 1
+end
+
+role = Role.find_by(api_token: api_token)
+
+unless role
+  $stderr.puts "No role found for the provided API token"
+  exit 1
+end
+
+$stderr.puts "Director MCP server started for role: #{role.title} (#{role.company.name})"
+
+server = DirectorServer.new(role)
+server.run

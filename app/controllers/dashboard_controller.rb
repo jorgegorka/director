@@ -15,6 +15,7 @@ class DashboardController < ApplicationController
     @roles = Current.company.roles.active.includes(:assigned_tasks)
     @total_roles = @roles.count
     @roles_online = @roles.where(status: [ :idle, :running ]).count
+    @running_roles = @roles.where(status: :running).includes(role_runs: :task)
     @total_budget_cents = @roles.where.not(budget_cents: nil).sum(:budget_cents)
     @budget_roles = @roles.where.not(budget_cents: nil).order(:title)
 

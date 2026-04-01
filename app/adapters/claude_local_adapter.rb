@@ -154,9 +154,32 @@ class ClaudeLocalAdapter < BaseAdapter
       parts << "--system-prompt-file #{file.path.shellescape}"
     end
 
+    mcp_config = build_mcp_config(role, temp_files)
+    parts << "--mcp-config #{mcp_config.path.shellescape}" if mcp_config
+
     parts << "--allowedTools #{config['allowed_tools'].shellescape}" if config["allowed_tools"].present?
     parts << "--resume #{context[:resume_session_id].shellescape}" if context[:resume_session_id].present?  # CLAUDE-04
     parts.join(" ")
+  end
+
+  private_class_method def self.build_mcp_config(role, temp_files)
+    return nil unless role.api_token.present?
+
+    bin_path = Rails.root.join("bin", "director-mcp").to_s
+    config = {
+      mcpServers: {
+        director: {
+          command: bin_path,
+          env: { "DIRECTOR_API_TOKEN" => role.api_token }
+        }
+      }
+    }
+
+    file = Tempfile.new([ "director_mcp", ".json" ])
+    file.write(config.to_json)
+    file.flush
+    temp_files << file
+    file
   end
 
   private_class_method def self.compose_system_prompt(role, context)

@@ -8,6 +8,7 @@ class TasksControllerTest < ActionDispatch::IntegrationTest
     post company_switch_url(@company)
     @design_task = tasks(:design_homepage)
     @widgets_task = tasks(:widgets_task)
+    @ceo = roles(:ceo)
     @cto = roles(:cto)
     @developer = roles(:developer)
   end
@@ -54,7 +55,8 @@ class TasksControllerTest < ActionDispatch::IntegrationTest
         task: {
           title: "New test task",
           description: "A task for testing",
-          priority: "medium"
+          priority: "medium",
+          creator_id: @ceo.id
         }
       }
     end
@@ -62,7 +64,7 @@ class TasksControllerTest < ActionDispatch::IntegrationTest
     assert_equal "New test task", task.title
     assert_equal "medium", task.priority
     assert_equal @company, task.company
-    assert_equal @user, task.creator
+    assert_equal @ceo, task.creator
     assert_redirected_to task_url(task)
   end
 
@@ -72,6 +74,7 @@ class TasksControllerTest < ActionDispatch::IntegrationTest
         task: {
           title: "Assigned task",
           priority: "high",
+          creator_id: @ceo.id,
           assignee_id: @cto.id
         }
       }
@@ -85,7 +88,8 @@ class TasksControllerTest < ActionDispatch::IntegrationTest
       post tasks_url, params: {
         task: {
           title: "Audit test task",
-          priority: "low"
+          priority: "low",
+          creator_id: @ceo.id
         }
       }
     end
@@ -101,6 +105,7 @@ class TasksControllerTest < ActionDispatch::IntegrationTest
         task: {
           title: "Assigned task with audit",
           priority: "medium",
+          creator_id: @ceo.id,
           assignee_id: @cto.id
         }
       }

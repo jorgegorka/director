@@ -150,10 +150,31 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     assert_select "#dashboard-overview-stats"
   end
 
+  # Running agents section
+
+  test "overview tab shows running agents section" do
+    get dashboard_url
+    assert_response :success
+    assert_select "#dashboard-running-agents"
+  end
+
+  test "running agents shows empty state when no agents running" do
+    get dashboard_url
+    assert_response :success
+    assert_select "#dashboard-running-agents .dashboard-empty", text: /No agents are currently running/
+  end
+
+  test "running agents shows cards when a role is running" do
+    roles(:developer).update_column(:status, Role.statuses[:running])
+    get dashboard_url
+    assert_response :success
+    assert_select ".dashboard-running-card", minimum: 1
+  end
+
   test "kanban column bodies have target ids" do
     get dashboard_url
     assert_response :success
-    assert_select "[id^='kanban-column-body-']", 5
+    assert_select "[id^='kanban-column-body-']", 6
   end
 
   # Kanban board tests
@@ -161,7 +182,7 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
   test "tasks tab shows kanban columns" do
     get dashboard_url
     assert_response :success
-    assert_select ".kanban__column", 5
+    assert_select ".kanban__column", 6
   end
 
   test "kanban shows tasks in correct columns" do

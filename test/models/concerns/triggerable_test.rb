@@ -16,7 +16,7 @@ class TriggerableTaskTest < ActiveSupport::TestCase
       Task.create!(
         title: "New task for role",
         company: @company,
-        creator: @user,
+        creator: @cto,
         assignee: @developer
       )
     end
@@ -31,13 +31,13 @@ class TriggerableTaskTest < ActiveSupport::TestCase
       Task.create!(
         title: "Unassigned task",
         company: @company,
-        creator: @user
+        creator: @cto
       )
     end
   end
 
   test "assigning role to existing task triggers wake event" do
-    task = Task.create!(title: "Unassigned", company: @company, creator: @user)
+    task = Task.create!(title: "Unassigned", company: @company, creator: @cto)
     assert_difference -> { HeartbeatEvent.count }, 1 do
       task.update!(assignee: @cto)
     end
@@ -48,7 +48,7 @@ class TriggerableTaskTest < ActiveSupport::TestCase
   end
 
   test "reassigning task to different role triggers wake for new role" do
-    task = Task.create!(title: "Assigned", company: @company, creator: @user, assignee: @developer)
+    task = Task.create!(title: "Assigned", company: @company, creator: @cto, assignee: @developer)
     # Clear events from initial creation
     HeartbeatEvent.delete_all
 
@@ -67,7 +67,7 @@ class TriggerableTaskTest < ActiveSupport::TestCase
   end
 
   test "unassigning task (setting assignee to nil) does not trigger wake" do
-    task = Task.create!(title: "Assigned", company: @company, creator: @user, assignee: @developer)
+    task = Task.create!(title: "Assigned", company: @company, creator: @cto, assignee: @developer)
     HeartbeatEvent.delete_all
 
     assert_no_difference -> { HeartbeatEvent.count } do
@@ -79,17 +79,18 @@ class TriggerableTaskTest < ActiveSupport::TestCase
     terminated_role = Role.create!(
       title: "Dead Role",
       company: @company,
+      parent: @cto,
       adapter_type: :http,
       adapter_config: { "url" => "https://example.com" },
       status: :terminated
     )
     assert_no_difference -> { HeartbeatEvent.count } do
-      Task.create!(title: "Task for dead", company: @company, creator: @user, assignee: terminated_role)
+      Task.create!(title: "Task for dead", company: @company, creator: @cto, assignee: terminated_role)
     end
   end
 
   test "task assignment trigger includes task context" do
-    task = Task.create!(title: "Important work", company: @company, creator: @user, assignee: @developer)
+    task = Task.create!(title: "Important work", company: @company, creator: @cto, assignee: @developer)
     event = HeartbeatEvent.last
     assert_equal task.id, event.request_payload["task_id"]
     assert_equal "Important work", event.request_payload["task_title"]

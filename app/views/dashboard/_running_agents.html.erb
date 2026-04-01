@@ -1,0 +1,39 @@
+<section id="dashboard-running-agents" class="dashboard-running-section">
+  <h2 class="dashboard-section-title">Running Agents</h2>
+
+  <% if running_roles.empty? %>
+    <p class="dashboard-empty">No agents are currently running.</p>
+  <% else %>
+    <div class="dashboard-running-grid">
+      <% running_roles.each do |role| %>
+        <% active_run = role.role_runs.select { |rr| rr.running? || rr.queued? }.max_by(&:created_at) %>
+        <div class="dashboard-running-card">
+          <div class="dashboard-running-card__header">
+            <span class="dashboard-running-card__name">
+              <%= link_to role.title, role_path(role) %>
+            </span>
+            <%= role_status_badge(role) %>
+          </div>
+          <div class="dashboard-running-card__details">
+            <span class="dashboard-running-card__task">
+              <% if active_run&.task %>
+                <%= link_to active_run.task.title, role_role_run_path(role, active_run) %>
+              <% elsif active_run %>
+                <%= link_to active_run.trigger_type&.humanize || "Running", role_role_run_path(role, active_run) %>
+              <% else %>
+                Running
+              <% end %>
+            </span>
+            <% if active_run&.started_at %>
+              <span class="dashboard-running-card__duration"
+                    data-controller="elapsed"
+                    data-elapsed-started-at-value="<%= active_run.started_at.iso8601 %>">
+                <span data-elapsed-target="display"><%= time_ago_in_words(active_run.started_at) %></span>
+              </span>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</section>

@@ -10,7 +10,9 @@ class Role < ApplicationRecord
   has_many :skills, through: :role_skills
   has_many :goal_evaluations, dependent: :destroy
   has_many :goals, dependent: :nullify
+  has_many :created_tasks, class_name: "Task", foreign_key: :creator_id, inverse_of: :creator, dependent: :nullify
   has_many :assigned_tasks, class_name: "Task", foreign_key: :assignee_id, inverse_of: :assignee, dependent: :nullify
+  has_many :reviewed_tasks, class_name: "Task", foreign_key: :reviewed_by_id, inverse_of: :reviewed_by, dependent: :nullify
   has_many :heartbeat_events, dependent: :destroy
   has_many :approval_gates, dependent: :destroy
   has_many :role_hooks, dependent: :destroy
@@ -197,6 +199,7 @@ class Role < ApplicationRecord
   def broadcast_dashboard_update
     broadcast_overview_stats
     broadcast_role_status
+    broadcast_running_agents
   end
 
   def broadcast_role_status
@@ -209,7 +212,6 @@ class Role < ApplicationRecord
   end
 
   def broadcast_overview_stats
-    company = Company.find(company_id)
     roles = company.roles.active
     Turbo::StreamsChannel.broadcast_replace_to(
       "dashboard_company_#{company_id}",
@@ -221,6 +223,16 @@ class Role < ApplicationRecord
         tasks_active: company.tasks.active.count,
         tasks_completed: company.tasks.completed.count
       }
+    )
+  end
+
+  def broadcast_running_agents
+    running_roles = company.roles.where(status: :running).includes(role_runs: :task)
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "dashboard_company_#{company_id}",
+      target: "dashboard-running-agents",
+      partial: "dashboard/running_agents",
+      locals: { running_roles: running_roles }
     )
   end
 

@@ -4,8 +4,9 @@ class Task < ApplicationRecord
   include Triggerable
   include Hookable
 
-  belongs_to :creator, class_name: "User", optional: true
+  belongs_to :creator, class_name: "Role", optional: true
   belongs_to :assignee, class_name: "Role", optional: true
+  belongs_to :reviewed_by, class_name: "Role", optional: true
   belongs_to :parent_task, class_name: "Task", optional: true
   belongs_to :goal, optional: true
 
@@ -18,14 +19,16 @@ class Task < ApplicationRecord
   has_many :task_documents, dependent: :destroy, inverse_of: :task
   has_many :documents, through: :task_documents
 
-  enum :status, { open: 0, in_progress: 1, blocked: 2, completed: 3, cancelled: 4 }
+  enum :status, { open: 0, in_progress: 1, blocked: 2, completed: 3, cancelled: 4, pending_review: 5 }
   enum :priority, { low: 0, medium: 1, high: 2, urgent: 3 }
 
   validates :title, presence: true
   validates :cost_cents, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, allow_nil: true
   validate :assignee_belongs_to_same_company
+  validate :creator_belongs_to_same_company
   validate :parent_task_belongs_to_same_company
   validate :goal_belongs_to_same_company
+  validate :assignee_within_delegation_scope
 
   scope :active, -> { where.not(status: [ :completed, :cancelled ]) }
   scope :by_priority, -> { order(priority: :desc, created_at: :desc) }
@@ -33,6 +36,7 @@ class Task < ApplicationRecord
 
   before_save :set_completed_at
   after_commit :trigger_assignment_wake, on: [ :create, :update ], if: :agent_just_assigned?
+  after_commit :trigger_pending_review_wake, on: :update, if: :just_entered_pending_review?
   after_commit :broadcast_kanban_update, on: [ :create, :update ]
   after_commit :broadcast_kanban_remove, on: :destroy
   after_commit :enqueue_hooks_for_transition, on: [ :create, :update ]
@@ -115,7 +119,42 @@ class Task < ApplicationRecord
     return unless saved_change_to_status?
     return unless completed?
     return unless goal_id.present?
+    return if creator&.agent_configured?
 
     EvaluateGoalAlignmentJob.perform_later(id)
+  end
+
+  def creator_belongs_to_same_company
+    if creator.present? && creator.company_id != company_id
+      errors.add(:creator, "must belong to the same company")
+    end
+  end
+
+  def assignee_within_delegation_scope
+    return unless creator.present? && assignee.present?
+    return if creator_id == assignee_id
+    return unless new_record? || creator_id_changed? || assignee_id_changed?
+
+    is_subordinate = creator.descendant_ids.include?(assignee_id)
+    is_sibling = creator.parent_id.present? && assignee.parent_id == creator.parent_id
+
+    unless is_subordinate || is_sibling
+      errors.add(:assignee, "must be a subordinate or sibling of the creator role")
+    end
+  end
+
+  def just_entered_pending_review?
+    saved_change_to_status? && pending_review?
+  end
+
+  def trigger_pending_review_wake
+    return unless creator&.online?
+
+    trigger_role_wake(
+      role: creator,
+      trigger_type: :task_pending_review,
+      trigger_source: "Task##{id}",
+      context: { task_id: id, task_title: title, assignee_role_title: assignee&.title }
+    )
   end
 end

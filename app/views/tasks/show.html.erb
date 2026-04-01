@@ -40,7 +40,7 @@
         <% if @task.creator.present? %>
           <div class="task-detail__meta-row">
             <dt>Created by</dt>
-            <dd><%= @task.creator.email_address %></dd>
+            <dd><%= link_to @task.creator.title, role_path(@task.creator) %></dd>
           </div>
         <% end %>
         <div class="task-detail__meta-row">

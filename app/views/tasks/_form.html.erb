@@ -20,6 +20,11 @@
   </div>
 
   <div class="form__field">
+    <%= f.label :creator_id, "Create as" %>
+    <%= f.select :creator_id, options_for_role_select, { include_blank: "Select a role" }, { class: "form__select" } %>
+  </div>
+
+  <div class="form__field">
     <%= f.label :priority, "Priority" %>
     <%= f.select :priority, options_for_task_priority, {}, { class: "form__select" } %>
   </div>

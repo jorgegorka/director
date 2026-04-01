@@ -4343,6 +4343,65 @@
     color: var(--text-muted);
   }
 
+  /* ---- Running agents section ---- */
+  .dashboard-running-section {
+    margin-block-end: var(--space-8);
+  }
+
+  .dashboard-running-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--space-4);
+  }
+
+  .dashboard-running-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-inline-start: 3px solid oklch(65% 0.15 175);
+    border-radius: var(--radius-md);
+    padding: var(--space-4) var(--space-5);
+    transition: box-shadow var(--transition-fast);
+  }
+
+  .dashboard-running-card:hover {
+    box-shadow: 0 2px 8px -2px oklch(from var(--text-base) l c h / 0.06);
+  }
+
+  .dashboard-running-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-block-end: var(--space-3);
+  }
+
+  .dashboard-running-card__name {
+    font-weight: 600;
+  }
+
+  .dashboard-running-card__details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-3);
+    font-size: var(--font-size-sm);
+  }
+
+  .dashboard-running-card__task {
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-inline-size: 0;
+  }
+
+  .dashboard-running-card__duration {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: oklch(65% 0.15 175);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
   /* ---- Kanban board ---- */
   .kanban__header {
     display: flex;
