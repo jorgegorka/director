@@ -494,6 +494,21 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     assert_includes prompt, "hire_role"
   end
 
+  test "env_flags sets CLAUDE_CONFIG_DIR to isolated agent config directory" do
+    flags = ClaudeLocalAdapter.env_flags
+
+    assert_includes flags, "-e CLAUDE_CONFIG_DIR="
+    assert_includes flags, "tmp/claude_agent_config"
+    assert_not_includes flags, ".claude", "should not reference user's personal ~/.claude directory"
+  end
+
+  test "agent_config_dir creates tmp directory" do
+    dir = ClaudeLocalAdapter.agent_config_dir
+
+    assert dir.end_with?("tmp/claude_agent_config")
+    assert File.directory?(dir)
+  end
+
   test "display_name, description, config_schema unchanged" do
     assert_equal "Claude Code (Local)", ClaudeLocalAdapter.display_name
     assert_equal "Run Claude CLI locally with streaming JSON output and session resumption", ClaudeLocalAdapter.description

@@ -178,9 +178,9 @@ class RoleTemplates::RegistryTest < ActiveSupport::TestCase
 
   # --- Specific template content ---
 
-  test "marketing template has CMO as root" do
+  test "marketing template has CEO as root" do
     template = RoleTemplates::Registry.find("marketing")
-    assert_equal "CMO", template.roles.first.title
+    assert_equal "CEO", template.roles.first.title
   end
 
   test "marketing template has correct role hierarchy" do

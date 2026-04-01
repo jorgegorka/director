@@ -83,7 +83,7 @@ class ClaudeLocalAdapter < BaseAdapter
   # Tmux sessions inherit the tmux server's environment, not the calling
   # process's, so we explicitly forward all relevant variables.
   # Public so tests can override it.
-  FORWARDED_ENV_VARS = %w[HOME PATH ANTHROPIC_API_KEY CLAUDE_CODE_OAUTH_TOKEN CLAUDE_CONFIG_DIR].freeze
+  FORWARDED_ENV_VARS = %w[HOME PATH ANTHROPIC_API_KEY CLAUDE_CODE_OAUTH_TOKEN].freeze
 
   def self.env_flags
     flags = FORWARDED_ENV_VARS.filter_map do |var|
@@ -99,7 +99,18 @@ class ClaudeLocalAdapter < BaseAdapter
       flags << "-e #{var}=#{value.shellescape}" if value.present?
     end
 
+    # Isolate agent sessions from user's personal Claude Code config.
+    # Without this, agents inherit hooks, plugins, and MCP servers from ~/.claude/,
+    # which bloats the system prompt and injects conflicting behavioral instructions.
+    flags << "-e CLAUDE_CONFIG_DIR=#{agent_config_dir.shellescape}"
+
     flags.join(" ")
+  end
+
+  def self.agent_config_dir
+    dir = Rails.root.join("tmp", "claude_agent_config")
+    FileUtils.mkdir_p(dir)
+    dir.to_s
   end
 
   # Spawns a tmux session with the given command string.
