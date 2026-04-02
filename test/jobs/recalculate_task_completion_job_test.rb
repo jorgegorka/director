@@ -22,7 +22,7 @@ class RecalculateTaskCompletionJobTest < ActiveSupport::TestCase
     parent = Task.create!(title: "Parent", company: @company, creator: @ceo, parent_task: grandparent, status: :open)
     Task.create!(title: "Sub", company: @company, creator: @ceo, parent_task: parent, status: :completed)
 
-    assert_enqueued_with(job: RecalculateTaskCompletionJob, args: [grandparent.id]) do
+    assert_enqueued_with(job: RecalculateTaskCompletionJob, args: [ grandparent.id ]) do
       RecalculateTaskCompletionJob.perform_now(parent.id)
     end
   end

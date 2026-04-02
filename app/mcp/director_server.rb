@@ -106,6 +106,7 @@ class DirectorServer
       Tools::CreateTask,
       Tools::UpdateTaskStatus,
       Tools::ListMyTasks,
+      Tools::ListMyGoals,
       Tools::ListAvailableRoles,
       Tools::HireRole,
       Tools::ListHirableRoles,

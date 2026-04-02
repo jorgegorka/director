@@ -72,5 +72,4 @@ class Documents::CreatorTest < ActiveSupport::TestCase
       )
     end
   end
-
 end

@@ -188,14 +188,14 @@ class GoalTest < ActiveSupport::TestCase
   end
 
   test "creating a task enqueues recalculation job" do
-    assert_enqueued_with(job: RecalculateGoalCompletionJob, args: [@objective_two.id]) do
+    assert_enqueued_with(job: RecalculateGoalCompletionJob, args: [ @objective_two.id ]) do
       Task.create!(title: "New task", company: @company, creator: roles(:ceo), goal: @objective_two)
     end
   end
 
   test "updating a task enqueues recalculation job" do
     task = tasks(:write_tests)  # under acme_sub_objective
-    assert_enqueued_with(job: RecalculateGoalCompletionJob, args: [@sub_objective.id]) do
+    assert_enqueued_with(job: RecalculateGoalCompletionJob, args: [ @sub_objective.id ]) do
       task.update!(status: :completed)
     end
   end

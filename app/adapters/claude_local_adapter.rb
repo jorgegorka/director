@@ -148,8 +148,12 @@ class ClaudeLocalAdapter < BaseAdapter
 
   private_class_method def self.build_claude_command(role, context, temp_files)
     config = role.adapter_config
-    raw = context[:task_description] || context[:task_title] || context[:goal_description] || context[:goal_title] || "Execute assigned task"
-    prompt = "Focus on this assigned work and nothing else:\n\n#{raw}"
+    raw = context[:task_description] || context[:task_title] || context[:goal_description] || context[:goal_title]
+    prompt = if raw
+      "Focus on this assigned work and nothing else:\n\n#{raw}"
+    else
+      "Check your assigned goals with list_my_goals and tasks with list_my_tasks, then execute the highest-priority work."
+    end
 
     parts = [ "claude", "-p" ]
     parts << prompt.shellescape
@@ -242,7 +246,7 @@ class ClaudeLocalAdapter < BaseAdapter
       - **update_task_status** — mark tasks as in_progress or completed
       - **list_available_roles** — see who you can delegate to
       - **hire_role** / **list_hirable_roles** — hire new subordinate roles
-      - **get_goal_details** / **update_goal** — view and update goals
+      - **list_my_goals** / **get_goal_details** / **update_goal** — see, inspect, and update goals
       - **add_message** — communicate on tasks
       - **search_documents** — search the company document library by title or tag
       - **get_document** — fetch the full content of a document
