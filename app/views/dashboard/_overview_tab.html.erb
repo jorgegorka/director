@@ -1,33 +1,31 @@
 <div class="dashboard-stats" id="dashboard-overview-stats">
   <%= render "dashboard/stat_card",
-        value: @total_roles,
+        value: @overview.total_roles_count,
         label: "Total Roles",
         link_path: roles_path %>
 
   <%= render "dashboard/stat_card",
-        value: @tasks_active,
+        value: @overview.tasks_active_count,
         label: "Active Tasks",
         link_path: tasks_path %>
 
   <%= render "dashboard/stat_card",
-        value: @tasks_completed,
+        value: @overview.tasks_completed_count,
         label: "Tasks Completed" %>
 
   <%= render "dashboard/stat_card",
-        value: "#{@roles_online} of #{@total_roles}",
+        value: "#{@overview.roles_online_count} of #{@overview.total_roles_count}",
         label: "Roles Online" %>
 </div>
 
-<%= render "dashboard/running_agents", running_roles: @running_roles %>
+<%= render "dashboard/running_agents", running_roles: @overview.running_roles %>
 
 <section class="dashboard-budget-section">
   <h2 class="dashboard-section-title">Budget Overview</h2>
 
-  <% if @budget_roles.empty? %>
-    <p class="dashboard-empty">No roles have budgets configured.</p>
-  <% else %>
+  <% if @overview.show_budget? %>
     <div class="dashboard-budget-grid">
-      <% @budget_roles.each do |role| %>
+      <% @overview.budget_roles.each do |role| %>
         <div class="dashboard-budget-card">
           <div class="dashboard-budget-card__header">
             <span class="dashboard-budget-card__name">
@@ -49,5 +47,7 @@
         </div>
       <% end %>
     </div>
+  <% else %>
+    <p class="dashboard-empty">No roles have budgets configured.</p>
   <% end %>
 </section>

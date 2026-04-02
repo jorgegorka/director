@@ -4,7 +4,7 @@
       <label for="actor_type">Actor</label>
       <select name="actor_type" id="actor_type">
         <option value="">All actors</option>
-        <% @available_actor_types.each do |type| %>
+        <% @index.available_actor_types.each do |type| %>
           <option value="<%= type %>" <%= "selected" if params[:actor_type] == type %>><%= type %></option>
         <% end %>
       </select>
@@ -14,7 +14,7 @@
       <label for="action_filter">Action</label>
       <select name="action_filter" id="action_filter">
         <option value="">All actions</option>
-        <% @available_actions.each do |action| %>
+        <% @index.available_actions.each do |action| %>
           <option value="<%= action %>" <%= "selected" if params[:action_filter] == action %>><%= action.humanize %></option>
         <% end %>
       </select>

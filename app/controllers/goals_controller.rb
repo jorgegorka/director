@@ -8,11 +8,7 @@ class GoalsController < ApplicationController
   end
 
   def show
-    @children = @goal.children.ordered
-    @tasks = @goal.tasks.includes(:assignee, :creator).by_priority
-    evals = GoalEvaluation.where(goal_id: [ @goal.id ] + @goal.descendant_ids)
-    @eval_total = evals.count
-    @eval_pass_count = evals.passed.count
+    @detail = Goal::Detail.new(@goal)
   end
 
   def new

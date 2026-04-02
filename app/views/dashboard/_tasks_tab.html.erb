@@ -11,10 +11,10 @@
            data-action="dragover->kanban#dragOver drop->kanban#drop dragenter->kanban#dragEnter dragleave->kanban#dragLeave">
         <div class="kanban__column-header">
           <span class="kanban__column-title"><%= status.humanize %></span>
-          <span class="kanban__column-count"><%= @tasks_by_status[status].size %></span>
+          <span class="kanban__column-count"><%= @task_board.tasks_by_status[status].size %></span>
         </div>
         <div class="kanban__column-body" id="kanban-column-body-<%= status %>">
-          <% @tasks_by_status[status].each do |task| %>
+          <% @task_board.tasks_by_status[status].each do |task| %>
             <%= render "dashboard/kanban_card", task: task %>
           <% end %>
         </div>

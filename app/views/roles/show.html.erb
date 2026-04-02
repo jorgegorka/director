@@ -118,7 +118,7 @@
           </div>
         </dl>
 
-        <% if @recent_heartbeats.any? %>
+        <% if @detail.recent_heartbeats.any? %>
           <h3 class="role-detail__card-subtitle">Recent Events</h3>
           <table class="table heartbeat-table">
             <thead>
@@ -130,7 +130,7 @@
               </tr>
             </thead>
             <tbody>
-              <%= render partial: "heartbeats/event_row", collection: @recent_heartbeats, as: :event %>
+              <%= render partial: "heartbeats/event_row", collection: @detail.recent_heartbeats, as: :event %>
             </tbody>
           </table>
           <%= link_to "View all heartbeat history", role_heartbeats_path(@role), class: "btn btn--ghost btn--sm" %>
@@ -142,7 +142,7 @@
       <%# Recent Runs %>
       <div class="role-detail__card">
         <h2 class="role-detail__card-title">Recent Runs</h2>
-        <% if @recent_runs.any? %>
+        <% if @detail.recent_runs.any? %>
           <table class="heartbeat-table">
             <thead>
               <tr>
@@ -153,7 +153,7 @@
               </tr>
             </thead>
             <tbody>
-              <% @recent_runs.each do |run| %>
+              <% @detail.recent_runs.each do |run| %>
                 <tr>
                   <td><%= link_to "##{run.id}", role_role_run_path(@role, run) %></td>
                   <td><%= role_run_status_badge(run) %></td>
@@ -173,7 +173,7 @@
       <div class="role-detail__card">
         <h2 class="role-detail__card-title">Skills</h2>
         <div class="skill-manager">
-          <% skills_by_category = @company_skills.group_by(&:category) %>
+          <% skills_by_category = @detail.company_skills.group_by(&:category) %>
           <% (SkillsHelper::SKILL_CATEGORIES + [ nil ]).each do |category| %>
             <% category_skills = category ? skills_by_category[category] : skills_by_category.except(*SkillsHelper::SKILL_CATEGORIES).values.flatten %>
             <% next unless category_skills&.any? %>
@@ -184,11 +184,11 @@
               </h3>
               <div class="skill-manager__list">
                 <%= render partial: "roles/skill_toggle", collection: category_skills, as: :skill,
-                      locals: { role: @role, role_skills_by_skill_id: @role_skills_by_skill_id } %>
+                      locals: { role: @role, role_skills_by_skill_id: @detail.role_skills_by_skill_id } %>
               </div>
             </div>
           <% end %>
-          <% if @company_skills.empty? %>
+          <% if @detail.company_skills.empty? %>
             <p class="role-detail__empty-note">No skills in company library. <%= link_to "Create skills", skills_path %></p>
           <% end %>
         </div>
@@ -223,11 +223,11 @@
       </div>
 
       <%# Goals %>
-      <% if @role_goals.any? %>
+      <% if @detail.role_goals.any? %>
         <div class="role-detail__card">
-          <h2 class="role-detail__card-title">Goals (<%= @role_goals.size %>)</h2>
+          <h2 class="role-detail__card-title">Goals (<%= @detail.role_goals.size %>)</h2>
           <ul class="role-detail__list">
-            <% @role_goals.each do |goal| %>
+            <% @detail.role_goals.each do |goal| %>
               <li>
                 <%= link_to goal.title, goal_path(goal) %>
                 <% if goal.mission? %>
@@ -237,22 +237,22 @@
             <% end %>
           </ul>
 
-          <% if @eval_total > 0 %>
+          <% if @detail.any_evaluations? %>
             <h3 class="role-detail__card-subtitle">Evaluation Summary</h3>
             <dl class="role-detail__kv">
               <div class="role-detail__kv-row">
                 <dt>Total evaluations</dt>
-                <dd><%= @eval_total %></dd>
+                <dd><%= @detail.eval_total %></dd>
               </div>
               <div class="role-detail__kv-row">
                 <dt>Pass rate</dt>
-                <dd><%= eval_pass_rate(@eval_pass_count, @eval_total) %>%</dd>
+                <dd><%= @detail.eval_pass_rate %>%</dd>
               </div>
             </dl>
 
             <h3 class="role-detail__card-subtitle">Recent Evaluations</h3>
             <div class="eval-list">
-              <% @recent_evaluations.each do |evaluation| %>
+              <% @detail.recent_evaluations.each do |evaluation| %>
                 <div class="eval-item eval-item--<%= evaluation.result %>">
                   <span class="eval-item__badge eval-item__badge--<%= evaluation.result %>">
                     <%= evaluation.result.upcase %>

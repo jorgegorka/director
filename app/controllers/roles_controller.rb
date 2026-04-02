@@ -7,14 +7,7 @@ class RolesController < ApplicationController
   end
 
   def show
-    @recent_heartbeats = @role.heartbeat_events.reverse_chronological.limit(5)
-    @recent_runs = @role.role_runs.order(created_at: :desc).limit(5)
-    @company_skills = Current.company.skills.order(:category, :name)
-    @role_skills_by_skill_id = @role.role_skills.index_by(&:skill_id)
-    @role_goals = @role.goals.ordered
-    @eval_total = @role.goal_evaluations.count
-    @eval_pass_count = @role.goal_evaluations.passed.count
-    @recent_evaluations = @role.goal_evaluations.order(created_at: :desc).limit(5).includes(:task, :goal)
+    @detail = Role::Detail.new(@role, Current.company)
   end
 
   def new

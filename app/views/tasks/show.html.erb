@@ -72,7 +72,7 @@
       <h2>Documents</h2>
       <%= render "documents/document_picker",
             linkable: @task,
-            linked_documents: @task_document_links,
+            linked_documents: @detail.document_links,
             link_path: task_task_documents_path(@task),
             unlink_path_helper: ->(task, td) { task_task_document_path(task, td) } %>
     </div>
@@ -88,11 +88,11 @@
       </div>
     <% end %>
 
-    <% if @goal_evaluations.any? %>
+    <% if @detail.goal_evaluations.any? %>
       <div class="task-detail__section">
         <h2>Goal Evaluations</h2>
         <div class="eval-history">
-          <% @goal_evaluations.each do |evaluation| %>
+          <% @detail.goal_evaluations.each do |evaluation| %>
             <div class="eval-history__item eval-history__item--<%= evaluation.result %>">
               <div class="eval-history__header">
                 <span class="eval-item__badge eval-item__badge--<%= evaluation.result %>">
@@ -117,10 +117,10 @@
     <div class="task-detail__section">
       <h2>Conversation (<%= @task.messages.size %>)</h2>
       <div class="message-thread">
-        <% @messages.each do |message| %>
+        <% @detail.messages.each do |message| %>
           <%= render partial: "messages/thread", locals: { message: message, task: @task } %>
         <% end %>
-        <% if @messages.empty? %>
+        <% if @detail.messages.empty? %>
           <p class="task-detail__empty-note">No messages yet. Start the conversation below.</p>
         <% end %>
       </div>
@@ -129,9 +129,9 @@
 
     <div class="task-detail__section">
       <h2>Audit Trail</h2>
-      <% if @audit_events.any? %>
+      <% if @detail.audit_events.any? %>
         <ol class="audit-trail">
-          <% @audit_events.each do |event| %>
+          <% @detail.audit_events.each do |event| %>
             <li class="audit-trail__event">
               <span class="audit-trail__action"><%= audit_event_description(event) %></span>
               <span class="audit-trail__meta">

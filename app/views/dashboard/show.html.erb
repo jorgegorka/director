@@ -3,7 +3,7 @@
   <%= turbo_stream_from "dashboard_company_#{Current.company.id}" %>
   <div class="dashboard__header">
     <div>
-      <h1><%= @company.name %></h1>
+      <h1><%= @overview.company.name %></h1>
       <p class="dashboard__subtitle">Company command center</p>
     </div>
     <div class="dashboard-quick-links">
@@ -13,14 +13,14 @@
     </div>
   </div>
 
-  <% if @mission %>
+  <% if @overview.show_mission? %>
     <div class="dashboard-mission">
       <div class="dashboard-mission__info">
         <span class="dashboard-mission__label">Mission</span>
-        <%= link_to @mission.title, goal_path(@mission), class: "dashboard-mission__title" %>
+        <%= link_to @overview.mission.title, goal_path(@overview.mission), class: "dashboard-mission__title" %>
       </div>
       <div class="dashboard-mission__progress">
-        <% percentage = @mission.completion_percentage %>
+        <% percentage = @overview.mission.completion_percentage %>
         <%= render "shared/progress_bar", percentage: percentage %>
         <span class="dashboard-mission__pct"><%= percentage %>%</span>
       </div>

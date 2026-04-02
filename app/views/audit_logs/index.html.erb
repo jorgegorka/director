@@ -8,7 +8,7 @@
 
   <%= render "audit_logs/filters" %>
 
-  <% if @audit_events.any? %>
+  <% if @index.any_events? %>
     <table class="audit-table">
       <thead>
         <tr>
@@ -20,16 +20,16 @@
         </tr>
       </thead>
       <tbody>
-        <%= render partial: "audit_logs/event_row", collection: @audit_events, as: :event %>
+        <%= render partial: "audit_logs/event_row", collection: @index.events, as: :event %>
       </tbody>
     </table>
 
-    <% if @audit_events.size >= 100 %>
+    <% if @index.events.size >= 100 %>
       <p class="audit-log-page__note">Showing the 100 most recent events. Use filters to narrow results.</p>
     <% end %>
   <% else %>
     <div class="audit-log-page__empty">
-      <p>No audit events found<%= " matching your filters" if params[:actor_type].present? || params[:action_filter].present? || params[:start_date].present? %>.</p>
+      <p>No audit events found<%= " matching your filters" if @index.filtered? %>.</p>
     </div>
   <% end %>
 </section>
