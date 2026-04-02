@@ -49,4 +49,31 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
     end
     assert_response :unprocessable_entity
   end
+
+  test "should get edit company form" do
+    company = companies(:acme)
+    get edit_company_url(company)
+    assert_response :success
+    assert_select "form"
+  end
+
+  test "should update company max_concurrent_agents" do
+    company = companies(:acme)
+    patch company_url(company), params: { company: { max_concurrent_agents: 3 } }
+    assert_redirected_to companies_url
+    assert_equal 3, company.reload.max_concurrent_agents
+  end
+
+  test "should not update company with invalid max_concurrent_agents" do
+    company = companies(:acme)
+    patch company_url(company), params: { company: { max_concurrent_agents: -1 } }
+    assert_response :unprocessable_entity
+  end
+
+  test "should update company name" do
+    company = companies(:acme)
+    patch company_url(company), params: { company: { name: "Renamed Corp" } }
+    assert_redirected_to companies_url
+    assert_equal "Renamed Corp", company.reload.name
+  end
 end

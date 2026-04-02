@@ -194,15 +194,6 @@
         </div>
       </div>
 
-      <%# Documents %>
-      <div class="role-detail__card">
-        <h2 class="role-detail__card-title">Documents</h2>
-        <%= render "documents/document_picker",
-              linkable: @role,
-              linked_documents: @role_document_links,
-              link_path: role_role_documents_path(@role),
-              unlink_path_helper: ->(role, rd) { role_role_document_path(role, rd) } %>
-      </div>
     </div>
 
     <%# -- Sidebar column -- %>

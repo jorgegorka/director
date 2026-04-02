@@ -73,14 +73,4 @@ class Documents::CreatorTest < ActiveSupport::TestCase
     end
   end
 
-  test "does not auto-link document to author role" do
-    doc = Documents::Creator.call(
-      author: @role,
-      company: @company,
-      title: "Standalone Doc",
-      body: "# Content"
-    )
-
-    assert_equal 0, doc.role_documents.count
-  end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_01_161432) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_02_084032) do
   create_table "approval_gates", force: :cascade do |t|
     t.string "action_type", null: false
     t.datetime "created_at", null: false
@@ -41,6 +41,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_01_161432) do
 
   create_table "companies", force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.integer "max_concurrent_agents", default: 0, null: false
     t.string "name", null: false
     t.datetime "updated_at", null: false
   end
@@ -242,16 +243,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_01_161432) do
     t.index ["role_id"], name: "index_pending_hires_on_role_id"
   end
 
-  create_table "role_documents", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.integer "document_id", null: false
-    t.integer "role_id", null: false
-    t.datetime "updated_at", null: false
-    t.index ["document_id"], name: "index_role_documents_on_document_id"
-    t.index ["role_id", "document_id"], name: "index_role_documents_on_role_id_and_document_id", unique: true
-    t.index ["role_id"], name: "index_role_documents_on_role_id"
-  end
-
   create_table "role_hooks", force: :cascade do |t|
     t.json "action_config", default: {}, null: false
     t.integer "action_type", default: 0, null: false
@@ -442,8 +433,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_01_161432) do
   add_foreign_key "pending_hires", "companies"
   add_foreign_key "pending_hires", "roles"
   add_foreign_key "pending_hires", "users", column: "resolved_by_id"
-  add_foreign_key "role_documents", "documents"
-  add_foreign_key "role_documents", "roles"
   add_foreign_key "role_hooks", "companies"
   add_foreign_key "role_hooks", "roles"
   add_foreign_key "role_runs", "companies"

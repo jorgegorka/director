@@ -1,0 +1,32 @@
+<% content_for(:title, "Company Settings") %>
+
+<section class="form-card">
+  <h1>Company Settings</h1>
+  <p class="form-card__subtitle">Configure settings for <%= @company.name %>.</p>
+
+  <%= form_with(model: @company, class: "form") do |f| %>
+    <% if @company.errors.any? %>
+      <div class="form__errors" role="alert">
+        <% @company.errors.full_messages.each do |message| %>
+          <p><%= message %></p>
+        <% end %>
+      </div>
+    <% end %>
+
+    <div class="form__field">
+      <%= f.label :name, "Company name" %>
+      <%= f.text_field :name, required: true %>
+    </div>
+
+    <div class="form__field">
+      <%= f.label :max_concurrent_agents, "Max concurrent agents" %>
+      <%= f.number_field :max_concurrent_agents, min: 0, step: 1 %>
+      <p class="form__hint">Maximum number of agents that can run simultaneously. Set to 0 for unlimited.</p>
+    </div>
+
+    <div class="form__actions">
+      <%= f.submit "Save settings", class: "btn btn--primary" %>
+      <%= link_to "Cancel", companies_path, class: "btn btn--ghost" %>
+    </div>
+  <% end %>
+</section>

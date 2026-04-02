@@ -10,7 +10,7 @@ Rails.application.routes.draw do
   resource :settings, only: [ :show, :update ]
 
   # Companies
-  resources :companies, only: [ :index, :new, :create ] do
+  resources :companies, only: [ :index, :new, :create, :edit, :update ] do
     resource :switch, only: [ :create ], module: :companies, controller: "switches"
     member do
       post :emergency_stop
@@ -26,7 +26,6 @@ Rails.application.routes.draw do
   # Org Chart & Roles (scoped to active company via Current.company)
   resources :roles do
     resources :role_skills, only: [ :create, :destroy ]
-    resources :role_documents, only: [ :create, :destroy ]
     resources :heartbeats, only: [ :index ]
     resources :role_hooks
     resources :role_runs, only: [ :index, :show ] do

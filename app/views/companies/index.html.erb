@@ -20,6 +20,7 @@
             <% else %>
               <%= button_to "Switch", company_switch_path(company), class: "btn btn--ghost btn--sm" %>
             <% end %>
+            <%= link_to "Settings", edit_company_path(company), class: "btn btn--ghost btn--sm" %>
           </div>
         </div>
       <% end %>

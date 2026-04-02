@@ -9,9 +9,6 @@ class Document < ApplicationRecord
   has_many :skill_documents, dependent: :destroy
   has_many :skills, through: :skill_documents
 
-  has_many :role_documents, dependent: :destroy
-  has_many :roles, through: :role_documents
-
   has_many :task_documents, dependent: :destroy
   has_many :tasks, through: :task_documents
 

@@ -14,7 +14,7 @@ class RoleRun < ApplicationRecord
   belongs_to :task, optional: true
   belongs_to :goal, optional: true
 
-  enum :status, { queued: 0, running: 1, completed: 2, failed: 3, cancelled: 4 }
+  enum :status, { queued: 0, running: 1, completed: 2, failed: 3, cancelled: 4, throttled: 5 }
 
   validates :trigger_type, inclusion: { in: HeartbeatEvent.trigger_types.keys }, allow_nil: true
 
@@ -53,6 +53,7 @@ class RoleRun < ApplicationRecord
 
     mark_cancelled!
     role.update!(status: :idle) if role.running?
+    role.company.dispatch_next_throttled_run!
   end
 
   def append_log!(text)

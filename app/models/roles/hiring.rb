@@ -10,11 +10,11 @@ module Roles
 
     def department_template
       @department_template ||= begin
-        root_role = find_department_root
-        return nil if root_role.nil?
+        dept_role = find_department_root
+        return nil if dept_role.nil?
 
         RoleTemplates::Registry.all.find do |template|
-          template.roles.first&.title == root_role.title
+          template.roles.any? { |r| r.title == dept_role.title }
         end
       end
     end
@@ -54,10 +54,11 @@ module Roles
 
     def find_department_root
       current = self
-      template_root_titles = RoleTemplates::Registry.all.map { |t| t.roles.first&.title }.compact
+      all_template_titles = RoleTemplates::Registry.all.flat_map { |t| t.roles.map(&:title) }.to_set
 
       while current
-        return current if template_root_titles.include?(current.title)
+        break if current.parent.nil?
+        return current if all_template_titles.include?(current.title)
         current = current.parent
       end
 

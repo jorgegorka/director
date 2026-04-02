@@ -12,7 +12,6 @@ class DocumentsController < ApplicationController
 
   def show
     @linked_skills = @document.skills.order(:name)
-    @linked_roles = @document.roles.order(:title)
     @linked_tasks = @document.tasks.order(:title)
   end
 

@@ -22,6 +22,7 @@ class ExecuteRoleJob < ApplicationJob
       claude_session_id: result&.dig(:session_id)
     )
     role.update!(status: :idle)
+    role.company.dispatch_next_throttled_run!
   # NotImplementedError is a ScriptError (not StandardError) — catch it
   # explicitly so unimplemented adapters fail gracefully.
   rescue StandardError, NotImplementedError => e
@@ -29,6 +30,7 @@ class ExecuteRoleJob < ApplicationJob
       role_run.mark_failed!(error_message: e.message, exit_code: 1)
     end
     role&.update!(status: :idle) if role&.running?
+    role_run&.role&.company&.dispatch_next_throttled_run!
   end
 
   private
@@ -60,21 +62,7 @@ class ExecuteRoleJob < ApplicationJob
 
     skills = role.skills.to_a
     ctx[:skills] = serialize_skills(skills)
-    ctx[:documents] = build_document_context(skills, role, role_run)
-
     ctx
-  end
-
-  def build_document_context(skills, role, role_run)
-    skill_doc_ids = SkillDocument.where(skill_id: skills.map(&:id)).pluck(:document_id)
-    role_doc_ids = role.role_documents.pluck(:document_id)
-    task_doc_ids = role_run.task_id.present? ? TaskDocument.where(task_id: role_run.task_id).pluck(:document_id) : []
-
-    {
-      skill_documents: serialize_documents(Document.where(id: skill_doc_ids)),
-      role_documents: serialize_documents(Document.where(id: role_doc_ids)),
-      task_documents: serialize_documents(Document.where(id: task_doc_ids))
-    }
   end
 
   def serialize_skills(skills)
@@ -85,17 +73,6 @@ class ExecuteRoleJob < ApplicationJob
         description: skill.description,
         category: skill.category,
         markdown: skill.markdown
-      }
-    end
-  end
-
-  def serialize_documents(documents)
-    documents.includes(:tags).map do |doc|
-      {
-        id: doc.id,
-        title: doc.title,
-        body: doc.body,
-        tags: doc.tags.map(&:name)
       }
     end
   end

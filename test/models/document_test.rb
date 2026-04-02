@@ -50,10 +50,6 @@ class DocumentTest < ActiveSupport::TestCase
     assert @document.respond_to?(:skills)
   end
 
-  test "has many roles through role_documents" do
-    assert @document.respond_to?(:roles)
-  end
-
   test "has many tasks through task_documents" do
     assert @document.respond_to?(:tasks)
   end
@@ -87,12 +83,6 @@ class DocumentTest < ActiveSupport::TestCase
     # fixture already links acme_code_review -> acme_coding_standards
     assert doc.skill_documents.any?
     assert_difference("SkillDocument.count", -doc.skill_documents.count) { doc.destroy }
-  end
-
-  test "destroying document destroys role_documents" do
-    doc = documents(:acme_coding_standards)
-    RoleDocument.create!(role: roles(:cto), document: doc)
-    assert_difference("RoleDocument.count", -1) { doc.destroy }
   end
 
   test "destroying document destroys task_documents" do

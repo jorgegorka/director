@@ -243,6 +243,8 @@ class ClaudeLocalAdapter < BaseAdapter
       - **hire_role** / **list_hirable_roles** — hire new subordinate roles
       - **get_goal_details** / **create_goal** / **update_goal** — manage goals
       - **add_message** — communicate on tasks
+      - **search_documents** — search the company document library by title or tag
+      - **get_document** — fetch the full content of a document
 
       Use these Director MCP tools to accomplish your goals. Break goals into tasks, delegate to your reports, and track progress.
     PROMPT

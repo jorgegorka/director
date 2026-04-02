@@ -21,6 +21,20 @@ class CompaniesController < ApplicationController
     render :new, status: :unprocessable_entity
   end
 
+  def edit
+    @company = Current.user.companies.find(params[:id])
+  end
+
+  def update
+    @company = Current.user.companies.find(params[:id])
+
+    if @company.update(company_params)
+      redirect_to companies_path, notice: "Company settings updated."
+    else
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
   def emergency_stop
     company = Current.user.companies.find(params[:id])
     unless company == Current.company
@@ -35,6 +49,6 @@ class CompaniesController < ApplicationController
   private
 
   def company_params
-    params.require(:company).permit(:name)
+    params.require(:company).permit(:name, :max_concurrent_agents)
   end
 end

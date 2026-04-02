@@ -17,8 +17,6 @@ class Role < ApplicationRecord
   has_many :approval_gates, dependent: :destroy
   has_many :role_hooks, dependent: :destroy
   has_many :role_runs, dependent: :destroy
-  has_many :role_documents, dependent: :destroy, inverse_of: :role
-  has_many :documents, through: :role_documents
 
   enum :adapter_type, { http: 0, process: 1, claude_local: 2 }
   enum :status, { idle: 0, running: 1, paused: 2, error: 3, terminated: 4, pending_approval: 5 }
@@ -162,14 +160,6 @@ class Role < ApplicationRecord
       (task.goal_id.present? &&
         pick_session(role_runs.where(task_id: Task.where(goal_id: task.goal_id).where.not(id: task.id).select(:id)))) ||
       nil
-  end
-
-  def all_documents
-    skill_doc_ids = SkillDocument.where(skill_id: skill_ids).select(:document_id)
-
-    Document.for_current_company
-      .where(id: documents.select(:id))
-      .or(Document.for_current_company.where(id: skill_doc_ids))
   end
 
   def gate_enabled?(action_type)

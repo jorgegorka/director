@@ -11,7 +11,6 @@ class RolesController < ApplicationController
     @recent_runs = @role.role_runs.order(created_at: :desc).limit(5)
     @company_skills = Current.company.skills.order(:category, :name)
     @role_skills_by_skill_id = @role.role_skills.index_by(&:skill_id)
-    @role_document_links = @role.role_documents.joins(:document).includes(:document).order("documents.title")
     @role_goals = @role.goals.ordered
     @eval_total = @role.goal_evaluations.count
     @eval_pass_count = @role.goal_evaluations.passed.count

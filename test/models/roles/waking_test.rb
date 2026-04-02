@@ -208,4 +208,58 @@ class Roles::WakingTest < ActiveSupport::TestCase
     active_run.reload
     assert_equal original_goal.id, active_run.goal_id
   end
+
+  # --- Company concurrency throttling ---
+
+  test "creates throttled run when company concurrency limit reached" do
+    company = @developer.company
+    company.update!(max_concurrent_agents: 1)
+    # Create an active run on a different role
+    other_role = roles(:cto)
+    other_role.role_runs.create!(company: company, status: :running, trigger_type: "scheduled")
+
+    assert_no_enqueued_jobs(only: ExecuteRoleJob) do
+      Roles::Waking.call(
+        role: @developer,
+        trigger_type: :task_assigned,
+        context: { task_id: tasks(:fix_login_bug).id }
+      )
+    end
+
+    run = RoleRun.last
+    assert run.throttled?, "Run should be throttled, got #{run.status}"
+    assert_equal @developer, run.role
+  end
+
+  test "creates queued run when company concurrency limit not reached" do
+    company = @developer.company
+    company.update!(max_concurrent_agents: 5)
+
+    assert_enqueued_with(job: ExecuteRoleJob) do
+      Roles::Waking.call(
+        role: @developer,
+        trigger_type: :task_assigned,
+        context: { task_id: tasks(:fix_login_bug).id }
+      )
+    end
+
+    run = RoleRun.last
+    assert run.queued?, "Run should be queued, got #{run.status}"
+  end
+
+  test "creates queued run when company concurrency limit is zero (unlimited)" do
+    company = @developer.company
+    company.update!(max_concurrent_agents: 0)
+
+    assert_enqueued_with(job: ExecuteRoleJob) do
+      Roles::Waking.call(
+        role: @developer,
+        trigger_type: :task_assigned,
+        context: { task_id: tasks(:fix_login_bug).id }
+      )
+    end
+
+    run = RoleRun.last
+    assert run.queued?
+  end
 end

@@ -334,7 +334,7 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
   # Document context tests
   # ---------------------------------------------------------------------------
 
-  test "build_context includes skill documents for the role" do
+  test "build_context does not include documents key" do
     role = roles(:cto)
     role_run = RoleRun.create!(
       role: role,
@@ -346,59 +346,7 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
     job = ExecuteRoleJob.new
     ctx = job.send(:build_context, role, role_run)
 
-    assert ctx.key?(:documents)
-    assert ctx[:documents].key?(:skill_documents)
-    skill_doc_titles = ctx[:documents][:skill_documents].map { |d| d[:title] }
-    assert_includes skill_doc_titles, "Coding Standards"
-  end
-
-  test "build_context includes role documents" do
-    role = roles(:cto)
-    role_run = RoleRun.create!(
-      role: role,
-      company: role.company,
-      status: :queued,
-      trigger_type: :scheduled
-    )
-
-    job = ExecuteRoleJob.new
-    ctx = job.send(:build_context, role, role_run)
-
-    role_doc_titles = ctx[:documents][:role_documents].map { |d| d[:title] }
-    assert_includes role_doc_titles, "Refund Policy"
-  end
-
-  test "build_context includes task documents when task present" do
-    role = roles(:cto)
-    task = tasks(:design_homepage)
-    role_run = RoleRun.create!(
-      role: role,
-      company: role.company,
-      task: task,
-      status: :queued,
-      trigger_type: :task_assigned
-    )
-
-    job = ExecuteRoleJob.new
-    ctx = job.send(:build_context, role, role_run)
-
-    task_doc_titles = ctx[:documents][:task_documents].map { |d| d[:title] }
-    assert_includes task_doc_titles, "Coding Standards"
-  end
-
-  test "build_context has empty task_documents when no task" do
-    role = roles(:cto)
-    role_run = RoleRun.create!(
-      role: role,
-      company: role.company,
-      status: :queued,
-      trigger_type: :scheduled
-    )
-
-    job = ExecuteRoleJob.new
-    ctx = job.send(:build_context, role, role_run)
-
-    assert_equal [], ctx[:documents][:task_documents]
+    assert_not ctx.key?(:documents)
   end
 
   # ---------------------------------------------------------------------------
@@ -445,5 +393,57 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
     ctx = job.send(:build_context, role, role_run)
 
     assert_equal [], ctx[:skills]
+  end
+
+  # ---------------------------------------------------------------------------
+  # Throttled run drain on completion
+  # ---------------------------------------------------------------------------
+
+  test "dispatches next throttled run after successful completion" do
+    @company.update!(max_concurrent_agents: 1)
+    RoleRun.where(company: @company).delete_all
+
+    http_role = roles(:developer)
+    stub_request(:post, "https://api.example.com/agent")
+      .to_return(status: 200, body: '{"status":"ok"}')
+    HttpAdapter.define_singleton_method(:backoff_sleep) { |_n| nil }
+
+    run = RoleRun.create!(
+      role: http_role, task: @task, company: @company,
+      status: :queued, trigger_type: "task_assigned"
+    )
+
+    throttled = RoleRun.create!(
+      role: @role, company: @company,
+      status: :throttled, trigger_type: "scheduled"
+    )
+
+    ExecuteRoleJob.perform_now(run.id)
+
+    throttled.reload
+    assert throttled.queued?, "Throttled run should be queued after slot freed, got #{throttled.status}"
+  ensure
+    HttpAdapter.singleton_class.remove_method(:backoff_sleep)
+  end
+
+  test "dispatches next throttled run after failure" do
+    @company.update!(max_concurrent_agents: 1)
+    RoleRun.where(company: @company).delete_all
+
+    run = RoleRun.create!(
+      role: @role, task: @task, company: @company,
+      status: :queued, trigger_type: "task_assigned"
+    )
+
+    throttled = RoleRun.create!(
+      role: roles(:developer), company: @company,
+      status: :throttled, trigger_type: "scheduled"
+    )
+
+    ExecuteRoleJob.perform_now(run.id)
+
+    assert run.reload.failed?
+    throttled.reload
+    assert throttled.queued?, "Throttled run should be queued after failed run frees slot, got #{throttled.status}"
   end
 end

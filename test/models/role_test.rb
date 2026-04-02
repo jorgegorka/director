@@ -504,45 +504,6 @@ class RoleTest < ActiveSupport::TestCase
     end
   end
 
-  # --- all_documents ---
-
-  test "all_documents returns role's directly linked documents" do
-    Current.company = companies(:acme)
-    role = roles(:cto)
-    docs = role.all_documents
-    assert_includes docs, documents(:acme_refund_policy)
-  end
-
-  test "all_documents returns documents from role's skills" do
-    Current.company = companies(:acme)
-    role = roles(:cto)
-    docs = role.all_documents
-    assert_includes docs, documents(:acme_coding_standards)
-  end
-
-  test "all_documents does not return unlinked documents" do
-    Current.company = companies(:acme)
-    role = roles(:cto)
-    docs = role.all_documents
-    assert_not_includes docs, documents(:acme_agent_created_doc)
-  end
-
-  test "all_documents does not return documents from other companies" do
-    Current.company = companies(:acme)
-    role = roles(:cto)
-    docs = role.all_documents
-    assert_not_includes docs, documents(:widgets_doc)
-  end
-
-  test "all_documents does not duplicate documents linked both directly and via skill" do
-    Current.company = companies(:acme)
-    role = roles(:cto)
-    # Link coding_standards directly to the role too (it's already linked via skill)
-    RoleDocument.find_or_create_by!(role: role, document: documents(:acme_coding_standards))
-    docs = role.all_documents
-    coding_standards_count = docs.select { |d| d.id == documents(:acme_coding_standards).id }.count
-    assert_equal 1, coding_standards_count
-  end
 
   # --- Goals association ---
 
