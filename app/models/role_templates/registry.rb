@@ -4,7 +4,7 @@ module RoleTemplates
     class InvalidTemplate < StandardError; end
 
     Template = Data.define(:key, :name, :description, :roles)
-    TemplateRole = Data.define(:title, :description, :job_spec, :parent, :skill_keys)
+    TemplateRole = Data.define(:title, :description, :job_spec, :parent, :skill_keys, :category)
 
     class << self
       def all
@@ -47,7 +47,8 @@ module RoleTemplates
             description: role_data.fetch("description"),
             job_spec: role_data.fetch("job_spec"),
             parent: role_data["parent"],
-            skill_keys: role_data.fetch("skill_keys")
+            skill_keys: role_data.fetch("skill_keys"),
+            category: role_data["category"]
           )
         end
 

@@ -63,7 +63,7 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
   test "should create role" do
     assert_difference("Role.count", 1) do
       post roles_url, params: {
-        role: { title: "Designer", description: "UI/UX design", job_spec: "Design interfaces", parent_id: @cto.id }
+        role: { title: "Designer", description: "UI/UX design", job_spec: "Design interfaces", parent_id: @cto.id, role_category_id: role_categories(:worker).id }
       }
     end
     role = Role.order(:created_at).last
@@ -76,7 +76,7 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
   test "should create root role with no parent" do
     assert_difference("Role.count", 1) do
       post roles_url, params: {
-        role: { title: "Advisor", description: "External advisor" }
+        role: { title: "Advisor", description: "External advisor", role_category_id: role_categories(:worker).id }
       }
     end
     role = Role.order(:created_at).last
@@ -85,14 +85,14 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
 
   test "should not create role with blank title" do
     assert_no_difference("Role.count") do
-      post roles_url, params: { role: { title: "" } }
+      post roles_url, params: { role: { title: "", role_category_id: role_categories(:worker).id } }
     end
     assert_response :unprocessable_entity
   end
 
   test "should not create role with duplicate title" do
     assert_no_difference("Role.count") do
-      post roles_url, params: { role: { title: "CEO" } }
+      post roles_url, params: { role: { title: "CEO", role_category_id: role_categories(:worker).id } }
     end
     assert_response :unprocessable_entity
   end
@@ -103,7 +103,8 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
         role: {
           title: "New HTTP Role",
           adapter_type: "http",
-          adapter_config: { url: "https://example.com/api", method: "POST" }
+          adapter_config: { url: "https://example.com/api", method: "POST" },
+          role_category_id: role_categories(:worker).id
         }
       }
     end
@@ -121,7 +122,8 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
         role: {
           title: "Local Claude Role",
           adapter_type: "claude_local",
-          adapter_config: { model: "claude-sonnet-4-20250514" }
+          adapter_config: { model: "claude-sonnet-4-20250514" },
+          role_category_id: role_categories(:worker).id
         }
       }
     end
@@ -131,7 +133,7 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should create role with working_directory" do
-    post roles_url, params: { role: { title: "Agent", working_directory: "/projects/website" } }
+    post roles_url, params: { role: { title: "Agent", working_directory: "/projects/website", role_category_id: role_categories(:worker).id } }
     role = Role.find_by(title: "Agent")
     assert_equal "/projects/website", role.working_directory
   end
@@ -215,7 +217,8 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
           adapter_type: "http",
           adapter_config: { url: "https://example.com/agent" },
           heartbeat_enabled: "1",
-          heartbeat_interval: "15"
+          heartbeat_interval: "15",
+          role_category_id: role_categories(:worker).id
         }
       }
     end
@@ -273,7 +276,8 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
         title: "Budget Role",
         adapter_type: "http",
         adapter_config: { url: "https://example.com" },
-        budget_dollars: "250.00"
+        budget_dollars: "250.00",
+        role_category_id: role_categories(:worker).id
       } }
     end
     role = Role.find_by(title: "Budget Role")

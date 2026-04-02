@@ -4,6 +4,10 @@ class RoleTemplates::BulkApplicatorTest < ActiveSupport::TestCase
   # widgets company: 1 role ("Operations Lead") -- used for clean-slate tests
   # acme company: CEO, CTO, Senior Developer, Script Runner -- used for partial overlap tests
 
+  setup do
+    companies(:widgets).seed_default_role_categories!
+  end
+
   teardown do
     RoleTemplates::Registry.reset!
   end

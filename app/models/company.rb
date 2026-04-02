@@ -3,6 +3,7 @@ class Company < ApplicationRecord
   has_many :users, through: :memberships
   has_many :invitations, dependent: :destroy
   has_many :roles, dependent: :destroy
+  has_many :role_categories, dependent: :destroy
   has_many :skills, dependent: :destroy
   has_many :tasks, dependent: :destroy
   has_many :goals, dependent: :destroy
@@ -14,6 +15,7 @@ class Company < ApplicationRecord
   has_many :role_runs
   has_many :audit_events, dependent: :delete_all
 
+  after_create :seed_default_role_categories!
   after_create :seed_default_skills!
 
   validates :name, presence: true
@@ -36,6 +38,15 @@ class Company < ApplicationRecord
 
     next_run.update!(status: :queued)
     ExecuteRoleJob.perform_later(next_run.id)
+  end
+
+  def seed_default_role_categories!
+    RoleCategory.default_definitions.each do |data|
+      role_categories.find_or_create_by!(name: data.fetch("name")) do |cat|
+        cat.description = data["description"]
+        cat.job_spec = data.fetch("job_spec")
+      end
+    end
   end
 
   def seed_default_skills!

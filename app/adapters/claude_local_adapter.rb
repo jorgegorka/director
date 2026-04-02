@@ -148,12 +148,7 @@ class ClaudeLocalAdapter < BaseAdapter
 
   private_class_method def self.build_claude_command(role, context, temp_files)
     config = role.adapter_config
-    raw = context[:task_description] || context[:task_title] || context[:goal_description] || context[:goal_title]
-    prompt = if raw
-      "Focus on this assigned work and nothing else:\n\n#{raw}"
-    else
-      "Check your assigned goals with list_my_goals and tasks with list_my_tasks, then execute the highest-priority work."
-    end
+    prompt = build_user_prompt(context)
 
     parts = [ "claude", "-p" ]
     parts << prompt.shellescape
@@ -204,6 +199,7 @@ class ClaudeLocalAdapter < BaseAdapter
 
     parts << build_identity_prompt(role)
     parts << role.job_spec if role.job_spec.present?
+    parts << role.role_category.job_spec if role.role_category&.job_spec.present?
 
     if context[:goal_title].present?
       parts << build_goal_prompt(context)
@@ -285,6 +281,22 @@ class ClaudeLocalAdapter < BaseAdapter
 
       #{details}
     PROMPT
+  end
+
+  private_class_method def self.build_user_prompt(context)
+    if context[:task_id].present?
+      prompt = "You have been assigned Task ##{context[:task_id]}"
+      prompt += ": #{context[:task_title]}" if context[:task_title].present?
+      prompt += "\n\n#{context[:task_description]}" if context[:task_description].present?
+      prompt.strip
+    elsif context[:goal_id].present?
+      prompt = "You have been assigned Goal: **#{context[:goal_title]}**"
+      prompt += "\n\n#{context[:goal_description]}" if context[:goal_description].present?
+      prompt += "\n\nCheck your tasks with `list_my_tasks` and goals with `list_my_goals`, then execute the highest-priority work."
+      prompt.strip
+    else
+      "Check your assigned goals with list_my_goals and tasks with list_my_tasks, then execute the highest-priority work."
+    end
   end
 
   private_class_method def self.poll_session(session_name, role_run)

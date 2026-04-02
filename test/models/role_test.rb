@@ -11,30 +11,36 @@ class RoleTest < ActiveSupport::TestCase
 
   # --- Validations ---
 
-  test "valid with title and company" do
-    role = Role.new(title: "Designer", company: @company)
+  test "valid with title, company, and category" do
+    role = Role.new(title: "Designer", company: @company, role_category: role_categories(:worker))
     assert role.valid?
   end
 
+  test "invalid without role_category" do
+    role = Role.new(title: "No Category", company: @company)
+    assert_not role.valid?
+    assert_includes role.errors[:role_category], "must exist"
+  end
+
   test "invalid without title" do
-    role = Role.new(title: nil, company: @company)
+    role = Role.new(title: nil, company: @company, role_category: role_categories(:worker))
     assert_not role.valid?
     assert_includes role.errors[:title], "can't be blank"
   end
 
   test "invalid with duplicate title in same company" do
-    role = Role.new(title: "CEO", company: @company)
+    role = Role.new(title: "CEO", company: @company, role_category: role_categories(:worker))
     assert_not role.valid?
     assert_includes role.errors[:title], "already exists in this company"
   end
 
   test "allows same title in different companies" do
-    role = Role.new(title: "CEO", company: companies(:widgets))
+    role = Role.new(title: "CEO", company: companies(:widgets), role_category: role_categories(:worker))
     assert role.valid?
   end
 
   test "invalid when parent belongs to different company" do
-    role = Role.new(title: "Cross-company", company: companies(:widgets), parent: @ceo)
+    role = Role.new(title: "Cross-company", company: companies(:widgets), parent: @ceo, role_category: role_categories(:worker))
     assert_not role.valid?
     assert_includes role.errors[:parent], "must belong to the same company"
   end
@@ -58,6 +64,7 @@ class RoleTest < ActiveSupport::TestCase
     role = Role.new(
       title: "New Agent Role",
       company: @company,
+      role_category: role_categories(:worker),
       adapter_type: :http,
       adapter_config: { "url" => "https://example.com" }
     )
@@ -68,6 +75,7 @@ class RoleTest < ActiveSupport::TestCase
     role = Role.new(
       title: "Bad HTTP",
       company: @company,
+      role_category: role_categories(:worker),
       adapter_type: :http,
       adapter_config: { "method" => "POST" }
     )
@@ -79,6 +87,7 @@ class RoleTest < ActiveSupport::TestCase
     role = Role.new(
       title: "Bad Process",
       company: @company,
+      role_category: role_categories(:worker),
       adapter_type: :process,
       adapter_config: { "timeout" => 30 }
     )
@@ -90,6 +99,7 @@ class RoleTest < ActiveSupport::TestCase
     role = Role.new(
       title: "Bad Claude",
       company: @company,
+      role_category: role_categories(:worker),
       adapter_type: :claude_local,
       adapter_config: { "max_turns" => 5 }
     )
@@ -101,6 +111,7 @@ class RoleTest < ActiveSupport::TestCase
     role = Role.new(
       title: "Minimal Claude",
       company: @company,
+      role_category: role_categories(:worker),
       adapter_type: :claude_local,
       adapter_config: { "model" => "claude-opus-4" }
     )
@@ -138,6 +149,10 @@ class RoleTest < ActiveSupport::TestCase
   end
 
   # --- Associations ---
+
+  test "belongs to role_category" do
+    assert_equal role_categories(:orchestrator), @ceo.role_category
+  end
 
   test "belongs to company via Tenantable" do
     assert_equal @company, @ceo.company
@@ -226,6 +241,7 @@ class RoleTest < ActiveSupport::TestCase
     terminated = Role.new(
       title: "Dead Role",
       company: @company,
+      role_category: role_categories(:worker),
       adapter_type: :http,
       adapter_config: { "url" => "https://example.com" },
       status: :terminated
@@ -315,6 +331,7 @@ class RoleTest < ActiveSupport::TestCase
     role = Role.create!(
       title: "Token Role",
       company: @company,
+      role_category: role_categories(:worker),
       adapter_type: :http,
       adapter_config: { "url" => "https://example.com" }
     )
@@ -326,12 +343,14 @@ class RoleTest < ActiveSupport::TestCase
     role1 = Role.create!(
       title: "Token Role 1",
       company: @company,
+      role_category: role_categories(:worker),
       adapter_type: :http,
       adapter_config: { "url" => "https://example.com" }
     )
     role2 = Role.create!(
       title: "Token Role 2",
       company: @company,
+      role_category: role_categories(:worker),
       adapter_type: :http,
       adapter_config: { "url" => "https://example.com" }
     )
@@ -346,12 +365,12 @@ class RoleTest < ActiveSupport::TestCase
   end
 
   test "vacant role does not generate api_token" do
-    role = Role.create!(title: "Vacant Role", company: @company)
+    role = Role.create!(title: "Vacant Role", company: @company, role_category: role_categories(:worker))
     assert_nil role.api_token
   end
 
   test "generates api_token when existing role is updated to become an agent" do
-    role = Role.create!(title: "Vacant Agent", company: @company)
+    role = Role.create!(title: "Vacant Agent", company: @company, role_category: role_categories(:worker))
     assert_nil role.api_token
 
     role.update!(adapter_type: :http, adapter_config: { "url" => "https://example.com" })
@@ -363,6 +382,7 @@ class RoleTest < ActiveSupport::TestCase
     role = Role.create!(
       title: "Existing Token",
       company: @company,
+      role_category: role_categories(:worker),
       adapter_type: :http,
       adapter_config: { "url" => "https://example.com" }
     )
@@ -531,29 +551,58 @@ class RoleTest < ActiveSupport::TestCase
   # --- Working directory inheritance ---
 
   test "inherits working_directory from parent on create" do
-    parent = Role.create!(title: "Team Lead", company: @company, working_directory: "/projects/website")
-    child = Role.create!(title: "Designer", company: @company, parent: parent)
+    parent = Role.create!(title: "Team Lead", company: @company, role_category: role_categories(:worker), working_directory: "/projects/website")
+    child = Role.create!(title: "Designer", company: @company, role_category: role_categories(:worker), parent: parent)
 
     assert_equal "/projects/website", child.working_directory
   end
 
   test "does not override explicit working_directory with parent's" do
-    parent = Role.create!(title: "Team Lead", company: @company, working_directory: "/projects/website")
-    child = Role.create!(title: "Designer", company: @company, parent: parent, working_directory: "/projects/design")
+    parent = Role.create!(title: "Team Lead", company: @company, role_category: role_categories(:worker), working_directory: "/projects/website")
+    child = Role.create!(title: "Designer", company: @company, role_category: role_categories(:worker), parent: parent, working_directory: "/projects/design")
 
     assert_equal "/projects/design", child.working_directory
   end
 
   test "working_directory is nil when no parent" do
-    role = Role.create!(title: "Lone Wolf", company: @company)
+    role = Role.create!(title: "Lone Wolf", company: @company, role_category: role_categories(:worker))
 
     assert_nil role.working_directory
   end
 
   test "working_directory is nil when parent has no working_directory" do
-    child = Role.create!(title: "Designer", company: @company, parent: @ceo)
+    child = Role.create!(title: "Designer", company: @company, role_category: role_categories(:worker), parent: @ceo)
 
     assert_nil child.working_directory
+  end
+
+  # --- Default job_spec ---
+
+  test "sets default job_spec on create when blank" do
+    role = Role.create!(title: "New Agent", company: @company, role_category: role_categories(:worker))
+    assert_includes role.job_spec, "Task Workflow"
+    assert_includes role.job_spec, "update_task_status"
+    assert_includes role.job_spec, "add_message"
+  end
+
+  test "preserves explicit job_spec on create" do
+    role = Role.create!(title: "Custom Agent", company: @company, role_category: role_categories(:worker), job_spec: "Delegate all tasks to direct reports.")
+    assert_equal "Delegate all tasks to direct reports.", role.job_spec
+  end
+
+  test "does not overwrite job_spec on update" do
+    role = Role.create!(title: "Agent X", company: @company, role_category: role_categories(:worker), job_spec: "Custom instructions.")
+    role.update!(job_spec: "")
+    assert_equal "", role.job_spec
+  end
+
+  # --- by_category scope ---
+
+  test "by_category filters roles by category" do
+    orchestrator = role_categories(:orchestrator)
+    worker = role_categories(:worker)
+    assert_includes Role.by_category(orchestrator).pluck(:title), "CEO"
+    assert_not_includes Role.by_category(worker).pluck(:title), "CEO"
   end
 
   # --- Goal-scoped session resumption ---
@@ -629,7 +678,7 @@ class RoleTest < ActiveSupport::TestCase
   test "first agent configuration does not duplicate existing skills" do
     # Create a role whose title matches a default_skills key, pre-assign a skill, then configure adapter.
     roles(:ceo).destroy # free up the "CEO" title
-    role = Role.create!(title: "CEO", company: @company)
+    role = Role.create!(title: "CEO", company: @company, role_category: role_categories(:worker))
     role.role_skills.create!(skill: skills(:acme_strategic_planning))
     initial_count = role.role_skills.count
     assert initial_count > 0, "Role should have some existing skills"
@@ -644,7 +693,7 @@ class RoleTest < ActiveSupport::TestCase
   end
 
   test "unknown role title silently skips auto-assignment" do
-    role = Role.create!(title: "Chief Happiness Officer", company: @company)
+    role = Role.create!(title: "Chief Happiness Officer", company: @company, role_category: role_categories(:worker))
 
     assert_no_difference("RoleSkill.count") do
       role.update!(adapter_type: :http, adapter_config: { "url" => "https://example.com" })

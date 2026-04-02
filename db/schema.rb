@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_02_084032) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_02_223039) do
   create_table "approval_gates", force: :cascade do |t|
     t.string "action_type", null: false
     t.datetime "created_at", null: false
@@ -243,6 +243,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_02_084032) do
     t.index ["role_id"], name: "index_pending_hires_on_role_id"
   end
 
+  create_table "role_categories", force: :cascade do |t|
+    t.integer "company_id", null: false
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.text "job_spec", null: false
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["company_id", "name"], name: "index_role_categories_on_company_id_and_name", unique: true
+    t.index ["company_id"], name: "index_role_categories_on_company_id"
+  end
+
   create_table "role_hooks", force: :cascade do |t|
     t.json "action_config", default: {}, null: false
     t.integer "action_type", default: 0, null: false
@@ -314,6 +325,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_02_084032) do
     t.bigint "parent_id"
     t.text "pause_reason"
     t.datetime "paused_at"
+    t.integer "role_category_id"
     t.integer "status", default: 0, null: false
     t.string "title", null: false
     t.datetime "updated_at", null: false
@@ -322,6 +334,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_02_084032) do
     t.index ["company_id", "title"], name: "index_roles_on_company_id_and_title", unique: true
     t.index ["company_id"], name: "index_roles_on_company_id"
     t.index ["parent_id"], name: "index_roles_on_parent_id"
+    t.index ["role_category_id"], name: "index_roles_on_role_category_id"
     t.index ["status"], name: "index_roles_on_status"
   end
 
@@ -433,6 +446,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_02_084032) do
   add_foreign_key "pending_hires", "companies"
   add_foreign_key "pending_hires", "roles"
   add_foreign_key "pending_hires", "users", column: "resolved_by_id"
+  add_foreign_key "role_categories", "companies"
   add_foreign_key "role_hooks", "companies"
   add_foreign_key "role_hooks", "roles"
   add_foreign_key "role_runs", "companies"
@@ -441,6 +455,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_02_084032) do
   add_foreign_key "role_skills", "roles"
   add_foreign_key "role_skills", "skills"
   add_foreign_key "roles", "companies"
+  add_foreign_key "roles", "role_categories"
   add_foreign_key "roles", "roles", column: "parent_id"
   add_foreign_key "sessions", "users"
   add_foreign_key "skill_documents", "documents"

@@ -107,6 +107,7 @@ module Roles
         description: template_role.description,
         job_spec: template_role.job_spec,
         parent: self,
+        role_category: company.role_categories.find_by(name: template_role.category),
         adapter_type: adapter_type,
         adapter_config: adapter_config,
 

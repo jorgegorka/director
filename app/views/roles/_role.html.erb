@@ -1,6 +1,7 @@
 <div class="role-card">
   <div class="role-card__header">
     <%= link_to role.title, role, class: "role-card__title" %>
+    <span class="role-category-badge role-category-badge--<%= role.role_category.name.parameterize %>"><%= role.role_category.name %></span>
     <% if role.parent %>
       <span class="role-card__reports-to">Reports to <%= role.parent.title %></span>
     <% else %>

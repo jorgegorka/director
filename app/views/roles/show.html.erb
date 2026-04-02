@@ -28,6 +28,7 @@
         <h1 class="role-detail__name"><%= @role.title %></h1>
         <div class="role-detail__status-line">
           <%= role_status_badge(@role) %>
+          <%= link_to @role.role_category.name, @role.role_category, class: "role-category-badge role-category-badge--#{@role.role_category.name.parameterize}" %>
           <span class="role-detail__adapter-label"><%= adapter_type_label(@role) %></span>
           <% if @role.parent %>
             <span class="role-detail__reports-to">Reports to <%= link_to @role.parent.title, @role.parent %></span>

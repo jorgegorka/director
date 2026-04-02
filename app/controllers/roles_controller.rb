@@ -3,7 +3,7 @@ class RolesController < ApplicationController
   before_action :set_role, only: [ :show, :edit, :update, :destroy, :run, :pause, :resume, :terminate, :approve, :reject ]
 
   def index
-    @roles = Current.company.roles.includes(:parent, :children, :skills).order(:title)
+    @roles = Current.company.roles.includes(:parent, :children, :skills, :role_category).order(:title)
   end
 
   def show
@@ -12,6 +12,7 @@ class RolesController < ApplicationController
 
   def new
     @role = Current.company.roles.new
+    @role_categories = Current.company.role_categories.order(:name)
   end
 
   def create
@@ -20,11 +21,13 @@ class RolesController < ApplicationController
     if @role.save
       redirect_to @role, notice: "#{@role.title} has been created."
     else
+      @role_categories = Current.company.role_categories.order(:name)
       render :new, status: :unprocessable_entity
     end
   end
 
   def edit
+    @role_categories = Current.company.role_categories.order(:name)
   end
 
   def update
@@ -32,6 +35,7 @@ class RolesController < ApplicationController
       sync_approval_gates
       redirect_to @role, notice: "#{@role.title} has been updated."
     else
+      @role_categories = Current.company.role_categories.order(:name)
       render :edit, status: :unprocessable_entity
     end
   end
@@ -148,7 +152,7 @@ class RolesController < ApplicationController
   private
 
   def set_role
-    @role = Current.company.roles.includes(:skills, :approval_gates, :role_skills, children: :skills).find(params[:id])
+    @role = Current.company.roles.includes(:skills, :approval_gates, :role_skills, :role_category, children: [ :skills, :role_category ]).find(params[:id])
   end
 
   def sync_approval_gates
@@ -171,7 +175,7 @@ class RolesController < ApplicationController
   end
 
   def role_params
-    permitted = params.require(:role).permit(:title, :description, :job_spec, :parent_id, :working_directory, :adapter_type, :heartbeat_enabled, :heartbeat_interval, :budget_dollars, :auto_hire_enabled)
+    permitted = params.require(:role).permit(:title, :role_category_id, :description, :job_spec, :parent_id, :working_directory, :adapter_type, :heartbeat_enabled, :heartbeat_interval, :budget_dollars, :auto_hire_enabled)
 
     # Convert budget_dollars to budget_cents
     if permitted.key?(:budget_dollars)

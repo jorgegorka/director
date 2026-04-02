@@ -88,6 +88,17 @@ class RoleTemplates::RegistryTest < ActiveSupport::TestCase
     assert_kind_of String, role.description
     assert_kind_of String, role.job_spec
     assert_kind_of Array, role.skill_keys
+    assert_kind_of String, role.category
+  end
+
+  test "all template roles have a valid category" do
+    valid_categories = %w[Orchestrator Planner Worker]
+    RoleTemplates::Registry.all.each do |template|
+      template.roles.each do |role|
+        assert_includes valid_categories, role.category,
+          "#{template.key}/#{role.title} has invalid category '#{role.category}'"
+      end
+    end
   end
 
   test "each role has 3 to 5 skill keys" do

@@ -458,7 +458,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     assert_not_includes prompt, "Current Goal"
   end
 
-  test "section ordering: identity, job_spec, goal, skills" do
+  test "section ordering: identity, job_spec, category_spec, goal, skills" do
     @role.job_spec = "You are the CMO."
     context = {
       goal_title: "Improve SEO",
@@ -471,11 +471,13 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
 
     identity_pos = prompt.index("Your Identity")
     job_spec_pos = prompt.index("You are the CMO.")
+    category_pos = prompt.index(@role.role_category.job_spec)
     goal_pos = prompt.index("Current Goal")
     skills_pos = prompt.index("Your Skills")
 
     assert identity_pos < job_spec_pos, "Identity should appear before job spec"
-    assert job_spec_pos < goal_pos, "Job spec should appear before goal"
+    assert job_spec_pos < category_pos, "Job spec should appear before category spec"
+    assert category_pos < goal_pos, "Category spec should appear before goal"
     assert goal_pos < skills_pos, "Goal should appear before skills"
   end
 
@@ -510,7 +512,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     assert_includes prompt, "add_message"
   end
 
-  test "user prompt includes focus directive" do
+  test "user prompt includes task_id and title" do
     run = RoleRun.create!(
       role: @role, task: @task, company: @company,
       status: :queued, trigger_type: "task_assigned"
@@ -519,7 +521,8 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     ClaudeLocalAdapter.execute(@role, @context)
 
     cmd = @spawn_calls.last
-    assert_includes cmd, "Focus\\ on\\ this\\ assigned\\ work\\ and\\ nothing\\ else"
+    assert_includes cmd, "Task\\ \\##{@task.id}"
+    assert_includes cmd, @task.title.gsub(" ", "\\ ")
   end
 
   test "env_flags sets CLAUDE_CONFIG_DIR to isolated agent config directory" do
@@ -535,6 +538,58 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
 
     assert dir.end_with?("tmp/claude_agent_config")
     assert File.directory?(dir)
+  end
+
+  test "system prompt includes job_spec with workflow when present" do
+    @role.job_spec = Role::DEFAULT_JOB_SPEC
+    prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @role, {})
+
+    assert_includes prompt, "Task Workflow"
+    assert_includes prompt, "update_task_status"
+    assert_includes prompt, "add_message"
+  end
+
+  test "system prompt includes role_category job_spec after role job_spec" do
+    @role.job_spec = "You are the CTO."
+    prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @role, {})
+
+    assert_includes prompt, "You are the CTO."
+    assert_includes prompt, @role.role_category.job_spec
+
+    role_spec_pos = prompt.index("You are the CTO.")
+    category_spec_pos = prompt.index(@role.role_category.job_spec)
+    assert role_spec_pos < category_spec_pos, "Role job_spec should appear before category job_spec"
+  end
+
+  test "system prompt omits category job_spec when role has no category" do
+    @role.instance_variable_set(:@association_cache, {})
+    allow_nil_category = @role.dup
+    allow_nil_category.define_singleton_method(:role_category) { nil }
+    prompt = ClaudeLocalAdapter.send(:compose_system_prompt, allow_nil_category, {})
+
+    assert_includes prompt, "Your Identity"
+  end
+
+  test "build_user_prompt includes task_id when task context present" do
+    prompt = ClaudeLocalAdapter.send(:build_user_prompt, @context)
+
+    assert_includes prompt, "Task ##{@task.id}"
+    assert_includes prompt, @task.title
+  end
+
+  test "build_user_prompt falls back to goal context" do
+    context = { goal_id: 1, goal_title: "Improve SEO", goal_description: "Increase traffic" }
+    prompt = ClaudeLocalAdapter.send(:build_user_prompt, context)
+
+    assert_includes prompt, "Improve SEO"
+    assert_includes prompt, "list_my_tasks"
+  end
+
+  test "build_user_prompt generic fallback when no task or goal" do
+    prompt = ClaudeLocalAdapter.send(:build_user_prompt, {})
+
+    assert_includes prompt, "list_my_goals"
+    assert_includes prompt, "list_my_tasks"
   end
 
   test "display_name, description, config_schema unchanged" do

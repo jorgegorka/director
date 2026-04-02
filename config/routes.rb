@@ -23,6 +23,9 @@ Rails.application.routes.draw do
   # Invitation acceptance (public, token-based)
   resources :invitation_acceptances, only: [ :show, :update ], param: :token
 
+  # Role Categories (scoped to active company via Current.company)
+  resources :role_categories
+
   # Org Chart & Roles (scoped to active company via Current.company)
   resources :roles do
     resources :role_skills, only: [ :create, :destroy ]

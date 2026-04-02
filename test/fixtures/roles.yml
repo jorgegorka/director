@@ -3,6 +3,7 @@ ceo:
   description: Chief Executive Officer
   job_spec: "Oversee all company operations and strategy"
   company: acme
+  role_category: orchestrator
 
 cto:
   title: CTO
@@ -10,6 +11,7 @@ cto:
   job_spec: "Lead technology strategy and engineering"
   company: acme
   parent: ceo
+  role_category: orchestrator
   adapter_type: 2  # claude_local
   adapter_config:
     model: claude-sonnet-4-20250514
@@ -25,6 +27,7 @@ developer:
   job_spec: "Build and maintain software products"
   company: acme
   parent: cto
+  role_category: worker
   adapter_type: 0  # http
   adapter_config:
     url: "https://api.example.com/agent"
@@ -41,6 +44,7 @@ process_role:
   job_spec: "Execute automated scripts"
   company: acme
   parent: cto
+  role_category: worker
   adapter_type: 1  # process
   adapter_config:
     command: "/usr/local/bin/my-agent.sh"
@@ -54,6 +58,7 @@ cmo:
   job_spec: "Define marketing strategy and brand positioning"
   company: acme
   parent: ceo
+  role_category: orchestrator
   adapter_type: 2  # claude_local
   adapter_config:
     model: claude-sonnet-4-20250514
@@ -67,6 +72,7 @@ widgets_lead:
   description: Leads widget operations
   job_spec: "Manage daily operations"
   company: widgets
+  role_category: widgets_orchestrator
   adapter_type: 0  # http
   adapter_config:
     url: "https://widgets.example.com/bot"

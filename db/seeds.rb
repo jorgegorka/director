@@ -17,16 +17,19 @@ user = User.create!(
 )
 
 company = Company.create!(name: "Director AI")
-# after_create callback auto-seeds builtin skills
+# after_create callback auto-seeds builtin skills and role categories
 
 Membership.create!(user: user, company: company, role: :owner)
 
+# Load seeded role categories for assignment
+categories = company.role_categories.index_by(&:name)
+
 puts "  Created user: admin@director.ai"
-puts "  Created company: Director AI (#{company.skills.count} builtin skills)"
+puts "  Created company: Director AI (#{company.skills.count} builtin skills, #{categories.size} role categories)"
 
 # Roles — create hierarchy with agent configuration merged directly
 role_defs = [
-  { title: "CEO",                description: "Chief Executive Officer who receives company goals, delegates to department heads with clear objectives and measurable success criteria, and monitors execution.", job_spec: <<~CEO_SPEC, parent: nil, adapter_type: :claude_local, status: :running, budget_cents: 200_000 },
+  { title: "CEO",                description: "Chief Executive Officer who receives company goals, delegates to department heads with clear objectives and measurable success criteria, and monitors execution.", job_spec: <<~CEO_SPEC, parent: nil, category: "Orchestrator", adapter_type: :claude_local, status: :running, budget_cents: 200_000 },
       You are the CEO. You delegate — you do NOT do implementation work yourself.
 
       ## When you receive a goal
@@ -61,14 +64,14 @@ role_defs = [
 
       Use `get_task_details` to check status of delegated tasks. If a task is stalled or has received evaluation feedback, use `add_message` to provide direction or clarify expectations.
     CEO_SPEC
-  { title: "CTO",                description: "Oversees engineering team, defines technical architecture and standards.",       job_spec: "You are an experienced and skilled CTO.\n\nYour responsibilities:\n1. Perform the technical goals assigned to you efficiently and thoroughly.\n2. Optimise the use of your assigned budget — minimise spend while maximising output.\n3. Evaluate reports from your direct reportees and make decisions based on those reports and your assigned goals.\n4. Check which direct reportees you can hire, then hire the best suitable role for the job. You don't do the work yourself.\n5. Use the strategic_planning skill to decide how to perform your assigned goal(s).", parent: "CEO", adapter_type: :claude_local, status: :running, budget_cents: 150_000 },
-  { title: "Engineer",           description: "Implements features, fixes bugs, and writes tests for the backend.",             job_spec: "Build and maintain Director's Rails backend.",                           parent: "CTO", adapter_type: :claude_local, status: :running, budget_cents: 80_000 },
-  { title: "Designer",           description: "Builds user interfaces, implements responsive layouts and CSS architecture.",    job_spec: "Create Director's frontend experience and landing page.",                parent: "CTO", adapter_type: :claude_local, status: :running, budget_cents: 80_000 },
-  { title: "Security Engineer",  description: "Conducts security audits, dependency scans, and reviews authentication flows.", job_spec: "Keep Director secure and free of vulnerabilities.",                      parent: "CTO", adapter_type: :claude_local, status: :idle,    budget_cents: 50_000 },
-  { title: "DevOps",             description: "Manages CI/CD pipelines, deployment automation, and monitoring.",                job_spec: "Ensure Director deploys reliably and stays online.",                     parent: "CTO", adapter_type: :claude_local, status: :running, budget_cents: 60_000 },
-  { title: "QA",                 description: "Plans test strategies, writes test suites, and enforces quality standards.",     job_spec: "Ensure Director ships with high quality and zero regressions.",          parent: "CTO", adapter_type: :claude_local, status: :idle,    budget_cents: 40_000 },
-  { title: "PM",                 description: "Defines product roadmap, gathers requirements, and manages sprint cycles.",     job_spec: "Ensure Director builds the right features in the right order.",          parent: "CEO", adapter_type: :claude_local, status: :running, budget_cents: 100_000 },
-  { title: "Researcher",         description: "Conducts user interviews, competitive analysis, and usability testing.",        job_spec: "Understand users and competitors to inform Director's product strategy.", parent: "CEO", adapter_type: :claude_local, status: :idle,    budget_cents: 40_000 }
+  { title: "CTO",                description: "Oversees engineering team, defines technical architecture and standards.",       job_spec: "You are an experienced and skilled CTO.\n\nYour responsibilities:\n1. Perform the technical goals assigned to you efficiently and thoroughly.\n2. Optimise the use of your assigned budget — minimise spend while maximising output.\n3. Evaluate reports from your direct reportees and make decisions based on those reports and your assigned goals.\n4. Check which direct reportees you can hire, then hire the best suitable role for the job. You don't do the work yourself.\n5. Use the strategic_planning skill to decide how to perform your assigned goal(s).", parent: "CEO", category: "Orchestrator", adapter_type: :claude_local, status: :running, budget_cents: 150_000 },
+  { title: "Engineer",           description: "Implements features, fixes bugs, and writes tests for the backend.",             job_spec: "Build and maintain Director's Rails backend.",                           parent: "CTO", category: "Worker", adapter_type: :claude_local, status: :running, budget_cents: 80_000 },
+  { title: "Designer",           description: "Builds user interfaces, implements responsive layouts and CSS architecture.",    job_spec: "Create Director's frontend experience and landing page.",                parent: "CTO", category: "Worker", adapter_type: :claude_local, status: :running, budget_cents: 80_000 },
+  { title: "Security Engineer",  description: "Conducts security audits, dependency scans, and reviews authentication flows.", job_spec: "Keep Director secure and free of vulnerabilities.",                      parent: "CTO", category: "Worker", adapter_type: :claude_local, status: :idle,    budget_cents: 50_000 },
+  { title: "DevOps",             description: "Manages CI/CD pipelines, deployment automation, and monitoring.",                job_spec: "Ensure Director deploys reliably and stays online.",                     parent: "CTO", category: "Worker", adapter_type: :claude_local, status: :running, budget_cents: 60_000 },
+  { title: "QA",                 description: "Plans test strategies, writes test suites, and enforces quality standards.",     job_spec: "Ensure Director ships with high quality and zero regressions.",          parent: "CTO", category: "Worker", adapter_type: :claude_local, status: :idle,    budget_cents: 40_000 },
+  { title: "PM",                 description: "Defines product roadmap, gathers requirements, and manages sprint cycles.",     job_spec: "Ensure Director builds the right features in the right order.",          parent: "CEO", category: "Orchestrator", adapter_type: :claude_local, status: :running, budget_cents: 100_000 },
+  { title: "Researcher",         description: "Conducts user interviews, competitive analysis, and usability testing.",        job_spec: "Understand users and competitors to inform Director's product strategy.", parent: "CEO", category: "Planner", adapter_type: :claude_local, status: :idle,    budget_cents: 40_000 }
 ]
 
 roles = {}
@@ -80,6 +83,7 @@ role_defs.each do |attrs|
     description: attrs[:description],
     job_spec: attrs[:job_spec],
     parent: parent_role,
+    role_category: categories.fetch(attrs[:category]),
     adapter_type: attrs[:adapter_type],
     adapter_config: { "model" => "claude-sonnet-4-20250514" },
     status: attrs[:status],
@@ -115,6 +119,7 @@ marketing_role_configs.each do |config|
     description: template_role.description,
     job_spec: template_role.job_spec,
     parent: parent_role,
+    role_category: categories[template_role.category],
     adapter_type: :claude_local,
     adapter_config: { "model" => "claude-sonnet-4-20250514" },
     status: config[:status],

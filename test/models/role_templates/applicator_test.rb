@@ -4,6 +4,10 @@ class RoleTemplates::ApplicatorTest < ActiveSupport::TestCase
   # widgets company is nearly clean (only Operations Lead role) -- used for clean hierarchy tests
   # acme company has CEO, CTO, Senior Developer, Script Runner -- used for skip-duplicate tests
 
+  setup do
+    companies(:widgets).seed_default_role_categories!
+  end
+
   teardown do
     RoleTemplates::Registry.reset!
   end
@@ -54,7 +58,8 @@ class RoleTemplates::ApplicatorTest < ActiveSupport::TestCase
 
   test "root role is nested under parent_role when provided" do
     company = companies(:widgets)
-    ceo = company.roles.create!(title: "CEO", description: "Chief Executive")
+    orchestrator = company.role_categories.find_by!(name: "Orchestrator")
+    ceo = company.roles.create!(title: "CEO", description: "Chief Executive", role_category: orchestrator)
     result = RoleTemplates::Applicator.call(company: company, template_key: "marketing", parent_role: ceo)
 
     assert result.success?
@@ -76,7 +81,8 @@ class RoleTemplates::ApplicatorTest < ActiveSupport::TestCase
 
   test "skip-duplicate is case-sensitive with default SQLite column (no COLLATE NOCASE)" do
     company = companies(:widgets)
-    company.roles.create!(title: "cmo", description: "lowercase cmo")
+    orchestrator = company.role_categories.find_by!(name: "Orchestrator")
+    company.roles.create!(title: "cmo", description: "lowercase cmo", role_category: orchestrator)
 
     result = RoleTemplates::Applicator.call(company: company, template_key: "marketing")
 
@@ -195,7 +201,8 @@ class RoleTemplates::ApplicatorTest < ActiveSupport::TestCase
 
   test "parent_role nests template root under specified role" do
     company = companies(:widgets)
-    ceo = company.roles.create!(title: "CEO", description: "Chief Executive")
+    orchestrator = company.role_categories.find_by!(name: "Orchestrator")
+    ceo = company.roles.create!(title: "CEO", description: "Chief Executive", role_category: orchestrator)
     RoleTemplates::Applicator.call(company: company, template_key: "marketing", parent_role: ceo)
 
     cmo = company.roles.find_by!(title: "CMO")

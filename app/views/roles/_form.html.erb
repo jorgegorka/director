@@ -13,13 +13,22 @@
   </div>
 
   <div class="form__field">
+    <%= f.label :role_category_id, "Category" %>
+    <%= f.select :role_category_id,
+          options_from_collection_for_select(@role_categories, :id, :name, role.role_category_id),
+          { prompt: "Select category..." },
+          { class: "form__select", required: true } %>
+    <p class="form__hint">Determines behavioral guidance appended to the agent prompt.</p>
+  </div>
+
+  <div class="form__field">
     <%= f.label :description, "Description" %>
-    <%= f.text_area :description, rows: 3, placeholder: "Brief description of this role's purpose" %>
+    <%= f.text_area :description, rows: 4, placeholder: "Brief description of this role's purpose" %>
   </div>
 
   <div class="form__field">
     <%= f.label :job_spec, "Job specification" %>
-    <%= f.text_area :job_spec, rows: 6, placeholder: "Detailed job spec: responsibilities, skills, expected outputs..." %>
+    <%= f.text_area :job_spec, rows: 10, placeholder: "Detailed job spec: responsibilities, skills, expected outputs..." %>
     <p class="form__hint">Will be used as prompt if present.</p>
   </div>
 

@@ -29,6 +29,7 @@ module RoleTemplates
       existing_roles = company.roles.where(title: template.roles.map(&:title)).index_by(&:title)
       all_skill_keys = template.roles.flat_map(&:skill_keys).uniq
       skills_by_key = company.skills.where(key: all_skill_keys).index_by(&:key)
+      categories_by_name = company.role_categories.index_by(&:name)
 
       created = 0
       skipped = 0
@@ -49,7 +50,8 @@ module RoleTemplates
           title: template_role.title,
           description: template_role.description,
           job_spec: template_role.job_spec,
-          parent: parent
+          parent: parent,
+          role_category: categories_by_name[template_role.category]
         )
 
         if role.save

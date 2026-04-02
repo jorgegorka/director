@@ -20,7 +20,8 @@ module Tools
         {
           title: template_role.title,
           description: template_role.description,
-          job_spec: template_role.job_spec
+          job_spec: template_role.job_spec,
+          category: template_role.category
         }
       end
 

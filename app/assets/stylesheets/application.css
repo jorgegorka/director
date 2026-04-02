@@ -544,6 +544,10 @@
     }
   }
 
+  .form-card--wide {
+    max-inline-size: 48rem;
+  }
+
   .form-card__subtitle {
     font-size: var(--font-size-sm);
     color: var(--text-muted);
@@ -6115,4 +6119,162 @@
   }
 
   /* Reuses existing .skill-badge for individual badges — no new badge CSS needed */
+
+  /* ==========================================================================
+     Role Categories
+     ========================================================================== */
+
+  /* --- Role category badge --- */
+  .role-category-badge {
+    display: inline-flex;
+    padding: 0.1em 0.5em;
+    border-radius: var(--space-1);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .role-category-badge--orchestrator {
+    background: oklch(93% 0.06 300);
+    color: oklch(35% 0.15 300);
+  }
+
+  .role-category-badge--planner {
+    background: oklch(93% 0.06 185);
+    color: oklch(35% 0.15 185);
+  }
+
+  .role-category-badge--worker {
+    background: oklch(93% 0.06 75);
+    color: oklch(38% 0.1 75);
+  }
+
+  /* --- Role categories page --- */
+  .role-categories-page__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-block-end: var(--space-6);
+  }
+
+  .role-categories-page__empty {
+    text-align: center;
+    padding: var(--space-8);
+    color: var(--color-text-muted);
+  }
+
+  /* --- Role category card --- */
+  .role-categories-list {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .role-category-card {
+    padding: var(--space-4);
+    background: var(--color-surface-1);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+
+  .role-category-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .role-category-card__title {
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--color-text);
+  }
+
+  .role-category-card__title:hover {
+    color: var(--color-accent);
+  }
+
+  .role-category-card__count {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+  }
+
+  .role-category-card__description {
+    margin-block-start: var(--space-2);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+  }
+
+  /* --- Role category detail --- */
+  .role-category-detail__profile {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-block-end: var(--space-6);
+  }
+
+  .role-category-detail__name {
+    font-size: var(--font-size-2xl);
+  }
+
+  .role-category-detail__description {
+    margin-block-start: var(--space-2);
+    color: var(--color-text-muted);
+  }
+
+  .role-category-detail__actions {
+    display: flex;
+    gap: var(--space-2);
+  }
+
+  .role-category-detail__delete {
+    color: var(--color-danger);
+  }
+
+  .role-category-detail__grid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: var(--space-6);
+  }
+
+  .role-category-detail__card {
+    padding: var(--space-4);
+    background: var(--color-surface-1);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+
+  .role-category-detail__card-title {
+    font-size: var(--font-size-lg);
+    margin-block-end: var(--space-3);
+  }
+
+  .role-category-detail__job-spec {
+    font-size: var(--font-size-sm);
+    line-height: 1.6;
+    white-space: pre-wrap;
+  }
+
+  .role-category-detail__roles-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .role-category-detail__roles-list li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .role-category-detail__empty-note {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+  }
+
+  @media (width < 768px) {
+    .role-category-detail__grid {
+      grid-template-columns: 1fr;
+    }
+  }
 }

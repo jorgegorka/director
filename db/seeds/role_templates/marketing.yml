@@ -4,6 +4,7 @@ description: "Drives brand awareness, audience growth, and demand generation thr
 roles:
   - title: "CEO"
     description: "Chief Executive Officer who receives company goals, delegates to department heads with clear objectives and measurable success criteria, and monitors execution."
+    category: "Orchestrator"
     job_spec: |
       You are the CEO. You delegate — you do NOT do implementation work yourself.
 
@@ -54,6 +55,7 @@ roles:
 
   - title: "CMO"
     description: "Chief Marketing Officer who defines marketing strategy, brand positioning, and growth targets."
+    category: "Orchestrator"
     job_spec: |
       You are the CMO. You delegate — you do NOT do implementation work yourself.
 
@@ -107,6 +109,7 @@ roles:
 
   - title: "Marketing Planner"
     description: "Evaluates the current state of marketing performance and prepares actionable plans for the CMO to review and prioritise."
+    category: "Planner"
     job_spec: |
       You are the Marketing Planner. You produce research and plans — you do NOT create content or execute campaigns yourself.
 
@@ -143,6 +146,7 @@ roles:
 
   - title: "Web Analyst"
     description: "Evaluates website performance using analytics data and provides data-driven insights to the Marketing Planner."
+    category: "Worker"
     job_spec: |
       You are the Web Analyst. You do the analytical work yourself — you do not delegate.
 
@@ -174,6 +178,7 @@ roles:
 
   - title: "SEO Specialist"
     description: "Evaluates search engine optimisation performance and provides actionable insights to the Marketing Planner."
+    category: "Worker"
     job_spec: |
       You are the SEO Specialist. You do the analytical and optimisation work yourself — you do not delegate.
 
@@ -205,6 +210,7 @@ roles:
 
   - title: "Marketing Manager"
     description: "Turns approved marketing plans into executed work by managing a team of content and marketing specialists."
+    category: "Orchestrator"
     job_spec: |
       You are the Marketing Manager. You coordinate execution — you do NOT create content yourself.
 
@@ -243,6 +249,7 @@ roles:
 
   - title: "LinkedIn Specialist"
     description: "Creates LinkedIn content that builds the company's professional presence and engages its target audience."
+    category: "Worker"
     job_spec: |
       You are the LinkedIn Specialist. You create LinkedIn content yourself — you do not delegate.
 
@@ -275,6 +282,7 @@ roles:
 
   - title: "Blog Content Specialist"
     description: "Writes blog articles that educate the audience, build domain authority, and drive organic traffic."
+    category: "Worker"
     job_spec: |
       You are the Blog Content Specialist. You write articles yourself — you do not delegate.
 
@@ -307,6 +315,7 @@ roles:
 
   - title: "Page Specialist"
     description: "Creates and improves marketing landing pages that convert visitors into leads and customers."
+    category: "Worker"
     job_spec: |
       You are the Page Specialist. You create and improve landing pages yourself — you do not delegate.
 
@@ -338,6 +347,7 @@ roles:
 
   - title: "Email Specialist"
     description: "Creates and improves marketing email communications that engage subscribers and drive action."
+    category: "Worker"
     job_spec: |
       You are the Email Specialist. You create email content yourself — you do not delegate.
 

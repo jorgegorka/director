@@ -6,6 +6,8 @@ class Role < ApplicationRecord
   include ConfigVersioned
   include Roles::Hiring
 
+  belongs_to :role_category
+
   has_many :role_skills, dependent: :destroy, inverse_of: :role
   has_many :skills, through: :role_skills
   has_many :goal_evaluations, dependent: :destroy
@@ -33,12 +35,27 @@ class Role < ApplicationRecord
   scope :online, -> { where(status: [ :idle, :running ]) }
   scope :with_budget, -> { where.not(budget_cents: nil) }
   scope :agent_configured, -> { where.not(adapter_type: nil) }
+  scope :by_category, ->(category) { where(role_category: category) }
 
   attr_writer :preloaded_monthly_spend_cents
 
   validates :working_directory, format: { with: /\A\//, message: "must be an absolute path" }, allow_blank: true
 
+  DEFAULT_JOB_SPEC = <<~SPEC.strip
+    ## Task Workflow
+
+    When you are assigned a task, follow this protocol:
+
+    1. Call `update_task_status` with status `in_progress` to signal you've started.
+    2. Do the work — use your tools to research, analyze, and produce results.
+    3. Call `add_message` on the task with your findings, deliverables, or output.
+    4. Call `update_task_status` with status `pending_review` to submit your work for review.
+
+    Always complete all four steps. Your work is only visible to others through `add_message` — text you produce outside of MCP tool calls is not captured.
+  SPEC
+
   before_validation :inherit_parent_working_directory, on: :create
+  before_validation :set_default_job_spec, on: :create
   before_save :ensure_api_token, if: :agent_configured?
   before_destroy :reparent_children
   after_save :assign_default_skills, if: :first_agent_configuration?
@@ -186,6 +203,10 @@ class Role < ApplicationRecord
 
   def inherit_parent_working_directory
     self.working_directory = parent&.working_directory if working_directory.blank?
+  end
+
+  def set_default_job_spec
+    self.job_spec = DEFAULT_JOB_SPEC if job_spec.blank?
   end
 
   def broadcast_dashboard_update
