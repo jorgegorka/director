@@ -112,7 +112,6 @@ class DirectorServer
       Tools::AddMessage,
       Tools::GetTaskDetails,
       Tools::GetGoalDetails,
-      Tools::CreateGoal,
       Tools::UpdateGoal,
       Tools::SearchDocuments,
       Tools::GetDocument

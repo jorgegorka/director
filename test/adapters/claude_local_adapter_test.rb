@@ -492,6 +492,34 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     assert_includes prompt, "Director MCP tools"
     assert_includes prompt, "create_task"
     assert_includes prompt, "hire_role"
+    assert_includes prompt, "get_goal_details"
+    assert_includes prompt, "update_goal"
+  end
+
+  test "goal prompt includes focus rules" do
+    context = {
+      goal_title: "Improve SEO rankings",
+      goal_description: "Increase organic traffic by 30%"
+    }
+
+    prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @role, context)
+
+    assert_includes prompt, "## Focus Rules"
+    assert_includes prompt, "Do NOT create new goals"
+    assert_includes prompt, "Do NOT start work outside this goal"
+    assert_includes prompt, "add_message"
+  end
+
+  test "user prompt includes focus directive" do
+    run = RoleRun.create!(
+      role: @role, task: @task, company: @company,
+      status: :queued, trigger_type: "task_assigned"
+    )
+    @context[:run_id] = run.id
+    ClaudeLocalAdapter.execute(@role, @context)
+
+    cmd = @spawn_calls.last
+    assert_includes cmd, "Focus\\ on\\ this\\ assigned\\ work\\ and\\ nothing\\ else"
   end
 
   test "env_flags sets CLAUDE_CONFIG_DIR to isolated agent config directory" do

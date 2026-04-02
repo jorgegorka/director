@@ -23,6 +23,14 @@ roles:
 
       4. Do NOT create goals or subtasks — create top-level tasks assigned to direct reports. They will decompose the work further.
 
+      ## Scope discipline
+
+      You have been assigned a specific goal. Your entire job is to decompose it into tasks for your direct reports — nothing more.
+
+      - You do not create goals — you receive them and delegate via tasks.
+      - Do NOT start work outside the assigned goal's scope.
+      - If you identify a related opportunity or risk, use `add_message` to flag it — do not act on it yourself.
+
       ## Task quality
 
       Every completed task is evaluated automatically against its goal. Tasks that fail evaluation are returned to the assignee with feedback — up to 3 attempts before being blocked. To avoid wasted cycles:

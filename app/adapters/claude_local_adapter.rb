@@ -148,7 +148,8 @@ class ClaudeLocalAdapter < BaseAdapter
 
   private_class_method def self.build_claude_command(role, context, temp_files)
     config = role.adapter_config
-    prompt = context[:task_description] || context[:task_title] || context[:goal_description] || context[:goal_title] || "Execute assigned task"
+    raw = context[:task_description] || context[:task_title] || context[:goal_description] || context[:goal_title] || "Execute assigned task"
+    prompt = "Focus on this assigned work and nothing else:\n\n#{raw}"
 
     parts = [ "claude", "-p" ]
     parts << prompt.shellescape
@@ -241,7 +242,7 @@ class ClaudeLocalAdapter < BaseAdapter
       - **update_task_status** — mark tasks as in_progress or completed
       - **list_available_roles** — see who you can delegate to
       - **hire_role** / **list_hirable_roles** — hire new subordinate roles
-      - **get_goal_details** / **create_goal** / **update_goal** — manage goals
+      - **get_goal_details** / **update_goal** — view and update goals
       - **add_message** — communicate on tasks
       - **search_documents** — search the company document library by title or tag
       - **get_document** — fetch the full content of a document
@@ -253,7 +254,16 @@ class ClaudeLocalAdapter < BaseAdapter
   private_class_method def self.build_goal_prompt(context)
     prompt = "## Current Goal\n\n**#{context[:goal_title]}**"
     prompt += "\n\n#{context[:goal_description]}" if context[:goal_description].present?
-    prompt
+    prompt += <<~FOCUS
+
+      ## Focus Rules
+
+      Everything you do in this session must directly advance the goal above.
+      - Do NOT create new goals — break work into tasks instead.
+      - Do NOT start work outside this goal's scope.
+      - If you spot a related opportunity or risk, use `add_message` to flag it — do not act on it.
+    FOCUS
+    prompt.strip
   end
 
   private_class_method def self.build_skills_prompt(skills)
