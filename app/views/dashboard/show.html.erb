@@ -1,5 +1,5 @@
 <% content_for(:title, "Dashboard") %>
-<section class="dashboard" data-controller="tabs" data-tabs-active-tab-value="<%= params[:tab] || "overview" %>">
+<section class="dashboard" data-controller="tabs">
   <%= turbo_stream_from "dashboard_company_#{Current.company.id}" %>
   <div class="dashboard__header">
     <div>
@@ -28,30 +28,18 @@
   <% end %>
 
   <nav class="dashboard-tabs" role="tablist">
-    <button class="dashboard-tab"
-            data-tabs-target="tab" data-tab="overview"
-            data-action="click->tabs#switch" role="tab">
-      Overview
-    </button>
-    <button class="dashboard-tab"
-            data-tabs-target="tab" data-tab="tasks"
-            data-action="click->tabs#switch" role="tab">
-      Tasks
-    </button>
-    <button class="dashboard-tab"
-            data-tabs-target="tab" data-tab="activity"
-            data-action="click->tabs#switch" role="tab">
-      Activity
-    </button>
+    <%= link_to "Overview", dashboard_path,
+        class: "dashboard-tab dashboard-tab--active",
+        data: { turbo_frame: "tab_content", action: "click->tabs#activate", tabs_target: "tab" } %>
+    <%= link_to "Tasks", dashboard_tasks_path,
+        class: "dashboard-tab",
+        data: { turbo_frame: "tab_content", action: "click->tabs#activate", tabs_target: "tab" } %>
+    <%= link_to "Activity", dashboard_activities_path,
+        class: "dashboard-tab",
+        data: { turbo_frame: "tab_content", action: "click->tabs#activate", tabs_target: "tab" } %>
   </nav>
 
-  <div data-tabs-target="panel" data-tab-name="overview">
+  <%= turbo_frame_tag "tab_content" do %>
     <%= render "dashboard/overview_tab" %>
-  </div>
-  <div data-tabs-target="panel" data-tab-name="tasks" hidden>
-    <%= render "dashboard/tasks_tab" %>
-  </div>
-  <div data-tabs-target="panel" data-tab-name="activity" hidden>
-    <%= render "dashboard/activity_tab" %>
-  </div>
+  <% end %>
 </section>

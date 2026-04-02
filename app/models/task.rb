@@ -32,6 +32,7 @@ class Task < ApplicationRecord
   validate :assignee_within_delegation_scope
 
   scope :active, -> { where.not(status: [ :completed, :cancelled ]) }
+  scope :completed, -> { where(status: :completed) }
   scope :by_priority, -> { order(priority: :desc, created_at: :desc) }
   scope :roots, -> { where(parent_task_id: nil) }
 

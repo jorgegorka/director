@@ -2,8 +2,7 @@
   <div class="activity-feed__header">
     <h2>Activity Timeline</h2>
     <div class="activity-feed__filter">
-      <%= form_with url: root_path, method: :get, class: "form--inline", data: { turbo_frame: "_top" } do |f| %>
-        <input type="hidden" name="tab" value="activity">
+      <%= form_with url: dashboard_activities_path, method: :get, class: "form--inline", data: { turbo_frame: "tab_content" } do |f| %>
         <%= f.select :role_filter,
             options_for_select(
               [["All activity", ""], ["All roles", "roles_only"]] +

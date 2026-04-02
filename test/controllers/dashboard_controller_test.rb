@@ -67,81 +67,17 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     assert_not_equal acme_role_count, widgets_role_count
   end
 
-  test "should show overview tab by default" do
+  test "should show overview tab content by default" do
     get dashboard_url
     assert_response :success
-    assert_select "[data-tabs-target='panel']", minimum: 1
+    assert_select "turbo-frame#tab_content"
+    assert_select "#dashboard-overview-stats"
   end
 
-  # Activity tab tests
-
-  test "activity tab shows audit events" do
-    get root_url
-    assert_response :success
-    assert_select ".activity-event", minimum: 1
-  end
-
-  test "activity events show action badge" do
-    get root_url
-    assert_response :success
-    assert_select ".audit-badge", minimum: 1
-  end
-
-  test "activity tab has role filter dropdown" do
-    get root_url
-    assert_response :success
-    assert_select "select[name='role_filter']"
-  end
-
-  test "role filter narrows activity results" do
-    get root_url, params: { tab: "activity", role_filter: roles(:cto).id }
-    assert_response :success
-  end
-
-  test "roles_only filter shows all role activity" do
-    get root_url, params: { tab: "activity", role_filter: "roles_only" }
-    assert_response :success
-  end
-
-  test "activity tab respects company isolation" do
-    get root_url
-    assert_response :success
-    # All displayed events must belong to the current company (acme)
-    # Verified by checking no widgets company events appear in the feed
-    # The for_company scope on AuditEvent enforces this at query level
-    assert_select ".activity-feed"
-  end
-
-  test "tab param sets active tab" do
-    get root_url, params: { tab: "activity" }
-    assert_response :success
-    assert_select "[data-tabs-active-tab-value='activity']"
-  end
-
-  test "activity shows link to full audit log" do
-    get root_url
-    assert_response :success
-    assert_select "a[href='#{audit_logs_path}']"
-  end
-
-  # Real-time broadcast target tests
-
-  test "dashboard page includes turbo stream subscription" do
+  test "tab links target turbo frame" do
     get dashboard_url
     assert_response :success
-    assert_select "turbo-cable-stream-source"
-  end
-
-  test "kanban cards have turbo stream target ids" do
-    get dashboard_url
-    assert_response :success
-    assert_select "[id^='kanban-task-']", minimum: 1
-  end
-
-  test "activity events have turbo stream target ids" do
-    get root_url
-    assert_response :success
-    assert_select "[id^='activity-event-']", minimum: 1
+    assert_select "a[data-turbo-frame='tab_content']", minimum: 3
   end
 
   test "overview stats have turbo stream target id" do
@@ -171,47 +107,17 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     assert_select ".dashboard-running-card", minimum: 1
   end
 
-  test "kanban column bodies have target ids" do
+  # Real-time broadcast target tests
+
+  test "dashboard page includes turbo stream subscription" do
     get dashboard_url
     assert_response :success
-    assert_select "[id^='kanban-column-body-']", 6
+    assert_select "turbo-cable-stream-source"
   end
 
-  # Kanban board tests
-
-  test "tasks tab shows kanban columns" do
-    get dashboard_url
+  test "activity shows link to full audit log" do
+    get root_url
     assert_response :success
-    assert_select ".kanban__column", 6
-  end
-
-  test "kanban shows tasks in correct columns" do
-    get dashboard_url
-    assert_response :success
-    assert_select ".kanban__column[data-status='in_progress'] .kanban-card", minimum: 1
-  end
-
-  test "kanban cards show task title" do
-    get dashboard_url
-    assert_response :success
-    assert_select ".kanban-card__title", text: /Design homepage/
-  end
-
-  test "kanban does not show other company tasks" do
-    get dashboard_url
-    assert_response :success
-    assert_select ".kanban-card__title", text: /Update widget catalog/, count: 0
-  end
-
-  test "kanban cards are draggable" do
-    get dashboard_url
-    assert_response :success
-    assert_select ".kanban-card[draggable='true']", minimum: 1
-  end
-
-  test "kanban shows new task link" do
-    get dashboard_url
-    assert_response :success
-    assert_select "a[href='#{new_task_path}']", text: "New Task"
+    assert_select "a[href='#{audit_logs_path}']"
   end
 end

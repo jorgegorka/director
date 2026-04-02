@@ -30,6 +30,8 @@ class Role < ApplicationRecord
   validate :validate_adapter_config_schema, if: :agent_configured?
 
   scope :active, -> { where.not(status: [ :terminated ]) }
+  scope :online, -> { where(status: [ :idle, :running ]) }
+  scope :with_budget, -> { where.not(budget_cents: nil) }
   scope :agent_configured, -> { where.not(adapter_type: nil) }
 
   attr_writer :preloaded_monthly_spend_cents
@@ -209,7 +211,7 @@ class Role < ApplicationRecord
       partial: "dashboard/overview_stats",
       locals: {
         total_roles: roles.count,
-        roles_online: roles.where(status: [ :idle, :running ]).count,
+        roles_online: roles.online.count,
         tasks_active: company.tasks.active.count,
         tasks_completed: company.tasks.completed.count
       }

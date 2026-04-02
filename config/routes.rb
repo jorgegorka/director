@@ -96,7 +96,12 @@ Rails.application.routes.draw do
   end
 
   # Dashboard (company command center — root landing page)
-  resource :dashboard, only: [ :show ], controller: "dashboard"
+  resource :dashboard, only: [ :show ], controller: "dashboard" do
+    scope module: :dashboards do
+      resources :tasks, only: [ :index ]
+      resources :activities, only: [ :index ]
+    end
+  end
 
   # Health check - used by load balancers and uptime monitors
   get "up" => "rails/health#show", as: :rails_health_check

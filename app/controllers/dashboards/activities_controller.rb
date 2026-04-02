@@ -1,0 +1,11 @@
+class Dashboards::ActivitiesController < ApplicationController
+  before_action :require_company!
+  layout false
+
+  def index
+    @activity_events = AuditEvent.for_company(Current.company)
+    @activity_events = @activity_events.filter_by_role(params[:role_filter]) if params[:role_filter].present?
+    @activity_events = @activity_events.reverse_chronological.includes(:actor, :auditable).limit(50)
+    @filter_roles = Current.company.roles.active.order(:title)
+  end
+end

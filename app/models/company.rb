@@ -54,6 +54,17 @@ class Company < ApplicationRecord
     @default_skill_definitions ||= Dir[Rails.root.join("db/seeds/skills/*.yml")].map { |file| YAML.load_file(file) }.freeze
   end
 
+  def preload_monthly_spend(roles)
+    period_start = Date.current.beginning_of_month.beginning_of_day
+    spend_by_role = Task.where(assignee_id: roles.select(:id))
+      .where.not(cost_cents: nil)
+      .where(created_at: period_start..)
+      .group(:assignee_id)
+      .sum(:cost_cents)
+    roles.each { |r| r.preloaded_monthly_spend_cents = spend_by_role[r.id] || 0 }
+    spend_by_role.values.sum
+  end
+
   def admin_recipients
     memberships
       .where(role: [ :owner, :admin ])

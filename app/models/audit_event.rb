@@ -12,6 +12,14 @@ class AuditEvent < ApplicationRecord
   scope :for_company, ->(company) { where(company: company) }
   scope :for_actor_type, ->(type) { where(actor_type: type) }
   scope :for_date_range, ->(start_date, end_date) { where(created_at: start_date.beginning_of_day..end_date.end_of_day) }
+  scope :filter_by_role, ->(filter) {
+    if filter == "roles_only"
+      where(actor_type: "Role")
+    else
+      role_id = filter.to_i
+      role_id > 0 ? where(actor_type: "Role", actor_id: role_id) : all
+    end
+  }
 
   # Governance-specific action types
   GOVERNANCE_ACTIONS = %w[
