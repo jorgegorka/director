@@ -27,7 +27,11 @@ class Company < ApplicationRecord
   def dispatch_next_throttled_run!
     return if concurrent_agent_limit_reached?
 
-    next_run = role_runs.where(status: :throttled).order(:created_at).first
+    busy_role_ids = role_runs.where(status: [ :queued, :running ]).select(:role_id)
+    next_run = role_runs.where(status: :throttled)
+                        .where.not(role_id: busy_role_ids)
+                        .order(:created_at)
+                        .first
     return unless next_run
 
     next_run.update!(status: :queued)

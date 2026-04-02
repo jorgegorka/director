@@ -209,6 +209,59 @@ class Roles::WakingTest < ActiveSupport::TestCase
     assert_equal original_goal.id, active_run.goal_id
   end
 
+  # --- Task wake on busy role ---
+
+  test "creates throttled RoleRun when task assigned to busy role" do
+    active_run = @cto.role_runs.create!(
+      company: @cto.company, status: :running, trigger_type: "scheduled"
+    )
+
+    assert_no_enqueued_jobs(only: ExecuteRoleJob) do
+      assert_difference -> { RoleRun.count }, 1 do
+        Roles::Waking.call(
+          role: @cto,
+          trigger_type: :task_assigned,
+          trigger_source: "Task#99",
+          context: { task_id: tasks(:fix_login_bug).id, task_title: "Fix bug" }
+        )
+      end
+    end
+
+    throttled_run = RoleRun.last
+    assert throttled_run.throttled?, "Run should be throttled, got #{throttled_run.status}"
+    assert_equal tasks(:fix_login_bug), throttled_run.task
+    assert_equal @cto, throttled_run.role
+  end
+
+  test "scheduled wake on busy role does not create throttled RoleRun" do
+    @cto.role_runs.create!(
+      company: @cto.company, status: :running, trigger_type: "scheduled"
+    )
+
+    assert_no_difference -> { RoleRun.count } do
+      Roles::Waking.call(
+        role: @cto,
+        trigger_type: :scheduled,
+        trigger_source: "schedule"
+      )
+    end
+  end
+
+  test "goal-only wake on busy role does not create throttled RoleRun" do
+    @cto.role_runs.create!(
+      company: @cto.company, status: :running, trigger_type: "scheduled"
+    )
+
+    assert_no_difference -> { RoleRun.count } do
+      Roles::Waking.call(
+        role: @cto,
+        trigger_type: :goal_assigned,
+        trigger_source: "Goal#1",
+        context: { goal_id: goals(:acme_mission).id, goal_title: "Mission" }
+      )
+    end
+  end
+
   # --- Company concurrency throttling ---
 
   test "creates throttled run when company concurrency limit reached" do

@@ -27,7 +27,12 @@
     <% end %>
 
     <div class="company-switcher__divider"></div>
-    <%= link_to new_company_path, class: "company-switcher__new" do %>
+    <% if current_company %>
+      <%= link_to edit_company_path(current_company), class: "company-switcher__action" do %>
+        Settings
+      <% end %>
+    <% end %>
+    <%= link_to new_company_path, class: "company-switcher__action" do %>
       New Company
     <% end %>
   </div>

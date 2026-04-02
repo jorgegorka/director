@@ -56,18 +56,19 @@ module Roles
     end
 
     def dispatch_execution(event)
-      active_run = role.role_runs.active.first
-      if active_run
-        attach_goal_to_active_run(active_run) if context[:goal_id].present?
-        return
-      end
-
       run_attrs = {
         task_id: context[:task_id],
         goal_id: context[:goal_id],
         company_id: role.company_id,
         trigger_type: trigger_type
       }
+
+      active_run = role.role_runs.active.first
+      if active_run
+        attach_goal_to_active_run(active_run) if context[:goal_id].present?
+        role.role_runs.create!(**run_attrs, status: :throttled) if context[:task_id].present?
+        return
+      end
 
       if role.company.concurrent_agent_limit_reached?
         role.role_runs.create!(**run_attrs, status: :throttled)

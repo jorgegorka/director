@@ -190,6 +190,40 @@ class CompanyTest < ActiveSupport::TestCase
     assert_nothing_raised { company.dispatch_next_throttled_run! }
   end
 
+  test "dispatch_next_throttled_run! skips roles with active runs" do
+    company = companies(:acme)
+    RoleRun.where(company: company).delete_all
+    company.update!(max_concurrent_agents: 5)
+
+    busy_role = roles(:cto)
+    idle_role = roles(:developer)
+
+    busy_role.role_runs.create!(company: company, status: :running, trigger_type: "scheduled")
+    busy_throttled = busy_role.role_runs.create!(company: company, status: :throttled, trigger_type: "task_assigned", created_at: 2.minutes.ago)
+    idle_throttled = idle_role.role_runs.create!(company: company, status: :throttled, trigger_type: "task_assigned", created_at: 1.minute.ago)
+
+    company.dispatch_next_throttled_run!
+
+    assert idle_throttled.reload.queued?, "Idle role's throttled run should be dispatched"
+    assert busy_throttled.reload.throttled?, "Busy role's throttled run should remain throttled"
+  end
+
+  test "dispatch_next_throttled_run! does nothing when all throttled roles are busy" do
+    company = companies(:acme)
+    RoleRun.where(company: company).delete_all
+    company.update!(max_concurrent_agents: 5)
+
+    role = roles(:cto)
+    role.role_runs.create!(company: company, status: :running, trigger_type: "scheduled")
+    throttled = role.role_runs.create!(company: company, status: :throttled, trigger_type: "task_assigned")
+
+    assert_no_enqueued_jobs(only: ExecuteRoleJob) do
+      company.dispatch_next_throttled_run!
+    end
+
+    assert throttled.reload.throttled?, "Throttled run should remain throttled"
+  end
+
   test "dispatch_next_throttled_run! enqueues ExecuteRoleJob" do
     company = companies(:acme)
     RoleRun.where(company: company).delete_all
