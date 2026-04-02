@@ -39,7 +39,7 @@
         data: { turbo_frame: "tab_content", action: "click->tabs#activate", tabs_target: "tab" } %>
   </nav>
 
-  <%= turbo_frame_tag "tab_content" do %>
+  <%= turbo_frame_tag "tab_content", target: "_top" do %>
     <%= render "dashboard/overview_tab" %>
   <% end %>
 </section>
