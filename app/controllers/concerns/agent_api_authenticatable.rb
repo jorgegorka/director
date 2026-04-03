@@ -47,8 +47,7 @@ module AgentApiAuthenticatable
   end
 
   def set_task
-    @task = Current.company.tasks.find_by(id: params[:id])
-    respond_not_found unless @task
+    @task = Current.company.tasks.find(params[:id])
   end
 
   def respond_success(task, message, **extra)
@@ -62,13 +61,6 @@ module AgentApiAuthenticatable
     respond_to do |format|
       format.json { render json: { error: message }, status: :unprocessable_entity }
       format.html { redirect_to task, alert: message }
-    end
-  end
-
-  def respond_not_found
-    respond_to do |format|
-      format.json { render json: { error: "Not found" }, status: :not_found }
-      format.html { raise ActiveRecord::RecordNotFound }
     end
   end
 end

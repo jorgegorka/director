@@ -64,7 +64,7 @@ class TaskQuestionsControllerTest < ActionDispatch::IntegrationTest
   test "human user cannot ask question on task from another company" do
     post ask_question_task_url(@widgets_task), params: { body: "Question?" }
 
-    assert_response :not_found
+    assert_redirected_to root_url
   end
 
   test "should redirect unauthenticated human user" do

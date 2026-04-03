@@ -59,7 +59,7 @@ class HeartbeatsControllerTest < ActionDispatch::IntegrationTest
   test "should not show heartbeats for role from another company" do
     widgets_lead = roles(:widgets_lead)
     get role_heartbeats_url(widgets_lead)
-    assert_response :not_found
+    assert_redirected_to root_url
   end
 
   test "should redirect unauthenticated user" do

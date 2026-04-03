@@ -26,7 +26,7 @@ class RoleRunsControllerTest < ActionDispatch::IntegrationTest
   test "index scopes to current company" do
     other_role = roles(:widgets_lead)
     get role_role_runs_url(other_role)
-    assert_response :not_found
+    assert_redirected_to root_url
   end
 
   test "index shows empty state when no runs" do
@@ -55,7 +55,7 @@ class RoleRunsControllerTest < ActionDispatch::IntegrationTest
   test "show rejects run from different role" do
     other_run = role_runs(:running_run) # belongs to developer
     get role_role_run_url(@role, other_run)
-    assert_response :not_found
+    assert_redirected_to root_url
   end
 
   test "show displays error message for failed run" do
@@ -125,6 +125,6 @@ class RoleRunsControllerTest < ActionDispatch::IntegrationTest
       started_at: Time.current
     )
     post cancel_role_role_run_url(other_role, run)
-    assert_response :not_found
+    assert_redirected_to root_url
   end
 end

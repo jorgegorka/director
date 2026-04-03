@@ -64,7 +64,7 @@ class GoalsControllerTest < ActionDispatch::IntegrationTest
 
   test "should not show goal from another company" do
     get goal_url(@widgets_mission)
-    assert_response :not_found
+    assert_redirected_to root_url
   end
 
   test "should show breadcrumb for nested goal" do

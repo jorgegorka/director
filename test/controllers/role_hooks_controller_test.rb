@@ -35,7 +35,7 @@ class RoleHooksControllerTest < ActionDispatch::IntegrationTest
 
   test "should not get index for role in another company" do
     get role_role_hooks_url(@widgets_role)
-    assert_response :not_found
+    assert_redirected_to root_url
   end
 
   # --- Show ---
@@ -55,12 +55,12 @@ class RoleHooksControllerTest < ActionDispatch::IntegrationTest
 
   test "should not show hook from another role" do
     get role_role_hook_url(@role, @disabled_hook)
-    assert_response :not_found
+    assert_redirected_to root_url
   end
 
   test "should not show hook for role in another company" do
     get role_role_hook_url(@widgets_role, @hook)
-    assert_response :not_found
+    assert_redirected_to root_url
   end
 
   # --- New ---
@@ -151,7 +151,7 @@ class RoleHooksControllerTest < ActionDispatch::IntegrationTest
         }
       }
     end
-    assert_response :not_found
+    assert_redirected_to root_url
   end
 
   # --- Edit ---
@@ -181,7 +181,7 @@ class RoleHooksControllerTest < ActionDispatch::IntegrationTest
     patch role_role_hook_url(@role, @disabled_hook), params: {
       role_hook: { name: "Hacked" }
     }
-    assert_response :not_found
+    assert_redirected_to root_url
   end
 
   # --- Destroy ---
@@ -197,7 +197,7 @@ class RoleHooksControllerTest < ActionDispatch::IntegrationTest
     assert_no_difference("RoleHook.count") do
       delete role_role_hook_url(@role, @disabled_hook)
     end
-    assert_response :not_found
+    assert_redirected_to root_url
   end
 
   # --- Auth Guards ---

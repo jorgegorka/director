@@ -31,7 +31,7 @@ class DocumentsControllerTest < ActionDispatch::IntegrationTest
 
   test "should not show document from another company" do
     get document_url(@widgets_doc)
-    assert_response :not_found
+    assert_redirected_to root_url
   end
 
   # --- New / Create ---
@@ -118,7 +118,7 @@ class DocumentsControllerTest < ActionDispatch::IntegrationTest
     patch document_url(@widgets_doc), params: {
       document: { title: "Hacked" }
     }
-    assert_response :not_found
+    assert_redirected_to root_url
   end
 
   # --- Destroy ---
@@ -134,7 +134,7 @@ class DocumentsControllerTest < ActionDispatch::IntegrationTest
     assert_no_difference("Document.count") do
       delete document_url(@widgets_doc)
     end
-    assert_response :not_found
+    assert_redirected_to root_url
   end
 
   # --- Auth ---

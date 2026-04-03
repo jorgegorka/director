@@ -60,7 +60,7 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
         message: { body: "Cross-company message." }
       }
     end
-    assert_response :not_found
+    assert_redirected_to root_url
   end
 
   # --- Auth ---

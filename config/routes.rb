@@ -68,12 +68,12 @@ Rails.application.routes.draw do
   resources :tasks do
     resources :task_documents, only: [ :create, :destroy ]
     resources :messages, only: [ :create ]
+    resource :approval, only: [ :update ], controller: "tasks/approvals"
+    resource :rejection, only: [ :update ], controller: "tasks/rejections"
     member do
       post :delegate, to: "task_delegations#create"
       post :escalate, to: "task_escalations#create"
       post :ask_question, to: "task_questions#create"
-      post :approve, to: "task_reviews#approve"
-      post :reject, to: "task_reviews#reject"
     end
   end
 

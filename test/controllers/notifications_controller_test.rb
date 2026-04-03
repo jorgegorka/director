@@ -34,7 +34,7 @@ class NotificationsControllerTest < ActionDispatch::IntegrationTest
       action: "test_alert"
     )
     patch mark_read_notification_url(widgets_notification)
-    assert_response :not_found
+    assert_redirected_to root_url
   end
 
   test "header shows notification bell when company selected" do

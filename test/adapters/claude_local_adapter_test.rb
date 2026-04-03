@@ -18,11 +18,19 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
 
     ENV["ANTHROPIC_API_KEY"] = "test_key_baseline"
     spawn_calls = @spawn_calls = []
+    script_contents = @script_contents = []
     kill_calls  = @kill_calls  = []
     poll_count  = 0
 
     ClaudeLocalAdapter.define_singleton_method(:poll_sleep) { |_n| nil }
-    ClaudeLocalAdapter.define_singleton_method(:spawn_session) { |cmd| spawn_calls << cmd; true }
+    ClaudeLocalAdapter.define_singleton_method(:spawn_session) do |cmd|
+      spawn_calls << cmd
+      # Capture the script file content before ensure cleanup deletes it
+      if cmd =~ %r{(/\S*director_cmd\S*\.sh)}
+        script_contents << File.read($1) rescue nil
+      end
+      true
+    end
     ClaudeLocalAdapter.define_singleton_method(:pane_alive?) do |_name|
       poll_count += 1
       poll_count <= 1
@@ -78,7 +86,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     assert result.is_a?(Hash), "Expected result hash"
   end
 
-  test "tmux command does not include --bare flag" do
+  test "claude command does not include --bare flag" do
     run = RoleRun.create!(
       role: @role, task: @task, company: @company,
       status: :queued, trigger_type: "task_assigned"
@@ -86,7 +94,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     @context[:run_id] = run.id
     ClaudeLocalAdapter.execute(@role, @context)
 
-    assert @spawn_calls.none? { |cmd| cmd.include?("--bare") }, "spawn command should not include --bare (breaks Keychain auth)"
+    assert @script_contents.none? { |s| s.include?("--bare") }, "claude command should not include --bare (breaks Keychain auth)"
   end
 
   test "tmux command includes ANTHROPIC_API_KEY in environment" do
@@ -116,7 +124,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     assert_includes cmd, "-e PATH=", "spawn command should forward PATH"
   end
 
-  test "tmux command includes --output-format stream-json" do
+  test "claude command includes --output-format stream-json" do
     run = RoleRun.create!(
       role: @role, task: @task, company: @company,
       status: :queued, trigger_type: "task_assigned"
@@ -124,10 +132,10 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     @context[:run_id] = run.id
     ClaudeLocalAdapter.execute(@role, @context)
 
-    assert @spawn_calls.any? { |cmd| cmd.include?("--output-format stream-json") }
+    assert @script_contents.any? { |s| s.include?("--output-format stream-json") }
   end
 
-  test "tmux command includes --model from adapter_config" do
+  test "claude command includes --model from adapter_config" do
     run = RoleRun.create!(
       role: @role, task: @task, company: @company,
       status: :queued, trigger_type: "task_assigned"
@@ -135,7 +143,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     @context[:run_id] = run.id
     ClaudeLocalAdapter.execute(@role, @context)
 
-    assert @spawn_calls.any? { |cmd| cmd.include?("--model claude-sonnet-4-20250514") }
+    assert @script_contents.any? { |s| s.include?("--model claude-sonnet-4-20250514") }
   end
 
   test "tmux session name uses run_id" do
@@ -149,7 +157,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     assert @spawn_calls.any? { |cmd| cmd.include?("director_run_#{run.id}") }
   end
 
-  test "tmux command includes --max-turns when configured" do
+  test "claude command includes --max-turns when configured" do
     @role.adapter_config["max_turns"] = 5
 
     run = RoleRun.create!(
@@ -159,10 +167,10 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     @context[:run_id] = run.id
     ClaudeLocalAdapter.execute(@role, @context)
 
-    assert @spawn_calls.any? { |cmd| cmd.include?("--max-turns 5") }
+    assert @script_contents.any? { |s| s.include?("--max-turns 5") }
   end
 
-  test "tmux command includes --resume when resume_session_id present" do
+  test "claude command includes --resume when resume_session_id present" do
     run = RoleRun.create!(
       role: @role, task: @task, company: @company,
       status: :queued, trigger_type: "task_assigned"
@@ -171,10 +179,10 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     @context[:resume_session_id] = "sess_prior_abc"
     ClaudeLocalAdapter.execute(@role, @context)
 
-    assert @spawn_calls.any? { |cmd| cmd.include?("--resume sess_prior_abc") }
+    assert @script_contents.any? { |s| s.include?("--resume sess_prior_abc") }
   end
 
-  test "tmux command omits --resume when no resume_session_id" do
+  test "claude command omits --resume when no resume_session_id" do
     run = RoleRun.create!(
       role: @role, task: @task, company: @company,
       status: :queued, trigger_type: "task_assigned"
@@ -183,7 +191,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     @context.delete(:resume_session_id)
     ClaudeLocalAdapter.execute(@role, @context)
 
-    assert @spawn_calls.none? { |cmd| cmd.include?("--resume") }
+    assert @script_contents.none? { |s| s.include?("--resume") }
   end
 
   test "stream-JSON lines accumulated in RoleRun log" do
@@ -332,7 +340,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     assert_includes prompt, @role.company.name
   end
 
-  test "command includes --system-prompt-file flag when skills present" do
+  test "claude command includes --system-prompt-file flag when skills present" do
     run = RoleRun.create!(
       role: @role, task: @task, company: @company,
       status: :queued, trigger_type: "task_assigned"
@@ -344,10 +352,10 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
 
     ClaudeLocalAdapter.execute(@role, @context)
 
-    assert @spawn_calls.last.include?("--system-prompt-file"), "command should include --system-prompt-file flag"
+    assert @script_contents.any? { |s| s.include?("--system-prompt-file") }, "command should include --system-prompt-file flag"
   end
 
-  test "command always includes --system-prompt-file for identity context" do
+  test "claude command always includes --system-prompt-file for identity context" do
     run = RoleRun.create!(
       role: @role, task: @task, company: @company,
       status: :queued, trigger_type: "task_assigned"
@@ -358,7 +366,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
 
     ClaudeLocalAdapter.execute(@role, @context)
 
-    assert @spawn_calls.last.include?("--system-prompt-file"), "command should always include --system-prompt-file for identity"
+    assert @script_contents.any? { |s| s.include?("--system-prompt-file") }, "command should always include --system-prompt-file for identity"
   end
 
   test "system prompt combines role description with skills" do
@@ -520,9 +528,9 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     @context[:run_id] = run.id
     ClaudeLocalAdapter.execute(@role, @context)
 
-    cmd = @spawn_calls.last
-    assert_includes cmd, "Task\\ \\##{@task.id}"
-    assert_includes cmd, @task.title.gsub(" ", "\\ ")
+    script = @script_contents.last
+    assert_includes script, "Task\\ \\##{@task.id}"
+    assert_includes script, @task.title.gsub(" ", "\\ ")
   end
 
   test "env_flags sets CLAUDE_CONFIG_DIR to isolated agent config directory" do

@@ -32,12 +32,12 @@ class RoleSkillsControllerTest < ActionDispatch::IntegrationTest
 
   test "should not assign skill from another company" do
     post role_role_skills_url(@cto), params: { skill_id: @widgets_skill.id }
-    assert_response :not_found
+    assert_redirected_to root_url
   end
 
   test "should not assign skill to role from another company" do
     post role_role_skills_url(roles(:widgets_lead)), params: { skill_id: @unassigned_skill.id }
-    assert_response :not_found
+    assert_redirected_to root_url
   end
 
   test "should redirect unauthenticated user on create" do
@@ -71,13 +71,13 @@ class RoleSkillsControllerTest < ActionDispatch::IntegrationTest
   test "should not remove role_skill belonging to another role" do
     role_skill = role_skills(:developer_data_analysis)
     delete role_role_skill_url(@cto, role_skill)
-    assert_response :not_found
+    assert_redirected_to root_url
   end
 
   test "should not remove skill from role in another company" do
     role_skill = role_skills(:cto_code_review)
     delete role_role_skill_url(roles(:widgets_lead), role_skill)
-    assert_response :not_found
+    assert_redirected_to root_url
   end
 
   test "should redirect unauthenticated user on destroy" do

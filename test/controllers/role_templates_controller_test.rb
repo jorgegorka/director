@@ -66,7 +66,7 @@ class RoleTemplatesControllerTest < ActionDispatch::IntegrationTest
 
   test "should return 404 for unknown template" do
     get role_template_url("nonexistent")
-    assert_response :not_found
+    assert_redirected_to root_url
   end
 
   # --- Apply ---
@@ -105,7 +105,7 @@ class RoleTemplatesControllerTest < ActionDispatch::IntegrationTest
 
   test "should return 404 when applying unknown template" do
     post apply_role_template_url("nonexistent")
-    assert_response :not_found
+    assert_redirected_to root_url
   end
 
   # --- Auth guard ---

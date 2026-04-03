@@ -45,14 +45,22 @@ class ClaudeLocalAdapter < BaseAdapter
     temp_files   = []
     claude_cmd   = build_claude_command(role, context, temp_files)
     env          = env_flags
-    # -e sets environment variables in the session; the last arg is the shell command to run.
-    # claude_cmd already has its individual args shellescape-d, so just double-quote the whole string.
+    # Write the claude command to a temp script file so tmux executes it directly.
+    # This avoids double-quoting issues where backticks in the prompt are interpreted
+    # as shell command substitution (the old "\"#{claude_cmd}\"" approach lost one
+    # layer of escaping when /bin/sh processed the double-quoted string).
+    cmd_file = Tempfile.new([ "director_cmd", ".sh" ])
+    cmd_file.write("#!/bin/sh\n#{claude_cmd}\n")
+    cmd_file.flush
+    cmd_file.chmod(0o755)
+    temp_files << cmd_file
+
     # remain-on-exit keeps the tmux pane alive after the command exits,
     # so we can always capture output even if Claude finishes quickly.
     spawn_cmd    = "tmux new-session -d -s #{session_name.shellescape}"
     spawn_cmd   += " -c #{working_dir.shellescape}" if working_dir.present?
     spawn_cmd   += " #{env}" if env.present?
-    spawn_cmd   += " \"#{claude_cmd}\""
+    spawn_cmd   += " #{cmd_file.path.shellescape}"
     spawn_cmd   += " \\; set-option remain-on-exit on"
 
     kill_session(session_name)
@@ -289,7 +297,7 @@ class ClaudeLocalAdapter < BaseAdapter
       prompt = "Task ##{context[:task_id]} is pending your review"
       prompt += ": #{context[:task_title]}" if context[:task_title].present?
       prompt += "\n\n#{context[:assignee_role_title]} has submitted this task for review." if context[:assignee_role_title].present?
-      prompt += "\n\nUse `get_task_details` to read the submitted work and messages, then either approve with `update_task_status(task_id: #{context[:task_id]}, status: \"completed\")` or reject with `update_task_status(task_id: #{context[:task_id]}, status: \"open\", feedback: \"...\")`.".strip
+      prompt += "\n\nUse the get_task_details tool to read the submitted work and messages, then either approve with update_task_status (task_id: #{context[:task_id]}, status: completed) or reject with update_task_status (task_id: #{context[:task_id]}, status: open, feedback: your reason).".strip
     elsif context[:task_id].present?
       prompt = "You have been assigned Task ##{context[:task_id]}"
       prompt += ": #{context[:task_title]}" if context[:task_title].present?
@@ -298,7 +306,7 @@ class ClaudeLocalAdapter < BaseAdapter
     elsif context[:goal_id].present?
       prompt = "You have been assigned Goal: **#{context[:goal_title]}**"
       prompt += "\n\n#{context[:goal_description]}" if context[:goal_description].present?
-      prompt += "\n\nCheck your tasks with `list_my_tasks` and goals with `list_my_goals`, then execute the highest-priority work."
+      prompt += "\n\nCheck your tasks with list_my_tasks and goals with list_my_goals, then execute the highest-priority work."
       prompt.strip
     else
       "Check your assigned goals with list_my_goals and tasks with list_my_tasks, then execute the highest-priority work."

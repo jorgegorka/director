@@ -124,6 +124,6 @@ class RoleCategoriesControllerTest < ActionDispatch::IntegrationTest
   test "cannot access other company categories" do
     widgets_cat = role_categories(:widgets_orchestrator)
     get role_category_url(widgets_cat)
-    assert_response :not_found
+    assert_redirected_to root_url
   end
 end

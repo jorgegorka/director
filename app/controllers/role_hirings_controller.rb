@@ -29,13 +29,7 @@ class RoleHiringsController < ApplicationController
   private
 
   def set_role
-    @role = Current.company.roles.find_by(id: params[:id])
-    unless @role
-      respond_to do |format|
-        format.json { render json: { error: "Not found" }, status: :not_found }
-        format.html { raise ActiveRecord::RecordNotFound }
-      end
-    end
+    @role = Current.company.roles.find(params[:id])
   end
 
   def hire_params

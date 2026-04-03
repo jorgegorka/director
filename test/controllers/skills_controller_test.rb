@@ -122,7 +122,7 @@ class SkillsControllerTest < ActionDispatch::IntegrationTest
 
   test "should not show skill from another company" do
     get skill_url(@widgets_skill)
-    assert_response :not_found
+    assert_redirected_to root_url
   end
 
   # --- New / Create ---
@@ -248,7 +248,7 @@ class SkillsControllerTest < ActionDispatch::IntegrationTest
     patch skill_url(@widgets_skill), params: {
       skill: { name: "Hacked Skill" }
     }
-    assert_response :not_found
+    assert_redirected_to root_url
   end
 
   # --- Destroy ---
@@ -272,7 +272,7 @@ class SkillsControllerTest < ActionDispatch::IntegrationTest
     assert_no_difference("Skill.count") do
       delete skill_url(@widgets_skill)
     end
-    assert_response :not_found
+    assert_redirected_to root_url
   end
 
   # --- Auth / Scoping ---

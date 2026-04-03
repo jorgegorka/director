@@ -38,7 +38,7 @@ class TasksControllerTest < ActionDispatch::IntegrationTest
 
   test "should not show task from another company" do
     get task_url(@widgets_task)
-    assert_response :not_found
+    assert_redirected_to root_url
   end
 
   # --- New / Create ---

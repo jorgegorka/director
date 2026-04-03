@@ -75,7 +75,7 @@ class TaskDelegationsControllerTest < ActionDispatch::IntegrationTest
   test "human user cannot delegate task from another company" do
     post delegate_task_url(@widgets_task), params: { role_id: @developer.id }
 
-    assert_response :not_found
+    assert_redirected_to root_url
   end
 
   test "should redirect unauthenticated human user" do

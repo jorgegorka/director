@@ -42,7 +42,7 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
 
   test "should not show role from another company" do
     get role_url(roles(:widgets_lead))
-    assert_response :not_found
+    assert_redirected_to root_url
   end
 
   test "should show adapter type on detail page" do
@@ -469,7 +469,7 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
 
   test "should not allow status actions on other company roles" do
     post pause_role_url(roles(:widgets_lead))
-    assert_response :not_found
+    assert_redirected_to root_url
   end
 
   # --- Approval Gates ---

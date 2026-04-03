@@ -78,7 +78,7 @@ class TaskEscalationsControllerTest < ActionDispatch::IntegrationTest
   test "human user cannot escalate task from another company" do
     post escalate_task_url(@widgets_task)
 
-    assert_response :not_found
+    assert_redirected_to root_url
   end
 
   test "should redirect unauthenticated human user" do
