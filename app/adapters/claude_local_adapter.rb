@@ -257,6 +257,13 @@ class ClaudeLocalAdapter < BaseAdapter
       - **get_document** — fetch the full content of a document
 
       Use these Director MCP tools to accomplish your goals. Break goals into tasks, delegate to your reports, and track progress.
+
+      ## Efficiency Rules
+
+      - Do NOT call get_task_details if the task details are already provided in this prompt — start working immediately
+      - Do NOT call update_task_status("in_progress") — tasks are automatically marked in_progress when your session starts
+      - Start producing results immediately — minimize setup calls before doing real work
+      - When you need to make multiple independent tool calls, batch them in parallel
     PROMPT
   end
 
@@ -303,6 +310,7 @@ class ClaudeLocalAdapter < BaseAdapter
       prompt = "You have been assigned Task ##{context[:task_id]}"
       prompt += ": #{context[:task_title]}" if context[:task_title].present?
       prompt += "\n\n#{context[:task_description]}" if context[:task_description].present?
+      prompt += "\n\nThe task is already marked in_progress. The details above are complete — start working immediately."
       prompt.strip
     elsif context[:goal_id].present?
       prompt = "You have been assigned Goal: **#{context[:goal_title]}**"

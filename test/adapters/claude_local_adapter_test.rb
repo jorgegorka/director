@@ -548,13 +548,12 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     assert File.directory?(dir)
   end
 
-  test "system prompt includes job_spec with workflow when present" do
+  test "system prompt includes job_spec with skill references when present" do
     @role.job_spec = Role::DEFAULT_JOB_SPEC
     prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @role, {})
 
-    assert_includes prompt, "Task Workflow"
-    assert_includes prompt, "update_task_status"
-    assert_includes prompt, "add_message"
+    assert_includes prompt, "task_workflow"
+    assert_includes prompt, "task_review"
   end
 
   test "system prompt includes role_category job_spec after role job_spec" do

@@ -42,16 +42,8 @@ class Role < ApplicationRecord
   validates :working_directory, format: { with: /\A\//, message: "must be an absolute path" }, allow_blank: true
 
   DEFAULT_JOB_SPEC = <<~SPEC.strip
-    ## Task Workflow
-
-    When you are assigned a task, follow this protocol:
-
-    1. Call `update_task_status` with status `in_progress` to signal you've started.
-    2. Do the work — use your tools to research, analyze, and produce results.
-    3. Call `add_message` on the task with your findings, deliverables, or output.
-    4. Call `update_task_status` with status `pending_review` to submit your work for review.
-
-    Always complete all four steps. Your work is only visible to others through `add_message` — text you produce outside of MCP tool calls is not captured.
+    Follow your task_workflow skill when executing or delegating tasks.
+    Follow your task_review skill when reviewing submitted work from subordinates.
   SPEC
 
   before_validation :inherit_parent_working_directory, on: :create
@@ -63,7 +55,9 @@ class Role < ApplicationRecord
   after_commit :broadcast_dashboard_update, if: :saved_change_to_status?
 
   def self.default_skill_keys_for(role_title)
-    default_skills_config.fetch(role_title.to_s.downcase.strip, [])
+    base = default_skills_config.fetch("_base", [])
+    role_specific = default_skills_config.fetch(role_title.to_s.downcase.strip, [])
+    (base + role_specific).uniq
   end
 
   def self.default_skills_config

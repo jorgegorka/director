@@ -16,7 +16,10 @@ markdown: |
   5. Make your decision:
      - **Approve** if all success metrics are met: use update_task_status with status "completed"
      - **Reject** if critical gaps exist: use update_task_status with status "open" and provide specific, actionable feedback explaining what needs to be fixed
-  6. After completing the review, report the key findings and outcome to your manager using add_message on a relevant goal or parent task they can see
+  6. After completing the review, report the outcome to your manager:
+     - Check the reviewed task's parent_task_id from the get_task_details response
+     - If parent_task_id exists, use add_message on that parent task to report the key findings — this is your task from your manager
+     - If no parent_task_id, use list_my_tasks to find a relevant task assigned to you by your manager, and report there
 
   ## Guidelines
   - Evaluate against the task's own success metrics, not your personal standards
@@ -26,4 +29,4 @@ markdown: |
   - When reporting to your manager, summarize the outcome and key findings concisely — they need the signal, not the full report
 
   ## Output Format
-  Post an add_message on the task with: approval/rejection status, brief assessment against each success metric, and any notable findings. Then post a separate add_message to your manager's goal or task with a concise summary of the outcome and its business implications.
+  Post an add_message on the reviewed task with: approval/rejection status, brief assessment against each success metric, and any notable findings. Then post a separate add_message on the parent task (or your manager's task) with a concise summary of the outcome and its business implications.

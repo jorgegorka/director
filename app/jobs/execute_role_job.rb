@@ -52,6 +52,7 @@ class ExecuteRoleJob < ApplicationJob
 
     task = role_run.task
     if task
+      task.update!(status: :in_progress) if task.open?
       ctx[:task_id] = task.id
       ctx[:task_title] = task.title
       ctx[:task_description] = task.description

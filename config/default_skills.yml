@@ -1,6 +1,11 @@
 # Default skill assignments per role title.
 # Used by Role auto-assignment (Phase 15) and referenced by seeding logic.
 # Role titles are matched case-insensitively.
+# _base skills are assigned to every role regardless of title.
+
+_base:
+  - task_workflow
+  - task_review
 
 ceo:
   - strategic_planning

@@ -1,0 +1,43 @@
+key: task_workflow
+name: Task Workflow
+description: Universal task lifecycle — starting work, posting results, submitting for review, and delegating to subordinates with proper parent task linking
+category: operations
+markdown: |
+  # Task Workflow
+
+  ## Purpose
+  Every agent follows this protocol when working on tasks. It ensures your work is visible, properly tracked, and linked in the task hierarchy so outcomes flow back to the right people.
+
+  ## Executing a Task
+
+  When you are assigned a task, follow these steps in order:
+
+  1. Do the work — use your tools to research, analyze, and produce results. Your task is already marked in_progress automatically when your session starts, so begin working immediately.
+  2. Call add_message on the task with your findings, deliverables, or output
+  3. Call update_task_status with status "pending_review" to submit your work for review
+
+  Always complete all three steps. Your work is only visible to others through add_message — text you produce outside of MCP tool calls is not captured.
+
+  ## Delegating Work to Subordinates
+
+  When you break a task into subtasks for your subordinates using create_task:
+
+  - Always set parent_task_id to the task you are working on
+  - This links subordinate work back to your task and creates a clear chain of accountability
+  - When subordinates complete their work, their tasks will appear as subtasks of yours
+  - This enables you to report outcomes back to your manager on the original task
+
+  ### Proportionality rule
+
+  Your subtask description must be **shorter and more focused** than the task you received — never longer or more complex. Each level of delegation should narrow scope, not inflate it.
+
+  - Pass through the original intent. Do not rewrite it with more words or add sections that the original task did not require.
+  - A simple question deserves a simple task. If your task is "find out X", your subtask should be "find out X" or a focused slice of it — not an enterprise specification.
+  - Do not invent success metrics, verification criteria, or constraints that the original task did not ask for. Only include what is genuinely needed for the subordinate to know when they are done.
+  - If a one-line description is sufficient, use a one-line description.
+
+  ## Guidelines
+  - Your task is auto-marked in_progress when your session starts — jump straight into the work
+  - Post results via add_message before submitting for review — reviewers need evidence, not just a status change
+  - When delegating, write clear task descriptions so subordinates know what "done" looks like — but keep them proportional to the complexity of the work
+  - Never create orphan tasks — always link back to the parent task you are advancing

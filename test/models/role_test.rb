@@ -580,9 +580,8 @@ class RoleTest < ActiveSupport::TestCase
 
   test "sets default job_spec on create when blank" do
     role = Role.create!(title: "New Agent", company: @company, role_category: role_categories(:worker))
-    assert_includes role.job_spec, "Task Workflow"
-    assert_includes role.job_spec, "update_task_status"
-    assert_includes role.job_spec, "add_message"
+    assert_includes role.job_spec, "task_workflow"
+    assert_includes role.job_spec, "task_review"
   end
 
   test "preserves explicit job_spec on create" do
@@ -700,14 +699,16 @@ class RoleTest < ActiveSupport::TestCase
     end
   end
 
-  test "default_skill_keys_for returns empty array for unknown title" do
-    assert_equal [], Role.default_skill_keys_for("Nonexistent Role")
+  test "default_skill_keys_for returns base skills for unknown title" do
+    keys = Role.default_skill_keys_for("Nonexistent Role")
+    assert_includes keys, "task_workflow"
+    assert_includes keys, "task_review"
   end
 
-  test "default_skill_keys_for is case-insensitive" do
+  test "default_skill_keys_for is case-insensitive and includes base skills" do
     ceo_keys = Role.default_skill_keys_for("CEO")
-    assert_equal 4, ceo_keys.size
     assert_includes ceo_keys, "strategic_planning"
+    assert_includes ceo_keys, "task_workflow"
 
     ceo_keys_lower = Role.default_skill_keys_for("ceo")
     assert_equal ceo_keys.sort, ceo_keys_lower.sort
