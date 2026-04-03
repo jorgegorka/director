@@ -589,8 +589,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
 
     assert_includes prompt, "pending your review"
     assert_includes prompt, "Marketing Planner"
-    assert_includes prompt, "get_task_details"
-    assert_includes prompt, "completed"
+    assert_includes prompt, "task_review skill"
     assert_not_includes prompt, "assigned"
   end
 

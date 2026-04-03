@@ -1,0 +1,29 @@
+key: task_review
+name: Task Review
+description: Review submitted tasks for completeness and quality, then approve or reject with feedback and report outcomes to your manager
+category: operations
+markdown: |
+  # Task Review
+
+  ## Purpose
+  Evaluate work submitted by direct reports for completeness, quality, and alignment with the original task requirements. Provide clear approval or actionable rejection feedback, then communicate the outcome up the chain so your manager stays informed.
+
+  ## Instructions
+  1. Use get_task_details to read the full task description, success metrics, and all messages
+  2. Compare the submitted work against every success metric and verification criterion listed in the task description
+  3. Assess quality: Is the work thorough? Is it evidence-based with specific references? Does it go beyond surface-level analysis?
+  4. Check for completeness: Are all deliverables present? Are there gaps or unfinished items?
+  5. Make your decision:
+     - **Approve** if all success metrics are met: use update_task_status with status "completed"
+     - **Reject** if critical gaps exist: use update_task_status with status "open" and provide specific, actionable feedback explaining what needs to be fixed
+  6. After completing the review, report the key findings and outcome to your manager using add_message on a relevant goal or parent task they can see
+
+  ## Guidelines
+  - Evaluate against the task's own success metrics, not your personal standards
+  - Be specific in rejection feedback: quote what's missing and explain what "done" looks like
+  - Acknowledge strong work — note when deliverables exceed expectations
+  - Do not approve incomplete work just because effort was high; quality and completeness matter
+  - When reporting to your manager, summarize the outcome and key findings concisely — they need the signal, not the full report
+
+  ## Output Format
+  Post an add_message on the task with: approval/rejection status, brief assessment against each success metric, and any notable findings. Then post a separate add_message to your manager's goal or task with a concise summary of the outcome and its business implications.
