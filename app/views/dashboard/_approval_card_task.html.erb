@@ -1,0 +1,17 @@
+<div class="approval-card">
+  <div class="approval-card__info">
+    <span class="approval-card__title"><%= link_to task.title, task_path(task) %></span>
+    <span class="approval-card__detail">
+      <% if task.assignee %>
+        Submitted by <%= task.assignee.title %>
+      <% end %>
+      <% if task.creator %>
+        &middot; Created by <%= task.creator.title %>
+      <% end %>
+    </span>
+    <span class="approval-card__time"><%= time_ago_in_words(task.updated_at) %> ago</span>
+  </div>
+  <div class="approval-card__actions">
+    <%= link_to "Review", task_path(task), class: "btn btn--primary btn--sm" %>
+  </div>
+</div>

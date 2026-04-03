@@ -31,9 +31,11 @@ class Message < ApplicationRecord
     return unless company
 
     mentioned_roles = detect_mentions(body, company)
-    mentioned_roles.each do |role|
+    mentioned_roles.each do |mentioned_role|
+      next if mentioned_role == author
+
       trigger_role_wake(
-        role: role,
+        role: mentioned_role,
         trigger_type: :mention,
         trigger_source: "Message##{id}",
         context: {
@@ -48,6 +50,7 @@ class Message < ApplicationRecord
   def trigger_answer_wake
     return unless answer? && parent&.question?
     return unless parent.author_type == "Role"
+    return if parent.author == author
 
     trigger_role_wake(
       role: parent.author,

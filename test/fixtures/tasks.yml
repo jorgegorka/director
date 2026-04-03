@@ -62,6 +62,15 @@ eval_ready_task:
   cost_cents: 1000
   completed_at: <%= 1.hour.ago.to_fs(:db) %>
 
+pending_review_task:
+  title: Draft marketing plan
+  description: "Create Q2 marketing plan with budget breakdown"
+  company: acme
+  creator: cmo
+  assignee: cto
+  status: 5  # pending_review
+  priority: 2  # high
+
 widgets_task:
   title: Update widget catalog
   description: "Refresh the product catalog with new widgets"

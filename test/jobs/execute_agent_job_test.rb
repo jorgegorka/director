@@ -426,13 +426,80 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
     HttpAdapter.singleton_class.remove_method(:backoff_sleep)
   end
 
+  # ---------------------------------------------------------------------------
+  # Adapter guard
+  # ---------------------------------------------------------------------------
+
+  test "fails fast with clear error when role has no adapter configured" do
+    @role.update_column(:adapter_type, nil)
+    run = RoleRun.create!(
+      role: @role, task: @task, company: @company,
+      status: :queued, trigger_type: "task_assigned"
+    )
+
+    ExecuteRoleJob.perform_now(run.id)
+    run.reload
+
+    assert run.failed?
+    assert_match(/no adapter configured/i, run.error_message)
+  end
+
+  # ---------------------------------------------------------------------------
+  # Failure notification and escalation
+  # ---------------------------------------------------------------------------
+
+  test "posts message to task when run fails" do
+    run = RoleRun.create!(
+      role: @role, task: @task, company: @company,
+      status: :queued, trigger_type: "task_assigned"
+    )
+
+    assert_difference "Message.count", 1 do
+      ExecuteRoleJob.perform_now(run.id)
+    end
+
+    message = @task.messages.last
+    assert_equal @role, message.author
+    assert_equal "comment", message.message_type
+    assert_match(/session ended without completing work/i, message.body)
+  end
+
+  test "does not post message when run has no task" do
+    run = RoleRun.create!(
+      role: @role, task: nil, company: @company,
+      status: :queued, trigger_type: "scheduled"
+    )
+
+    assert_no_difference "Message.count" do
+      ExecuteRoleJob.perform_now(run.id)
+    end
+  end
+
+  test "escalates to manager (task creator) when run fails" do
+    creator = @task.creator
+    assert creator.present?, "Task must have a creator for this test"
+
+    run = RoleRun.create!(
+      role: @role, task: @task, company: @company,
+      status: :queued, trigger_type: "task_assigned"
+    )
+
+    assert_difference "HeartbeatEvent.count" do
+      ExecuteRoleJob.perform_now(run.id)
+    end
+
+    event = HeartbeatEvent.last
+    assert_equal creator, event.role
+    assert_equal "task_assigned", event.trigger_type
+  end
+
   test "dispatches next throttled run after failure" do
     @company.update!(max_concurrent_agents: 1)
     RoleRun.where(company: @company).delete_all
 
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
-      status: :queued, trigger_type: "task_assigned"
+      role: @role, task: nil, company: @company,
+      status: :queued, trigger_type: "scheduled"
     )
 
     throttled = RoleRun.create!(

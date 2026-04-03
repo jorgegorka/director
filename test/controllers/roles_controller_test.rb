@@ -443,6 +443,22 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "approve responds with turbo_stream" do
+    @cto.update_columns(status: Role.statuses[:pending_approval], pause_reason: "Approval required")
+    post approve_role_url(@cto), headers: { "Accept" => "text/vnd.turbo-stream.html" }
+    assert_response :success
+    @cto.reload
+    assert @cto.idle?
+  end
+
+  test "reject responds with turbo_stream" do
+    @cto.update_columns(status: Role.statuses[:pending_approval], pause_reason: "Approval required")
+    post reject_role_url(@cto), headers: { "Accept" => "text/vnd.turbo-stream.html" }
+    assert_response :success
+    @cto.reload
+    assert @cto.paused?
+  end
+
   # --- Emergency Stop ---
 
   test "should emergency stop all roles" do

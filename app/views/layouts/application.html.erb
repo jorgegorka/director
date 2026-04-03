@@ -38,7 +38,6 @@
 
       <nav class="app-header__nav">
         <% if Current.user %>
-          <%= render "layouts/company_switcher" %>
           <% if Current.company %>
             <%= link_to "Dashboard", root_path, class: "nav__link #{"nav__link--active" if controller_name == "dashboard"}" %>
             <%= link_to "Roles", roles_path, class: "nav__link #{"nav__link--active" if controller_name == "roles"}" %>
@@ -51,10 +50,7 @@
                   class: "btn btn--sm emergency-stop-btn",
                   data: { turbo_confirm: "EMERGENCY STOP: This will pause ALL active roles in #{Current.company.name}. Continue?" } %>
           <% end %>
-          <span class="app-header__user"><%= Current.user.email_address %></span>
-          <%= link_to "Settings", settings_path, class: "btn btn--ghost btn--sm" %>
-          <%= button_to "Log out", session_path, method: :delete,
-                class: "btn btn--ghost btn--sm" %>
+          <%= render "layouts/company_switcher" %>
         <% else %>
           <%= link_to "Log in", new_session_path, class: "btn btn--ghost btn--sm" %>
           <%= link_to "Sign up", new_registration_path, class: "btn btn--primary btn--sm" %>

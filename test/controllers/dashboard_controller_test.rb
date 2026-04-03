@@ -115,6 +115,19 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     assert_select "turbo-cable-stream-source"
   end
 
+  test "shows approvals tab with badge" do
+    get dashboard_url
+    assert_response :success
+    assert_select ".dashboard-tab", text: /Approvals/
+    assert_select "#approvals-badge"
+  end
+
+  test "approvals badge shows count when pending items exist" do
+    get dashboard_url
+    assert_response :success
+    assert_select "#approvals-badge:not([hidden])"
+  end
+
   test "activity shows link to full audit log" do
     get root_url
     assert_response :success

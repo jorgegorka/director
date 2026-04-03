@@ -2,6 +2,7 @@ class RoleRun < ApplicationRecord
   include Tenantable
   include Chronological
   include Runnable
+  include Triggerable
 
   TERMINAL_STATUSES = %w[completed failed cancelled].freeze
   BROADCAST_MIN_INTERVAL = 0.1 # seconds (100ms) -- STREAM-05
@@ -52,6 +53,7 @@ class RoleRun < ApplicationRecord
     end
 
     mark_cancelled!
+    notify_task_of_cancellation
     role.update!(status: :idle) if role.running?
     role.company.dispatch_next_throttled_run!
   end
@@ -98,5 +100,18 @@ class RoleRun < ApplicationRecord
 
   def terminal_status_reached?
     saved_change_to_status? && terminal?
+  end
+
+  def notify_task_of_cancellation
+    return unless task
+
+    Message.create!(
+      task: task,
+      author: role,
+      message_type: :comment,
+      body: "My session was cancelled before completing work."
+    )
+  rescue ActiveRecord::RecordInvalid
+    # Don't let notification failures prevent cancellation
   end
 end

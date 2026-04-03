@@ -41,6 +41,7 @@ class Task < ApplicationRecord
   after_commit :trigger_pending_review_wake, on: :update, if: :just_entered_pending_review?
   after_commit :broadcast_kanban_update, on: [ :create, :update ]
   after_commit :broadcast_kanban_remove, on: :destroy
+  after_commit :broadcast_approvals_badge, on: [ :create, :update ], if: :pending_review_changed?
   after_commit :enqueue_hooks_for_transition, on: [ :create, :update ]
   after_commit :enqueue_validation_feedback, on: [ :create, :update ]
   after_commit :enqueue_goal_evaluation, on: [ :create, :update ]
@@ -158,6 +159,25 @@ class Task < ApplicationRecord
 
   def just_entered_pending_review?
     saved_change_to_status? && pending_review?
+  end
+
+  def pending_review_changed?
+    saved_change_to_status? && (pending_review? || status_before_last_save == "pending_review")
+  end
+
+  def broadcast_approvals_badge
+    return unless company_id
+
+    count = company.roles.where(status: :pending_approval).count +
+      PendingHire.where(company: company, status: :pending).count +
+      company.tasks.where(status: :pending_review).count
+
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "dashboard_company_#{company_id}",
+      target: "approvals-badge",
+      partial: "dashboard/approvals_badge",
+      locals: { count: count }
+    )
   end
 
   def trigger_pending_review_wake

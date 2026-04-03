@@ -56,6 +56,11 @@ module Roles
     end
 
     def dispatch_execution(event)
+      if role.adapter_type.blank?
+        event.mark_failed!(error_message: "Role has no adapter configured")
+        return
+      end
+
       run_attrs = {
         task_id: context[:task_id],
         goal_id: context[:goal_id],

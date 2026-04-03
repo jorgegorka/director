@@ -161,6 +161,52 @@ class MessageTest < ActiveSupport::TestCase
     end
   end
 
+  test "answer wake does not fire when author answers own question" do
+    role_question = Message.create!(
+      body: "Should I proceed?",
+      task: @task,
+      author: @role,
+      message_type: :question
+    )
+
+    assert_no_difference -> { HeartbeatEvent.where(trigger_type: :question_answered).count } do
+      Message.create!(
+        body: "Yes, proceeding.",
+        task: @task,
+        author: @role,
+        parent: role_question,
+        message_type: :answer
+      )
+    end
+  end
+
+  test "mention wake does not fire when author mentions itself" do
+    assert_no_difference -> { HeartbeatEvent.where(trigger_type: :mention).count } do
+      Message.create!(
+        body: "I (@#{@role.title}) completed the analysis.",
+        task: @task,
+        author: @role,
+        message_type: :comment
+      )
+    end
+  end
+
+  test "mention wake fires for other roles but skips author" do
+    other_role = roles(:developer)
+
+    assert_difference -> { HeartbeatEvent.where(trigger_type: :mention).count }, 1 do
+      Message.create!(
+        body: "Hey @#{other_role.title} and @#{@role.title}, check this out.",
+        task: @task,
+        author: @role,
+        message_type: :comment
+      )
+    end
+
+    event = HeartbeatEvent.where(trigger_type: :mention).last
+    assert_equal other_role, event.role
+  end
+
   test "answer wake does not fire when question author is not a Role" do
     user_question = Message.create!(
       body: "What about this?",

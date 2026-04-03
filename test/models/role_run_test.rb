@@ -369,6 +369,55 @@ class RoleRunTest < ActiveSupport::TestCase
     assert_raises(RuntimeError) { run.cancel! }
   end
 
+  test "cancel! posts message to task when task present" do
+    role = roles(:cto)
+    role.update!(status: :running)
+    task = tasks(:design_homepage)
+    run = role.role_runs.create!(
+      company: companies(:acme),
+      status: :running,
+      trigger_type: "task_assigned",
+      task: task,
+      started_at: Time.current
+    )
+
+    ClaudeLocalAdapter.define_singleton_method(:kill_session) { |_name| true }
+
+    assert_difference "Message.count", 1 do
+      run.cancel!
+    end
+
+    message = task.messages.last
+    assert_equal role, message.author
+    assert_match(/cancelled/, message.body)
+  ensure
+    if ClaudeLocalAdapter.singleton_class.method_defined?(:kill_session, false)
+      ClaudeLocalAdapter.singleton_class.remove_method(:kill_session)
+    end
+  end
+
+  test "cancel! does not post message when no task" do
+    role = roles(:cto)
+    role.update!(status: :running)
+    run = role.role_runs.create!(
+      company: companies(:acme),
+      status: :running,
+      trigger_type: "scheduled",
+      task: nil,
+      started_at: Time.current
+    )
+
+    ClaudeLocalAdapter.define_singleton_method(:kill_session) { |_name| true }
+
+    assert_no_difference "Message.count" do
+      run.cancel!
+    end
+  ensure
+    if ClaudeLocalAdapter.singleton_class.method_defined?(:kill_session, false)
+      ClaudeLocalAdapter.singleton_class.remove_method(:kill_session)
+    end
+  end
+
   # --- broadcast batching ---
 
   test "broadcast_line! persists every line regardless of batching" do

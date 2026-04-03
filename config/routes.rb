@@ -103,6 +103,7 @@ Rails.application.routes.draw do
     scope module: :dashboards do
       resources :tasks, only: [ :index ]
       resources :activities, only: [ :index ]
+      resources :approvals, only: [ :index ]
     end
   end
 

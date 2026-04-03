@@ -28,12 +28,12 @@
 
     <div class="company-switcher__divider"></div>
     <% if current_company %>
-      <%= link_to edit_company_path(current_company), class: "company-switcher__action" do %>
-        Settings
-      <% end %>
+      <%= link_to "Company Settings", edit_company_path(current_company), class: "company-switcher__action" %>
     <% end %>
-    <%= link_to new_company_path, class: "company-switcher__action" do %>
-      New Company
-    <% end %>
+    <%= link_to "New Company", new_company_path, class: "company-switcher__action" %>
+
+    <div class="company-switcher__divider"></div>
+    <%= link_to "Account Settings", settings_path, class: "company-switcher__action" %>
+    <%= button_to "Log out", session_path, method: :delete, class: "company-switcher__action company-switcher__action--logout" %>
   </div>
 </div>

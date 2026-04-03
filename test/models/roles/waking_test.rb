@@ -59,6 +59,22 @@ class Roles::WakingTest < ActiveSupport::TestCase
     assert_nil result
   end
 
+  test "marks event failed for role with no adapter configured" do
+    @developer.update_column(:adapter_type, nil)
+    event = Roles::Waking.call(role: @developer, trigger_type: :scheduled)
+
+    assert event.persisted?
+    assert event.failed?
+    assert_match(/no adapter/i, event.metadata["error"])
+  end
+
+  test "does not create RoleRun for role with no adapter configured" do
+    @developer.update_column(:adapter_type, nil)
+    assert_no_difference -> { RoleRun.count } do
+      Roles::Waking.call(role: @developer, trigger_type: :scheduled)
+    end
+  end
+
   test "request_payload includes trigger context" do
     event = Roles::Waking.call(
       role: @developer,

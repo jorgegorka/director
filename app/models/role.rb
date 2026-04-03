@@ -213,6 +213,7 @@ class Role < ApplicationRecord
     broadcast_overview_stats
     broadcast_role_status
     broadcast_running_agents
+    broadcast_approvals_badge
   end
 
   def broadcast_role_status
@@ -246,6 +247,19 @@ class Role < ApplicationRecord
       target: "dashboard-running-agents",
       partial: "dashboard/running_agents",
       locals: { running_roles: running_roles }
+    )
+  end
+
+  def broadcast_approvals_badge
+    count = company.roles.where(status: :pending_approval).count +
+      PendingHire.where(company: company, status: :pending).count +
+      company.tasks.where(status: :pending_review).count
+
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "dashboard_company_#{company_id}",
+      target: "approvals-badge",
+      partial: "dashboard/approvals_badge",
+      locals: { count: count }
     )
   end
 

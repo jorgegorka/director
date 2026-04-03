@@ -1,0 +1,49 @@
+<div class="approvals" id="dashboard-approvals">
+  <section class="approvals__section">
+    <h3 class="approvals__section-title">
+      <span class="icon icon--warning"></span>
+      Gate Approvals
+    </h3>
+    <% if @approval_queue.gate_blocked_roles.any? %>
+      <% @approval_queue.gate_blocked_roles.each do |role| %>
+        <%= turbo_frame_tag dom_id(role, :approval) do %>
+          <%= render "dashboard/approval_card_gate", role: role %>
+        <% end %>
+      <% end %>
+    <% else %>
+      <p class="approvals__empty">No gate approvals pending.</p>
+    <% end %>
+  </section>
+
+  <section class="approvals__section">
+    <h3 class="approvals__section-title">
+      <span class="icon icon--info"></span>
+      Hiring Approvals
+    </h3>
+    <% if @approval_queue.pending_hires.any? %>
+      <% @approval_queue.pending_hires.each do |pending_hire| %>
+        <%= turbo_frame_tag dom_id(pending_hire, :approval) do %>
+          <%= render "dashboard/approval_card_hire", pending_hire: pending_hire %>
+        <% end %>
+      <% end %>
+    <% else %>
+      <p class="approvals__empty">No hiring approvals pending.</p>
+    <% end %>
+  </section>
+
+  <section class="approvals__section">
+    <h3 class="approvals__section-title">
+      <span class="icon icon--info"></span>
+      Tasks Pending Review
+    </h3>
+    <% if @approval_queue.tasks_pending_review.any? %>
+      <% @approval_queue.tasks_pending_review.each do |task| %>
+        <%= turbo_frame_tag dom_id(task, :approval) do %>
+          <%= render "dashboard/approval_card_task", task: task %>
+        <% end %>
+      <% end %>
+    <% else %>
+      <p class="approvals__empty">No tasks pending review.</p>
+    <% end %>
+  </section>
+</div>

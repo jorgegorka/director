@@ -37,6 +37,12 @@
     <%= link_to "Activity", dashboard_activities_path,
         class: "dashboard-tab",
         data: { turbo_frame: "tab_content", action: "click->tabs#activate", tabs_target: "tab" } %>
+    <%= link_to dashboard_approvals_path,
+        class: "dashboard-tab",
+        data: { turbo_frame: "tab_content", action: "click->tabs#activate", tabs_target: "tab" } do %>
+      Approvals
+      <%= render "dashboard/approvals_badge", count: @approvals_count %>
+    <% end %>
   </nav>
 
   <%= turbo_frame_tag "tab_content", target: "_top" do %>

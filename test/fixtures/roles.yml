@@ -67,6 +67,17 @@ cmo:
   budget_cents: 50000
   budget_period_start: <%= Date.current.beginning_of_month.to_fs(:db) %>
 
+pending_role:
+  title: Content Writer
+  description: Writes marketing content
+  job_spec: "Create blog posts and social media content"
+  company: acme
+  parent: cmo
+  role_category: worker
+  status: 5        # pending_approval
+  pause_reason: "Approval required: task_creation gate is active"
+  paused_at: <%= 1.hour.ago.to_fs(:db) %>
+
 widgets_lead:
   title: Operations Lead
   description: Leads widget operations

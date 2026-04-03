@@ -1,0 +1,45 @@
+key: escalation_handling
+name: Escalation Handling
+description: Respond effectively when woken by a subordinate's question, mention, task escalation, or session failure
+category: management
+markdown: |
+  # Escalation Handling
+
+  ## Purpose
+  As a manager, you may be woken for many reasons: a subordinate asked a question, mentioned you, had their session fail, or a task was escalated to you. This skill helps you diagnose why you were woken and respond appropriately.
+
+  ## Instructions
+  1. Call `get_task_details` to read the full task thread, including all messages and current status
+  2. Identify why you were woken by reading the most recent messages:
+     - **Question from subordinate**: Look for messages with a question — the subordinate needs your input to proceed
+     - **Mention**: A subordinate tagged you with @YourTitle to get your attention on something
+     - **Session failure**: Look for phrases like "session ended without completing work", "session was cancelled", or "stalled" — the assignee's session crashed
+     - **Task escalation**: The task was reassigned to you because the subordinate could not complete it
+     - **Pending review**: The assignee finished work and is waiting for your approval
+  3. Respond based on the situation:
+
+  ### Answering questions or mentions
+  - Read the question or context carefully
+  - Post your answer or guidance via `add_message` — this will wake the subordinate so they can continue
+  - If the question requires research you cannot do, delegate it: create a subtask and assign it
+
+  ### Handling session failures
+  - Check if the task status is still `open` (assignee never started) or has partial work in messages
+  - Choose a recovery action:
+    - **Retry same assignee**: If the failure was transient (stall, timeout), the assignee will be woken again on the next trigger
+    - **Simplify and retry**: If the task was too broad, break it into smaller subtasks with `create_task`
+    - **Reassign**: If the assignee lacks the right skills, create a new task for a different subordinate
+    - **Do it yourself**: If you have the skills and the task is small enough, complete it directly
+    - **Escalate further**: Use `add_message` with @YourManager to flag the issue upward
+
+  ### Reviewing completed work
+  - Read the task messages for the deliverable
+  - If satisfactory, call `update_task_status` with status `completed`
+  - If not, call `update_task_status` with status `open` and include feedback explaining what needs to change
+
+  ## Guidelines
+  - Always read the task thread before acting — context is in the messages
+  - When answering a question, be specific enough that the subordinate can proceed without another round-trip
+  - Do not re-delegate to the same role more than once without changing something (simpler scope, more context, different approach)
+  - Prefer breaking work into smaller pieces over repeated retries of a large task
+  - Post a brief `add_message` explaining your decision before taking action

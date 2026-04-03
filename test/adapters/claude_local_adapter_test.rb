@@ -592,6 +592,62 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     assert_includes prompt, "list_my_tasks"
   end
 
+  test "stall detection raises ExecutionError after STALL_TIMEOUT with no new output" do
+    stall_clock = 0.0
+    ClaudeLocalAdapter.define_singleton_method(:poll_sleep) { |_n| stall_clock += ClaudeLocalAdapter::STALL_TIMEOUT + 1 }
+
+    # Override clock to simulate time passing during stalls
+    original_clock = Process.method(:clock_gettime)
+    Process.define_singleton_method(:clock_gettime) { |*_args| stall_clock }
+
+    # pane_alive? always true so we rely on stall detection to break
+    ClaudeLocalAdapter.define_singleton_method(:pane_alive?) { |_name| true }
+    # Return same output every poll (no new lines)
+    ClaudeLocalAdapter.define_singleton_method(:capture_pane) { |_name| ASSISTANT_EVENT }
+
+    run = RoleRun.create!(
+      role: @role, task: @task, company: @company,
+      status: :queued, trigger_type: "task_assigned"
+    )
+    @context[:run_id] = run.id
+
+    error = assert_raises(ClaudeLocalAdapter::ExecutionError) do
+      ClaudeLocalAdapter.execute(@role, @context)
+    end
+
+    assert_match(/stalled/i, error.message)
+    assert_match(/#{ClaudeLocalAdapter::STALL_TIMEOUT}/, error.message)
+  ensure
+    Process.define_singleton_method(:clock_gettime, original_clock) if original_clock
+  end
+
+  test "stall timer resets when new output appears" do
+    poll_count = 0
+    ClaudeLocalAdapter.define_singleton_method(:pane_alive?) do |_name|
+      poll_count += 1
+      poll_count <= 3
+    end
+    # Return progressively more output each poll
+    ClaudeLocalAdapter.define_singleton_method(:capture_pane) do |_name|
+      lines = [ ASSISTANT_EVENT ]
+      lines << '{"type":"system","subtype":"progress"}' if poll_count >= 2
+      lines << RESULT_EVENT if poll_count >= 3
+      lines.join("\n")
+    end
+
+    run = RoleRun.create!(
+      role: @role, task: @task, company: @company,
+      status: :queued, trigger_type: "task_assigned"
+    )
+    @context[:run_id] = run.id
+
+    result = assert_nothing_raised do
+      ClaudeLocalAdapter.execute(@role, @context)
+    end
+
+    assert_equal "sess_new_xyz", result[:session_id]
+  end
+
   test "display_name, description, config_schema unchanged" do
     assert_equal "Claude Code (Local)", ClaudeLocalAdapter.display_name
     assert_equal "Run Claude CLI locally with streaming JSON output and session resumption", ClaudeLocalAdapter.description

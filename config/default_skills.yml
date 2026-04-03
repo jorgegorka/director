@@ -6,6 +6,7 @@ ceo:
   - strategic_planning
   - decision_making
   - risk_assessment
+  - escalation_handling
 
 cto:
   - code_review
@@ -13,6 +14,7 @@ cto:
   - technical_strategy
   - system_design
   - security_assessment
+  - escalation_handling
 
 cmo:
   - market_analysis
@@ -20,6 +22,7 @@ cmo:
   - brand_management
   - campaign_planning
   - audience_research
+  - escalation_handling
 
 cfo:
   - financial_analysis
@@ -27,6 +30,7 @@ cfo:
   - revenue_forecasting
   - cost_optimization
   - compliance_reporting
+  - escalation_handling
 
 engineer:
   - code_review
@@ -82,6 +86,7 @@ vp engineering:
   - sprint_management
   - technical_strategy
   - progress_reporting
+  - escalation_handling
 
 tech lead:
   - code_review
@@ -113,6 +118,7 @@ marketing manager:
   - project_planning
   - sprint_management
   - progress_reporting
+  - escalation_handling
 
 linkedin specialist:
   - content_strategy
@@ -141,6 +147,7 @@ coo:
   - decision_making
   - project_planning
   - risk_assessment
+  - escalation_handling
 
 operations manager:
   - project_planning
@@ -193,6 +200,7 @@ hr director:
   - decision_making
   - communication
   - risk_assessment
+  - escalation_handling
 
 recruiter:
   - requirements_gathering

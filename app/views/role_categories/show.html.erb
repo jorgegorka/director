@@ -27,7 +27,8 @@
 
     <div class="role-category-detail__sidebar">
       <div class="role-category-detail__card">
-        <h2 class="role-category-detail__card-title">Assigned Roles (<%= @roles.size %>)</h2>
+        <h2 class="role-category-detail__card-title">Assigned Roles</h2>
+        <span class="role-category-detail__role-count"><%= @roles.size %> <%= "role".pluralize(@roles.size) %></span>
         <% if @roles.any? %>
           <ul class="role-category-detail__roles-list">
             <% @roles.each do |role| %>
@@ -38,7 +39,7 @@
             <% end %>
           </ul>
         <% else %>
-          <p class="role-category-detail__empty-note">No roles assigned to this category.</p>
+          <p class="role-category-detail__empty-note">No roles assigned to this category yet.</p>
         <% end %>
       </div>
     </div>

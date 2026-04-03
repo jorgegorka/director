@@ -14,6 +14,7 @@ class ClaudeLocalAdapter < BaseAdapter
   POLL_INTERVAL  = 0.5   # seconds between capture-pane polls
   SESSION_PREFIX = "director_run"  # tmux session name prefix
   MAX_POLL_WAIT  = 300   # seconds, maximum time to poll before timeout (5 minutes)
+  STALL_TIMEOUT  = 120   # seconds without new output before declaring stall
 
   def self.display_name
     "Claude Code (Local)"
@@ -304,12 +305,14 @@ class ClaudeLocalAdapter < BaseAdapter
     accumulated_lines = []
     poll_count = 0
     max_polls = (MAX_POLL_WAIT / POLL_INTERVAL).to_i
+    last_new_output_at = Process.clock_gettime(Process::CLOCK_MONOTONIC)
 
     loop do
       output = capture_pane(session_name)
       lines = output.split("\n")
 
       if lines.size > last_line_count
+        last_new_output_at = Process.clock_gettime(Process::CLOCK_MONOTONIC)
         new_lines = lines[last_line_count..]
         new_lines.each do |line|
           role_run.broadcast_line!(line + "\n")
@@ -322,6 +325,12 @@ class ClaudeLocalAdapter < BaseAdapter
       # so we check pane_dead instead of session_exists. This guarantees we
       # capture all output before breaking.
       break unless pane_alive?(session_name)
+
+      stall_elapsed = Process.clock_gettime(Process::CLOCK_MONOTONIC) - last_new_output_at
+      if stall_elapsed >= STALL_TIMEOUT
+        kill_session(session_name)
+        raise ExecutionError, "Agent stalled: no output for #{STALL_TIMEOUT} seconds"
+      end
 
       poll_sleep(POLL_INTERVAL)
 

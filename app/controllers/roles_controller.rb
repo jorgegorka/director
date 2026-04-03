@@ -1,4 +1,6 @@
 class RolesController < ApplicationController
+  include ActionView::RecordIdentifier
+
   before_action :require_company!
   before_action :set_role, only: [ :show, :edit, :update, :destroy, :run, :pause, :resume, :terminate, :approve, :reject ]
 
@@ -128,7 +130,16 @@ class RolesController < ApplicationController
       paused_at: nil
     )
     @role.record_audit_event!(actor: Current.user, action: "gate_approval")
-    redirect_to @role, notice: "#{@role.title} has been approved and resumed."
+
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: [
+          turbo_stream.remove(dom_id(@role, :approval)),
+          turbo_stream.replace("approvals-badge", partial: "dashboard/approvals_badge", locals: { count: approvals_pending_count })
+        ]
+      end
+      format.html { redirect_to @role, notice: "#{@role.title} has been approved and resumed." }
+    end
   end
 
   def reject
@@ -146,10 +157,25 @@ class RolesController < ApplicationController
       paused_at: Time.current
     )
     @role.record_audit_event!(actor: Current.user, action: "gate_rejection", metadata: { reason: @role.pause_reason })
-    redirect_to @role, notice: "#{@role.title} approval has been rejected."
+
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: [
+          turbo_stream.remove(dom_id(@role, :approval)),
+          turbo_stream.replace("approvals-badge", partial: "dashboard/approvals_badge", locals: { count: approvals_pending_count })
+        ]
+      end
+      format.html { redirect_to @role, notice: "#{@role.title} approval has been rejected." }
+    end
   end
 
   private
+
+  def approvals_pending_count
+    Current.company.roles.where(status: :pending_approval).count +
+      PendingHire.where(company: Current.company, status: :pending).count +
+      Current.company.tasks.where(status: :pending_review).count
+  end
 
   def set_role
     @role = Current.company.roles.includes(:skills, :approval_gates, :role_skills, :role_category, children: [ :skills, :role_category ]).find(params[:id])

@@ -20,6 +20,14 @@ If something goes wrong across the board, an admin can hit the **emergency stop*
 
 Inside each company you define roles — CEO, lead engineer, content writer, support representative, whatever fits your operation. Roles are arranged in a hierarchy, just like a real org chart, with parent-child relationships that determine who reports to whom. Each role has a job specification describing what it's responsible for.
 
+Every role belongs to one of three **categories** that determine how it behaves:
+
+- **Orchestrator** — delegates work to direct reports, reviews results, and coordinates execution. Does not produce deliverables directly. Think CEO, department head, team lead.
+- **Planner** — researches, analyzes, and produces strategic plans and recommendations. May delegate data-gathering to subordinates but focuses on strategy.
+- **Worker** — does the work directly and produces deliverables. Does not delegate to others.
+
+Each category comes with a structured job spec that defines the MCP protocol the role follows — which tools to use, in what order, and what quality standards to meet. This means roles don't just have different titles, they have fundamentally different behavior patterns.
+
 A role starts as an empty position in the org chart. It becomes AI-powered when you **hire** into it — meaning you configure an adapter that connects it to an AI service. When a role is first hired, it automatically receives a default set of skills relevant to its position.
 
 ### Hiring and adapters
@@ -28,9 +36,9 @@ Hiring a role means connecting it to an AI service through one of three adapters
 
 - **HTTP** — sends tasks to any AI service via web requests. Director posts a JSON payload to a URL you configure and handles the response, including automatic retries with increasing wait times if something fails.
 - **Process** — runs a command-line program on the server. Useful for local scripts or CLI-based AI tools.
-- **Claude Local** — launches a Claude session in a dedicated terminal window, streams the output in real time, and enforces budget limits before each run starts.
+- **Claude Local** — launches a Claude session in a dedicated terminal window, streams the output in real time, and enforces budget limits before each run starts. You can configure a **working directory** so the role operates in the right project context.
 
-Once hired, roles have a lifecycle you control directly. You can **pause** a role (with a reason), **resume** it, or **terminate** it permanently. If a role tries to do something that requires approval, it enters a **pending approval** state until a human approves or rejects the action.
+Once hired, roles have a lifecycle you control directly. You can **pause** a role (with a reason), **resume** it, **terminate** it permanently, or **manually wake it up** to start working on demand. If a role tries to do something that requires approval, it enters a **pending approval** state until a human approves or rejects the action.
 
 Each role has its own profile showing its assigned skills, linked documents, recent heartbeat activity, and a full history of its runs.
 
@@ -54,7 +62,7 @@ Every task tracks its cost, so you always know how much a piece of work actually
 
 ### Goals
 
-Goals give your company direction. You create a hierarchy of goals — from high-level missions down to specific objectives and key results — and link tasks to them. This way every piece of work traces back to a company-level objective.
+Goals are the primary way you direct your AI company. You create a hierarchy of goals — from high-level missions down to specific objectives and key results — and roles pick up tasks linked to them. This means you set the direction at a high level and let the org chart figure out how to get there.
 
 Progress rolls up automatically: as tasks linked to a goal are completed, the goal's progress updates to reflect it.
 
@@ -121,6 +129,7 @@ The dashboard is your command center. At a glance you can see:
 - A Kanban view of all tasks grouped by status
 - A real-time activity timeline showing what's happening across the company
 - Goal progress across all objectives
+- An **approvals queue** that consolidates everything waiting for human action — gate-blocked roles, pending hires, and tasks pending review — in one place
 
 The dashboard updates in real time — when a role completes a task, starts a run, or triggers a hook, you see it immediately without refreshing the page.
 
@@ -133,6 +142,14 @@ On top of that, every change to a role's configuration is captured as a **config
 ### Notifications
 
 Director notifies you when things need your attention — when you're mentioned in a task message, when a task is assigned to you, or when a role action requires your approval. Notifications are scoped to the company you're working in and can be marked as read.
+
+### MCP tools
+
+Director exposes **14 MCP tools** that roles use to interact with the system. These are the hands and eyes of every AI role — the only way they can read tasks, post results, delegate work, or access documents.
+
+The tools cover four areas: **task management** (create, update, list, and inspect tasks), **goal tracking** (list, read, and update goals), **role coordination** (list available roles, hire subordinates, post messages), and **document access** (search and read reference material). Each role category's job spec defines which tools to use and in what order, so orchestrators delegate via `create_task`, workers execute and report via `add_message`, and planners do both.
+
+Communication with roles uses JSON-RPC 2.0 over stdin/stdout, so any process that speaks that protocol can act as an AI backend.
 
 ## Who is Director for?
 

@@ -706,7 +706,7 @@ class RoleTest < ActiveSupport::TestCase
 
   test "default_skill_keys_for is case-insensitive" do
     ceo_keys = Role.default_skill_keys_for("CEO")
-    assert_equal 3, ceo_keys.size
+    assert_equal 4, ceo_keys.size
     assert_includes ceo_keys, "strategic_planning"
 
     ceo_keys_lower = Role.default_skill_keys_for("ceo")

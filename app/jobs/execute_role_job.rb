@@ -1,4 +1,6 @@
 class ExecuteRoleJob < ApplicationJob
+  include Triggerable
+
   queue_as :execution
 
   # Do not retry execution jobs automatically -- failed runs should be
@@ -11,6 +13,11 @@ class ExecuteRoleJob < ApplicationJob
     return if role_run.terminal?
 
     role = role_run.role
+
+    if role.adapter_type.blank?
+      raise StandardError, "Role has no adapter configured — cannot execute. Configure an adapter type in role settings."
+    end
+
     role_run.mark_running!
     role.update!(status: :running)
 
@@ -28,6 +35,8 @@ class ExecuteRoleJob < ApplicationJob
   rescue StandardError, NotImplementedError => e
     if role_run && !role_run.terminal?
       role_run.mark_failed!(error_message: e.message, exit_code: 1)
+      notify_task_of_failure(role_run, e.message)
+      escalate_to_manager(role_run, e.message)
     end
     role&.update!(status: :idle) if role&.running?
     role_run&.role&.company&.dispatch_next_throttled_run!
@@ -75,5 +84,30 @@ class ExecuteRoleJob < ApplicationJob
         markdown: skill.markdown
       }
     end
+  end
+
+  def notify_task_of_failure(role_run, reason)
+    task = role_run.task
+    return unless task
+
+    Message.create!(
+      task: task,
+      author: role_run.role,
+      message_type: :comment,
+      body: "My session ended without completing work. Reason: #{reason}"
+    )
+  end
+
+  def escalate_to_manager(role_run, reason)
+    task = role_run.task
+    return unless task&.creator
+    return if task.creator.terminated?
+
+    trigger_role_wake(
+      role: task.creator,
+      trigger_type: :task_assigned,
+      trigger_source: "ExecuteRoleJob##{role_run.id}",
+      context: { task_id: task.id, task_title: task.title }
+    )
   end
 end

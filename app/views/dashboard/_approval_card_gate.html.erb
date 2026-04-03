@@ -1,0 +1,15 @@
+<div class="approval-card">
+  <div class="approval-card__info">
+    <span class="approval-card__title"><%= link_to role.title, role_path(role) %></span>
+    <span class="approval-card__detail"><%= role.pause_reason %></span>
+    <% if role.paused_at %>
+      <span class="approval-card__time">Waiting <%= time_ago_in_words(role.paused_at) %></span>
+    <% end %>
+  </div>
+  <div class="approval-card__actions">
+    <%= button_to "Approve", approve_role_path(role), class: "btn btn--primary btn--sm",
+          data: { turbo_confirm: "Approve #{role.title} to continue?" } %>
+    <%= button_to "Reject", reject_role_path(role), class: "btn btn--danger btn--sm",
+          data: { turbo_confirm: "Reject approval for #{role.title}?" } %>
+  </div>
+</div>

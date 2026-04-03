@@ -3,5 +3,14 @@ class DashboardController < ApplicationController
 
   def show
     @overview = Dashboard::Overview.new(Current.company)
+    @approvals_count = approval_pending_count
+  end
+
+  private
+
+  def approval_pending_count
+    Current.company.roles.where(status: :pending_approval).count +
+      PendingHire.where(company: Current.company, status: :pending).count +
+      Current.company.tasks.where(status: :pending_review).count
   end
 end
