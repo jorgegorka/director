@@ -52,10 +52,10 @@ class Dashboards::ActivitiesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[id^='activity-event-']", minimum: 1
   end
 
-  test "wraps content in turbo frame" do
+  test "renders full page with activity tab active" do
     get dashboard_activities_url
     assert_response :success
-    assert_select "turbo-frame#tab_content"
+    assert_select ".dashboard-tab--active", text: "Activity"
   end
 
   test "requires authentication" do

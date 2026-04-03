@@ -570,6 +570,22 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     assert_includes prompt, "Your Identity"
   end
 
+  test "build_user_prompt uses review prompt for task_pending_review trigger" do
+    context = {
+      trigger_type: "task_pending_review",
+      task_id: @task.id,
+      task_title: @task.title,
+      assignee_role_title: "Marketing Planner"
+    }
+    prompt = ClaudeLocalAdapter.send(:build_user_prompt, context)
+
+    assert_includes prompt, "pending your review"
+    assert_includes prompt, "Marketing Planner"
+    assert_includes prompt, "get_task_details"
+    assert_includes prompt, "completed"
+    assert_not_includes prompt, "assigned"
+  end
+
   test "build_user_prompt includes task_id when task context present" do
     prompt = ClaudeLocalAdapter.send(:build_user_prompt, @context)
 

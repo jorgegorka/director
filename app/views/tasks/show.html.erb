@@ -16,6 +16,19 @@
     </div>
   </div>
 
+  <% if @task.pending_review? %>
+    <div class="task-detail__review-banner">
+      <p>This task is <strong>pending review</strong>. Approve to mark complete, or reject with feedback.</p>
+      <div class="task-detail__review-actions">
+        <%= button_to "Approve", approve_task_path(@task), class: "btn btn--primary btn--sm",
+              data: { turbo_confirm: "Approve this task?" } %>
+        <%= button_to "Reject", reject_task_path(@task), class: "btn btn--danger btn--sm",
+              form: { id: "reject-task-form" },
+              data: { turbo_confirm: "Reject this task?" } %>
+      </div>
+    </div>
+  <% end %>
+
   <div class="task-detail__body">
     <% if @task.description.present? %>
       <div class="task-detail__section">

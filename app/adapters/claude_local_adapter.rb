@@ -285,7 +285,12 @@ class ClaudeLocalAdapter < BaseAdapter
   end
 
   private_class_method def self.build_user_prompt(context)
-    if context[:task_id].present?
+    if context[:trigger_type] == "task_pending_review" && context[:task_id].present?
+      prompt = "Task ##{context[:task_id]} is pending your review"
+      prompt += ": #{context[:task_title]}" if context[:task_title].present?
+      prompt += "\n\n#{context[:assignee_role_title]} has submitted this task for review." if context[:assignee_role_title].present?
+      prompt += "\n\nUse `get_task_details` to read the submitted work and messages, then either approve with `update_task_status(task_id: #{context[:task_id]}, status: \"completed\")` or reject with `update_task_status(task_id: #{context[:task_id]}, status: \"open\", feedback: \"...\")`.".strip
+    elsif context[:task_id].present?
       prompt = "You have been assigned Task ##{context[:task_id]}"
       prompt += ": #{context[:task_title]}" if context[:task_title].present?
       prompt += "\n\n#{context[:task_description]}" if context[:task_description].present?

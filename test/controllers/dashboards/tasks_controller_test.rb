@@ -60,10 +60,10 @@ class Dashboards::TasksControllerTest < ActionDispatch::IntegrationTest
     assert_select "[id^='kanban-column-body-']", 6
   end
 
-  test "wraps content in turbo frame" do
+  test "renders full page with tasks tab active" do
     get dashboard_tasks_url
     assert_response :success
-    assert_select "turbo-frame#tab_content"
+    assert_select ".dashboard-tab--active", text: "Tasks"
   end
 
   test "requires authentication" do

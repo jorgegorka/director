@@ -55,6 +55,7 @@ class ExecuteRoleJob < ApplicationJob
       ctx[:task_id] = task.id
       ctx[:task_title] = task.title
       ctx[:task_description] = task.description
+      ctx[:assignee_role_title] = task.assignee&.title
       goal = task.goal
     end
 

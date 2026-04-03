@@ -72,6 +72,8 @@ Rails.application.routes.draw do
       post :delegate, to: "task_delegations#create"
       post :escalate, to: "task_escalations#create"
       post :ask_question, to: "task_questions#create"
+      post :approve, to: "task_reviews#approve"
+      post :reject, to: "task_reviews#reject"
     end
   end
 

@@ -2486,6 +2486,26 @@
     font-size: var(--font-size-sm);
   }
 
+  .task-detail__review-banner {
+    padding: var(--space-4);
+    background: oklch(0.96 0.02 90);
+    border: 1px solid oklch(0.85 0.05 90);
+    border-radius: var(--radius-md);
+    margin-block-end: var(--space-4);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+
+    & p { margin: 0; }
+  }
+
+  .task-detail__review-actions {
+    display: flex;
+    gap: var(--space-2);
+    flex-shrink: 0;
+  }
+
   /* --- Task Action Forms (delegate/escalate) --- */
   .task-action-form {
     padding: var(--space-4);

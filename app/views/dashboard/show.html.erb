@@ -1,5 +1,5 @@
 <% content_for(:title, "Dashboard") %>
-<section class="dashboard" data-controller="tabs">
+<section class="dashboard">
   <%= turbo_stream_from "dashboard_company_#{Current.company.id}" %>
   <div class="dashboard__header">
     <div>
@@ -29,23 +29,18 @@
 
   <nav class="dashboard-tabs" role="tablist">
     <%= link_to "Overview", dashboard_path,
-        class: "dashboard-tab dashboard-tab--active",
-        data: { turbo_frame: "tab_content", action: "click->tabs#activate", tabs_target: "tab" } %>
+        class: "dashboard-tab #{"dashboard-tab--active" if @current_tab == :overview}" %>
     <%= link_to "Tasks", dashboard_tasks_path,
-        class: "dashboard-tab",
-        data: { turbo_frame: "tab_content", action: "click->tabs#activate", tabs_target: "tab" } %>
+        class: "dashboard-tab #{"dashboard-tab--active" if @current_tab == :tasks}" %>
     <%= link_to "Activity", dashboard_activities_path,
-        class: "dashboard-tab",
-        data: { turbo_frame: "tab_content", action: "click->tabs#activate", tabs_target: "tab" } %>
+        class: "dashboard-tab #{"dashboard-tab--active" if @current_tab == :activities}" %>
     <%= link_to dashboard_approvals_path,
-        class: "dashboard-tab",
-        data: { turbo_frame: "tab_content", action: "click->tabs#activate", tabs_target: "tab" } do %>
+        class: "dashboard-tab #{"dashboard-tab--active" if @current_tab == :approvals}" do %>
       Approvals
       <%= render "dashboard/approvals_badge", count: @approvals_count %>
     <% end %>
   </nav>
 
-  <%= turbo_frame_tag "tab_content", target: "_top" do %>
-    <%= render "dashboard/overview_tab" %>
-  <% end %>
+  <% tab_partials = { overview: "overview", tasks: "tasks", activities: "activity", approvals: "approvals" } %>
+  <%= render "dashboard/#{tab_partials[@current_tab]}_tab" %>
 </section>

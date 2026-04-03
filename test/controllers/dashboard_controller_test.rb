@@ -70,14 +70,14 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
   test "should show overview tab content by default" do
     get dashboard_url
     assert_response :success
-    assert_select "turbo-frame#tab_content"
+    assert_select ".dashboard-tab--active", text: "Overview"
     assert_select "#dashboard-overview-stats"
   end
 
-  test "tab links target turbo frame" do
+  test "tab links navigate to correct paths" do
     get dashboard_url
     assert_response :success
-    assert_select "a[data-turbo-frame='tab_content']", minimum: 3
+    assert_select "a.dashboard-tab", minimum: 4
   end
 
   test "overview stats have turbo stream target id" do

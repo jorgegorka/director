@@ -36,10 +36,10 @@ class Dashboards::ApprovalsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".approval-card__title", text: /Draft marketing plan/
   end
 
-  test "wraps content in turbo frame" do
+  test "renders full page with approvals tab active" do
     get dashboard_approvals_url
     assert_response :success
-    assert_select "turbo-frame#tab_content"
+    assert_select ".dashboard-tab--active", text: /Approvals/
   end
 
   test "requires authentication" do
