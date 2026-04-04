@@ -1,21 +1,7 @@
-require "open3"
-require "shellwords"
-require "tempfile"
-
 class ClaudeLocalAdapter < BaseAdapter
-  # Error raised when the agent's budget is exhausted before execution starts.
-  # Caught by ExecuteAgentJob rescue StandardError clause.
-  class BudgetExhausted < StandardError; end
+  extend TmuxAdapterRunner
 
-  # Error raised when tmux session creation fails or times out.
-  # Caught by ExecuteAgentJob rescue StandardError clause.
-  class ExecutionError < StandardError; end
-
-  POLL_INTERVAL  = 0.5   # seconds between capture-pane polls
-  SESSION_PREFIX = "director_run"  # tmux session name prefix
-  MAX_POLL_WAIT  = 300   # seconds, maximum time to poll before timeout (5 minutes)
-  STALL_TIMEOUT  = 60    # seconds without new output before declaring stall
-  STALL_RETRIES  = 1     # retry count for transient stall/crash errors
+  SESSION_PREFIX = "director_run"
 
   def self.display_name
     "Claude Code (Local)"
@@ -29,79 +15,6 @@ class ClaudeLocalAdapter < BaseAdapter
     { required: %w[model], optional: %w[max_turns session_id allowed_tools] }
   end
 
-  # Executes a claude CLI process in a tmux session and streams the JSON output
-  # back into the RoleRun log. Returns a result hash with exit_code, session_id,
-  # and cost_cents extracted from the stream-JSON result event.
-  #
-  # Retries once on transient errors (stalls, missing result events) before giving up.
-  # Raises BudgetExhausted (CLAUDE-06) before spawning if role.budget_exhausted?.
-  # Raises ExecutionError if tmux spawn fails or execution times out.
-  def self.execute(role, context)
-    if role.budget_exhausted?
-      raise BudgetExhausted, "Role budget exhausted: spent #{role.monthly_spend_cents} of #{role.budget_cents} cents budget"
-    end
-
-    retries_remaining = STALL_RETRIES
-    begin
-      execute_once(role, context)
-    rescue ExecutionError => e
-      if retries_remaining > 0 && retryable_error?(e)
-        retries_remaining -= 1
-        retry
-      end
-      raise
-    end
-  end
-
-  private_class_method def self.execute_once(role, context)
-    role_run     = RoleRun.find(context[:run_id])
-    session_name = "#{SESSION_PREFIX}_#{context[:run_id]}"
-    working_dir  = resolve_working_directory(role.effective_working_directory)
-    temp_files   = []
-    claude_cmd   = build_claude_command(role, context, temp_files)
-    env          = env_flags
-    # Write the claude command to a temp script file so tmux executes it directly.
-    # This prevents the shell from interpreting backticks in the prompt as command
-    # substitution when /bin/sh processes the tmux argument string.
-    cmd_file = Tempfile.new([ "director_cmd", ".sh" ])
-    cmd_file.write("#!/bin/sh\n#{claude_cmd}\n")
-    cmd_file.flush
-    cmd_file.chmod(0o755)
-    temp_files << cmd_file
-
-    # remain-on-exit keeps the tmux pane alive after the command exits,
-    # so we can always capture output even if Claude finishes quickly.
-    spawn_cmd    = "tmux new-session -d -s #{session_name.shellescape}"
-    spawn_cmd   += " -c #{working_dir.shellescape}" if working_dir.present?
-    spawn_cmd   += " #{env}" if env.present?
-    spawn_cmd   += " #{cmd_file.path.shellescape}"
-    spawn_cmd   += " \\; set-option remain-on-exit on"
-
-    kill_session(session_name)
-    spawn_session(spawn_cmd)
-
-    accumulated_lines = poll_session(session_name, role_run)
-    parse_result(accumulated_lines)
-  ensure
-    cleanup_session(session_name) if defined?(session_name) && session_name
-    temp_files&.each { |f| f.close! rescue nil }
-  end
-
-  private_class_method def self.retryable_error?(error)
-    error.message.match?(/stalled|exited without producing a result/i)
-  end
-
-  # ---------------------------------------------------------------------------
-  # Overridable hooks -- public so define_singleton_method can shadow them in tests
-  # without permanently removing the original method.
-  # Same pattern as HttpAdapter.backoff_sleep.
-  # ---------------------------------------------------------------------------
-
-  # Overridable hook for poll sleep -- enables zero-sleep in tests.
-  def self.poll_sleep(seconds)
-    sleep(seconds)
-  end
-
   # Auth priority for Claude CLI in tmux sessions:
   #   1. ANTHROPIC_API_KEY — direct API billing, most reliable for automation
   #   2. CLAUDE_CODE_OAUTH_TOKEN — subscription-based auth (Max/Pro), works headless
@@ -109,7 +22,6 @@ class ClaudeLocalAdapter < BaseAdapter
   #
   # Tmux sessions inherit the tmux server's environment, not the calling
   # process's, so we explicitly forward all relevant variables.
-  # Public so tests can override it.
   FORWARDED_ENV_VARS = %w[HOME PATH ANTHROPIC_API_KEY CLAUDE_CODE_OAUTH_TOKEN].freeze
 
   def self.env_flags
@@ -140,38 +52,50 @@ class ClaudeLocalAdapter < BaseAdapter
     dir.to_s
   end
 
-  # Spawns a tmux session with the given command string.
-  # Returns stdout on success, raises ExecutionError with stderr on failure.
-  def self.spawn_session(cmd)
-    stdout, stderr, status = Open3.capture3(cmd)
-    unless status.success?
-      raise ExecutionError, "tmux spawn failed: #{stderr.strip.presence || "unknown error (exit #{status.exitstatus})"}"
+  # Hook for TmuxAdapterRunner: returns the claude CLI invocation string.
+  def self.build_agent_command(role, context, temp_files)
+    build_claude_command(role, context, temp_files)
+  end
+
+  # Hook for TmuxAdapterRunner: parses claude's stream-json output.
+  # Raises ExecutionError when no `result` event was seen (legitimate failure
+  # mode for a crashed CLI; retryable via TmuxAdapterRunner.retryable_error?).
+  def self.parse_result(accumulated_lines)
+    session_id = nil
+    cost_cents = nil
+    exit_code  = 0
+    error_message = nil
+
+    accumulated_lines.each do |line|
+      next if line.blank?
+      begin
+        event = JSON.parse(line)
+      rescue JSON::ParserError
+        next
+      end
+
+      # Detect authentication failures from assistant messages
+      if event["type"] == "assistant" && event["error"] == "authentication_failed"
+        raise ExecutionError, "Claude CLI not authenticated. Run `claude /login` to sign in."
+      end
+
+      next unless event["type"] == "result"
+
+      session_id = event["session_id"]  # CLAUDE-03
+      if event["total_cost_usd"].present?
+        cost_cents = (event["total_cost_usd"].to_f * 100).round  # CLAUDE-05
+      end
+      if event["subtype"] == "error" || event["is_error"] == true
+        exit_code = 1
+        error_message = event["result"]
+      end
     end
-    stdout
-  end
 
-  # Returns true if the named tmux session currently exists.
-  def self.session_exists?(name)
-    system("tmux has-session -t #{name.shellescape} 2>/dev/null")
-  end
+    if session_id.nil? && error_message.nil?
+      raise ExecutionError, "Agent process exited without producing a result"
+    end
 
-  # Fails CLOSED on any unexpected tmux output so that an unreachable tmux
-  # cannot keep a stuck run polling indefinitely.
-  def self.pane_alive?(name)
-    return false unless session_exists?(name)
-    out, status = Open3.capture2("tmux", "display-message", "-t", name, "-p", '#{pane_dead}')
-    return false unless status.success?
-    out.strip == "0"
-  end
-
-  # Captures the current pane output of the named tmux session from scrollback start.
-  def self.capture_pane(name)
-    `tmux capture-pane -t #{name.shellescape} -p -S - 2>/dev/null`
-  end
-
-  # Kills the named tmux session, silently ignoring errors.
-  def self.kill_session(name)
-    system("tmux kill-session -t #{name.shellescape} 2>/dev/null")
+    { exit_code: exit_code, session_id: session_id, cost_cents: cost_cents, error_message: error_message }
   end
 
   private_class_method def self.build_claude_command(role, context, temp_files)
@@ -345,105 +269,5 @@ class ClaudeLocalAdapter < BaseAdapter
     else
       "Check your assigned goals with list_my_goals and tasks with list_my_tasks, then execute the highest-priority work."
     end
-  end
-
-  private_class_method def self.poll_session(session_name, role_run)
-    last_line_count = 0
-    accumulated_lines = []
-    poll_count = 0
-    max_polls = (MAX_POLL_WAIT / POLL_INTERVAL).to_i
-    # Wall-clock, not CLOCK_MONOTONIC: monotonic pauses during host sleep on
-    # macOS, which would silently disable stall detection on dev laptops.
-    last_new_output_at = Time.current
-
-    loop do
-      output = capture_pane(session_name)
-      lines = output.split("\n")
-
-      if lines.size > last_line_count
-        last_new_output_at = Time.current
-        new_lines = lines[last_line_count..]
-        new_lines.each do |line|
-          role_run.broadcast_line!(line + "\n")
-          accumulated_lines << line
-        end
-        last_line_count = lines.size
-      end
-
-      # With remain-on-exit the session stays alive after the process exits,
-      # so we check pane_dead instead of session_exists. This guarantees we
-      # capture all output before breaking.
-      break unless pane_alive?(session_name)
-
-      stall_elapsed = Time.current - last_new_output_at
-      if stall_elapsed >= STALL_TIMEOUT
-        kill_session(session_name)
-        raise ExecutionError, "Agent stalled: no output for #{STALL_TIMEOUT} seconds"
-      end
-
-      poll_sleep(POLL_INTERVAL)
-
-      poll_count += 1
-      if poll_count >= max_polls
-        kill_session(session_name)
-        raise ExecutionError, "Execution timed out after #{MAX_POLL_WAIT} seconds"
-      end
-    end
-
-    accumulated_lines
-  end
-
-  private_class_method def self.parse_result(accumulated_lines)
-    session_id = nil
-    cost_cents = nil
-    exit_code  = 0
-    error_message = nil
-
-    accumulated_lines.each do |line|
-      next if line.blank?
-      begin
-        event = JSON.parse(line)
-      rescue JSON::ParserError
-        next
-      end
-
-      # Detect authentication failures from assistant messages
-      if event["type"] == "assistant" && event["error"] == "authentication_failed"
-        raise ExecutionError, "Claude CLI not authenticated. Run `claude /login` to sign in."
-      end
-
-      next unless event["type"] == "result"
-
-      session_id = event["session_id"]  # CLAUDE-03
-      if event["total_cost_usd"].present?
-        cost_cents = (event["total_cost_usd"].to_f * 100).round  # CLAUDE-05
-      end
-      if event["subtype"] == "error" || event["is_error"] == true
-        exit_code = 1
-        error_message = event["result"]
-      end
-    end
-
-    if session_id.nil? && error_message.nil?
-      raise ExecutionError, "Agent process exited without producing a result"
-    end
-
-    { exit_code: exit_code, session_id: session_id, cost_cents: cost_cents, error_message: error_message }
-  end
-
-  private_class_method def self.resolve_working_directory(path)
-    return nil if path.blank?
-
-    resolved = File.realpath(path)
-    unless File.directory?(resolved)
-      raise ExecutionError, "Working directory is not a directory: #{path} (resolved to #{resolved})"
-    end
-    resolved
-  rescue Errno::ENOENT
-    raise ExecutionError, "Working directory does not exist: #{path}"
-  end
-
-  private_class_method def self.cleanup_session(name)
-    kill_session(name)
   end
 end

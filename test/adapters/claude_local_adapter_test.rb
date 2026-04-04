@@ -158,6 +158,26 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     assert @script_contents.any? { |s| s.include?("--model claude-sonnet-4-20250514") }
   end
 
+  test "tmux spawn command sets wide pane to prevent JSON line wrapping" do
+    # Regression: detached tmux sessions default to 80x24, which wraps long
+    # JSON stream-json lines across multiple visual rows. `capture-pane`
+    # without `-J` then returns fragments that fail JSON.parse, so no result
+    # event is ever matched and the adapter raises the false-positive
+    # "Agent process exited without producing a result" error. The fix is to
+    # spawn with explicit wide pane geometry and to use `-J` on capture-pane.
+    run = RoleRun.create!(
+      role: @role, task: @task, company: @company,
+      status: :queued, trigger_type: "task_assigned"
+    )
+    @context[:run_id] = run.id
+    ClaudeLocalAdapter.execute(@role, @context)
+
+    assert @spawn_calls.any? { |cmd| cmd.include?("-x #{TmuxAdapterRunner::PANE_WIDTH}") },
+      "spawn command should include wide pane width flag"
+    assert @spawn_calls.any? { |cmd| cmd.include?("-y #{TmuxAdapterRunner::PANE_HEIGHT}") },
+      "spawn command should include pane height flag"
+  end
+
   test "tmux session name uses run_id" do
     run = RoleRun.create!(
       role: @role, task: @task, company: @company,
