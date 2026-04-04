@@ -47,7 +47,17 @@ module AgentApiAuthenticatable
   end
 
   def set_task
-    @task = Current.company.tasks.find(params[:id])
+    @task = Current.company.tasks.find(params[:task_id] || params[:id])
+  end
+
+  def current_actor_role
+    current_actor.is_a?(Role) ? current_actor : nil
+  end
+
+  def require_pending_review
+    unless @task.pending_review?
+      respond_error(@task, "Task is not pending review.")
+    end
   end
 
   def respond_success(task, message, **extra)

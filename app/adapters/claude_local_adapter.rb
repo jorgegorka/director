@@ -46,9 +46,8 @@ class ClaudeLocalAdapter < BaseAdapter
     claude_cmd   = build_claude_command(role, context, temp_files)
     env          = env_flags
     # Write the claude command to a temp script file so tmux executes it directly.
-    # This avoids double-quoting issues where backticks in the prompt are interpreted
-    # as shell command substitution (the old "\"#{claude_cmd}\"" approach lost one
-    # layer of escaping when /bin/sh processed the double-quoted string).
+    # This prevents the shell from interpreting backticks in the prompt as command
+    # substitution when /bin/sh processes the tmux argument string.
     cmd_file = Tempfile.new([ "director_cmd", ".sh" ])
     cmd_file.write("#!/bin/sh\n#{claude_cmd}\n")
     cmd_file.flush

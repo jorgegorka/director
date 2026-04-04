@@ -1,12 +1,9 @@
 class Tasks::ApprovalsController < ApplicationController
   include AgentApiAuthenticatable
   before_action :set_task
+  before_action :require_pending_review
 
   def update
-    unless @task.pending_review?
-      return respond_error(@task, "Task is not pending review.")
-    end
-
     @task.update!(status: :completed, reviewed_by: current_actor_role, reviewed_at: Time.current)
 
     @task.record_audit_event!(
@@ -16,15 +13,5 @@ class Tasks::ApprovalsController < ApplicationController
     )
 
     respond_success(@task, "Task approved and marked as completed.")
-  end
-
-  private
-
-  def set_task
-    @task = Current.company.tasks.find(params[:task_id])
-  end
-
-  def current_actor_role
-    current_actor.is_a?(Role) ? current_actor : nil
   end
 end

@@ -1,12 +1,9 @@
 class Tasks::RejectionsController < ApplicationController
   include AgentApiAuthenticatable
   before_action :set_task
+  before_action :require_pending_review
 
   def update
-    unless @task.pending_review?
-      return respond_error(@task, "Task is not pending review.")
-    end
-
     @task.update!(status: :open)
 
     if rejection_params[:feedback].present?
@@ -31,15 +28,7 @@ class Tasks::RejectionsController < ApplicationController
 
   private
 
-  def set_task
-    @task = Current.company.tasks.find(params[:task_id])
-  end
-
   def rejection_params
     params.permit(:feedback)
-  end
-
-  def current_actor_role
-    current_actor.is_a?(Role) ? current_actor : nil
   end
 end

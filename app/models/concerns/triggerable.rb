@@ -20,8 +20,10 @@ module Triggerable
     return [] unless text.include?("@")
 
     text_downcased = text.downcase
-    company.roles.active.select do |role|
-      text_downcased.include?("@#{role.title.downcase}")
+    matched_ids = company.roles.active.pluck(:id, :title).filter_map do |id, title|
+      id if text_downcased.include?("@#{title.downcase}")
     end
+
+    matched_ids.any? ? company.roles.where(id: matched_ids).to_a : []
   end
 end

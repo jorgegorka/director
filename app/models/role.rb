@@ -191,15 +191,12 @@ class Role < ApplicationRecord
     base_keys = self.class.default_skills_config.fetch("_base", [])
     return if base_keys.empty?
 
-    existing_keys = skills.where(key: base_keys).pluck(:key)
-    missing_keys = base_keys - existing_keys
-    return if missing_keys.empty?
-
-    company.skills.where(key: missing_keys).find_each do |skill|
-      role_skills.find_or_create_by!(skill: skill)
+    # Skip DB check if skills are already loaded and complete
+    if skills.loaded? && (base_keys - skills.map(&:key)).empty?
+      return
     end
 
-    skills.reset
+    assign_skills_by_keys(base_keys)
   end
 
   private
@@ -298,16 +295,21 @@ class Role < ApplicationRecord
   end
 
   def assign_default_skills
-    skill_keys = self.class.default_skill_keys_for(title)
-    return if skill_keys.empty?
+    assign_skills_by_keys(self.class.default_skill_keys_for(title))
+  end
 
-    company_skills = company.skills.where(key: skill_keys)
-    existing_skill_ids = role_skills.where(skill: company_skills).pluck(:skill_id)
+  def assign_skills_by_keys(keys)
+    return if keys.empty?
 
-    company_skills.each do |skill|
-      next if existing_skill_ids.include?(skill.id)
-      role_skills.create!(skill: skill)
+    existing_keys = skills.where(key: keys).pluck(:key)
+    missing_keys = keys - existing_keys
+    return if missing_keys.empty?
+
+    company.skills.where(key: missing_keys).find_each do |skill|
+      role_skills.find_or_create_by!(skill: skill)
     end
+
+    skills.reset
   end
 
   def reparent_children
