@@ -20,7 +20,7 @@ class Role < ApplicationRecord
   has_many :role_hooks, dependent: :destroy
   has_many :role_runs, dependent: :destroy
 
-  enum :adapter_type, { http: 0, process: 1, claude_local: 2 }
+  enum :adapter_type, { http: 0, process: 1, claude_local: 2, opencode: 3 }
   enum :status, { idle: 0, running: 1, paused: 2, error: 3, terminated: 4, pending_approval: 5 }
 
   validates :title, presence: true,

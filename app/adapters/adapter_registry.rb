@@ -2,7 +2,8 @@ class AdapterRegistry
   ADAPTERS = {
     "http" => HttpAdapter,
     "process" => ProcessAdapter,
-    "claude_local" => ClaudeLocalAdapter
+    "claude_local" => ClaudeLocalAdapter,
+    "opencode" => OpencodeAdapter
   }.freeze
 
   def self.for(adapter_type)

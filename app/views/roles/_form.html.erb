@@ -122,6 +122,33 @@
     </div>
   </fieldset>
 
+  <!-- OpenCode adapter config fields -->
+  <fieldset class="form__fieldset" data-adapter-config-target="configGroup" data-adapter-type="opencode">
+    <legend>OpenCode Configuration</legend>
+    <div class="form__field">
+      <%= label_tag "role_adapter_config_model", "Model" %>
+      <%= select_tag "role[adapter_config][model]",
+            options_for_select([
+              [ "Claude Sonnet 4", "claude-sonnet-4-20250514" ],
+              [ "Claude Opus 4", "claude-opus-4-20250514" ],
+              [ "Claude 3.7 Sonnet", "claude-3-7-sonnet-20250219" ],
+              [ "GPT-4o", "gpt-4o" ],
+              [ "GPT-4.1", "gpt-4.1" ],
+              [ "Gemini 2.5 Pro", "gemini-2.5-pro" ]
+            ], role.adapter_config&.dig("model")),
+            id: "role_adapter_config_model",
+            class: "form__select" %>
+    </div>
+    <div class="form__field">
+      <%= label_tag "role_adapter_config_max_turns", "Max Turns (optional)" %>
+      <%= number_field_tag "role[adapter_config][max_turns]",
+            role.adapter_config&.dig("max_turns"),
+            placeholder: "25",
+            min: 1,
+            id: "role_adapter_config_max_turns" %>
+    </div>
+  </fieldset>
+
   <!-- Heartbeat Schedule Configuration -->
   <fieldset class="form__fieldset">
     <legend>Heartbeat Schedule</legend>
