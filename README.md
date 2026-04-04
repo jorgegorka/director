@@ -32,11 +32,12 @@ A role starts as an empty position in the org chart. It becomes AI-powered when 
 
 ### Hiring and adapters
 
-Hiring a role means connecting it to an AI service through one of three adapters:
+Hiring a role means connecting it to an AI service through one of four adapters:
 
 - **HTTP** — sends tasks to any AI service via web requests. Director posts a JSON payload to a URL you configure and handles the response, including automatic retries with increasing wait times if something fails.
 - **Process** — runs a command-line program on the server. Useful for local scripts or CLI-based AI tools.
 - **Claude Local** — launches a Claude session in a dedicated terminal window, streams the output in real time, and enforces budget limits before each run starts. You can configure a **working directory** so the role operates in the right project context.
+- **OpenCode** — runs the OpenCode CLI locally in a dedicated tmux session, streams its JSON output into the run log, and enforces budget checks before execution. Supports a configurable working directory, model, and `max_turns`.
 
 Once hired, roles have a lifecycle you control directly. You can **pause** a role (with a reason), **resume** it, **terminate** it permanently, or **manually wake it up** to start working on demand. If a role tries to do something that requires approval, it enters a **pending approval** state until a human approves or rejects the action.
 
@@ -62,7 +63,7 @@ Every task tracks its cost, so you always know how much a piece of work actually
 
 ### Goals
 
-Goals are the primary way you direct your AI company. You create a hierarchy of goals — from high-level missions down to specific objectives and key results — and roles pick up tasks linked to them. This means you set the direction at a high level and let the org chart figure out how to get there.
+Goals are the primary way you direct your AI company. You create goals describing what you want done, assign them to roles, and tasks linked to each goal drive the work forward. This means you set the direction at a high level and let the org chart figure out how to get there.
 
 Progress rolls up automatically: as tasks linked to a goal are completed, the goal's progress updates to reflect it.
 
@@ -70,7 +71,7 @@ When a task linked to a goal is completed, Director automatically **evaluates** 
 
 ### Skills
 
-Skills define what a role is capable of. Director comes with **50 built-in skills** organized across 5 categories, and you can create your own custom skills on top of that.
+Skills define what a role is capable of. Director comes with **41 built-in skills** organized across 6 categories (technical, leadership, management, operations, research, creative), and you can create your own custom skills on top of that.
 
 Each skill has a name, description, category, and detailed documentation written in markdown. You can attach reference documents to skills for additional context. Skills are managed at the company level and then assigned to individual roles — you pick which skills each role should have through a simple checkbox interface.
 
@@ -145,7 +146,7 @@ Director notifies you when things need your attention — when you're mentioned 
 
 ### MCP tools
 
-Director exposes **14 MCP tools** that roles use to interact with the system. These are the hands and eyes of every AI role — the only way they can read tasks, post results, delegate work, or access documents.
+Director exposes **13 MCP tools** that roles use to interact with the system. These are the hands and eyes of every AI role — the only way they can read tasks, post results, delegate work, or access documents.
 
 The tools cover four areas: **task management** (create, update, list, and inspect tasks), **goal tracking** (list, read, and update goals), **role coordination** (list available roles, hire subordinates, post messages), and **document access** (search and read reference material). Each role category's job spec defines which tools to use and in what order, so orchestrators delegate via `create_task`, workers execute and report via `add_message`, and planners do both.
 
