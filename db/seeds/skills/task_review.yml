@@ -20,6 +20,10 @@ markdown: |
      - Check the reviewed task's parent_task_id from the get_task_details response
      - If parent_task_id exists, use add_message on that parent task to report the key findings — this is your task from your manager
      - If no parent_task_id, use list_my_tasks to find a relevant task assigned to you by your manager, and report there
+  7. After reporting, check if your own task is ready for review:
+     - Use list_my_tasks to check if ALL subtasks of your task are now completed or cancelled
+     - If every subtask is completed or cancelled, submit your own task for review using update_task_status with status "pending_review"
+     - If some subtasks are still in progress or pending review, do not submit yet — you will be awakened again when the next subtask is ready
 
   ## Guidelines
   - Evaluate against the task's own success metrics, not your personal standards

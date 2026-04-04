@@ -66,7 +66,7 @@ pending_review_task:
   title: Draft marketing plan
   description: "Create Q2 marketing plan with budget breakdown"
   company: acme
-  creator: cmo
+  creator: ceo  # top-level role (no parent) — requires human review
   assignee: cto
   status: 5  # pending_review
   priority: 2  # high

@@ -7,6 +7,9 @@
   <div class="kanban-card__title">
     <%= link_to task.title, task_path(task) %>
   </div>
+  <% if task.parent_task.present? %>
+    <span class="kanban-card__parent">Subtask of <%= link_to task.parent_task.title, task_path(task.parent_task) %></span>
+  <% end %>
   <div class="kanban-card__meta">
     <%= task_priority_badge(task) %>
     <% if task.assignee.present? %>

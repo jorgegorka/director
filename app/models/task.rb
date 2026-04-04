@@ -35,6 +35,7 @@ class Task < ApplicationRecord
   scope :completed, -> { where(status: :completed) }
   scope :by_priority, -> { order(priority: :desc, created_at: :desc) }
   scope :roots, -> { where(parent_task_id: nil) }
+  scope :pending_human_review, -> { where(status: :pending_review).where(creator_id: Role.roots.select(:id)) }
 
   before_save :set_completed_at
   after_commit :trigger_assignment_wake, on: [ :create, :update ], if: :agent_just_assigned?
@@ -168,9 +169,7 @@ class Task < ApplicationRecord
   def broadcast_approvals_badge
     return unless company_id
 
-    count = company.roles.where(status: :pending_approval).count +
-      PendingHire.where(company: company, status: :pending).count +
-      company.tasks.where(status: :pending_review).count
+    count = company.approvals_pending_count
 
     Turbo::StreamsChannel.broadcast_replace_to(
       "dashboard_company_#{company_id}",
@@ -181,7 +180,7 @@ class Task < ApplicationRecord
   end
 
   def trigger_pending_review_wake
-    return unless creator&.online?
+    return unless creator
 
     trigger_role_wake(
       role: creator,

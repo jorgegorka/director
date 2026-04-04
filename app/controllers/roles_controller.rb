@@ -172,9 +172,7 @@ class RolesController < ApplicationController
   private
 
   def approvals_pending_count
-    Current.company.roles.where(status: :pending_approval).count +
-      PendingHire.where(company: Current.company, status: :pending).count +
-      Current.company.tasks.where(status: :pending_review).count
+    Current.company.approvals_pending_count
   end
 
   def set_role

@@ -2266,6 +2266,21 @@
     }
   }
 
+  .task-card__parent {
+    font-size: var(--font-size-xs);
+    color: var(--text-muted);
+    margin-block-end: var(--space-1);
+
+    & a {
+      color: var(--text-subtle);
+      text-decoration: none;
+
+      &:hover {
+        color: var(--color-brand-500);
+      }
+    }
+  }
+
   .task-card__meta {
     display: flex;
     flex-wrap: wrap;
@@ -4637,6 +4652,21 @@
     a {
       color: var(--text-base);
       text-decoration: none;
+    }
+  }
+
+  .kanban-card__parent {
+    font-size: var(--font-size-xs);
+    color: var(--text-muted);
+    margin-block-end: var(--space-1);
+
+    & a {
+      color: var(--text-subtle);
+      text-decoration: none;
+
+      &:hover {
+        color: var(--color-brand-500);
+      }
     }
   }
 

@@ -25,6 +25,7 @@ module Tools
       new_status = arguments["status"]
 
       validate_permission!(task, new_status)
+      validate_subtasks_completed!(task) if new_status == "pending_review"
 
       if new_status == "completed"
         task.update!(status: :completed, reviewed_by: role, reviewed_at: Time.current)
@@ -43,6 +44,13 @@ module Tools
     end
 
     private
+
+    def validate_subtasks_completed!(task)
+      incomplete = task.subtasks.where.not(status: [ :completed, :cancelled ]).count
+      return if incomplete.zero?
+
+      raise ArgumentError, "Cannot submit for review: #{incomplete} subtask(s) are not yet completed"
+    end
 
     def validate_permission!(task, new_status)
       case new_status

@@ -76,6 +76,12 @@ class Company < ApplicationRecord
     spend_by_role.values.sum
   end
 
+  def approvals_pending_count
+    roles.where(status: :pending_approval).count +
+      PendingHire.where(company: self, status: :pending).count +
+      tasks.pending_human_review.count
+  end
+
   def admin_recipients
     memberships
       .where(role: [ :owner, :admin ])

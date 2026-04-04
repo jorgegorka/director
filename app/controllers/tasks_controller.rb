@@ -5,10 +5,10 @@ class TasksController < ApplicationController
   def index
     @tasks = Current.company.tasks
                .left_joins(:messages)
-               .includes(:creator, :assignee)
+               .includes(:creator, :assignee, :parent_task)
                .select("tasks.*, COUNT(messages.id) AS messages_count")
                .group("tasks.id")
-               .roots.by_priority
+               .by_priority
   end
 
   def show

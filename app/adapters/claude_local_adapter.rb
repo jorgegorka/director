@@ -41,7 +41,7 @@ class ClaudeLocalAdapter < BaseAdapter
 
     role_run     = RoleRun.find(context[:run_id])
     session_name = "#{SESSION_PREFIX}_#{context[:run_id]}"
-    working_dir  = resolve_working_directory(role.working_directory)
+    working_dir  = resolve_working_directory(role.effective_working_directory)
     temp_files   = []
     claude_cmd   = build_claude_command(role, context, temp_files)
     env          = env_flags

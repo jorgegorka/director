@@ -14,6 +14,6 @@ class Dashboard::TaskBoard
   end
 
   def all_tasks
-    @all_tasks ||= company.tasks.includes(:assignee, :creator).order(priority: :desc, created_at: :desc)
+    @all_tasks ||= company.tasks.includes(:assignee, :creator, :parent_task).order(priority: :desc, created_at: :desc)
   end
 end

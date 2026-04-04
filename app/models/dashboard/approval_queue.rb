@@ -14,7 +14,7 @@ class Dashboard::ApprovalQueue
   end
 
   def tasks_pending_review
-    @tasks_pending_review ||= company.tasks.where(status: :pending_review).includes(:assignee, :creator).order(updated_at: :desc)
+    @tasks_pending_review ||= company.tasks.pending_human_review.includes(:assignee, :creator).order(updated_at: :desc)
   end
 
   def total_count

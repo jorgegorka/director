@@ -576,6 +576,33 @@ class RoleTest < ActiveSupport::TestCase
     assert_nil child.working_directory
   end
 
+  # --- Adapter inheritance ---
+
+  test "inherits adapter_type and adapter_config from parent on create" do
+    parent = Role.create!(title: "Team Lead", company: @company, role_category: role_categories(:worker),
+      adapter_type: :http, adapter_config: { "url" => "https://example.com" })
+    child = Role.create!(title: "Designer", company: @company, role_category: role_categories(:worker), parent: parent)
+
+    assert_equal "http", child.adapter_type
+    assert_equal({ "url" => "https://example.com" }, child.adapter_config)
+  end
+
+  test "does not override explicit adapter_type with parent's" do
+    parent = Role.create!(title: "Team Lead", company: @company, role_category: role_categories(:worker),
+      adapter_type: :http, adapter_config: { "url" => "https://example.com" })
+    child = Role.create!(title: "Designer", company: @company, role_category: role_categories(:worker), parent: parent,
+      adapter_type: :process, adapter_config: { "command" => "bin/run" })
+
+    assert_equal "process", child.adapter_type
+    assert_equal({ "command" => "bin/run" }, child.adapter_config)
+  end
+
+  test "adapter_type is nil when parent has no adapter_type" do
+    child = Role.create!(title: "Designer", company: @company, role_category: role_categories(:worker), parent: @ceo)
+
+    assert_nil child.adapter_type
+  end
+
   # --- Default job_spec ---
 
   test "sets default job_spec on create when blank" do

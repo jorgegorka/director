@@ -47,6 +47,7 @@ class Role < ApplicationRecord
   SPEC
 
   before_validation :inherit_parent_working_directory, on: :create
+  before_validation :inherit_parent_adapter, on: :create
   before_validation :set_default_job_spec, on: :create
   before_save :ensure_api_token, if: :agent_configured?
   before_destroy :reparent_children
@@ -199,6 +200,10 @@ class Role < ApplicationRecord
     assign_skills_by_keys(base_keys)
   end
 
+  def effective_working_directory
+    ([self] + ancestors).find { |r| r.working_directory.present? }&.working_directory
+  end
+
   private
 
   def pick_session(scope)
@@ -209,6 +214,12 @@ class Role < ApplicationRecord
 
   def inherit_parent_working_directory
     self.working_directory = parent&.working_directory if working_directory.blank?
+  end
+
+  def inherit_parent_adapter
+    return unless parent
+    self.adapter_type ||= parent.adapter_type
+    self.adapter_config = parent.adapter_config if adapter_config.blank? && parent.adapter_config.present?
   end
 
   def set_default_job_spec
@@ -257,9 +268,7 @@ class Role < ApplicationRecord
   end
 
   def broadcast_approvals_badge
-    count = company.roles.where(status: :pending_approval).count +
-      PendingHire.where(company: company, status: :pending).count +
-      company.tasks.where(status: :pending_review).count
+    count = company.approvals_pending_count
 
     Turbo::StreamsChannel.broadcast_replace_to(
       "dashboard_company_#{company_id}",

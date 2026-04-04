@@ -14,7 +14,8 @@ markdown: |
 
   1. Do the work — use your tools to research, analyze, and produce results. Your task is already marked in_progress automatically when your session starts, so begin working immediately.
   2. Call add_message on the task with your findings, deliverables, or output
-  3. Call update_task_status with status "pending_review" to submit your work for review
+  3. If you delegated subtasks, verify ALL subtasks are completed before proceeding — you cannot submit for review until every subtask is finished
+  4. Call update_task_status with status "pending_review" to submit your work for review
 
   Always complete all three steps. Your work is only visible to others through add_message — text you produce outside of MCP tool calls is not captured.
 
@@ -25,6 +26,7 @@ markdown: |
   - Always set parent_task_id to the task you are working on
   - This links subordinate work back to your task and creates a clear chain of accountability
   - When subordinates complete their work, their tasks will appear as subtasks of yours
+  - You cannot submit your own task for review until all subtasks are completed — the system enforces this
   - This enables you to report outcomes back to your manager on the original task
 
   ### Proportionality rule

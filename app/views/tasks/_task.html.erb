@@ -2,6 +2,9 @@
   <div class="task-card__title">
     <%= link_to task.title, task_path(task) %>
   </div>
+  <% if task.parent_task.present? %>
+    <span class="task-card__parent">Subtask of <%= link_to task.parent_task.title, task_path(task.parent_task) %></span>
+  <% end %>
   <div class="task-card__meta">
     <%= task_status_badge(task) %>
     <%= task_priority_badge(task) %>

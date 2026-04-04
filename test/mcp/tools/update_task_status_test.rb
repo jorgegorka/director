@@ -56,6 +56,25 @@ class Tools::UpdateTaskStatusTest < ActiveSupport::TestCase
     end
   end
 
+  test "assignee cannot submit for review with incomplete subtasks" do
+    task = Task.create!(title: "Parent", company: @company, creator: @ceo, assignee: @cto, status: :in_progress)
+    Task.create!(title: "Subtask", company: @company, creator: @cto, assignee: @cto, parent_task: task, status: :open)
+    tool = Tools::UpdateTaskStatus.new(@cto)
+
+    assert_raises(ArgumentError, "Cannot submit for review: 1 subtask(s) are not yet completed") do
+      tool.call({ "task_id" => task.id, "status" => "pending_review" })
+    end
+  end
+
+  test "assignee can submit for review when all subtasks are completed" do
+    task = Task.create!(title: "Parent", company: @company, creator: @ceo, assignee: @cto, status: :in_progress)
+    Task.create!(title: "Subtask", company: @company, creator: @cto, assignee: @cto, parent_task: task, status: :completed)
+    tool = Tools::UpdateTaskStatus.new(@cto)
+
+    result = tool.call({ "task_id" => task.id, "status" => "pending_review" })
+    assert_equal "pending_review", result[:status]
+  end
+
   test "non-creator cannot approve" do
     task = Task.create!(title: "Test", company: @company, creator: @ceo, assignee: @cto, status: :pending_review)
     tool = Tools::UpdateTaskStatus.new(@cto) # CTO is assignee, not creator

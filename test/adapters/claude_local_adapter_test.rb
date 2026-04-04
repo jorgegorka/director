@@ -400,6 +400,25 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     FileUtils.rm_rf(dir) if dir
   end
 
+  test "tmux command uses parent working_directory when role has none" do
+    dir = Dir.mktmpdir
+    @role.parent.update_column(:working_directory, dir)
+    @role.working_directory = nil
+
+    run = RoleRun.create!(
+      role: @role, task: @task, company: @company,
+      status: :queued, trigger_type: "task_assigned"
+    )
+    @context[:run_id] = run.id
+    ClaudeLocalAdapter.execute(@role, @context)
+
+    resolved = File.realpath(dir)
+    assert @spawn_calls.any? { |cmd| cmd.include?("-c #{resolved}") },
+      "spawn command should include -c with parent's working directory"
+  ensure
+    FileUtils.rm_rf(dir) if dir
+  end
+
   test "tmux command omits -c flag when working_directory nil" do
     @role.working_directory = nil
 
