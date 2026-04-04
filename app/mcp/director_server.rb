@@ -1,11 +1,58 @@
 class DirectorServer
   PROTOCOL_VERSION = "2024-11-05"
 
-  attr_reader :role
+  # Each sub-agent runs in its own claude CLI subprocess with its own
+  # director-mcp child, scoped to a narrow tool set. Selecting the scope is
+  # purely a server-side concern -- the CLI picks a scope via the
+  # DIRECTOR_TOOL_SCOPE env var set in the MCP config written by
+  # SubAgents::Runner.
+  TOOL_SCOPES = {
+    orchestrator: [
+      # Agentic operations are sub-agent wrappers -- calling them spawns a
+      # focused claude subprocess instead of mutating directly.
+      Tools::CreateTaskAgent,
+      Tools::ReviewTaskAgent,
+      Tools::HireRoleAgent,
+      Tools::SummarizeGoalAgent,
 
-  def initialize(role)
+      # Mechanical tools stay direct.
+      Tools::UpdateTaskStatus,
+      Tools::ListMyTasks,
+      Tools::ListMyGoals,
+      Tools::ListAvailableRoles,
+      Tools::ListHirableRoles,
+      Tools::AddMessage,
+      Tools::GetTaskDetails,
+      Tools::GetGoalDetails,
+      Tools::UpdateGoal,
+      Tools::SearchDocuments,
+      Tools::GetDocument
+    ],
+    sub_agent_create_task: [
+      Tools::GetGoalDetails,
+      Tools::ListAvailableRoles,
+      Tools::CreateTask # the direct mutation, not the sub-agent wrapper
+    ],
+    sub_agent_review_task: [
+      Tools::GetTaskDetails,
+      Tools::SubmitReviewDecision
+    ],
+    sub_agent_hire_role: [
+      Tools::ListHirableRoles,
+      Tools::HireRole # the direct mutation, not the sub-agent wrapper
+    ],
+    sub_agent_summarize_goal: [
+      Tools::GetGoalDetails,
+      Tools::UpdateGoalSummary # the direct mutation, not the sub-agent wrapper
+    ]
+  }.freeze
+
+  attr_reader :role, :tool_scope
+
+  def initialize(role, tool_scope: :orchestrator)
     @role = role
-    @tools = DirectorServer.tool_classes.map { |klass| klass.new(role) }
+    @tool_scope = tool_scope.to_sym
+    @tools = DirectorServer.tool_classes_for(@tool_scope).map { |klass| klass.new(role) }
   end
 
   def run
@@ -18,6 +65,17 @@ class DirectorServer
       $stdout.puts(error_response(nil, -32700, "Parse error").to_json)
       $stdout.flush
     end
+  end
+
+  def self.tool_classes_for(scope)
+    TOOL_SCOPES.fetch(scope.to_sym) do
+      raise ArgumentError, "Unknown DirectorServer tool scope: #{scope.inspect}"
+    end
+  end
+
+  # Back-compat: old tests reference `tool_classes` for the default scope.
+  def self.tool_classes
+    tool_classes_for(:orchestrator)
   end
 
   private
@@ -99,23 +157,5 @@ class DirectorServer
         isError: true
       }
     }
-  end
-
-  def self.tool_classes
-    [
-      Tools::CreateTask,
-      Tools::UpdateTaskStatus,
-      Tools::ListMyTasks,
-      Tools::ListMyGoals,
-      Tools::ListAvailableRoles,
-      Tools::HireRole,
-      Tools::ListHirableRoles,
-      Tools::AddMessage,
-      Tools::GetTaskDetails,
-      Tools::GetGoalDetails,
-      Tools::UpdateGoal,
-      Tools::SearchDocuments,
-      Tools::GetDocument
-    ]
   end
 end

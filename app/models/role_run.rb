@@ -15,6 +15,8 @@ class RoleRun < ApplicationRecord
   belongs_to :task, optional: true
   belongs_to :goal, optional: true
 
+  has_many :sub_agent_invocations, dependent: :destroy
+
   enum :status, { queued: 0, running: 1, completed: 2, failed: 3, cancelled: 4, throttled: 5 }
 
   validates :trigger_type, inclusion: { in: HeartbeatEvent.trigger_types.keys }, allow_nil: true

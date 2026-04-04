@@ -1,0 +1,29 @@
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+@layer utilities {
+  .surface-glow {
+    box-shadow:
+      0 0 0 1px var(--border),
+      0 2px 8px -2px var(--glow-brand);
+    transition: box-shadow var(--transition-base);
+  }
+
+  .surface-glow:hover {
+    box-shadow:
+      0 0 0 1px var(--color-brand-500),
+      0 4px 16px -4px var(--glow-brand);
+  }
+
+  .text-gradient {
+    background: linear-gradient(135deg, var(--color-brand-500), var(--color-accent-500));
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+
+  .font-mono {
+    font-family: var(--font-mono);
+  }
+}
+

@@ -1,0 +1,206 @@
+/* ============================================================
+   CARDS (auth-card, form-card, company-card)
+   ============================================================ */
+@layer components {
+  /* --- Authentication card --- */
+  .auth-card {
+    margin-inline: auto;
+    margin-block-start: var(--space-12);
+    max-inline-size: var(--auth-form-width);
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--color-brand-500);
+    border-radius: var(--radius-lg);
+    padding: var(--space-8);
+    box-shadow:
+      0 1px 2px oklch(from var(--text-base) l c h / 0.04),
+      0 4px 12px oklch(from var(--text-base) l c h / 0.06),
+      0 0 0 1px var(--border-subtle);
+  }
+
+  .auth-card h1 {
+    font-size: var(--font-size-2xl);
+    margin-block-end: var(--space-6);
+  }
+
+  .auth-card .flash {
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+    padding: var(--space-3);
+    margin-block-end: var(--space-4);
+  }
+
+  .auth-card .flash--alert {
+    background-color: var(--color-error-bg);
+    color: var(--color-error-fg);
+    border-color: oklch(from var(--color-error-fg) l c h / 0.2);
+  }
+
+  .auth-card .flash--notice {
+    background-color: var(--color-success-bg);
+    color: var(--color-success-fg);
+    border-color: oklch(from var(--color-success-fg) l c h / 0.2);
+  }
+
+  .error-list {
+    padding-inline-start: var(--space-4);
+    list-style: disc;
+  }
+
+  .error-list li {
+    margin-block-end: var(--space-1);
+  }
+
+  .auth-footer {
+    margin-block-start: var(--space-4);
+    text-align: center;
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+  }
+
+  /* --- Form Card (company creation, etc.) --- */
+  .form-card {
+    margin-inline: auto;
+    margin-block-start: var(--space-12);
+    max-inline-size: var(--auth-form-width);
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--color-brand-500);
+    border-radius: var(--radius-lg);
+    padding: var(--space-8);
+    box-shadow:
+      0 1px 2px oklch(from var(--text-base) l c h / 0.04),
+      0 4px 12px oklch(from var(--text-base) l c h / 0.06),
+      0 0 0 1px var(--border-subtle);
+
+    & h1 {
+      font-size: var(--font-size-2xl);
+      margin-block-end: var(--space-2);
+    }
+  }
+
+  .form-card--wide {
+    max-inline-size: 48rem;
+  }
+
+  .form-card__subtitle {
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+    margin-block-end: var(--space-6);
+  }
+
+  .form__errors {
+    background-color: var(--color-error-bg);
+    color: var(--color-error-fg);
+    border: 1px solid oklch(from var(--color-error-fg) l c h / 0.2);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+    margin-block-end: var(--space-4);
+    font-size: var(--font-size-sm);
+
+    & p {
+      margin-block-end: var(--space-1);
+
+      &:last-child { margin-block-end: 0; }
+    }
+  }
+
+  .form__field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    margin-block-end: var(--space-4);
+
+    & label {
+      font-size: var(--font-size-sm);
+      font-weight: 500;
+      color: var(--text-subtle);
+    }
+
+    & input[type="text"],
+    & input[type="email"],
+    & input[type="password"],
+    & input[type="number"] {
+      padding-block: var(--space-2);
+      padding-inline: var(--space-3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background-color: var(--bg-surface);
+      color: var(--text-base);
+      inline-size: 100%;
+      transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast);
+
+      &::placeholder { color: var(--text-muted); }
+
+      &:focus {
+        outline: none;
+        border-color: var(--color-brand-500);
+        box-shadow: 0 0 0 3px var(--glow-brand);
+      }
+    }
+  }
+
+  .form__actions {
+    margin-block-start: var(--space-2);
+  }
+
+
+  /* --- Company Card --- */
+  .company-card {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-5);
+    box-shadow: var(--shadow-sm);
+    transition:
+      border-color var(--transition-fast),
+      box-shadow var(--transition-fast);
+
+    &:hover {
+      border-color: var(--color-neutral-300);
+      box-shadow: var(--shadow-md);
+    }
+
+    &.company-card--active {
+      border-color: var(--color-brand-400);
+      box-shadow:
+        var(--shadow-sm),
+        0 0 0 1px var(--color-brand-400),
+        0 0 12px -4px var(--glow-brand);
+    }
+  }
+
+  .company-card__name {
+    font-size: var(--font-size-lg);
+    margin-block-end: var(--space-1);
+  }
+
+  .company-card__role {
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+    text-transform: capitalize;
+    margin-block-end: var(--space-4);
+  }
+
+  .company-card__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .company-card__badge {
+    display: inline-flex;
+    align-items: center;
+    padding-block: var(--space-1);
+    padding-inline: var(--space-2);
+    background-color: var(--color-brand-50);
+    color: var(--color-brand-600);
+    border: 1px solid var(--color-brand-400);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+  }
+
+}

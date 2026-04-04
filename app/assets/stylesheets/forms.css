@@ -1,0 +1,143 @@
+/* ============================================================
+   FORMS (flash messages, fields, textareas, selects)
+   ============================================================ */
+@layer components {
+  /* --- Flash Messages --- */
+  .flash {
+    padding-block: var(--space-3);
+    padding-inline: var(--space-6);
+    font-size: var(--font-size-sm);
+    border-block-end: 1px solid transparent;
+    text-align: center;
+    transition: opacity var(--transition-slow);
+  }
+
+  .flash--notice {
+    background-color: var(--color-success-bg);
+    color: var(--color-success-fg);
+    border-color: oklch(from var(--color-success-fg) l c h / 0.2);
+  }
+
+  .flash--alert {
+    background-color: var(--color-error-bg);
+    color: var(--color-error-fg);
+    border-color: oklch(from var(--color-error-fg) l c h / 0.2);
+  }
+
+  /* --- Forms --- */
+  .field-group {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-3) var(--space-4) var(--space-4);
+    margin-block-end: var(--space-3);
+  }
+
+  .field-group legend {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--text-subtle);
+    padding-inline: var(--space-2);
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    margin-block-end: var(--space-4);
+  }
+
+  .field label {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--text-subtle);
+  }
+
+  .field input[type="email"],
+  .field input[type="password"],
+  .field input[type="text"] {
+    padding-block: var(--space-2);
+    padding-inline: var(--space-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background-color: var(--bg-surface);
+    color: var(--text-base);
+    inline-size: 100%;
+    transition:
+      border-color var(--transition-fast),
+      box-shadow var(--transition-fast);
+  }
+
+  .field input::placeholder {
+    color: var(--text-muted);
+  }
+
+  .field input:focus {
+    outline: none;
+    border-color: var(--color-brand-500);
+    box-shadow: 0 0 0 3px var(--glow-brand);
+  }
+
+  /* Rails wraps fields with errors in a div.field_with_errors */
+  .field_with_errors {
+    display: contents;
+  }
+
+  .field_with_errors input {
+    border-color: var(--color-error-fg);
+  }
+
+  .field_with_errors input:focus {
+    box-shadow: 0 0 0 3px oklch(from var(--color-error-fg) l c h / 0.15);
+  }
+
+
+  /* --- Form textarea and select inputs --- */
+  .form__field textarea {
+    padding-block: var(--space-2);
+    padding-inline: var(--space-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background-color: var(--bg-surface);
+    color: var(--text-base);
+    inline-size: 100%;
+    resize: vertical;
+    transition:
+      border-color var(--transition-fast),
+      box-shadow var(--transition-fast);
+
+    &::placeholder { color: var(--text-muted); }
+
+    &:focus {
+      outline: none;
+      border-color: var(--color-brand-500);
+      box-shadow: 0 0 0 3px var(--glow-brand);
+    }
+  }
+
+  .form__select,
+  .form__field select {
+    padding-block: var(--space-2);
+    padding-inline: var(--space-3);
+    padding-inline-end: var(--space-8);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background-color: var(--bg-surface);
+    color: var(--text-base);
+    inline-size: 100%;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23888' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right var(--space-3) center;
+    cursor: pointer;
+    transition:
+      border-color var(--transition-fast),
+      box-shadow var(--transition-fast);
+
+    &:focus {
+      outline: none;
+      border-color: var(--color-brand-500);
+      box-shadow: 0 0 0 3px var(--glow-brand);
+    }
+  }
+
+}

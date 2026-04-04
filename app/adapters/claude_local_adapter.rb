@@ -188,25 +188,30 @@ class ClaudeLocalAdapter < BaseAdapter
 
       ## How to Work
 
-      You have access to Director MCP tools for managing your organization:
-      - **list_my_tasks** / **get_task_details** — see your current work
-      - **create_task** — create tasks and assign them to your direct reports
-      - **update_task_status** — mark tasks as in_progress or completed
-      - **list_available_roles** — see who you can delegate to
-      - **hire_role** / **list_hirable_roles** — hire new subordinate roles
-      - **list_my_goals** / **get_goal_details** / **update_goal** — see, inspect, and update goals
-      - **add_message** — communicate on tasks
-      - **search_documents** — search the company document library by title or tag
-      - **get_document** — fetch the full content of a document
+      You coordinate work through Director MCP tools. Three of them are **specialists** — when you call them, a focused sub-agent takes over that one decision on your behalf. You do not need to write task descriptions, review criteria, or hiring job specs inline; the specialist does that.
 
-      Use these Director MCP tools to accomplish your goals. Break goals into tasks, delegate to your reports, and track progress.
+      Specialist tools (delegate reasoning to them):
+      - **create_task** — give an intent, the specialist writes the task and picks an assignee
+      - **review_task** — hand off a pending-review task, the specialist judges and approves/rejects
+      - **hire_role** — give an intent, the specialist picks a template and budget
+      - **summarize_goal** — call when a tool response includes a `goal_completed` hint; the specialist writes the achievement summary shown to the user
+
+      Direct tools (you use these yourself):
+      - **list_my_tasks** / **get_task_details** — inspect your work
+      - **list_my_goals** / **get_goal_details** / **update_goal** — inspect and update goals
+      - **list_available_roles** / **list_hirable_roles** — see who is on your team
+      - **update_task_status** — mark your own assigned tasks in_progress or pending_review
+      - **add_message** — comment on a task
+      - **search_documents** / **get_document** — read from the company document library
+
+      Your job is to decide *what* needs to happen and hand each decision to the right specialist. Do not try to reproduce their reasoning.
 
       ## Efficiency Rules
 
-      - Do NOT call get_task_details if the task details are already provided in this prompt — start working immediately
-      - Do NOT call update_task_status("in_progress") — tasks are automatically marked in_progress when your session starts
-      - Start producing results immediately — minimize setup calls before doing real work
-      - When you need to make multiple independent tool calls, batch them in parallel
+      - Do NOT call get_task_details if the task details are already in this prompt — start working immediately
+      - Do NOT call update_task_status("in_progress") — tasks are auto-marked in_progress when your session starts
+      - Prefer batching independent tool calls in parallel
+      - When any tool response includes `goal_completed: { id, ... }`, call `summarize_goal` with that id before continuing. The user relies on this summary for feedback on finished goals.
     PROMPT
   end
 
@@ -247,6 +252,7 @@ class ClaudeLocalAdapter < BaseAdapter
       prompt = "Task ##{context[:task_id]} is pending your review"
       prompt += ": #{context[:task_title]}" if context[:task_title].present?
       prompt += "\n\n#{context[:assignee_role_title]} has submitted this task for review." if context[:assignee_role_title].present?
+      prompt += "\n\nHand this off to the review_task specialist -- do not read the task and decide yourself."
       prompt.strip
     elsif context[:task_id].present?
       prompt = "You have been assigned Task ##{context[:task_id]}"
@@ -263,7 +269,7 @@ class ClaudeLocalAdapter < BaseAdapter
         prompt += "\n\n## Active Tasks\n\n#{task_list}"
         prompt += "\n\nThis goal already has work in progress. Focus on completing the existing tasks above — do NOT create new tasks unless all current ones are completed or blocked and more work is clearly needed."
       else
-        prompt += "\n\nThis is a new goal with no tasks yet. Break it down into tasks and delegate to your reports."
+        prompt += "\n\nThis is a new goal with no tasks yet. Decide the first piece of work and hand it to the create_task specialist -- do not write the task description yourself."
       end
       prompt.strip
     else

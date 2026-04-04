@@ -1,0 +1,247 @@
+/* ============================================================
+   MISC COMPONENTS (company-switcher, companies-list, team-page)
+   ============================================================ */
+@layer components {
+  /* --- Company Switcher (nav dropdown) --- */
+  .company-switcher {
+    position: relative;
+    display: inline-block;
+  }
+
+  .company-switcher__trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding-block: var(--space-2);
+    padding-inline: var(--space-4) var(--space-3);
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    color: var(--text-base);
+    cursor: pointer;
+    letter-spacing: var(--letter-spacing-tight);
+    transition:
+      background-color var(--transition-fast),
+      border-color var(--transition-fast),
+      box-shadow var(--transition-fast);
+
+    &:hover {
+      border-color: var(--color-neutral-300);
+      box-shadow: var(--shadow-sm);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-brand-500);
+      outline-offset: 2px;
+    }
+  }
+
+  .company-switcher__caret {
+    inline-size: 0.625rem;
+    block-size: 0.375rem;
+    color: var(--text-muted);
+    flex-shrink: 0;
+  }
+
+  .company-switcher__menu {
+    position: absolute;
+    inset-block-start: calc(100% + var(--space-2));
+    inset-inline-end: 0;
+    min-inline-size: 16rem;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    z-index: 50;
+    overflow: hidden;
+    padding-block: var(--space-2);
+  }
+
+  .company-switcher__label {
+    padding-block: var(--space-1);
+    padding-inline: var(--space-4);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--text-muted);
+    letter-spacing: var(--letter-spacing-wide);
+    text-transform: uppercase;
+  }
+
+  .company-switcher__item {
+    & .company-switcher__current,
+    & .company-switcher__link {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding-block: var(--space-3);
+      padding-inline: var(--space-4);
+      font-size: var(--font-size-base);
+      inline-size: 100%;
+      text-align: start;
+    }
+
+    & .company-switcher__current {
+      font-weight: 600;
+      color: var(--text-base);
+    }
+
+    & .company-switcher__link {
+      background: none;
+      border: none;
+      color: var(--text-subtle);
+      cursor: pointer;
+      text-decoration: none;
+      transition: background-color var(--transition-fast);
+
+      &:hover {
+        background-color: var(--color-neutral-100);
+        text-decoration: none;
+        color: var(--text-base);
+      }
+    }
+  }
+
+  .company-switcher__check {
+    inline-size: 1rem;
+    block-size: 1rem;
+    color: var(--color-brand-500);
+    flex-shrink: 0;
+
+    &.company-switcher__check--hidden {
+      visibility: hidden;
+      inline-size: 1rem;
+    }
+  }
+
+  .company-switcher__divider {
+    block-size: 1px;
+    background-color: var(--border);
+    margin-block: var(--space-2);
+  }
+
+  .company-switcher__action {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding-block: var(--space-3);
+    padding-inline: var(--space-4);
+    color: var(--text-muted);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color var(--transition-fast), color var(--transition-fast);
+
+    &:hover {
+      background-color: var(--color-neutral-100);
+      color: var(--text-base);
+      text-decoration: none;
+    }
+  }
+
+  .company-switcher__action--logout {
+    padding: 0;
+
+    button {
+      all: unset;
+      display: flex;
+      align-items: center;
+      width: 100%;
+      padding-block: var(--space-3);
+      padding-inline: var(--space-4);
+      color: var(--text-muted);
+      font-size: var(--font-size-sm);
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color var(--transition-fast), color var(--transition-fast);
+
+      &:hover {
+        background-color: var(--color-neutral-100);
+        color: var(--text-base);
+      }
+    }
+  }
+
+  /* --- Companies List (index page) --- */
+  .companies-list {
+    max-inline-size: 56rem;
+  }
+
+  .companies-list__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-block-end: var(--space-6);
+
+    & h1 {
+      font-size: var(--font-size-2xl);
+    }
+  }
+
+  .companies-list__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+    gap: var(--space-4);
+  }
+
+  .companies-list__empty {
+    text-align: center;
+    padding-block: var(--space-16);
+    color: var(--text-muted);
+
+    & p {
+      margin-block-end: var(--space-4);
+    }
+  }
+
+  /* --- Team page --- */
+  .team-page {
+    max-inline-size: 48rem;
+    margin-inline: auto;
+    padding-block: var(--space-8);
+    padding-inline: var(--space-4);
+  }
+
+  .team-page__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-block-end: var(--space-6);
+  }
+
+  .team-page__header h1 {
+    margin: 0;
+  }
+
+  .team-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-block-end: var(--space-6);
+  }
+
+  .team-member {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-block: var(--space-3);
+    padding-inline: var(--space-4);
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+  }
+
+  .team-member--pending {
+    opacity: 0.7;
+  }
+
+  .team-member__email {
+    font-size: var(--font-size-base);
+    color: var(--text-base);
+  }
+
+  .team-member__role {
+    font-size: var(--font-size-sm);
+  }
+}

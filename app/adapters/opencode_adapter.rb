@@ -88,6 +88,7 @@ class OpencodeAdapter < BaseAdapter
       prompt = "Task ##{context[:task_id]} is pending your review"
       prompt += ": #{context[:task_title]}" if context[:task_title].present?
       prompt += "\n\n#{context[:assignee_role_title]} has submitted this task for review." if context[:assignee_role_title].present?
+      prompt += "\n\nHand this off to the review_task specialist -- do not read the task and decide yourself."
       prompt.strip
     elsif context[:task_id].present?
       prompt = "You have been assigned Task ##{context[:task_id]}"

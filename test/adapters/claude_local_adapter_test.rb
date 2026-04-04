@@ -657,7 +657,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
 
     assert_includes prompt, "Improve SEO"
     assert_includes prompt, "new goal with no tasks yet"
-    assert_includes prompt, "Break it down into tasks"
+    assert_includes prompt, "create_task specialist"
   end
 
   test "build_user_prompt goal with active tasks shows task list and continuation instructions" do

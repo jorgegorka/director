@@ -1,0 +1,67 @@
+/* ============================================================
+   BADGES
+   ============================================================ */
+@layer components {
+  /* --- Badges --- */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding-block: 2px;
+    padding-inline: var(--space-2);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs, 0.75rem);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .badge--owner {
+    background-color: oklch(96% 0.06 285);
+    color: oklch(35% 0.18 285);
+    border: 1px solid oklch(85% 0.1 285);
+  }
+
+  .badge--admin {
+    background-color: var(--color-brand-50);
+    color: var(--color-brand-600);
+    border: 1px solid oklch(from var(--color-brand-400) l c h / 0.5);
+  }
+
+  .badge--member {
+    background-color: var(--color-neutral-100);
+    color: var(--color-neutral-700);
+    border: 1px solid var(--color-neutral-200);
+  }
+
+  .badge--pending {
+    background-color: var(--color-warning-bg);
+    color: var(--color-warning-fg);
+    border: 1px solid oklch(from var(--color-warning-fg) l c h / 0.2);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .badge--owner {
+      background-color: oklch(20% 0.06 285);
+      color: oklch(80% 0.15 285);
+      border-color: oklch(35% 0.12 285);
+    }
+
+    .badge--admin {
+      background-color: oklch(18% 0.06 265);
+      color: var(--color-brand-400);
+      border-color: oklch(30% 0.12 265);
+    }
+
+    .badge--member {
+      background-color: var(--color-neutral-100);
+      color: var(--color-neutral-300);
+      border-color: var(--color-neutral-200);
+    }
+
+    .badge--pending {
+      background-color: oklch(18% 0.05 85);
+      color: oklch(75% 0.12 85);
+      border-color: oklch(30% 0.08 85);
+    }
+  }
+}

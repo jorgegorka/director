@@ -14,17 +14,24 @@ class DirectorServerTest < ActiveSupport::TestCase
     assert_equal DirectorServer::PROTOCOL_VERSION, response[:result][:protocolVersion]
   end
 
-  test "handle_tools_list returns all 13 tools" do
+  test "handle_tools_list returns all registered tools" do
     response = @server.send(:handle, { "id" => 2, "method" => "tools/list" })
     tools = response[:result][:tools]
-    assert_equal 13, tools.size
     tool_names = tools.map { |t| t[:name] }
+
+    # Agentic operations are exposed via sub-agent wrappers that share the
+    # same tool names as the old direct tools -- plus review_task, which is
+    # new as of the sub-agent split.
     assert_includes tool_names, "create_task"
+    assert_includes tool_names, "review_task"
+    assert_includes tool_names, "hire_role"
+    assert_includes tool_names, "summarize_goal"
+
+    # Mechanical direct tools.
     assert_includes tool_names, "update_task_status"
     assert_includes tool_names, "list_my_tasks"
     assert_includes tool_names, "list_my_goals"
     assert_includes tool_names, "list_available_roles"
-    assert_includes tool_names, "hire_role"
     assert_includes tool_names, "list_hirable_roles"
     assert_includes tool_names, "add_message"
     assert_includes tool_names, "get_task_details"
@@ -32,6 +39,62 @@ class DirectorServerTest < ActiveSupport::TestCase
     assert_includes tool_names, "update_goal"
     assert_includes tool_names, "search_documents"
     assert_includes tool_names, "get_document"
+
+    assert_equal 15, tools.size
+  end
+
+  test "sub-agent wrapper tools resolve the parent role_run and expose a valid MCP definition" do
+    response = @server.send(:handle, { "id" => 6, "method" => "tools/list" })
+    create_task = response[:result][:tools].find { |t| t[:name] == "create_task" }
+    assert_equal "create_task", create_task[:name]
+    # The sub-agent wrapper passes through the SubAgents::CreateTask schema,
+    # which requires an `intent` field -- different from the old direct tool
+    # which required `title`.
+    assert_includes create_task[:inputSchema][:required], "intent"
+  end
+
+  test "sub_agent_create_task scope exposes only the reads + direct create_task, no wrappers" do
+    scoped = DirectorServer.new(@role, tool_scope: :sub_agent_create_task)
+    names = scoped.send(:handle, { "id" => 7, "method" => "tools/list" })
+      .dig(:result, :tools).map { |t| t[:name] }
+
+    assert_equal %w[get_goal_details list_available_roles create_task].sort, names.sort
+
+    # Inside the scope, `create_task` is the direct mutation tool (requires
+    # title), not the sub-agent wrapper -- that's what prevents recursion.
+    create_task = scoped.send(:handle, { "id" => 8, "method" => "tools/list" })
+      .dig(:result, :tools).find { |t| t[:name] == "create_task" }
+    assert_includes create_task[:inputSchema][:required], "title"
+  end
+
+  test "sub_agent_review_task scope exposes only get_task_details and submit_review_decision" do
+    scoped = DirectorServer.new(@role, tool_scope: :sub_agent_review_task)
+    names = scoped.send(:handle, { "id" => 9, "method" => "tools/list" })
+      .dig(:result, :tools).map { |t| t[:name] }
+
+    assert_equal %w[get_task_details submit_review_decision].sort, names.sort
+  end
+
+  test "sub_agent_hire_role scope exposes only list_hirable_roles and the direct hire_role" do
+    scoped = DirectorServer.new(@role, tool_scope: :sub_agent_hire_role)
+    names = scoped.send(:handle, { "id" => 10, "method" => "tools/list" })
+      .dig(:result, :tools).map { |t| t[:name] }
+
+    assert_equal %w[list_hirable_roles hire_role].sort, names.sort
+  end
+
+  test "sub_agent_summarize_goal scope exposes only get_goal_details and the direct update_goal_summary" do
+    scoped = DirectorServer.new(@role, tool_scope: :sub_agent_summarize_goal)
+    names = scoped.send(:handle, { "id" => 11, "method" => "tools/list" })
+      .dig(:result, :tools).map { |t| t[:name] }
+
+    assert_equal %w[get_goal_details update_goal_summary].sort, names.sort
+  end
+
+  test "unknown tool scope raises on server construction" do
+    assert_raises(ArgumentError) do
+      DirectorServer.new(@role, tool_scope: :bogus)
+    end
   end
 
   test "handle_tools_call with unknown tool returns error" do

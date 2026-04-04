@@ -1,0 +1,72 @@
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+@layer components {
+  .app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-inline: var(--space-6);
+    block-size: var(--header-height);
+    background-color: var(--bg-surface);
+    border-block-end: 1px solid var(--border);
+    box-shadow: 0 1px 8px -2px var(--glow-brand);
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 10;
+  }
+
+  .app-header__brand {
+    display: flex;
+    align-items: center;
+  }
+
+  .app-header__logo {
+    font-size: var(--font-size-lg);
+    font-weight: 800;
+    color: var(--color-brand-500);
+    letter-spacing: var(--letter-spacing-tight);
+    text-decoration: none;
+  }
+
+  .app-header__logo:hover {
+    text-decoration: none;
+    color: var(--color-brand-600);
+  }
+
+  .app-header__nav {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .app-header__user {
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+  }
+
+  .nav__link {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--text-subtle);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+
+    &:hover {
+      color: var(--color-brand-500);
+      text-decoration: none;
+    }
+  }
+
+  .nav__link--active {
+    color: var(--color-brand-500);
+    font-weight: 600;
+  }
+
+  .app-main {
+    margin-inline: auto;
+    max-inline-size: var(--content-max-width);
+    padding-block: var(--space-8);
+    padding-inline: var(--space-6);
+  }
+}

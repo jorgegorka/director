@@ -58,6 +58,27 @@ class Task < ApplicationRecord
     completed? || cancelled?
   end
 
+  # Canonical write paths for review decisions. Used by the review_task
+  # sub-agent so the MCP tool surface stays narrow while the domain model
+  # owns the transition rules.
+  class ReviewError < StandardError; end
+
+  def approve_by!(reviewer)
+    raise ReviewError, "Only the creator can approve a task" unless creator_id == reviewer.id
+    raise ReviewError, "Task is not pending review" unless pending_review?
+    update!(status: :completed, reviewed_by: reviewer, reviewed_at: Time.current)
+  end
+
+  def reject_by!(reviewer, feedback:)
+    raise ReviewError, "Only the creator can reject a task" unless creator_id == reviewer.id
+    raise ReviewError, "Task is not pending review" unless pending_review?
+    raise ReviewError, "Feedback is required when rejecting a task" if feedback.blank?
+    transaction do
+      update!(status: :open)
+      messages.create!(author: reviewer, body: feedback, message_type: :comment)
+    end
+  end
+
   # Post a comment from an automated source (role agent, watchdog, etc).
   # Swallows validation failures so notification bugs never prevent the
   # caller from completing its primary side effect.

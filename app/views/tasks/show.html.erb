@@ -32,7 +32,7 @@
     <% if @task.description.present? %>
       <div class="task-detail__section">
         <h2>Description</h2>
-        <p><%= @task.description %></p>
+        <%= markdown(@task.description) %>
       </div>
     <% end %>
 
@@ -113,7 +113,7 @@
                 <span class="eval-history__attempt">Attempt <%= evaluation.attempt_number %>/<%= GoalEvaluation::MAX_ATTEMPTS %></span>
                 <time class="eval-history__time"><%= evaluation.created_at.strftime("%b %d, %Y at %H:%M") %></time>
               </div>
-              <p class="eval-history__feedback"><%= evaluation.feedback %></p>
+              <div class="eval-history__feedback"><%= markdown(evaluation.feedback) %></div>
               <div class="eval-history__meta">
                 <span>Goal: <%= link_to evaluation.goal.title, goal_path(evaluation.goal) %></span>
                 <% if evaluation.cost_cents.present? %>

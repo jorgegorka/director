@@ -23,28 +23,24 @@ class Tools::UpdateTaskStatusTest < ActiveSupport::TestCase
     assert_equal "pending_review", result[:status]
   end
 
-  test "creator can approve task" do
+  test "creator cannot approve via update_task_status -- must use review_task sub-agent" do
     task = Task.create!(title: "Test", company: @company, creator: @ceo, assignee: @cto, status: :pending_review)
     tool = Tools::UpdateTaskStatus.new(@ceo)
 
-    result = tool.call({ "task_id" => task.id, "status" => "completed" })
-    assert_equal "completed", result[:status]
-
-    task.reload
-    assert_equal @ceo, task.reviewed_by
-    assert_not_nil task.reviewed_at
+    error = assert_raises(ArgumentError) do
+      tool.call({ "task_id" => task.id, "status" => "completed" })
+    end
+    assert_match(/review_task/, error.message)
   end
 
-  test "creator can reject task with feedback" do
+  test "creator cannot reject via update_task_status -- must use review_task sub-agent" do
     task = Task.create!(title: "Test", company: @company, creator: @ceo, assignee: @cto, status: :pending_review)
     tool = Tools::UpdateTaskStatus.new(@ceo)
 
-    result = tool.call({ "task_id" => task.id, "status" => "open", "feedback" => "Needs more work" })
-    assert_equal "open", result[:status]
-
-    message = task.messages.last
-    assert_equal "Needs more work", message.body
-    assert_equal @ceo, message.author
+    error = assert_raises(ArgumentError) do
+      tool.call({ "task_id" => task.id, "status" => "open", "feedback" => "Needs more work" })
+    end
+    assert_match(/review_task/, error.message)
   end
 
   test "non-assignee cannot submit for review" do
@@ -75,7 +71,7 @@ class Tools::UpdateTaskStatusTest < ActiveSupport::TestCase
     assert_equal "pending_review", result[:status]
   end
 
-  test "non-creator cannot approve" do
+  test "completed status is rejected for all callers -- review goes through review_task" do
     task = Task.create!(title: "Test", company: @company, creator: @ceo, assignee: @cto, status: :pending_review)
     tool = Tools::UpdateTaskStatus.new(@cto) # CTO is assignee, not creator
 

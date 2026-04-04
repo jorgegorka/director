@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_04_180000) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_04_222418) do
   create_table "approval_gates", force: :cascade do |t|
     t.string "action_type", null: false
     t.datetime "created_at", null: false
@@ -122,6 +122,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_04_180000) do
     t.text "description"
     t.integer "position", default: 0, null: false
     t.integer "role_id"
+    t.text "summary"
     t.string "title", null: false
     t.datetime "updated_at", null: false
     t.index ["company_id"], name: "index_goals_on_company_id"
@@ -371,6 +372,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_04_180000) do
     t.index ["company_id"], name: "index_skills_on_company_id"
   end
 
+  create_table "sub_agent_invocations", force: :cascade do |t|
+    t.integer "company_id", null: false
+    t.integer "cost_cents", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.integer "duration_ms"
+    t.text "error_message"
+    t.text "input_summary"
+    t.integer "iterations", default: 0, null: false
+    t.text "result_summary"
+    t.integer "role_run_id", null: false
+    t.integer "status", default: 0, null: false
+    t.string "sub_agent_name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["company_id", "sub_agent_name"], name: "index_sub_agent_invocations_on_company_id_and_sub_agent_name"
+    t.index ["company_id"], name: "index_sub_agent_invocations_on_company_id"
+    t.index ["role_run_id", "created_at"], name: "index_sub_agent_invocations_on_role_run_id_and_created_at"
+    t.index ["role_run_id"], name: "index_sub_agent_invocations_on_role_run_id"
+  end
+
   create_table "task_documents", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "document_id", null: false
@@ -459,6 +479,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_04_180000) do
   add_foreign_key "skill_documents", "documents"
   add_foreign_key "skill_documents", "skills"
   add_foreign_key "skills", "companies"
+  add_foreign_key "sub_agent_invocations", "companies"
+  add_foreign_key "sub_agent_invocations", "role_runs"
   add_foreign_key "task_documents", "documents"
   add_foreign_key "task_documents", "tasks"
   add_foreign_key "tasks", "companies"

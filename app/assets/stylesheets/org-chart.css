@@ -1,0 +1,132 @@
+/* ============================================================
+   ORG CHART COMPONENTS (inside @layer components)
+   ============================================================ */
+@layer components {
+  /* --- Org chart page --- */
+  .org-chart-page {
+    /* No max-width constraint — give the chart full room */
+  }
+
+  .org-chart-page__header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-3);
+    margin-block-end: var(--space-6);
+
+    h1 {
+      margin-inline-end: auto;
+    }
+  }
+
+  .org-chart-page__empty {
+    text-align: center;
+    padding-block: var(--space-16);
+    color: var(--text-muted);
+
+    p {
+      margin-block-end: var(--space-4);
+    }
+  }
+
+  .org-chart-container {
+    overflow: auto;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    min-block-size: 20rem;
+  }
+
+  .org-chart-svg {
+    display: block;
+    margin-inline: auto;
+  }
+
+  .org-chart-line {
+    stroke: var(--color-neutral-300);
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  .org-chart-node {
+    block-size: 100%;
+    inline-size: 100%;
+  }
+
+  .org-chart-node__link {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    block-size: 100%;
+    padding: var(--space-3);
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    text-decoration: none;
+    color: var(--text-base);
+    overflow: hidden;
+    transition:
+      border-color var(--transition-base),
+      box-shadow var(--transition-base),
+      transform var(--transition-base);
+
+    &:hover {
+      border-color: var(--color-brand-400);
+      box-shadow: var(--shadow-md), 0 0 0 3px var(--glow-brand);
+      transform: translateY(-1px);
+      text-decoration: none;
+      color: var(--text-base);
+    }
+  }
+
+  .org-chart-node__title {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--text-base);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .org-chart-node__agent {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-1);
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+  }
+
+  .org-chart-node__dot {
+    inline-size: 8px;
+    block-size: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .org-chart-node__dot--unassigned {
+    background-color: var(--color-neutral-300);
+  }
+
+  .org-chart-node__dot--active {
+    background-color: var(--color-success-fg);
+  }
+
+  .org-chart-node__desc {
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-block-start: auto;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .org-chart-line {
+      stroke: var(--color-neutral-500);
+    }
+  }
+}
+

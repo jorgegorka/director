@@ -1,0 +1,40 @@
+/* ============================================================
+   BASE
+   ============================================================ */
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-base);
+    color: var(--text-base);
+    background-color: var(--bg-body);
+    background-image: radial-gradient(oklch(from var(--text-base) l c h / 0.03) 1px, transparent 1px);
+    background-size: 20px 20px;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    line-height: var(--line-height-tight);
+    font-weight: 700;
+    letter-spacing: var(--letter-spacing-tight);
+    color: var(--text-base);
+  }
+
+  h1 { font-size: var(--font-size-3xl); }
+  h2 { font-size: var(--font-size-2xl); }
+  h3 { font-size: var(--font-size-xl); }
+
+  a {
+    color: var(--color-brand-500);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+  }
+
+  a:hover {
+    color: var(--color-brand-600);
+    text-decoration: underline;
+  }
+
+  ul { list-style: none; }
+}
