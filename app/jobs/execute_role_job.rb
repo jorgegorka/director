@@ -71,6 +71,7 @@ class ExecuteRoleJob < ApplicationJob
     session_id = task ? role.latest_session_id_for(task) : role.latest_session_id
     ctx[:resume_session_id] = session_id if session_id.present?
 
+    role.ensure_base_skills!
     skills = role.skills.to_a
     ctx[:skills] = serialize_skills(skills)
     ctx

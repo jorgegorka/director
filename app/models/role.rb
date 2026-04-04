@@ -187,6 +187,21 @@ class Role < ApplicationRecord
     %w[title description job_spec parent_id budget_cents budget_period_start status working_directory]
   end
 
+  def ensure_base_skills!
+    base_keys = self.class.default_skills_config.fetch("_base", [])
+    return if base_keys.empty?
+
+    existing_keys = skills.where(key: base_keys).pluck(:key)
+    missing_keys = base_keys - existing_keys
+    return if missing_keys.empty?
+
+    company.skills.where(key: missing_keys).find_each do |skill|
+      role_skills.find_or_create_by!(skill: skill)
+    end
+
+    skills.reset
+  end
+
   private
 
   def pick_session(scope)

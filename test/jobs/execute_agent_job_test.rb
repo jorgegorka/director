@@ -377,9 +377,8 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
     assert skill[:markdown].present?
   end
 
-  test "build_context includes empty skills when role has none" do
+  test "build_context ensures base skills even when role has none" do
     role = roles(:developer)
-    # Remove all skill assignments except data_analysis
     role.role_skills.destroy_all
 
     role_run = RoleRun.create!(
@@ -392,7 +391,9 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
     job = ExecuteRoleJob.new
     ctx = job.send(:build_context, role, role_run)
 
-    assert_equal [], ctx[:skills]
+    skill_keys = ctx[:skills].map { |s| s[:key] }
+    assert_includes skill_keys, "task_workflow"
+    assert_includes skill_keys, "task_review"
   end
 
   # ---------------------------------------------------------------------------

@@ -538,7 +538,9 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
 
     assert_includes flags, "-e CLAUDE_CONFIG_DIR="
     assert_includes flags, "tmp/claude_agent_config"
-    assert_not_includes flags, ".claude", "should not reference user's personal ~/.claude directory"
+    # Extract just the CLAUDE_CONFIG_DIR value to verify it doesn't point at ~/.claude
+    config_dir_value = flags[/CLAUDE_CONFIG_DIR=(\S+)/, 1]
+    assert_not_includes config_dir_value, ".claude", "CLAUDE_CONFIG_DIR should not reference user's personal ~/.claude directory"
   end
 
   test "agent_config_dir creates tmp directory" do
@@ -675,5 +677,107 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     assert_equal "Run Claude CLI locally with streaming JSON output and session resumption", ClaudeLocalAdapter.description
     assert_equal %w[model], ClaudeLocalAdapter.config_schema[:required]
     assert_includes ClaudeLocalAdapter.config_schema[:optional], "max_turns"
+  end
+
+  # ---------------------------------------------------------------------------
+  # System prompt integration tests — full prompt assembly per scenario
+  # ---------------------------------------------------------------------------
+
+  test "task assignment: system prompt includes identity, job_spec, and base skills" do
+    @role.job_spec = Role::DEFAULT_JOB_SPEC
+    skills = [
+      { key: "task_workflow", name: "Task Workflow", description: "Universal task lifecycle", category: "operations", markdown: "# Task Workflow\n\n## Instructions\n1. Do the work" },
+      { key: "task_review", name: "Task Review", description: "Review submitted tasks", category: "operations", markdown: "# Task Review\n\n## Instructions\n1. Read task details" }
+    ]
+    context = {
+      task_id: @task.id,
+      task_title: @task.title,
+      task_description: @task.description,
+      skills: skills
+    }
+
+    system_prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @role, context)
+    user_prompt = ClaudeLocalAdapter.send(:build_user_prompt, context)
+
+    # System prompt includes all expected sections
+    assert_includes system_prompt, "Your Identity"
+    assert_includes system_prompt, @role.title
+    assert_includes system_prompt, "task_workflow"
+    assert_includes system_prompt, "task_review"
+    assert_includes system_prompt, "Your Skills"
+    assert_includes system_prompt, "Task Workflow"
+    assert_includes system_prompt, "Task Review"
+
+    # User prompt includes task details
+    assert_includes user_prompt, "Task ##{@task.id}"
+    assert_includes user_prompt, @task.title
+    assert_includes user_prompt, "start working immediately"
+  end
+
+  test "task review: system prompt includes skills and user prompt references task_review skill" do
+    skills = [
+      { key: "task_review", name: "Task Review", description: "Review submitted tasks", category: "operations", markdown: "# Task Review\n\n## Instructions\n1. Read task details" }
+    ]
+    context = {
+      trigger_type: "task_pending_review",
+      task_id: @task.id,
+      task_title: @task.title,
+      assignee_role_title: "Senior Developer",
+      skills: skills
+    }
+
+    system_prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @role, context)
+    user_prompt = ClaudeLocalAdapter.send(:build_user_prompt, context)
+
+    assert_includes system_prompt, "Task Review"
+    assert_includes system_prompt, "Your Skills"
+
+    assert_includes user_prompt, "pending your review"
+    assert_includes user_prompt, "Senior Developer"
+    assert_includes user_prompt, "task_review skill"
+  end
+
+  test "goal-only: system prompt includes goal section with focus rules and skills" do
+    skills = [
+      { key: "task_workflow", name: "Task Workflow", description: "Universal task lifecycle", category: "operations", markdown: "# Task Workflow" }
+    ]
+    context = {
+      goal_id: 1,
+      goal_title: "Increase revenue",
+      goal_description: "Grow MRR by 20%",
+      skills: skills
+    }
+
+    system_prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @role, context)
+    user_prompt = ClaudeLocalAdapter.send(:build_user_prompt, context)
+
+    assert_includes system_prompt, "Current Goal"
+    assert_includes system_prompt, "**Increase revenue**"
+    assert_includes system_prompt, "Focus Rules"
+    assert_includes system_prompt, "Your Skills"
+
+    assert_includes user_prompt, "Increase revenue"
+    assert_includes user_prompt, "list_my_tasks"
+  end
+
+  test "fallback: no task or goal produces generic user prompt" do
+    system_prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @role, {})
+    user_prompt = ClaudeLocalAdapter.send(:build_user_prompt, {})
+
+    assert_includes system_prompt, "Your Identity"
+    assert_not_includes system_prompt, "Current Goal"
+    assert_not_includes system_prompt, "Your Skills"
+
+    assert_includes user_prompt, "list_my_goals"
+    assert_includes user_prompt, "list_my_tasks"
+  end
+
+  test "missing skills: system prompt omits skills section entirely" do
+    context = { skills: [] }
+
+    system_prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @role, context)
+
+    assert_includes system_prompt, "Your Identity"
+    assert_not_includes system_prompt, "Your Skills"
   end
 end
