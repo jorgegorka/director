@@ -157,6 +157,14 @@ class RoleRunTest < ActiveSupport::TestCase
     assert_not_nil run.started_at
   end
 
+  test "mark_running! sets last_activity_at so watchdog sees a heartbeat" do
+    run = RoleRun.create!(role: @role, company: @company, status: :queued)
+    assert_nil run.last_activity_at
+    run.mark_running!
+    assert_not_nil run.last_activity_at
+    assert_in_delta Time.current.to_f, run.last_activity_at.to_f, 2.0
+  end
+
   test "mark_running! raises from running" do
     assert_raises(RuntimeError) { @running_run.mark_running! }
   end
@@ -297,6 +305,28 @@ class RoleRunTest < ActiveSupport::TestCase
     run = RoleRun.create!(role: @role, company: @company, status: :running, started_at: 1.minute.ago)
     run.append_log!(nil)
     assert_nil run.log_output
+  end
+
+  test "append_log! bumps last_activity_at" do
+    run = RoleRun.create!(
+      role: @role, company: @company, status: :running,
+      started_at: 10.minutes.ago, last_activity_at: 10.minutes.ago
+    )
+    stale = run.last_activity_at
+    travel 1.second do
+      run.append_log!("line\n")
+    end
+    assert_operator run.reload.last_activity_at, :>, stale
+  end
+
+  test "append_log! ignoring blank text does not bump last_activity_at" do
+    run = RoleRun.create!(
+      role: @role, company: @company, status: :running,
+      started_at: 10.minutes.ago, last_activity_at: 10.minutes.ago
+    )
+    before = run.last_activity_at
+    run.append_log!("")
+    assert_equal before.to_i, run.reload.last_activity_at.to_i
   end
 
   # --- broadcast_line! ---

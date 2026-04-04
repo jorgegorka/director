@@ -1,26 +1,31 @@
 key: regression_testing
 name: Regression Testing
-description: Verify that existing functionality remains intact after code changes, preventing unintended breakage
+description: Verify that code changes have not broken existing behavior and produce a go/no-go recommendation for the release
 category: operations
 markdown: |
   # Regression Testing
 
   ## Purpose
-  Confirm that code changes — new features, bug fixes, or refactoring — have not inadvertently broken existing functionality. This skill enables an agent to design and execute regression test suites that catch unintended side effects before they reach users, maintaining product quality as the codebase grows in complexity.
+  Confirm that a change — feature, fix, or refactor — has not inadvertently broken behavior that previously worked. The output is a clear pass/fail record and a go/no-go recommendation.
 
-  ## Instructions
-  1. Identify the impact area of recent code changes: which features, flows, and integrations could be affected?
-  2. Select relevant regression test cases from the master test suite based on the impact analysis
-  3. Prioritize test execution: critical user flows and recently changed areas first, then full regression sweep
-  4. Execute tests against the build being released; record pass/fail status for every test case
-  5. Investigate failures: determine whether the failure is caused by the change (a regression) or a pre-existing defect
-  6. Block release on regressions; document pre-existing defects separately with a severity and resolution plan
+  ## When to use
+  - A change is about to ship and needs verification against existing behavior
+  - A refactor has touched code used by many callers
+  - A dependency was upgraded and downstream effects need to be checked
+
+  ## Approach
+  1. Identify the impact area of the change: which features, flows, and integrations could be affected?
+  2. Select regression test cases relevant to the impact area, plus a critical-path smoke suite
+  3. Execute the tests against the build under consideration. Record pass/fail for every case
+  4. For each failure, determine whether it is a regression caused by the change or a pre-existing defect
+  5. Report regressions as blockers; pre-existing defects go into a separate list with severity and proposed resolution
+  6. Produce a go/no-go recommendation for the release with explicit rationale
 
   ## Guidelines
-  - Automate the stable, high-value regression tests; manual regression effort should focus on new and risky areas
-  - Update the regression suite when existing features change — stale tests that always pass provide false confidence
-  - Define a regression risk score for each release based on change volume and blast radius
-  - Never skip regression testing due to time pressure; negotiate scope, not quality
+  - Automate the stable, high-value regression tests. Manual regression effort should focus on new and risky areas
+  - Update the regression suite when existing features change. Stale tests that always pass give false confidence
+  - Never skip regression testing under time pressure — negotiate scope, not quality
+  - Link each regression to the specific code change that introduced it
 
-  ## Output Format
-  Regression test report with: change summary and impact analysis, test cases executed (pass/fail), regressions found (description, severity, linked code change), pre-existing defects noted, overall release quality assessment (go/no-go recommendation), and deferred issues with owners.
+  ## Deliverable
+  A regression test report posted via `add_message`, containing: change summary and impact analysis, cases executed (pass/fail), regressions found (description, severity, linked change), pre-existing defects, and a go/no-go recommendation with rationale.

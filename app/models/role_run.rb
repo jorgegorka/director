@@ -39,6 +39,16 @@ class RoleRun < ApplicationRecord
     update!(status: :failed, error_message: error_message, exit_code: exit_code, completed_at: Time.current)
   end
 
+  # Mark this run failed and release the role + dispatch queue. Shared tail
+  # for both in-process failures (ExecuteRoleJob rescue) and the watchdog
+  # reaper. Safe no-op if already terminal.
+  def fail_and_release!(error_message:, exit_code: 1)
+    return if terminal?
+    mark_failed!(error_message: error_message, exit_code: exit_code)
+    role.update!(status: :idle) if role.running?
+    role.company.dispatch_next_throttled_run!
+  end
+
   def mark_cancelled!
     raise "Cannot cancel a #{status} run" if completed? || failed?
     update!(status: :cancelled, completed_at: Time.current)
@@ -47,22 +57,35 @@ class RoleRun < ApplicationRecord
   def cancel!
     raise "Cannot cancel a #{status} run" if terminal?
 
-    if role.claude_local?
-      session_name = "#{ClaudeLocalAdapter::SESSION_PREFIX}_#{id}"
-      ClaudeLocalAdapter.kill_session(session_name)
-    end
-
+    kill_adapter_session!
     mark_cancelled!
-    notify_task_of_cancellation
+    task&.post_system_comment(author: role, body: "My session was cancelled before completing work.")
     role.update!(status: :idle) if role.running?
     role.company.dispatch_next_throttled_run!
+  end
+
+  # Terminates the adapter's execution session (tmux pane for claude_local,
+  # no-op for adapters that don't hold an out-of-process session). Safe to
+  # call multiple times.
+  def kill_adapter_session!
+    return unless role.claude_local?
+    ClaudeLocalAdapter.kill_session("#{ClaudeLocalAdapter::SESSION_PREFIX}_#{id}")
   end
 
   def append_log!(text)
     return if text.blank?
     self.class.where(id: id).update_all(
-      [ "log_output = COALESCE(log_output, '') || ?", text ]
+      [ "log_output = COALESCE(log_output, '') || ?, last_activity_at = ?", text, Time.current ]
     )
+  end
+
+  # Overrides Runnable#mark_running! to also seed last_activity_at in the
+  # same write, so the watchdog reaper has a heartbeat before any log lines
+  # have streamed.
+  def mark_running!
+    raise "Cannot transition to running from #{status}" unless queued?
+    now = Time.current
+    update!(status: :running, started_at: now, last_activity_at: now)
   end
 
   def broadcast_line!(text)
@@ -100,18 +123,5 @@ class RoleRun < ApplicationRecord
 
   def terminal_status_reached?
     saved_change_to_status? && terminal?
-  end
-
-  def notify_task_of_cancellation
-    return unless task
-
-    Message.create!(
-      task: task,
-      author: role,
-      message_type: :comment,
-      body: "My session was cancelled before completing work."
-    )
-  rescue ActiveRecord::RecordInvalid
-    # Don't let notification failures prevent cancellation
   end
 end

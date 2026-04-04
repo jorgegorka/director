@@ -1,26 +1,31 @@
 key: ci_cd_pipelines
 name: CI/CD Pipelines
-description: Design and maintain continuous integration and delivery pipelines that automate build, test, and deployment workflows
+description: Design and maintain automated build, test, and deployment pipelines that produce fast, trustworthy feedback
 category: operations
 markdown: |
   # CI/CD Pipelines
 
   ## Purpose
-  Build and maintain automated pipelines that verify code quality on every commit and deploy changes to production reliably and frequently. This skill enables an agent to design pipeline architecture, optimize build times, implement deployment strategies, and ensure the pipeline itself is resilient and observable.
+  Produce the pipeline design and configuration that verifies every change and deploys it reliably. A good pipeline fails loudly on real problems, runs fast enough to be used on every commit, and can be rolled back within minutes.
 
-  ## Instructions
-  1. Define pipeline stages: source trigger, dependency installation, build/compile, unit tests, integration tests, security scans, artifact creation, and deployment
-  2. Configure each stage with appropriate parallelism, caching, and failure behavior
-  3. Implement deployment strategies appropriate to the risk profile: blue/green, canary, or rolling deployments
-  4. Add observability to the pipeline: build duration trends, failure rate by stage, and deployment frequency metrics
-  5. Implement rollback capability: every deployment should be reversible within 5 minutes
-  6. Secure the pipeline: protect secrets, restrict deployment permissions, and audit all production deployments
+  ## When to use
+  - A new project needs its build and deployment automation designed
+  - Existing pipelines are slow, flaky, or missing important checks
+  - A deployment strategy (canary, blue/green) needs to be introduced
+
+  ## Approach
+  1. Define the stages: source trigger, dependency install, build, unit tests, integration tests, security scans, artifact creation, deploy
+  2. Configure each stage with appropriate parallelism, caching, and failure behavior. Fast feedback is the goal
+  3. Choose a deployment strategy (blue/green, canary, rolling) appropriate to the risk profile of the service
+  4. Instrument the pipeline itself: build duration trends, failure rate by stage, deployment frequency
+  5. Design rollback: every deployment must be reversible within minutes
+  6. Secure the pipeline: protect secrets, restrict deploy permissions, audit every production deploy
 
   ## Guidelines
-  - Fast feedback is the primary goal: a pipeline that takes 30+ minutes discourages frequent commits
-  - Test in an environment that mirrors production — pipelines that test against reduced infrastructure miss important failures
-  - Treat pipeline configuration as code: review changes to CI/CD config with the same rigor as application code
-  - Measure deployment frequency and lead time; high-performing teams deploy multiple times per day
+  - A pipeline that takes 30+ minutes discourages frequent commits. Fast feedback is the primary goal
+  - Test against an environment that mirrors production. Pipelines that test on reduced infrastructure miss important failures
+  - Treat pipeline configuration as code. Review changes with the same rigor as application code
+  - Measure deployment frequency and lead time. These are the primary health indicators
 
-  ## Output Format
-  CI/CD pipeline documentation with: pipeline architecture diagram, stage-by-stage configuration, deployment strategy explanation, secrets management approach, rollback procedure, observability metrics, and pipeline performance baselines (build time, success rate).
+  ## Deliverable
+  A pipeline document posted via `add_message` (plus committed config changes referenced by file path), containing: pipeline architecture, stage-by-stage configuration, deployment strategy, secrets management, rollback procedure, observability metrics, and current performance baselines.

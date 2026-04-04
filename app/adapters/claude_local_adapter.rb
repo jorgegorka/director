@@ -155,12 +155,13 @@ class ClaudeLocalAdapter < BaseAdapter
     system("tmux has-session -t #{name.shellescape} 2>/dev/null")
   end
 
-  # Returns true if the process inside the tmux pane is still running.
-  # With remain-on-exit, the session stays alive after exit — check pane_dead.
+  # Fails CLOSED on any unexpected tmux output so that an unreachable tmux
+  # cannot keep a stuck run polling indefinitely.
   def self.pane_alive?(name)
     return false unless session_exists?(name)
-    result = `tmux display-message -t #{name.shellescape} -p '#\{pane_dead\}' 2>/dev/null`.strip
-    result != "1"
+    out, status = Open3.capture2("tmux", "display-message", "-t", name, "-p", '#{pane_dead}')
+    return false unless status.success?
+    out.strip == "0"
   end
 
   # Captures the current pane output of the named tmux session from scrollback start.
@@ -322,7 +323,6 @@ class ClaudeLocalAdapter < BaseAdapter
       prompt = "Task ##{context[:task_id]} is pending your review"
       prompt += ": #{context[:task_title]}" if context[:task_title].present?
       prompt += "\n\n#{context[:assignee_role_title]} has submitted this task for review." if context[:assignee_role_title].present?
-      prompt += "\n\nFollow your task_review skill to review this task."
       prompt.strip
     elsif context[:task_id].present?
       prompt = "You have been assigned Task ##{context[:task_id]}"
@@ -352,14 +352,16 @@ class ClaudeLocalAdapter < BaseAdapter
     accumulated_lines = []
     poll_count = 0
     max_polls = (MAX_POLL_WAIT / POLL_INTERVAL).to_i
-    last_new_output_at = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    # Wall-clock, not CLOCK_MONOTONIC: monotonic pauses during host sleep on
+    # macOS, which would silently disable stall detection on dev laptops.
+    last_new_output_at = Time.current
 
     loop do
       output = capture_pane(session_name)
       lines = output.split("\n")
 
       if lines.size > last_line_count
-        last_new_output_at = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+        last_new_output_at = Time.current
         new_lines = lines[last_line_count..]
         new_lines.each do |line|
           role_run.broadcast_line!(line + "\n")
@@ -373,7 +375,7 @@ class ClaudeLocalAdapter < BaseAdapter
       # capture all output before breaking.
       break unless pane_alive?(session_name)
 
-      stall_elapsed = Process.clock_gettime(Process::CLOCK_MONOTONIC) - last_new_output_at
+      stall_elapsed = Time.current - last_new_output_at
       if stall_elapsed >= STALL_TIMEOUT
         kill_session(session_name)
         raise ExecutionError, "Agent stalled: no output for #{STALL_TIMEOUT} seconds"

@@ -68,17 +68,8 @@ class Dashboard::OverviewTest < ActiveSupport::TestCase
     assert_not overview.show_budget?
   end
 
-  test "mission returns first root goal" do
-    assert_equal goals(:acme_mission), @overview.mission
-  end
-
-  test "show_mission? returns true when mission exists" do
-    assert @overview.show_mission?
-  end
-
-  test "show_mission? returns false when no goals exist" do
-    overview = Dashboard::Overview.new(companies(:widgets).tap { |c| c.goals.destroy_all })
-    assert_not overview.show_mission?
+  test "top_goal returns first ordered goal" do
+    assert_equal goals(:acme_mission), @overview.top_goal
   end
 
   test "scoped to company only" do

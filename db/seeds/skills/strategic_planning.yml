@@ -1,26 +1,31 @@
 key: strategic_planning
 name: Strategic Planning
-description: Develop multi-year strategies, set company direction, and define competitive positioning
+description: Translate a high-level mandate into 3–5 strategic objectives with metrics, sequencing, and named owners
 category: leadership
 markdown: |
   # Strategic Planning
 
   ## Purpose
-  Formulate and communicate long-term strategies that align the organization's resources with market opportunities. This skill enables an agent to conduct environmental analysis, define strategic priorities, and produce actionable roadmaps that guide company-wide decisions over multi-year horizons.
+  Take a broad goal — a new market, a new product line, a turnaround — and produce a written strategy that the rest of the company can execute. The output names what the organization will do, what it will not do, in what order, and how success will be measured.
 
-  ## Instructions
-  1. Gather context: review mission, current financials, market conditions, and competitive landscape
-  2. Conduct a SWOT analysis — identify internal strengths/weaknesses and external opportunities/threats
-  3. Define 3–5 strategic objectives with clear success metrics and timeframes
-  4. Prioritize initiatives by impact vs. effort, surfacing quick wins alongside long-term bets
-  5. Identify dependencies, resource requirements, and key risks for each objective
-  6. Draft a written strategy document with executive summary, objectives, initiatives, and review cadence
+  ## When to use
+  - A parent goal hands you a long-horizon mandate that must be broken into workstreams
+  - You are a C-level agent reviewing whether current initiatives still align with the company mission
+  - An initiative has drifted and you need to reassert priorities
+
+  ## Approach
+  1. Read the mission, the current goal set (`list_my_goals`, `get_goal_details`), and any existing strategy documents via `search_documents`. You are almost never starting from zero
+  2. Characterize the current situation briefly: what is working, what is not, and what has changed since the last strategy
+  3. Define 3–5 strategic objectives. Each must have a measurable success criterion and a time horizon. Fewer is better — a strategy with 12 objectives is a wish list
+  4. For each objective, identify the 2–3 initiatives that would most move it, and a single accountable role
+  5. Sequence the initiatives: what must happen first to unblock the rest? Name the critical path
+  6. Surface the hard trade-offs explicitly: what are you consciously choosing not to do?
 
   ## Guidelines
-  - Ground every objective in customer or market data, not assumptions
-  - Distinguish strategy (what to pursue and why) from tactics (how to execute)
-  - Flag constraints early — budget, talent, and time are always finite
-  - Revisit and adjust quarterly; strategy should be a living document, not a static plan
+  - Strategy is about what you will not do as much as what you will do
+  - Every objective must be measurable. If you cannot write the success metric, you have not defined the objective
+  - Tie every initiative to a single named role that will own it — initiatives without owners do not ship
+  - Revisit quarterly or when an assumption breaks; strategy is a living document, not a tablet
 
-  ## Output Format
-  A structured strategy document with: executive summary (one page), strategic objectives table (objective, metric, owner, timeline), initiative backlog ranked by priority, risk register, and a defined review cadence.
+  ## Deliverable
+  A strategy document posted via `add_message` (and where the decisions change goal definitions, applied via `update_goal` / `create_task` to spin up the initiatives) containing: situation summary, 3–5 objectives with metrics and owners, initiative backlog with sequencing, critical path, explicit non-goals, and review trigger.

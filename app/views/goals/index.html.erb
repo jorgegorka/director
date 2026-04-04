@@ -3,19 +3,30 @@
 <section class="goals-page">
   <div class="goals-page__header">
     <h1>Goals</h1>
-    <%= link_to "New Mission", new_goal_path, class: "btn btn--primary btn--sm" %>
+    <%= link_to "New Goal", new_goal_path, class: "btn btn--primary btn--sm" %>
   </div>
 
   <% if @goals.any? %>
-    <div class="goal-tree">
+    <div class="goal-list">
       <% @goals.each do |goal| %>
-        <%= render partial: "goals/goal_tree_node", locals: { goal: goal, depth: 0 } %>
+        <% percentage = goal.completion_percentage %>
+        <div class="goal-list__item">
+          <div class="goal-list__info">
+            <%= link_to goal.title, goal_path(goal), class: "goal-list__title" %>
+            <div class="goal-list__progress-inline">
+              <span class="goal-list__percentage"><%= percentage %>%</span>
+              <div class="goal-list__bar">
+                <%= render "shared/progress_bar", percentage: percentage %>
+              </div>
+            </div>
+          </div>
+        </div>
       <% end %>
     </div>
   <% else %>
     <div class="goals-page__empty">
-      <p>No goals yet. Start by defining your company mission.</p>
-      <%= link_to "Create mission", new_goal_path, class: "btn btn--primary" %>
+      <p>No goals yet. Create your first goal to get started.</p>
+      <%= link_to "Create goal", new_goal_path, class: "btn btn--primary" %>
     </div>
   <% end %>
 </section>

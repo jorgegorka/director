@@ -21,8 +21,7 @@ module Tools
           id: goal.id,
           title: goal.title,
           description: goal.description,
-          completion_percentage: goal.completion_percentage,
-          parent_id: goal.parent_id
+          completion_percentage: goal.completion_percentage
         }
       end
 

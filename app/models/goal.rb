@@ -1,16 +1,14 @@
 class Goal < ApplicationRecord
   include Tenantable
-  include TreeHierarchy
   include Triggerable
 
   belongs_to :role, optional: true
 
-  has_many :children, class_name: "Goal", foreign_key: :parent_id, inverse_of: :parent, dependent: :destroy
   has_many :tasks, dependent: :nullify
   has_many :goal_evaluations, dependent: :destroy
 
   validates :title, presence: true,
-                    uniqueness: { scope: [ :company_id, :parent_id ], message: "already exists under this parent" }
+                    uniqueness: { scope: :company_id }
   validates :completion_percentage, numericality: { only_integer: true, in: 0..100 }
   validate :role_belongs_to_same_company
 
@@ -18,17 +16,8 @@ class Goal < ApplicationRecord
 
   after_commit :trigger_goal_assignment_wake, on: [ :create, :update ], if: :role_just_assigned?
 
-  def mission?
-    root?
-  end
-
-  def ancestry_chain
-    (ancestors.reverse << self)
-  end
-
   def recalculate_completion!
-    goal_ids = [ id ] + descendant_ids
-    counts = Task.where(goal_id: goal_ids).pick(
+    counts = tasks.pick(
       Arel.sql("COUNT(*)"),
       Arel.sql("COUNT(CASE WHEN status = #{Task.statuses[:completed]} THEN 1 END)")
     )

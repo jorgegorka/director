@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_02_223039) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_04_180000) do
   create_table "approval_gates", force: :cascade do |t|
     t.string "action_type", null: false
     t.datetime "created_at", null: false
@@ -120,14 +120,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_02_223039) do
     t.integer "completion_percentage", default: 0, null: false
     t.datetime "created_at", null: false
     t.text "description"
-    t.bigint "parent_id"
     t.integer "position", default: 0, null: false
     t.integer "role_id"
     t.string "title", null: false
     t.datetime "updated_at", null: false
-    t.index ["company_id", "parent_id"], name: "index_goals_on_company_id_and_parent_id"
     t.index ["company_id"], name: "index_goals_on_company_id"
-    t.index ["parent_id"], name: "index_goals_on_parent_id"
     t.index ["role_id"], name: "index_goals_on_role_id"
   end
 
@@ -281,6 +278,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_02_223039) do
     t.text "error_message"
     t.integer "exit_code"
     t.integer "goal_id"
+    t.datetime "last_activity_at"
     t.text "log_output"
     t.integer "role_id", null: false
     t.datetime "started_at"
@@ -295,6 +293,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_02_223039) do
     t.index ["role_id", "created_at"], name: "index_role_runs_on_role_id_and_created_at"
     t.index ["role_id", "status"], name: "index_role_runs_on_role_id_and_status"
     t.index ["role_id"], name: "index_role_runs_on_role_id"
+    t.index ["status", "last_activity_at"], name: "index_role_runs_on_status_and_last_activity_at"
     t.index ["task_id"], name: "index_role_runs_on_task_id"
   end
 
@@ -430,7 +429,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_02_223039) do
   add_foreign_key "goal_evaluations", "roles"
   add_foreign_key "goal_evaluations", "tasks"
   add_foreign_key "goals", "companies"
-  add_foreign_key "goals", "goals", column: "parent_id"
   add_foreign_key "goals", "roles"
   add_foreign_key "heartbeat_events", "roles"
   add_foreign_key "hook_executions", "companies"

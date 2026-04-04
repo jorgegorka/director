@@ -42,12 +42,8 @@ class Dashboard::Overview
     @_total_spend_cents
   end
 
-  def mission
-    @mission ||= company.goals.roots.ordered.first
-  end
-
-  def show_mission?
-    mission.present?
+  def top_goal
+    @top_goal ||= company.goals.ordered.first
   end
 
   def show_budget?

@@ -1,26 +1,31 @@
 key: security_assessment
 name: Security Assessment
-description: Evaluate systems and code for security vulnerabilities and recommend hardening measures
+description: Identify security weaknesses in code, architecture, or configuration and return prioritized findings with remediation
 category: technical
 markdown: |
   # Security Assessment
 
   ## Purpose
-  Identify security weaknesses in code, architecture, and configuration before they can be exploited. This skill enables an agent to apply threat modeling, review common vulnerability patterns (OWASP Top 10), and produce prioritized findings with actionable remediation guidance.
+  Find the security weaknesses in a system before someone else does, and return findings that are prioritized by exploitability and impact with concrete remediation. This skill produces a report, not an exploit.
 
-  ## Instructions
-  1. Define scope: what system, codebase, or feature is being assessed and what are the trust boundaries?
-  2. Perform threat modeling: identify assets, entry points, actors, and plausible attack vectors
-  3. Review authentication and authorization logic — check for missing checks, privilege escalation, and insecure defaults
-  4. Inspect input handling: look for injection flaws (SQL, command, template), path traversal, and deserialization issues
-  5. Check secrets management: hardcoded credentials, insecure storage, and overly broad IAM permissions
-  6. Assess data protection: encryption at rest and in transit, PII handling, and logging of sensitive data
+  ## When to use
+  - A task asks you to review a codebase, design, or configuration for security issues
+  - A new feature handles sensitive data, authentication, or privileged operations
+  - A third-party dependency update or infrastructure change has expanded the attack surface
+
+  ## Approach
+  1. Define scope: which system, code, or feature is being assessed and where are the trust boundaries?
+  2. Threat model: identify assets, entry points, actors, and plausible attack vectors
+  3. Review authentication and authorization: missing checks, privilege escalation paths, insecure defaults
+  4. Inspect input handling: injection (SQL, command, template), path traversal, deserialization, SSRF
+  5. Check secrets and permissions: hardcoded credentials, insecure storage, overly broad IAM
+  6. Assess data protection: encryption at rest and in transit, PII handling, sensitive data in logs
 
   ## Guidelines
-  - Prioritize findings by exploitability and impact — a theoretical flaw with no viable attack path is low priority
-  - Provide working remediation steps, not just descriptions of the problem
+  - Prioritize by exploitability and impact. A theoretical flaw with no viable attack path is low priority
+  - Provide working remediation guidance, not just problem descriptions
   - Flag security debt separately from functional bugs so it gets dedicated attention
-  - Retest mitigations after implementation; security fixes can introduce new issues
+  - Retest mitigations after implementation — security fixes can introduce new issues
 
-  ## Output Format
-  Security assessment report with: scope definition, threat model summary, findings table (severity: critical/high/medium/low, description, evidence, remediation), and a remediation priority order with estimated effort.
+  ## Deliverable
+  A security assessment report posted via `add_message`, containing: scope, threat model summary, findings table (severity, description, evidence, remediation), and a prioritized remediation order with effort estimates. Where a finding should be tracked as its own work, spawn a follow-up task via `create_task`.

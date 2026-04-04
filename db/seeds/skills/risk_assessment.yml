@@ -1,26 +1,31 @@
 key: risk_assessment
 name: Risk Assessment
-description: Identify, analyze, and prioritize risks to help the organization protect value and avoid surprises
+description: Surface, score, and prioritize risks to a goal or initiative, and assign an owner to each top risk
 category: leadership
 markdown: |
   # Risk Assessment
 
   ## Purpose
-  Systematically surface threats to company goals, quantify their likelihood and impact, and recommend mitigations that are proportionate to the risk level. This skill enables an agent to build and maintain a living risk register that informs strategic and operational decisions.
+  Identify the things that could cause a goal to fail, quantify how likely and severe each is, and recommend mitigations proportional to the threat. The deliverable is a prioritized risk register that other agents can act on.
 
-  ## Instructions
-  1. Define the scope: which project, process, or time horizon is being assessed?
-  2. Brainstorm risks across categories: financial, operational, technical, legal/compliance, reputational, and competitive
-  3. For each risk, estimate likelihood (low/medium/high) and potential impact (low/medium/high)
-  4. Calculate a risk score (likelihood × impact) to prioritize the register
-  5. For high-priority risks, define a mitigation strategy (avoid, transfer, reduce, or accept) and an owner
-  6. Document the risk register and schedule periodic reviews as conditions evolve
+  ## When to use
+  - A new goal or initiative has been assigned and you need to identify what could derail it
+  - A decision is being made and the downside of being wrong is not yet characterized
+  - You are asked to review a plan produced by a reportee
+
+  ## Approach
+  1. Scope the assessment: which goal, plan, or time horizon is being assessed? Read the goal via `get_goal_details` if needed
+  2. Brainstorm risks across every relevant category: technical, operational, financial, compliance, dependency, reputational. Cast a wide net — you can prune later
+  3. For each risk, estimate likelihood (low / medium / high) and impact (low / medium / high) with a one-line rationale
+  4. Compute a risk score (likelihood × impact). Sort the register by score
+  5. For each high-scoring risk, define one mitigation strategy: avoid, transfer, reduce, or accept — and name the single agent or role who owns it
+  6. Distinguish inherent risk (before mitigation) from residual risk (after mitigation)
 
   ## Guidelines
-  - Cast a wide net initially — it is easier to dismiss low-probability risks than to discover them late
-  - Assign a single owner to each high-priority risk; shared ownership means no ownership
-  - Distinguish inherent risk (before mitigation) from residual risk (after mitigation)
-  - Quantify financial exposure where possible — vague risks are hard to prioritize
+  - A risk with no owner is not managed. If you cannot name an owner, escalate it
+  - Quantify financial or schedule exposure where possible; "high impact" is less useful than "blocks launch by 2 weeks"
+  - Re-assess the register when conditions change materially — not on a calendar
+  - The most dangerous risks are usually the ones nobody wants to write down. Write them down
 
-  ## Output Format
-  A risk register table with columns: risk description, category, likelihood, impact, risk score, mitigation strategy, owner, and review date. Summarize the top 5 risks in an executive narrative.
+  ## Deliverable
+  A risk register posted via `add_message` (and reflected on the goal via `update_goal` if it changes scope or acceptance criteria) containing: risk description, category, likelihood, impact, score, mitigation, owner, and review trigger — plus a short executive note on the top 3 risks.

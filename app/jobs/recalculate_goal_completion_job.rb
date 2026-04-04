@@ -7,6 +7,6 @@ class RecalculateGoalCompletionJob < ApplicationJob
     goal = Goal.find_by(id: goal_id)
     return unless goal
 
-    goal.ancestry_chain.each(&:recalculate_completion!)
+    goal.recalculate_completion!
   end
 end

@@ -6,31 +6,37 @@ markdown: |
   # Escalation Handling
 
   ## Purpose
-  As a manager, you may be woken for many reasons: a subordinate asked a question, mentioned you, had their session fail, or a task was escalated to you. This skill helps you diagnose why you were woken and respond appropriately.
+  As a manager agent, you may be woken for many reasons: a subordinate asked a question, mentioned you, had their session fail, or a task was escalated to you. This skill helps you diagnose why you were woken and respond appropriately.
 
-  ## Instructions
-  1. Call `get_task_details` to read the full task thread, including all messages and current status
+  ## When to use
+  - You were just woken and the reason is not obvious from the task title alone
+  - A reportee has stalled, crashed, or flagged a blocker
+  - A task was reassigned upward to you for a decision or completion
+
+  ## Approach
+  1. Call `get_task_details` to read the full task thread, including every message and current status
   2. Identify why you were woken by reading the most recent messages:
-     - **Question from subordinate**: Look for messages with a question — the subordinate needs your input to proceed
-     - **Mention**: A subordinate tagged you with @YourTitle to get your attention on something
-     - **Session failure**: Look for phrases like "session ended without completing work", "session was cancelled", or "stalled" — the assignee's session crashed
-     - **Task escalation**: The task was reassigned to you because the subordinate could not complete it
-     - **Pending review**: The assignee finished work and is waiting for your approval
-  3. Respond based on the situation:
+     - **Question from subordinate**: look for a direct question — the subordinate needs your input to proceed
+     - **Mention**: a subordinate tagged you with @YourTitle to get your attention on something
+     - **Session failure**: look for phrases like "session ended without completing work", "session was cancelled", or "stalled" — the assignee's session crashed
+     - **Task escalation**: the task was reassigned to you because the subordinate could not complete it
+     - **Pending review**: the assignee finished work and is waiting for your approval
+  3. Respond based on the situation, using the decision tree below
+  4. Post a brief `add_message` explaining your decision before taking any destructive action (reassigning, splitting, closing)
 
   ### Answering questions or mentions
   - Read the question or context carefully
   - Post your answer or guidance via `add_message` — this will wake the subordinate so they can continue
-  - If the question requires research you cannot do, delegate it: create a subtask and assign it
+  - If the question requires research you cannot do, delegate it: create a subtask via `create_task`
 
   ### Handling session failures
   - Check if the task status is still `open` (assignee never started) or has partial work in messages
   - Choose a recovery action:
-    - **Retry same assignee**: If the failure was transient (stall, timeout), the assignee will be woken again on the next trigger
-    - **Simplify and retry**: If the task was too broad, break it into smaller subtasks with `create_task`
-    - **Reassign**: If the assignee lacks the right skills, create a new task for a different subordinate
-    - **Do it yourself**: If you have the skills and the task is small enough, complete it directly
-    - **Escalate further**: Use `add_message` with @YourManager to flag the issue upward
+    - **Retry same assignee**: if the failure was transient (stall, timeout), the assignee will be woken again on the next trigger
+    - **Simplify and retry**: if the task was too broad, break it into smaller subtasks with `create_task`
+    - **Reassign**: if the assignee lacks the right skills, create a new task for a different subordinate
+    - **Do it yourself**: if you have the skills and the task is small enough, complete it directly
+    - **Escalate further**: use `add_message` with @YourManager to flag the issue upward
 
   ### Reviewing completed work
   - Read the task messages for the deliverable
@@ -42,4 +48,6 @@ markdown: |
   - When answering a question, be specific enough that the subordinate can proceed without another round-trip
   - Do not re-delegate to the same role more than once without changing something (simpler scope, more context, different approach)
   - Prefer breaking work into smaller pieces over repeated retries of a large task
-  - Post a brief `add_message` explaining your decision before taking action
+
+  ## Deliverable
+  An action on the task: either a response message via `add_message`, a status change via `update_task_status`, or one or more new subtasks via `create_task` — always preceded by a short message explaining what you decided and why.

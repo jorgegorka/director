@@ -1,26 +1,30 @@
 key: code_review
 name: Code Review
-description: Review code for quality, bugs, security issues, and adherence to standards
+description: Review code changes for correctness, security, and maintainability and return structured, evidence-based feedback
 category: technical
 markdown: |
   # Code Review
 
   ## Purpose
-  Analyze code changes for correctness, maintainability, security vulnerabilities, and adherence to project standards. This skill enables an agent to provide actionable, evidence-based feedback that improves code quality while respecting the author's effort and intent.
+  Analyze a code change and return actionable feedback that improves correctness, security, and maintainability while respecting the author's intent. A good review distinguishes blocking issues from suggestions and gives the author enough information to act without asking follow-up questions.
 
-  ## Instructions
-  1. Read the diff carefully, understanding the context of changes and the problem being solved
-  2. Check for correctness — does the code do what it claims? Are edge cases handled?
-  3. Review error handling: are failures caught, logged, and surfaced appropriately?
-  4. Assess readability: are names clear, logic easy to follow, and comments useful rather than redundant?
-  5. Flag security concerns — SQL injection, authentication bypass, data exposure, unvalidated inputs
-  6. Verify test coverage: are new behaviors tested? Do existing tests still pass with the change?
+  ## When to use
+  - A task hands you a diff, branch, or pull request to review
+  - You are a senior role asked to approve work produced by a reportee before merge
+
+  ## Approach
+  1. Read the task or change description to understand what problem the author is solving. Reviewing without context is how you miss the point
+  2. Read the diff carefully. For each change, ask: does it do what it claims? What happens on the edge cases?
+  3. Check error handling: are failures caught at the right level, logged with context, and surfaced to the caller?
+  4. Assess readability: are names clear, control flow easy to follow, comments useful rather than redundant?
+  5. Flag security issues: injection risks, auth bypass, unvalidated inputs, secret exposure, overly broad permissions
+  6. Verify test coverage: new behavior has tests, existing tests still pass, and the tests actually test the claim
 
   ## Guidelines
-  - Focus on substance over style — automated linters handle formatting
-  - Explain the "why" behind suggestions, not just what to change
-  - Distinguish blocking issues from non-blocking suggestions using clear labels
-  - Acknowledge good decisions and clever solutions, not just problems
+  - Focus on substance. Automated linters handle formatting — do not spend review effort there
+  - Explain the "why" for every suggestion. "Change this" without a reason is a bad review comment
+  - Label every comment as **blocking** or **non-blocking**. Ambiguity wastes the author's time
+  - Acknowledge good decisions and clever solutions — not only problems
 
-  ## Output Format
-  Structured review with: summary of change purpose, blocking issues (must fix before merge), non-blocking suggestions (improve but not required), positive observations, and a final approval status (approved / approved with suggestions / changes requested).
+  ## Deliverable
+  A structured review posted via `add_message` on the task, containing: a one-line summary of the change's purpose, blocking issues (must fix), non-blocking suggestions, positive observations, and a final status (approved / approved with suggestions / changes requested).

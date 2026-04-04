@@ -1,26 +1,31 @@
 key: system_design
 name: System Design
-description: Design scalable, reliable systems by defining components, interfaces, and data models
+description: Produce a detailed technical design that engineers can implement without ambiguity
 category: technical
 markdown: |
   # System Design
 
   ## Purpose
-  Produce detailed technical designs for new systems or significant features by specifying components, APIs, data schemas, and operational concerns. This skill enables an agent to think through a problem at multiple levels of abstraction — from high-level data flows to specific database schema choices — and produce designs that engineers can implement without ambiguity.
+  Turn a set of requirements into a concrete technical design — components, APIs, data schemas, failure modes — that an implementation-focused agent can follow step by step. The design names every non-trivial choice and explains why it was made.
 
-  ## Instructions
-  1. Clarify requirements: functional behavior, scale targets (users, requests/sec, data volume), and latency SLAs
-  2. Design the high-level architecture: identify major services, databases, caches, and queues
-  3. Define the API surface: endpoints, request/response schemas, authentication model
-  4. Design the data model: tables/collections, indexes, and relationships
-  5. Address cross-cutting concerns: rate limiting, pagination, error handling, idempotency
-  6. Estimate back-of-envelope capacity: storage growth, bandwidth, compute requirements
+  ## When to use
+  - A task asks you to design a new service, feature, or significant refactor
+  - Multiple implementation approaches are viable and the choice must be made deliberately
+  - A downstream agent is blocked because the design is not yet specified
+
+  ## Approach
+  1. Clarify requirements: functional behavior, scale (users, requests/sec, data volume), latency targets, and availability expectations. If these are missing, ask before designing
+  2. Sketch the high-level architecture: major services, databases, caches, queues, and the data flows between them
+  3. Specify the API surface: endpoints, request and response schemas, authentication, idempotency, and error modes
+  4. Design the data model: tables or collections, keys, indexes, relationships, and expected growth
+  5. Address cross-cutting concerns: rate limiting, pagination, retries, observability, backfill
+  6. Back-of-envelope capacity: storage growth, bandwidth, compute. Flag anything that will not fit on the current infra
 
   ## Guidelines
-  - Start broad then drill down — establish the big picture before detailing any one component
+  - Start broad, then drill down. Do not spec a schema before the component boundaries are clear
   - State your assumptions explicitly so reviewers can challenge them
-  - Consider both the happy path and failure scenarios for each component boundary
-  - Simplify wherever possible; every additional service or database is ongoing operational overhead
+  - Design for the failure cases, not only the happy path. Every boundary has an error mode
+  - Simpler is better. Every additional service is ongoing operational overhead
 
-  ## Output Format
-  System design document with: requirements summary, architecture diagram, API specification (table or OpenAPI excerpt), data model (ER diagram or schema), capacity estimate, and open questions needing resolution.
+  ## Deliverable
+  A system design document posted via `add_message` (or committed as an ADR when one is warranted), containing: requirements summary, architecture sketch, API spec excerpt, data model, capacity estimates, open questions, and explicitly rejected alternatives with rationale.

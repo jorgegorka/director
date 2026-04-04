@@ -1,26 +1,31 @@
 key: infrastructure_management
 name: Infrastructure Management
-description: Provision, configure, and maintain cloud and on-premises infrastructure to support reliable operations
+description: Define and maintain infrastructure as code, enforce configuration standards, and plan capacity proactively
 category: operations
 markdown: |
   # Infrastructure Management
 
   ## Purpose
-  Ensure that the infrastructure supporting the product is reliable, secure, cost-efficient, and scalable. This skill enables an agent to manage infrastructure as code, maintain configuration consistency, and handle capacity planning to prevent availability issues before they arise.
+  Produce and maintain the plans, configuration, and diffs that keep the product's infrastructure reliable, secure, and cost-efficient. The deliverable of this skill is written work — an audit, a config change, a plan — not live kubectl commands.
 
-  ## Instructions
-  1. Audit current infrastructure: catalog all services, instances, databases, networks, and their purposes and costs
-  2. Define infrastructure standards: naming conventions, tagging strategy, environment parity, and access control model
-  3. Manage infrastructure as code (IaC): ensure all infrastructure is defined in version-controlled configuration files, not manual console changes
-  4. Monitor resource utilization and set alarms for capacity thresholds; proactively right-size over-provisioned resources
-  5. Enforce security controls: network segmentation, least-privilege IAM policies, encryption at rest and in transit
-  6. Conduct regular infrastructure reviews: identify single points of failure, cost optimization opportunities, and outdated configurations
+  ## When to use
+  - A task asks you to review, change, or plan infrastructure
+  - A cost, capacity, or reliability signal requires investigation
+  - A new service needs a production-ready infrastructure footprint
+
+  ## Approach
+  1. Audit the current state: catalog services, instances, databases, networks, and their purposes and costs
+  2. Apply infrastructure standards: naming conventions, tagging, environment parity, access control
+  3. Manage changes as code: every change lands as a diff in the IaC repo, reviewed like application code
+  4. Check resource utilization against capacity thresholds. Proactively right-size over-provisioned resources
+  5. Enforce security controls: network segmentation, least-privilege IAM, encryption at rest and in transit
+  6. Identify single points of failure, cost hotspots, and outdated configurations
 
   ## Guidelines
-  - Never make production infrastructure changes manually — all changes should go through code review and CI
-  - Tag every resource with environment, owner, and cost center; untagged resources are untracked costs
-  - Test disaster recovery procedures regularly — a backup you haven't restored is a backup you can't trust
-  - Document the rationale for non-standard infrastructure decisions so future operators understand the context
+  - Never make production infrastructure changes outside the IaC workflow
+  - Every resource needs environment, owner, and cost-center tags. Untagged resources are untracked costs
+  - A backup you have not restored is a backup you cannot trust. Test recovery procedures on a schedule
+  - Document the rationale for non-standard decisions so future operators understand the context
 
-  ## Output Format
-  Infrastructure management report with: inventory of all infrastructure resources, cost breakdown by service and environment, capacity utilization summary, security compliance checklist, identified single points of failure, and recommended improvements with priority and effort estimates.
+  ## Deliverable
+  An infrastructure document posted via `add_message` (and, where changes are proposed, a diff committed to the IaC repo referenced by file path), containing: inventory, cost breakdown, capacity summary, security checklist, identified SPOFs, and recommended improvements with priority.

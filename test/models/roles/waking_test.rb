@@ -316,6 +316,39 @@ class Roles::WakingTest < ActiveSupport::TestCase
     assert run.queued?, "Run should be queued, got #{run.status}"
   end
 
+  # --- Terminal task guard ---
+
+  test "does not create RoleRun when task is already completed" do
+    done_task = tasks(:completed_task)
+    assert done_task.terminal?
+
+    assert_no_difference -> { RoleRun.count } do
+      assert_no_enqueued_jobs(only: ExecuteRoleJob) do
+        Roles::Waking.call(
+          role: @cto,
+          trigger_type: :task_assigned,
+          trigger_source: "Task##{done_task.id}",
+          context: { task_id: done_task.id, task_title: done_task.title }
+        )
+      end
+    end
+  end
+
+  test "marks heartbeat event delivered with skipped_terminal_task response for terminal task" do
+    done_task = tasks(:completed_task)
+
+    event = Roles::Waking.call(
+      role: @cto,
+      trigger_type: :task_assigned,
+      trigger_source: "Task##{done_task.id}",
+      context: { task_id: done_task.id, task_title: done_task.title }
+    )
+
+    assert event.persisted?
+    assert event.delivered?
+    assert_equal "skipped_terminal_task", event.response_payload["status"]
+  end
+
   test "creates queued run when company concurrency limit is zero (unlimited)" do
     company = @developer.company
     company.update!(max_concurrent_agents: 0)

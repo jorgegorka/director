@@ -1,26 +1,31 @@
 key: quality_standards
 name: Quality Standards
-description: Define and enforce quality standards and processes that ensure consistent, high-quality product delivery
+description: Define measurable quality criteria and the gates that enforce them in the development process
 category: operations
 markdown: |
   # Quality Standards
 
   ## Purpose
-  Establish and maintain the quality standards, processes, and tooling that ensure the product consistently meets user expectations and organizational requirements. This skill enables an agent to define quality criteria, build enforcement mechanisms, and foster a quality culture where the whole team owns the outcome.
+  Decide what "good enough to ship" means in specific, measurable terms, and wire those criteria into the development process so the whole agent team is held to the same bar. Standards that are not enforced are aspirations.
 
-  ## Instructions
-  1. Define quality dimensions relevant to the product: functional correctness, reliability, performance, security, accessibility, and usability
-  2. Establish measurable quality criteria for each dimension (e.g., p95 latency < 500ms, zero critical security findings at ship, WCAG 2.1 AA compliance)
-  3. Define the quality gates in the development process: when does each standard get enforced, and who is responsible?
-  4. Implement automated checks where possible: CI pipelines running tests, linters, security scanners, and coverage thresholds
-  5. Document the quality process: how defects are reported, triaged, prioritized, and resolved
-  6. Review and update standards quarterly to reflect learnings from incidents, user feedback, and engineering retrospectives
+  ## When to use
+  - A new project needs its quality bar defined
+  - An incident has revealed that the current standards are inadequate or unenforced
+  - A reportee has asked for clarification on what "done" requires
+
+  ## Approach
+  1. Identify the relevant quality dimensions: correctness, reliability, performance, security. Only include dimensions that matter for this work
+  2. Write measurable criteria for each dimension. "Fast" is not a criterion; "p95 latency under 500ms" is
+  3. Map each criterion to a gate in the process: where is it enforced, by what mechanism, and who verifies?
+  4. Automate what can be automated: CI tests, linters, security scanners, coverage thresholds
+  5. Document the defect process: how bugs are reported, triaged, prioritized, and closed
+  6. Review the standards on a regular cadence or after a significant incident
 
   ## Guidelines
-  - Quality standards that aren't enforced in the process are aspirations, not standards
-  - Balance comprehensiveness with practicality — a standard the team can't meet consistently will be ignored
-  - Measure quality metrics over time; trends reveal systemic issues that point-in-time checks miss
-  - Invest in quality tooling that catches issues before code review, not after deployment
+  - Criteria that the team cannot meet consistently will be ignored. Calibrate to reality and raise the bar incrementally
+  - Measure trends, not only point-in-time status. Trends reveal systemic issues
+  - Invest in tooling that catches issues before code review, not after deployment
+  - Every standard must have a single owner. Standards without owners decay
 
-  ## Output Format
-  Quality standards document with: quality dimensions and measurable criteria, process gate map (where each standard is enforced), automated check inventory, defect management process, quality metrics dashboard definition, and a standards review schedule.
+  ## Deliverable
+  A quality standards document posted via `add_message`, containing: dimensions and measurable criteria, process gate map, automated check inventory, defect management flow, and the review schedule.

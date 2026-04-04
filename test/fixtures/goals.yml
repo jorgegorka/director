@@ -1,12 +1,8 @@
-# Acme company goal hierarchy:
-# acme_mission (root)
-#   +-- acme_objective_one
-#   |   +-- acme_sub_objective
-#   +-- acme_objective_two
+# Flat goals for Acme and Widgets companies.
 
 acme_mission:
   title: "Build the best AI platform"
-  description: "Our north-star mission for Acme AI Corp"
+  description: "Our north-star goal for Acme AI Corp"
   company: acme
   position: 0
 
@@ -14,25 +10,21 @@ acme_objective_one:
   title: "Launch MVP by Q2"
   description: "Ship core features to first customers"
   company: acme
-  parent: acme_mission
-  position: 0
+  position: 1
   role: cto
 
 acme_objective_two:
   title: "Achieve 99.9% uptime"
   description: "Reliability as a competitive advantage"
   company: acme
-  parent: acme_mission
-  position: 1
+  position: 2
 
 acme_sub_objective:
   title: "Complete authentication module"
   description: "Auth must be production-ready"
   company: acme
-  parent: acme_objective_one
-  position: 0
+  position: 3
 
-# Widgets company -- separate mission for tenant isolation testing
 widgets_mission:
   title: "Dominate widget market"
   description: "Widgets everywhere"

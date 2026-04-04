@@ -1,26 +1,31 @@
 key: literature_review
 name: Literature Review
-description: Systematically survey existing research and knowledge to establish context and inform new work
+description: Systematically survey existing published sources and synthesize findings thematically, not source-by-source
 category: research
 markdown: |
   # Literature Review
 
   ## Purpose
-  Synthesize existing published research, reports, and authoritative sources to establish what is already known, identify gaps, and build a rigorous foundation for new analysis or decisions. This skill enables an agent to conduct systematic and scoping reviews, critically evaluate source quality, and produce a synthesis that adds analytical value beyond simple summarization.
+  Establish what is already known about a topic by reading the authoritative sources, then synthesize the findings in a way that adds value beyond summarization. The output helps downstream agents avoid redoing work that has already been done.
 
-  ## Instructions
-  1. Define the review scope: what question are you trying to answer and what time period, disciplines, and source types are relevant?
-  2. Develop a search strategy: identify key terms, databases, and authoritative sources (peer-reviewed journals, industry reports, conference proceedings)
-  3. Screen results: apply inclusion/exclusion criteria to focus on sources that are directly relevant and methodologically sound
-  4. Extract key findings from each source: main claim, methodology, sample/data, limitations, and relevance to the review question
-  5. Synthesize across sources: identify areas of consensus, contradiction, and gap; organize findings thematically, not source-by-source
-  6. Evaluate the strength of evidence: consider source credibility, replication, and recency
+  ## When to use
+  - A task asks you to establish context or prior art before new research
+  - A decision requires grounding in existing evidence
+  - An area is being explored for the first time and the knowledge landscape needs mapping
+
+  ## Approach
+  1. Define scope: what question are you answering, and what time period, disciplines, and source types are relevant?
+  2. Develop a search strategy: key terms, databases, and authoritative sources. Use `search_documents` for internal material and WebSearch for external
+  3. Screen results against inclusion and exclusion criteria to focus on directly relevant, methodologically sound sources
+  4. Extract from each source: main claim, methodology, sample or data, limitations, relevance
+  5. Synthesize across sources thematically: consensus, contradiction, and gap. Organize by theme, not by source
+  6. Evaluate evidence strength: source credibility, replication, recency
 
   ## Guidelines
-  - Summarize what sources say; synthesize what they mean together — synthesis is the differentiating skill
-  - Cite sources precisely so claims can be independently verified
-  - Acknowledge limitations: a literature review is only as good as the sources it covers and the search strategy used
-  - Update reviews when significant new research is published; outdated literature reviews mislead as much as no review at all
+  - Summarize what sources say; synthesize what they mean together. Synthesis is the differentiating skill
+  - Cite sources precisely so claims can be verified
+  - Acknowledge limitations. A review is only as good as its search strategy
+  - Mark areas where the literature is thin or contested — these are decision points for downstream work
 
-  ## Output Format
-  Literature review with: review question and scope, search strategy, source selection criteria, thematic synthesis of findings (not source-by-source summaries), evidence strength assessment, gaps identified in the literature, and implications for the current work.
+  ## Deliverable
+  A literature review posted via `add_message`, containing: review question and scope, search strategy, source selection criteria, thematic synthesis (not per-source summaries), evidence strength assessment, identified gaps, and implications for current work.

@@ -65,13 +65,9 @@ module Goals
 
     def evaluation_prompt
       parts = []
-      parts << "## Goal Hierarchy"
-      goal.ancestry_chain.each_with_index do |g, i|
-        indent = "  " * i
-        label = g.root? ? "Mission" : "Objective"
-        parts << "#{indent}#{label}: #{g.title}"
-        parts << "#{indent}  #{g.description}" if g.description.present?
-      end
+      parts << "## Goal"
+      parts << goal.title
+      parts << goal.description if goal.description.present?
 
       parts << ""
       parts << "## Completed Task"

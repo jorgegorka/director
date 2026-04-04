@@ -4,21 +4,12 @@
   <div class="goal-detail__header">
     <div class="goal-detail__header-top">
       <div>
-        <nav class="goal-detail__breadcrumb">
-          <% @goal.ancestry_chain[0...-1].each do |ancestor| %>
-            <%= link_to ancestor.title, goal_path(ancestor) %> <span class="goal-detail__sep">/</span>
-          <% end %>
-        </nav>
-
-        <% if @goal.mission? %>
-          <span class="goal-tree__label goal-tree__label--mission">Mission</span>
-        <% end %>
         <h1 class="goal-detail__title"><%= @goal.title %></h1>
       </div>
       <div class="goal-detail__actions">
         <%= link_to "Edit", edit_goal_path(@goal), class: "btn btn--ghost btn--sm" %>
         <%= button_to "Delete", @goal, method: :delete, class: "btn btn--ghost btn--sm goal-detail__delete",
-              data: { turbo_confirm: "Delete '#{@goal.title}'? Child goals will also be deleted." } %>
+              data: { turbo_confirm: "Delete '#{@goal.title}'?" } %>
       </div>
     </div>
 
@@ -49,24 +40,6 @@
         <p><%= @goal.description %></p>
       </div>
     <% end %>
-
-    <div class="goal-detail__section">
-      <div class="goal-detail__section-header">
-        <h2>Objectives <span class="goal-detail__count"><%= @detail.children.size %></span></h2>
-        <%= link_to "+ Add objective", new_goal_path(parent_id: @goal.id), class: "btn btn--ghost btn--sm" %>
-      </div>
-      <% if @detail.any_children? %>
-        <div class="goal-tree">
-          <% @detail.children.each do |child| %>
-            <%= render partial: "goals/goal_tree_node", locals: { goal: child, depth: 0 } %>
-          <% end %>
-        </div>
-      <% else %>
-        <div class="goal-detail__empty">
-          <p>No objectives yet. Break this goal into smaller objectives to track progress.</p>
-        </div>
-      <% end %>
-    </div>
 
     <div class="goal-detail__section">
       <div class="goal-detail__section-header">

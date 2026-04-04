@@ -1,26 +1,31 @@
 key: project_planning
 name: Project Planning
-description: Define project scope, timeline, resources, and milestones to deliver outcomes on time and within budget
+description: Decompose a goal into sequenced tasks with dependencies, owners, and explicit out-of-scope items
 category: operations
 markdown: |
   # Project Planning
 
   ## Purpose
-  Establish a clear, actionable plan that guides a project from initiation to completion by defining scope, schedule, resources, and success criteria. This skill enables an agent to decompose complex work into manageable tasks, identify dependencies and risks, and create a plan that gives stakeholders confidence in the delivery timeline.
+  Produce a plan that takes a goal from where it is now to done. The plan names every task, the order they must happen in, who owns each, and what is explicitly not being done. Its purpose is to let other agents execute without having to re-derive the sequence.
 
-  ## Instructions
-  1. Define scope: what is being built or delivered, and — equally important — what is explicitly out of scope?
-  2. Identify all deliverables and break them into tasks with estimated effort, dependencies, and assigned owners
-  3. Build a project schedule using the task list, dependencies, and resource availability; identify the critical path
-  4. Define milestones that mark meaningful progress checkpoints and create natural review opportunities
-  5. Identify project risks: scope creep, resource constraints, technical unknowns, and external dependencies
-  6. Document the plan in a format the team will actually use: Gantt chart, backlog, or phased roadmap
+  ## When to use
+  - A new goal has arrived and you need to lay out the path from here to done
+  - An existing plan has drifted and the task list no longer reflects reality
+  - A manager has asked you for a timeline they can trust
+
+  ## Approach
+  1. Read the goal carefully via `get_goal_details`. Write down, in one sentence, what "done" looks like
+  2. List every deliverable implied by the goal. For each, identify the tasks required to produce it
+  3. Identify dependencies: which tasks cannot start before others complete? Mark the critical path — the longest chain of dependent tasks
+  4. Name an owner (role) for every task. If no role fits, flag it as a hiring need
+  5. Identify the top risks that could invalidate the plan, and what signals would trigger a re-plan
+  6. Explicitly list what is out of scope. Scope creep starts where the non-goals were never written down
 
   ## Guidelines
-  - Buffer estimates realistically — projects without contingency fail predictably
-  - Identify the critical path early; delays on critical-path tasks delay the whole project
-  - Review and update the plan weekly; a plan that isn't maintained is a plan that will be ignored
-  - Involve the team in planning; estimates are more accurate and commitment is higher when engineers own them
+  - Buffer the critical path. Every plan without contingency slips
+  - Keep tasks small enough that a single reportee can finish one in a single session
+  - A plan you do not maintain is a plan that will be ignored — update it when assumptions change
+  - Tasks without owners are aspirations. Every task in the plan must have a role attached
 
-  ## Output Format
-  Project plan with: scope statement, work breakdown structure (WBS), schedule with milestones and critical path highlighted, resource allocation table, risk register, and a communication plan specifying what updates are shared, how often, and with whom.
+  ## Deliverable
+  A project plan posted via `add_message` on the goal or parent task, containing: scope and non-goals, task list with owner and dependency, critical path, risks, and re-plan triggers. When the plan is approved, create the first wave of tasks via `create_task`.

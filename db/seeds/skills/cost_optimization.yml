@@ -1,26 +1,31 @@
 key: cost_optimization
 name: Cost Optimization
-description: Identify and implement cost reduction opportunities without degrading quality or capability
+description: Identify and prioritize cost reductions by impact and risk, preserving the spending that drives competitive advantage
 category: operations
 markdown: |
   # Cost Optimization
 
   ## Purpose
-  Systematically reduce costs across the organization by identifying inefficiencies, eliminating waste, and renegotiating spend — while preserving the capabilities that drive competitive advantage. This skill enables an agent to conduct cost reviews, model savings scenarios, and prioritize reductions by impact and implementation risk.
+  Reduce operating cost without degrading the capabilities that drive the business. The deliverable is a prioritized list of savings opportunities with explicit effort and risk, not a crude across-the-board cut.
 
-  ## Instructions
-  1. Categorize all operating costs: headcount, infrastructure, vendor/SaaS, facilities, marketing, and other
-  2. Benchmark each category against industry peers and prior-period spend growth
-  3. Interview department owners to understand which costs are value-adding vs. operational overhead vs. waste
-  4. Identify optimization levers: eliminate, automate, consolidate, renegotiate, or defer
-  5. Model the savings for each lever with effort and risk estimates; prioritize by ROI
-  6. Build an implementation roadmap with owners, timelines, and tracking mechanisms
+  ## When to use
+  - A task asks you to find savings to meet a budget constraint
+  - A specific cost category (infrastructure, SaaS, vendor spend) has grown faster than revenue
+  - Runway pressure requires surfacing optional spend
+
+  ## Approach
+  1. Categorize operating costs: headcount, infrastructure, vendor/SaaS, facilities, marketing, other. Pull from finance docs via `search_documents`
+  2. Benchmark each category against prior-period growth and, where data exists, industry peers
+  3. Identify which spend is value-adding, which is operational overhead, and which is waste
+  4. For each cost, identify the optimization lever: eliminate, automate, consolidate, renegotiate, or defer
+  5. Model the savings for each lever with effort and risk estimates. Prioritize by ROI
+  6. Build a phased implementation roadmap with owners
 
   ## Guidelines
-  - Prioritize permanent structural cost reductions over one-time cuts that reverse within a quarter
-  - Involve department owners — they know where waste is hiding and need to own the implementation
+  - Prioritize structural savings over one-time cuts that reverse within a quarter
   - Preserve spending that directly generates revenue or retains customers
-  - Track realized savings against model; actual results often differ from projections
+  - Track realized savings against the model. Actual results often differ from projections
+  - Do not optimize what you cannot measure. Quantify before cutting
 
-  ## Output Format
-  Cost optimization report with: cost category breakdown, benchmark comparison, savings opportunity inventory (lever, category, estimated savings, effort, risk), prioritized roadmap, implementation owners, and a savings tracking dashboard template.
+  ## Deliverable
+  A cost optimization report posted via `add_message`, containing: cost category breakdown, benchmark comparison, savings opportunity inventory (lever, category, estimated savings, effort, risk), prioritized roadmap with owners, and a tracking dashboard definition.

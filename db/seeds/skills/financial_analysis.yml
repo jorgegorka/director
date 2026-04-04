@@ -1,26 +1,31 @@
 key: financial_analysis
 name: Financial Analysis
-description: Analyze financial statements, trends, and ratios to assess company health and inform decisions
+description: Interpret financial statements and ratios to surface business risks, opportunities, and trend signals
 category: research
 markdown: |
   # Financial Analysis
 
   ## Purpose
-  Interpret financial data to assess business performance, identify trends, and surface risks or opportunities that inform strategic decisions. This skill enables an agent to work with income statements, balance sheets, and cash flow statements to produce clear, actionable financial insights for leadership and board-level communication.
+  Turn raw financial data into an explanation leadership can act on. The output is not a spreadsheet — it is a narrative, backed by specific numbers, that answers "how is the business actually doing and what should we do about it?"
 
-  ## Instructions
-  1. Gather financial statements for the relevant period: income statement, balance sheet, and cash flow statement
-  2. Calculate key performance ratios: gross margin, operating margin, EBITDA, burn rate, runway, current ratio, and CAC/LTV
-  3. Analyze trends over time: revenue growth rate, expense growth relative to revenue, and margin expansion or compression
-  4. Compare against benchmarks: industry averages, prior periods, or budget targets
-  5. Identify the top 3–5 financial risks and opportunities based on the analysis
-  6. Synthesize findings into an executive narrative explaining what the numbers mean in business terms
+  ## When to use
+  - A task asks you to assess company or segment financial health
+  - A material change in revenue, margin, or cost needs diagnosis
+  - A decision requires a grounded view of the financial implications
+
+  ## Approach
+  1. Gather the relevant statements for the period — income statement, balance sheet, cash flow — via `search_documents` or attached data
+  2. Calculate the key ratios that matter for this business: gross margin, operating margin, EBITDA, burn rate, runway, CAC/LTV, current ratio
+  3. Analyze trends: revenue growth rate, expense growth relative to revenue, margin expansion or compression
+  4. Compare against benchmarks: prior periods, budget, peer averages
+  5. Identify the top 3–5 financial risks and opportunities from the analysis
+  6. Write the narrative: what the numbers mean in business terms, not just what they are
 
   ## Guidelines
-  - Always contextualize numbers — a 10% margin is good or bad depending on the industry and growth stage
-  - Highlight the assumptions behind projections and model sensitivity to key variables
-  - Flag accounting anomalies or one-time items that distort ongoing performance trends
-  - Use consistent definitions for metrics across reports to allow meaningful period-over-period comparison
+  - Always contextualize. A 10% margin is good or bad depending on industry and growth stage
+  - Highlight the assumptions behind projections and show sensitivity to key variables
+  - Flag accounting anomalies or one-time items that distort ongoing performance
+  - Use consistent metric definitions across reports so period-over-period comparison is meaningful
 
-  ## Output Format
-  Financial analysis report with: key metrics summary dashboard, trend analysis charts (described in text), ratio benchmarking table, risk and opportunity highlights, and an executive narrative connecting the numbers to business implications.
+  ## Deliverable
+  A financial analysis report posted via `add_message`, containing: key metrics summary, trend analysis, benchmark comparison, the top 3–5 risks and opportunities, and a narrative connecting the numbers to business implications.

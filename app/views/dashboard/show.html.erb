@@ -13,14 +13,14 @@
     </div>
   </div>
 
-  <% if @overview.show_mission? %>
+  <% if @overview.top_goal %>
     <div class="dashboard-mission">
       <div class="dashboard-mission__info">
-        <span class="dashboard-mission__label">Mission</span>
-        <%= link_to @overview.mission.title, goal_path(@overview.mission), class: "dashboard-mission__title" %>
+        <span class="dashboard-mission__label">Goal</span>
+        <%= link_to @overview.top_goal.title, goal_path(@overview.top_goal), class: "dashboard-mission__title" %>
       </div>
       <div class="dashboard-mission__progress">
-        <% percentage = @overview.mission.completion_percentage %>
+        <% percentage = @overview.top_goal.completion_percentage %>
         <%= render "shared/progress_bar", percentage: percentage %>
         <span class="dashboard-mission__pct"><%= percentage %>%</span>
       </div>

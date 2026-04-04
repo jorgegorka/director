@@ -1,26 +1,31 @@
 key: implementation
 name: Implementation
-description: Write clean, maintainable code that correctly implements features according to specifications
+description: Turn a specification into small, tested, readable code changes that integrate cleanly with the existing codebase
 category: technical
 markdown: |
   # Implementation
 
   ## Purpose
-  Translate product requirements and technical designs into working, well-structured code. This skill enables an agent to break down features into implementable units, write clean and tested code, and integrate changes into the existing codebase without introducing regressions.
+  Translate a task's requirements into working code that is correct, tested, and easy for the next agent to maintain. The discipline of this skill is incrementalism: small steps, each verified, rather than one large change that is hard to review and risky to merge.
 
-  ## Instructions
-  1. Read and understand the requirements thoroughly before writing any code; clarify ambiguities upfront
-  2. Break the feature into small, independently verifiable units of work (functions, classes, or service objects)
-  3. Write tests first (or alongside) the implementation to define expected behavior and catch regressions
-  4. Implement incrementally: get the simplest version working, then add edge case handling and optimizations
-  5. Review your own code before submitting: check naming, error handling, test coverage, and performance
-  6. Submit a focused, well-described pull request with context on what changed and why
+  ## When to use
+  - A task assigns you to build, modify, or extend code
+  - You are implementing a decision made by another agent
+  - A bug fix has been scoped and you have been handed the fix plan
+
+  ## Approach
+  1. Read the task description and any linked spec. Clarify ambiguities by posting a question via `add_message` before you start writing code — never guess on scope
+  2. Break the work into small, independently verifiable units. If a unit cannot be verified by a test, it is probably too big
+  3. Write or update tests that capture the expected behavior before or alongside the implementation
+  4. Implement incrementally: simplest version first, then edge cases, then optimizations — not the reverse
+  5. Review your own diff as if you were reviewing someone else's: naming, error handling, test coverage, removed dead code
+  6. Summarize the change on the task: problem solved, approach taken, tests added, and any follow-ups
 
   ## Guidelines
-  - Make code readable for the next engineer, not just correct for the machine
-  - Prefer explicit over implicit — clever code is a liability when the author has left
-  - Handle errors at the right level: validate at boundaries, propagate errors with context, log at actionable points
-  - Keep changes small and frequent; large PRs are hard to review and risky to merge
+  - Make the code readable for the next agent, not clever for yourself
+  - Handle errors at the right level: validate at boundaries, propagate with context, log at actionable points
+  - Keep changes focused. If you find yourself fixing unrelated things, create a separate task
+  - Never merge with failing tests. A failing test is a bug — either in the code or in the test
 
-  ## Output Format
-  Implementation deliverable: working code with tests, a pull request description covering the problem solved, implementation approach, testing notes, and any known limitations or follow-up work.
+  ## Deliverable
+  Working code committed with tests, plus a message posted via `add_message` summarizing the change: problem, approach, files touched, tests added, and known limitations or follow-up work.

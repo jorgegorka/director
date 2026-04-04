@@ -1,26 +1,31 @@
 key: budget_planning
 name: Budget Planning
-description: Develop and manage annual operating budgets that align spending with strategic priorities
+description: Produce an operating budget that allocates resources to priorities and names trade-offs explicitly
 category: operations
 markdown: |
   # Budget Planning
 
   ## Purpose
-  Produce a realistic, strategically aligned budget that allocates resources to the highest-value activities while maintaining financial discipline. This skill enables an agent to facilitate the budget process across departments, challenge assumptions, and produce a consolidated operating budget with clear accountability.
+  Translate strategic priorities into a concrete allocation of spending by category, department, and time period. A good budget is a ranked list of what the company will fund, what it will not, and why — not a spreadsheet of last year's numbers nudged by a percentage.
 
-  ## Instructions
-  1. Review prior-year actuals and identify variances between plan and reality — understand the causes
-  2. Gather strategic priorities for the planning period and translate them into resource requirements
-  3. Collect departmental budget requests with supporting rationale and prioritization from each owner
-  4. Challenge requests using zero-based thinking: what is the minimum required vs. "nice to have"?
-  5. Consolidate into a master budget; model the P&L impact and ensure it meets target financial outcomes
-  6. Document budget assumptions, approval status, and a reforecast schedule for the year
+  ## When to use
+  - An annual or quarterly planning cycle has begun
+  - A material change in strategy or revenue requires re-allocating spend
+  - A reportee is requesting funding and you need to fit it against the broader envelope
+
+  ## Approach
+  1. Read prior-period actuals and identify variances between plan and reality via `search_documents` if finance docs exist. Understand the causes
+  2. Read the current strategic goals (`list_my_goals`, `get_goal_details`) and translate them into resource requirements
+  3. Apply zero-based thinking per category: what is the minimum required to achieve the goal versus what is nice to have?
+  4. Consolidate into a master budget and model the P&L impact. Does it meet the target financial outcome?
+  5. Identify the explicit trade-offs being made: what is being cut or deferred, and why
+  6. Document assumptions and the reforecast cadence
 
   ## Guidelines
-  - Build the budget bottom-up from team needs but constrain it top-down with company financial targets
-  - Reserve a contingency buffer (typically 5–10%) for unplanned opportunities and incidents
-  - Track actuals vs. budget monthly — surprises at year-end mean the process failed mid-year
-  - Make budget trade-offs explicit; leadership should consciously choose what not to fund
+  - Build bottom-up from required work; constrain top-down by the company envelope
+  - Reserve 5–10% contingency for unplanned opportunities and incidents
+  - Make trade-offs explicit. Leadership should consciously choose what not to fund
+  - Track actuals vs. budget on a schedule. Year-end surprises mean the mid-year process failed
 
-  ## Output Format
-  Budget document with: planning assumptions, consolidated P&L by department and category, headcount plan, capital expenditure schedule, contingency reserve, approval status, and a monthly reforecast calendar.
+  ## Deliverable
+  A budget document posted via `add_message`, containing: assumptions, consolidated P&L by department and category, headcount plan, capex schedule, contingency reserve, explicit trade-offs accepted, and the reforecast schedule.

@@ -41,14 +41,8 @@ class Role < ApplicationRecord
 
   validates :working_directory, format: { with: /\A\//, message: "must be an absolute path" }, allow_blank: true
 
-  DEFAULT_JOB_SPEC = <<~SPEC.strip
-    Follow your task_workflow skill when executing or delegating tasks.
-    Follow your task_review skill when reviewing submitted work from subordinates.
-  SPEC
-
   before_validation :inherit_parent_working_directory, on: :create
   before_validation :inherit_parent_adapter, on: :create
-  before_validation :set_default_job_spec, on: :create
   before_save :ensure_api_token, if: :agent_configured?
   before_destroy :reparent_children
   after_save :assign_default_skills, if: :first_agent_configuration?
@@ -188,20 +182,8 @@ class Role < ApplicationRecord
     %w[title description job_spec parent_id budget_cents budget_period_start status working_directory]
   end
 
-  def ensure_base_skills!
-    base_keys = self.class.default_skills_config.fetch("_base", [])
-    return if base_keys.empty?
-
-    # Skip DB check if skills are already loaded and complete
-    if skills.loaded? && (base_keys - skills.map(&:key)).empty?
-      return
-    end
-
-    assign_skills_by_keys(base_keys)
-  end
-
   def effective_working_directory
-    ([self] + ancestors).find { |r| r.working_directory.present? }&.working_directory
+    ([ self ] + ancestors).find { |r| r.working_directory.present? }&.working_directory
   end
 
   private
@@ -220,10 +202,6 @@ class Role < ApplicationRecord
     return unless parent
     self.adapter_type ||= parent.adapter_type
     self.adapter_config = parent.adapter_config if adapter_config.blank? && parent.adapter_config.present?
-  end
-
-  def set_default_job_spec
-    self.job_spec = DEFAULT_JOB_SPEC if job_spec.blank?
   end
 
   def broadcast_dashboard_update

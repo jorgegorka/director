@@ -377,25 +377,6 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
     assert skill[:markdown].present?
   end
 
-  test "build_context ensures base skills even when role has none" do
-    role = roles(:developer)
-    role.role_skills.destroy_all
-
-    role_run = RoleRun.create!(
-      role: role,
-      company: role.company,
-      status: :queued,
-      trigger_type: :scheduled
-    )
-
-    job = ExecuteRoleJob.new
-    ctx = job.send(:build_context, role, role_run)
-
-    skill_keys = ctx[:skills].map { |s| s[:key] }
-    assert_includes skill_keys, "task_workflow"
-    assert_includes skill_keys, "task_review"
-  end
-
   # ---------------------------------------------------------------------------
   # Throttled run drain on completion
   # ---------------------------------------------------------------------------
@@ -492,6 +473,42 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
     event = HeartbeatEvent.last
     assert_equal creator, event.role
     assert_equal "task_assigned", event.trigger_type
+  end
+
+  test "does not escalate when failing role is the task creator" do
+    self_task = Task.create!(
+      title: "Self-created task",
+      company: @company,
+      creator: @role,
+      assignee: @role,
+      status: :in_progress
+    )
+    run = RoleRun.create!(
+      role: @role, task: self_task, company: @company,
+      status: :queued, trigger_type: "task_assigned"
+    )
+
+    assert_no_difference "HeartbeatEvent.count" do
+      ExecuteRoleJob.perform_now(run.id)
+    end
+
+    # The failure comment is still posted — we want the record on the task.
+    assert run.reload.failed?
+    assert_match(/session ended without completing work/i, self_task.messages.last.body)
+  end
+
+  test "does not escalate when task is already terminal" do
+    done_task = tasks(:completed_task)
+    run = RoleRun.create!(
+      role: @role, task: done_task, company: @company,
+      status: :queued, trigger_type: "task_assigned"
+    )
+
+    assert_no_difference "HeartbeatEvent.count" do
+      ExecuteRoleJob.perform_now(run.id)
+    end
+
+    assert run.reload.failed?
   end
 
   test "dispatches next throttled run after failure" do

@@ -1,26 +1,33 @@
 key: communication
 name: Communication
-description: Communicate clearly, professionally, and effectively across written, verbal, and asynchronous formats
+description: Write clear agent-to-agent messages, task descriptions, and status updates that can be acted on without follow-up
 category: operations
 markdown: |
   # Communication
 
   ## Purpose
-  Convey information, ideas, and needs clearly and in a way that the recipient can understand and act on. This skill enables an agent to adapt communication style to context, audience, and urgency — from a quick Slack message to a formal written proposal — while maintaining professionalism and clarity in every exchange.
+  Produce messages, task descriptions, and status updates that the recipient agent can act on without a round-trip. Every message should make it obvious who needs to do what, by when, and with what information. Inside Director, communication almost always means a message posted on a task or a task description handed to a reportee.
 
-  ## Instructions
-  1. Identify the audience and their context: what do they already know, what do they need to know, and what will they do with this information?
-  2. Choose the right format and channel: synchronous (call, meeting) for complex, nuanced topics; asynchronous (written message, memo) for structured updates and decisions
-  3. Lead with the most important point; provide supporting context afterward for those who need it
-  4. Use concrete, specific language: avoid vague terms ("soon," "probably," "some issues") in favor of precise ones ("by Friday," "70% confident," "three blocking issues")
-  5. When delivering difficult news or feedback, state the situation clearly and factually before offering interpretation or solutions
-  6. Confirm understanding: ask for acknowledgment on critical communications; don't assume receipt implies comprehension
+  ## When to use
+  - Posting a response, question, or status update on a task via `add_message`
+  - Writing the description for a new task you are about to delegate via `create_task`
+  - Summarizing work done or a decision made for your manager or reportees
+  - Any time you must convey information another agent will rely on
+
+  ## Approach
+  1. Identify the single recipient and the single thing you need them to know or do — one message, one purpose
+  2. Lead with the conclusion or the ask, not the reasoning; put background below the fold
+  3. Use concrete language: exact names, exact numbers, exact file paths. Replace "soon", "probably", "some issues" with "by end of day", "70% confident", "3 blocking issues"
+  4. If you are asking for work, state the deliverable and the acceptance criteria. If you are answering a question, state the answer before the justification
+  5. Re-read the message as the recipient: do they have everything they need, or will they have to ask you something? If so, add it
+  6. Keep it short. Long messages are reliably skimmed; short messages are reliably read
 
   ## Guidelines
-  - Match the tone to the context: brief and informal for quick updates, thorough and considered for decisions and escalations
-  - Written communication should be re-readable — assume the recipient will forward it to someone who wasn't in the original conversation
-  - Avoid information overload; send the level of detail the audience needs, not everything you know
-  - When in doubt about tone or content, read it back as if receiving it for the first time
+  - Every task you delegate is a communication artifact — write the description with the same care as a message
+  - Never send a message whose only content is acknowledgement ("ok", "got it") unless required by a protocol
+  - When delivering bad news, state the fact first, the cause second, the recovery plan third
+  - If you have a question, ask only one; batching questions delays the entire exchange
+  - Avoid hedging language when you are confident; avoid false precision when you are not
 
-  ## Output Format
-  Communication artifact appropriate to the format: message, memo, or email with a clear subject/title, audience-appropriate length and detail level, explicit action items (who, what, by when) when applicable, and appropriate tone for the relationship and context.
+  ## Deliverable
+  A single message posted via `add_message` (or a task description passed to `create_task`) with: a direct opening line stating the purpose, any required context in 2–4 sentences, concrete action items or answers, and — if you need a response — an explicit question.

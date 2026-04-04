@@ -54,6 +54,20 @@ class Task < ApplicationRecord
     cost_cents / 100.0
   end
 
+  def terminal?
+    completed? || cancelled?
+  end
+
+  # Post a comment from an automated source (role agent, watchdog, etc).
+  # Swallows validation failures so notification bugs never prevent the
+  # caller from completing its primary side effect.
+  def post_system_comment(author:, body:)
+    messages.create!(author: author, message_type: :comment, body: body)
+  rescue ActiveRecord::RecordInvalid => e
+    Rails.logger.warn("[Task##{id}] could not post system comment: #{e.message}")
+    nil
+  end
+
   def recalculate_completion!
     total, done = subtasks.pick(
       Arel.sql("COUNT(*)"),

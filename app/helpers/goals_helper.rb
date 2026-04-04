@@ -1,8 +1,6 @@
 module GoalsHelper
-  def options_for_goal_select(exclude: nil)
-    goals = Current.company.goals.roots.ordered
-    excluded_ids = exclude ? Set.new([ exclude.id ] + exclude.descendant_ids) : Set.new
-    build_goal_options(goals, excluded_ids, 0)
+  def options_for_goal_select
+    Current.company.goals.ordered.pluck(:title, :id)
   end
 
   def eval_pass_rate(pass_count, total)
@@ -18,18 +16,5 @@ module GoalsHelper
     when 90..100 then "progress-bar--high"
     else "progress-bar--empty"
     end
-  end
-
-  private
-
-  def build_goal_options(goals, excluded_ids, depth)
-    options = []
-    goals.each do |g|
-      next if excluded_ids.include?(g.id)
-      prefix = "\u00A0\u00A0" * depth
-      options << [ "#{prefix}#{g.title}", g.id ]
-      options.concat(build_goal_options(g.children.ordered, excluded_ids, depth + 1))
-    end
-    options
   end
 end

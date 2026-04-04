@@ -1,26 +1,31 @@
 key: documentation
 name: Documentation
-description: Write clear, accurate technical documentation that helps users and engineers understand and use the system
+description: Produce accurate, audience-targeted technical documentation that stays useful after you close the task
 category: technical
 markdown: |
   # Documentation
 
   ## Purpose
-  Produce documentation that reduces the time it takes for engineers, operators, and end users to understand, use, and contribute to a system. This skill enables an agent to identify documentation gaps, write clearly for the intended audience, and maintain docs as a living resource that stays in sync with the code.
+  Reduce the time it takes for the next agent to understand, use, or extend a system. Good documentation is written for a specific audience with a specific goal — not as an exhaustive reference nobody reads.
 
-  ## Instructions
-  1. Identify the audience and their goal: are they learning the system, troubleshooting an issue, or contributing code?
-  2. Determine the right documentation type: API reference, architectural decision record (ADR), runbook, tutorial, or README
-  3. Outline the structure before writing: what must be covered and in what order does it make sense?
-  4. Write in plain language at the appropriate level of detail — avoid jargon unless the audience is expert
-  5. Include working examples for every non-trivial concept; examples reduce support load more than explanations alone
-  6. Review for accuracy by testing the documented procedures; update docs whenever related code changes
+  ## When to use
+  - A task asks you to document a feature, API, runbook, or architecture decision
+  - You are finishing implementation and the next agent will need context to maintain it
+  - An existing doc has drifted from reality and a reader would now be misled
+
+  ## Approach
+  1. Identify the audience and their goal: learning the system, troubleshooting, contributing code, or running operations? Match the doc type accordingly (tutorial, runbook, API reference, ADR)
+  2. Outline the structure before writing. What must be covered, and in what order? If the outline does not make sense, the prose will not either
+  3. Write in plain language at the right level of detail. Avoid jargon unless the audience is expert in it
+  4. Include a working example for every non-trivial concept. Examples reduce support load more than explanations
+  5. Document the "why" as well as the "how". Context outlasts mechanics
+  6. Test the documentation by executing every procedure exactly as written. If a step does not work, fix the docs or the code
 
   ## Guidelines
-  - Treat documentation as a first-class deliverable, not an afterthought
-  - Write for the engineer who will maintain this in 18 months, not for yourself today
-  - Keep docs close to the code they describe — proximity reduces the chance of them drifting out of sync
-  - Document the "why" and design decisions, not just the "how" — context survives better than mechanics
+  - Treat docs as a first-class deliverable, not an afterthought
+  - Write for the agent who will maintain this in eighteen months, not for yourself today
+  - Keep docs close to the code they describe. Proximity reduces drift
+  - A doc with no "last verified" date will rot silently. Include one
 
-  ## Output Format
-  Documentation artifact appropriate to the type (README, runbook, API docs, or ADR) with a clear title, audience statement, prerequisites, main content with examples, and a "last verified" date to signal freshness.
+  ## Deliverable
+  A documentation artifact (README, runbook, ADR, or API reference) committed in the correct location, plus a message via `add_message` linking it and summarizing what was added or updated.

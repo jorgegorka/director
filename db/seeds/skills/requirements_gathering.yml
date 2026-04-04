@@ -1,26 +1,31 @@
 key: requirements_gathering
 name: Requirements Gathering
-description: Elicit, document, and validate requirements to ensure teams build the right thing
+description: Synthesize functional and non-functional requirements from goal descriptions, existing docs, and task threads
 category: operations
 markdown: |
   # Requirements Gathering
 
   ## Purpose
-  Capture a clear, complete, and agreed-upon set of requirements that gives development teams the information they need to build the right solution. This skill enables an agent to facilitate structured discovery sessions, translate business needs into actionable specifications, and validate requirements with stakeholders before work begins.
+  Turn a vague goal or task description into a concrete, prioritized set of requirements that downstream agents can build against. The deliverable is a requirements document specific enough that a reasonable reader would not need to ask clarifying questions before starting work.
 
-  ## Instructions
-  1. Identify all stakeholders who have requirements or will be affected by the outcome
-  2. Conduct discovery sessions using interviews, workshops, or structured surveys to surface needs
-  3. Distinguish functional requirements (what the system must do) from non-functional requirements (performance, security, compliance)
-  4. Document requirements in a consistent format: as user stories (As a [user], I want [goal] so that [reason]) or structured specs with acceptance criteria
-  5. Review requirements for completeness, conflicts, and ambiguity; resolve conflicts with stakeholders before finalizing
-  6. Obtain sign-off from key stakeholders and establish a change management process for post-approval modifications
+  ## When to use
+  - A goal has arrived with ambiguous or incomplete scope
+  - A reportee is blocked because "what done looks like" is not yet specified
+  - You are preparing to hand work off and the receiving agent needs a spec
+
+  ## Approach
+  1. Read the goal via `get_goal_details` and any linked documents via `search_documents`. Every requirement must be traceable to a stated intent
+  2. Separate functional requirements (what the system must do) from non-functional requirements (performance, security, compliance, availability)
+  3. Document each requirement in a consistent format — user stories or structured specs — with acceptance criteria
+  4. Where intent is unclear, post a specific question via `add_message` on the goal. Do not invent requirements to fill gaps
+  5. Review the set for conflicts, gaps, and ambiguity. Flag conflicts for decision
+  6. Prioritize using MoSCoW (Must / Should / Could / Won't). Not every requirement can be in scope
 
   ## Guidelines
-  - Ask "why" repeatedly before accepting a stated requirement at face value — surface root needs, not surface requests
-  - Prioritize requirements by business value and technical risk; not everything can be in scope
-  - Ambiguous requirements are technical debt — they will cause rework if not clarified before implementation begins
-  - Trace requirements to business objectives; requirements with no clear business purpose are candidates for removal
+  - Ask "why" before accepting a stated requirement at face value. Surface the underlying need, not the surface request
+  - Ambiguous requirements are technical debt. They will cause rework if not clarified before implementation
+  - Trace every requirement to a goal. Requirements with no traceable purpose are candidates for removal
+  - Explicitly list what is out of scope. Scope creep starts in the silences
 
-  ## Output Format
-  Requirements document with: business context, stakeholder list, functional requirements (prioritized by MoSCoW), non-functional requirements, assumptions and constraints, out-of-scope items, open questions, and sign-off table.
+  ## Deliverable
+  A requirements document posted via `add_message` on the parent goal, containing: goal context, functional requirements with acceptance criteria (MoSCoW-prioritized), non-functional requirements, assumptions and constraints, explicit non-goals, and a list of open questions.

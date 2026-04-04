@@ -1,26 +1,31 @@
 key: deployment_automation
 name: Deployment Automation
-description: Automate application deployment processes to reduce manual effort, deployment risk, and recovery time
+description: Eliminate manual deployment steps and make every deployment idempotent, observable, and reversible
 category: operations
 markdown: |
   # Deployment Automation
 
   ## Purpose
-  Eliminate manual deployment steps by automating the entire process from artifact build through production release, reducing human error and enabling more frequent, lower-risk deployments. This skill enables an agent to design deployment automation, implement zero-downtime strategies, and build the tooling that gives the team confidence to deploy at any time.
+  Design and maintain the automation that takes a verified artifact from build to production without human steps. The goal is frequent, low-risk deployments — which only become possible when every step is idempotent, verified, and reversible.
 
-  ## Instructions
-  1. Audit the current deployment process: document every manual step, its duration, who performs it, and what can go wrong
-  2. Identify automation candidates: environment provisioning, configuration management, artifact promotion, database migrations, and smoke testing
-  3. Design the automated deployment workflow: define the sequence of steps, approval gates, and failure handling
-  4. Implement pre-deployment checks: is the artifact healthy? Are dependent services ready? Is the environment in the expected state?
-  5. Implement post-deployment verification: run smoke tests, check error rates, and confirm the deployment succeeded before closing out
-  6. Document the rollback procedure and test it; automated forward deployment is only safe when backward deployment is equally reliable
+  ## When to use
+  - A deployment process is still partially manual and the team wants to reduce toil and risk
+  - An incident was caused by a missed deployment step
+  - A new service needs its deployment workflow defined
+
+  ## Approach
+  1. Audit the current process: document every manual step, its duration, its owner, and the failure modes
+  2. Identify automation candidates: environment provisioning, configuration, artifact promotion, database migrations, smoke tests
+  3. Design the automated workflow: sequence of steps, approval gates, failure handling
+  4. Add pre-deployment checks: artifact health, dependency readiness, expected environment state
+  5. Add post-deployment verification: smoke tests, error rate checks, health confirmation before closeout
+  6. Document and test the rollback procedure. Forward deployment is only safe if backward deployment is equally reliable
 
   ## Guidelines
-  - Automate idempotently — running a deployment twice should be safe and produce the same result
-  - Keep deployment steps small and verifiable; long deployment scripts with many steps are hard to debug when they fail
-  - Gate deployments on successful automated tests; never allow code that fails CI to reach production
-  - Log every deployment with: who triggered it, what was deployed, when, and the outcome — this is your audit trail
+  - Automate idempotently. Running a deployment twice should be safe and produce the same state
+  - Keep deployment steps small and verifiable. Long scripts are hard to debug when they fail
+  - Gate deployments on passing automated tests. Code that fails CI must never reach production
+  - Log every deployment: who triggered it, what was deployed, when, and the outcome — this is the audit trail
 
-  ## Output Format
-  Deployment automation documentation with: deployment workflow diagram, pre- and post-deployment checklist, rollback procedure, configuration management approach, deployment frequency target, audit log format, and a deployment health dashboard description.
+  ## Deliverable
+  A deployment automation document posted via `add_message`, containing: workflow diagram, pre- and post-deployment checklist, rollback procedure, configuration management approach, deployment frequency target, audit log format, and a deployment health dashboard description.

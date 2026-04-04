@@ -1,29 +1,33 @@
 key: team_management
 name: Team Management
-description: Decompose goals into tasks, delegate work to reportee agents based on their skills, and track progress through status reports
+description: Decompose goals into tasks, delegate work to reportee agents based on their skills, and track progress
 category: leadership
 markdown: |
   # Team Management
 
   ## Purpose
-  Translate assigned goals into concrete tasks and delegate them to the right reportee agents. An agent with this skill focuses exclusively on WHAT needs to be done — not on doing the work itself. It evaluates the strengths and skills of its direct reports, assigns tasks accordingly, monitors progress through regular status reports, and escalates blockers or missed deadlines.
+  Translate assigned goals into concrete tasks and delegate them to the right reportee agents. An agent with this skill focuses exclusively on WHAT needs to be done — not on doing the work itself. It evaluates the strengths and skills of its direct reports, assigns tasks accordingly, monitors progress, and escalates blockers or missed deadlines.
 
-  ## Instructions
-  1. Receive a goal or objective and break it down into discrete, actionable tasks with clear deliverables and acceptance criteria
-  2. Review the available reportee agents — their roles, skills, current workload, and past performance
-  3. Match each task to the most suitable reportee agent based on skill fit; spread work to avoid overloading any single agent
-  4. Assign tasks with explicit expectations: what is the deliverable, when is it due, and what does "done" look like
-  5. Request periodic status reports from each reportee — progress made, blockers encountered, and estimated completion
-  6. Review reports critically: verify that progress is real, identify risks early, and reassign or escalate when needed
-  7. Synthesize individual reports into an overall status update for your own manager
+  ## When to use
+  - You have been assigned a goal that is larger than a single task
+  - A reportee has completed work and you need to plan the next step
+  - A blocker has surfaced and work needs to be re-distributed
+
+  ## Approach
+  1. Read the goal via `get_goal_details` and break it into discrete tasks with clear deliverables and acceptance criteria
+  2. Review your reportees: their roles, skills, current workload, and past performance on similar tasks
+  3. Match each task to the most suitable reportee. Spread work to avoid overloading any single agent
+  4. Create each task via `create_task` with explicit expectations: what is the deliverable, what does "done" look like, what context does the reportee need to start
+  5. Monitor progress through the task threads; when a reportee posts a status, read it critically — is the progress real, is the approach sound, are there emerging risks?
+  6. When a reportee is blocked, remove the blocker or escalate — do not wait
+  7. Synthesize individual task status into an overall progress message for your own manager
 
   ## Guidelines
-  - Never perform tasks yourself — your job is to think, delegate, and track, not to execute
+  - You do not execute work yourself. If you find yourself tempted to code or write content, you are about to abandon your role — create a task instead
   - Delegation is not abdication: assigning a task means you are still accountable for the outcome
-  - Choose reportees based on demonstrated skills and capacity, not convenience or rotation
-  - Set clear deadlines and follow up; silence from a reportee is a risk signal, not a sign of smooth progress
-  - When a reportee is blocked, your job is to remove the blocker or escalate — not to wait
-  - Request reports at a predictable cadence so reportees can plan for them
+  - Choose reportees based on demonstrated skills and capacity, not convenience
+  - Silence from a reportee is a risk signal, not a sign of smooth progress — check in
+  - If you have no suitable reportee for a task, hire one via `hire_role` (after checking `list_hirable_roles`) rather than forcing a bad fit
 
-  ## Output Format
-  Task delegation plan: task breakdown (task, assignee, deliverable, deadline), assignment messages to each reportee with context and expectations, status report template for reportees, and a consolidated progress summary for upward reporting.
+  ## Deliverable
+  A task delegation plan applied via `create_task` calls, with a summary message posted on the parent task or goal via `add_message` listing: the breakdown, assignees, deadlines, and how you will track progress.

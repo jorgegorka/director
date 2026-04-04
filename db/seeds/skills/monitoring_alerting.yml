@@ -1,26 +1,31 @@
 key: monitoring_alerting
 name: Monitoring & Alerting
-description: Instrument systems and configure alerts to detect and respond to production issues before users are impacted
+description: Instrument systems and configure actionable alerts so production issues are detected before users are affected
 category: operations
 markdown: |
   # Monitoring & Alerting
 
   ## Purpose
-  Ensure that production systems are observable and that on-call engineers are notified of issues at the earliest possible moment. This skill enables an agent to instrument applications with the right metrics, configure meaningful alert thresholds, and build dashboards that make system health immediately visible.
+  Decide what to measure, what to alert on, and at what threshold — so that production problems are detected early and the agents on call receive signal rather than noise. Every alert should be actionable; every metric should tie to a user-visible outcome.
 
-  ## Instructions
-  1. Define the golden signals for each service: latency (p50/p95/p99), traffic (requests/sec), error rate, and saturation (resource utilization)
-  2. Instrument the application to emit these signals: structured logs, metrics, distributed traces, and health check endpoints
-  3. Configure alerting rules based on symptoms (user-facing impact), not just causes (CPU high); each alert should be actionable
-  4. Set alert thresholds based on historical data and SLA requirements; avoid alert fatigue by tuning aggressively
-  5. Build dashboards that provide an at-a-glance system health view and enable drill-down during incidents
-  6. Test alerts regularly — an alert that fires when expected and pages appropriately is the only reliable kind
+  ## When to use
+  - A new service is going to production and needs observability
+  - An incident revealed that a failure was not detected in time
+  - Alert fatigue is degrading response quality and the alert set needs pruning
+
+  ## Approach
+  1. Define the golden signals for each service: latency (p50/p95/p99), traffic, error rate, saturation
+  2. Instrument the application to emit these signals: structured logs, metrics, distributed traces, health checks
+  3. Configure alerts on symptoms (user-facing impact) before causes (CPU high). Each alert must be actionable
+  4. Set thresholds based on historical data and SLAs. Tune aggressively to avoid alert fatigue
+  5. Build dashboards that give an at-a-glance health view and allow drill-down during incidents
+  6. Test alerts regularly. An alert you have never seen fire is an alert you cannot trust
 
   ## Guidelines
-  - Alert on symptoms first (error rate high, latency degraded) — cause-based alerts flood on-call before users notice
-  - Every alert should have a linked runbook explaining what it means and how to respond
-  - Reduce alert noise mercilessly; if an alert doesn't require immediate action, it should be a dashboard metric, not a page
-  - Review alert history weekly: which alerts fired unnecessarily? Which failures weren't caught?
+  - Alert on symptoms first. Cause-based alerts fire before users notice and produce noise
+  - Every alert must have a linked runbook explaining what it means and how to respond
+  - If an alert does not require immediate action, it should be a dashboard metric, not a page
+  - Review alert history on a regular cadence: which fired unnecessarily, which failures were missed?
 
-  ## Output Format
-  Monitoring and alerting plan with: golden signals definition per service, instrumentation checklist, alert inventory (signal, threshold, severity, runbook link), dashboard description, on-call rotation and escalation policy, and a quarterly alert review cadence.
+  ## Deliverable
+  A monitoring and alerting plan posted via `add_message`, containing: golden signals per service, instrumentation checklist, alert inventory (signal, threshold, severity, runbook), dashboard description, escalation policy, and review cadence.

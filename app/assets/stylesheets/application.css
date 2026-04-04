@@ -2736,25 +2736,13 @@
     color: var(--text-muted);
   }
 
-  .goal-tree {
+  .goal-list {
     display: flex;
     flex-direction: column;
     gap: var(--space-4);
   }
 
-  .goal-tree__node {
-    padding-inline-start: calc(var(--depth, 0) * var(--space-8));
-  }
-
-  .goal-tree__node--parent > .goal-tree__content {
-    border-inline-start: 3px solid var(--color-brand-400);
-  }
-
-  .goal-tree__node--child > .goal-tree__content {
-    border-inline-start: 2px solid var(--color-neutral-200);
-  }
-
-  .goal-tree__content {
+  .goal-list__item {
     background: var(--bg-surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
@@ -2762,31 +2750,17 @@
     transition: box-shadow var(--transition-fast);
   }
 
-  .goal-tree__content:hover {
+  .goal-list__item:hover {
     box-shadow: 0 2px 8px -2px oklch(from var(--text-base) l c h / 0.06);
   }
 
-  .goal-tree__info {
+  .goal-list__info {
     display: flex;
     align-items: center;
     gap: var(--space-2);
   }
 
-  .goal-tree__label {
-    font-size: var(--font-size-xs, 0.75rem);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    padding: 2px var(--space-1);
-    border-radius: var(--radius-sm);
-  }
-
-  .goal-tree__label--mission {
-    background: var(--color-brand-50);
-    color: var(--color-brand-600);
-  }
-
-  .goal-tree__title {
+  .goal-list__title {
     font-weight: 600;
     color: var(--text-base);
     text-decoration: none;
@@ -2794,12 +2768,12 @@
     min-inline-size: 0;
   }
 
-  .goal-tree__title:hover {
+  .goal-list__title:hover {
     color: var(--color-brand-500);
     text-decoration: none;
   }
 
-  .goal-tree__progress-inline {
+  .goal-list__progress-inline {
     display: flex;
     align-items: center;
     gap: var(--space-2);
@@ -2807,7 +2781,7 @@
     min-inline-size: 120px;
   }
 
-  .goal-tree__percentage {
+  .goal-list__percentage {
     font-size: var(--font-size-sm);
     font-weight: 600;
     color: var(--text-subtle);
@@ -2816,20 +2790,13 @@
     text-align: end;
   }
 
-  .goal-tree__bar {
+  .goal-list__bar {
     flex: 1;
     min-inline-size: 60px;
   }
 
-  .goal-tree__bar .progress-bar {
+  .goal-list__bar .progress-bar {
     block-size: 4px;
-  }
-
-  .goal-tree__children {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-    margin-block-start: var(--space-4);
   }
 
   /* --- Progress bar --- */

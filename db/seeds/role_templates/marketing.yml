@@ -103,9 +103,7 @@ roles:
     skill_keys:
       - market_analysis
       - content_strategy
-      - brand_management
       - campaign_planning
-      - audience_research
 
   - title: "Marketing Planner"
     description: "Evaluates the current state of marketing performance and prepares actionable plans for the CMO to review and prioritise."
@@ -244,7 +242,6 @@ roles:
     skill_keys:
       - team_management
       - project_planning
-      - sprint_management
       - progress_reporting
 
   - title: "LinkedIn Specialist"
@@ -278,7 +275,7 @@ roles:
     skill_keys:
       - content_strategy
       - communication
-      - audience_research
+      - market_analysis
 
   - title: "Blog Content Specialist"
     description: "Writes blog articles that educate the audience, build domain authority, and drive organic traffic."
@@ -311,7 +308,7 @@ roles:
     skill_keys:
       - content_strategy
       - communication
-      - audience_research
+      - market_analysis
 
   - title: "Page Specialist"
     description: "Creates and improves marketing landing pages that convert visitors into leads and customers."
@@ -343,7 +340,7 @@ roles:
     skill_keys:
       - content_strategy
       - communication
-      - audience_research
+      - market_analysis
 
   - title: "Email Specialist"
     description: "Creates and improves marketing email communications that engage subscribers and drive action."
@@ -376,4 +373,4 @@ roles:
     skill_keys:
       - content_strategy
       - communication
-      - audience_research
+      - market_analysis

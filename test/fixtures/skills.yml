@@ -107,24 +107,6 @@ acme_security_assessment:
   category: technical
   builtin: true
 
-acme_task_workflow:
-  company: acme
-  key: task_workflow
-  name: Task Workflow
-  description: "Universal task lifecycle"
-  markdown: "# Task Workflow\n\n## Instructions\n1. Do the work\n2. Post results via add_message\n3. Submit for review"
-  category: operations
-  builtin: true
-
-acme_task_review:
-  company: acme
-  key: task_review
-  name: Task Review
-  description: "Review submitted tasks"
-  markdown: "# Task Review\n\n## Instructions\n1. Read task details\n2. Compare against success metrics\n3. Approve or reject"
-  category: operations
-  builtin: true
-
 # Widgets company skill (same key as acme to test cross-company uniqueness)
 widgets_strategic_planning:
   company: widgets

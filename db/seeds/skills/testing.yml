@@ -1,26 +1,31 @@
 key: testing
 name: Testing
-description: Write and maintain automated tests that verify correctness and prevent regressions
+description: Write small, fast, reliable automated tests that verify behavior and catch regressions
 category: technical
 markdown: |
   # Testing
 
   ## Purpose
-  Build a comprehensive automated test suite that gives engineers confidence to change and ship code quickly. This skill enables an agent to design tests at the appropriate level (unit, integration, or end-to-end), write tests that are fast, reliable, and readable, and maintain test quality as the codebase evolves.
+  Build an automated test suite that lets agents change and ship code with confidence. Each test should verify one specific behavior, run fast, and fail clearly when the behavior is broken.
 
-  ## Instructions
-  1. Identify what needs testing: new functionality, bug fixes, and untested critical paths in existing code
-  2. Choose the appropriate test level: unit tests for isolated logic, integration tests for component interactions, E2E tests for critical user flows
-  3. Write tests that are small, focused, and independent — each test should verify one behavior and not depend on the order of execution
-  4. Use test doubles (mocks, stubs, fakes) to isolate the unit under test from external dependencies
-  5. Assert outcomes clearly: verify not just that code runs without error but that it produces the correct result
-  6. Keep tests maintainable: use descriptive names, shared fixtures where appropriate, and refactor test code with the same care as production code
+  ## When to use
+  - A task adds new functionality that needs coverage
+  - You fixed a bug and need to lock in the fix with a regression test
+  - A critical path is untested and you are asked to fill the gap
+
+  ## Approach
+  1. Identify what needs testing: new behavior, bug fixes, or untested critical paths in existing code
+  2. Choose the right level: unit tests for isolated logic, integration tests for component interactions, end-to-end tests only for genuinely critical user flows
+  3. Write each test small, focused, and independent. One behavior per test; no ordering dependencies between tests
+  4. Use test doubles (fakes, stubs, mocks) to isolate the unit under test from slow or unstable dependencies — but prefer real collaborators when they are fast and stable
+  5. Assert the actual outcome, not just that the code ran. A test that only checks "no exception" rarely catches bugs
+  6. Name each test so the name alone explains what behavior it verifies
 
   ## Guidelines
-  - Tests are documentation — a well-named test explains the expected behavior to future readers
-  - A failing test is always better than no test; fix flaky tests immediately, don't suppress them
-  - Test edge cases: empty inputs, nil values, boundary conditions, and concurrency scenarios
-  - Aim for fast test suites — slow tests discourage running them frequently
+  - Tests are documentation. A well-named test teaches the next agent how the code is meant to behave
+  - Fix flaky tests immediately. A test that sometimes passes gives false confidence and will be ignored
+  - Test edge cases explicitly: empty inputs, nil, boundaries, concurrency
+  - Slow tests do not get run. Keep the suite fast or split it into tiers
 
-  ## Output Format
-  Test artifacts: test file(s) with descriptive test names, coverage report summary noting any gaps, and a brief explanation of testing strategy for the feature (what is and isn't tested and why).
+  ## Deliverable
+  Test files committed with descriptive test names, plus a short message via `add_message` noting what is covered, what is intentionally not covered, and any coverage gaps worth a follow-up task.

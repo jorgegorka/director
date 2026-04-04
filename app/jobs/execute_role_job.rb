@@ -34,12 +34,13 @@ class ExecuteRoleJob < ApplicationJob
   # explicitly so unimplemented adapters fail gracefully.
   rescue StandardError, NotImplementedError => e
     if role_run && !role_run.terminal?
-      role_run.mark_failed!(error_message: e.message, exit_code: 1)
-      notify_task_of_failure(role_run, e.message)
+      role_run.fail_and_release!(error_message: e.message, exit_code: 1)
+      role_run.task&.post_system_comment(
+        author: role_run.role,
+        body: "My session ended without completing work. Reason: #{e.message}"
+      )
       escalate_to_manager(role_run, e.message)
     end
-    role&.update!(status: :idle) if role&.running?
-    role_run&.role&.company&.dispatch_next_throttled_run!
   end
 
   private
@@ -78,7 +79,6 @@ class ExecuteRoleJob < ApplicationJob
     session_id = task ? role.latest_session_id_for(task) : role.latest_session_id
     ctx[:resume_session_id] = session_id if session_id.present?
 
-    role.ensure_base_skills!
     skills = role.skills.to_a
     ctx[:skills] = serialize_skills(skills)
     ctx
@@ -96,22 +96,12 @@ class ExecuteRoleJob < ApplicationJob
     end
   end
 
-  def notify_task_of_failure(role_run, reason)
-    task = role_run.task
-    return unless task
-
-    Message.create!(
-      task: task,
-      author: role_run.role,
-      message_type: :comment,
-      body: "My session ended without completing work. Reason: #{reason}"
-    )
-  end
-
   def escalate_to_manager(role_run, reason)
     task = role_run.task
     return unless task&.creator
     return if task.creator.terminated?
+    return if task.creator_id == role_run.role_id # avoid self-escalation loops
+    return if task.terminal?
 
     trigger_role_wake(
       role: task.creator,

@@ -3,8 +3,7 @@ class GoalsController < ApplicationController
   before_action :set_goal, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    @goals = Current.company.goals.roots.ordered
-               .includes(children: { children: :children })  # 3 levels eager loaded
+    @goals = Current.company.goals.ordered
   end
 
   def show
@@ -12,7 +11,7 @@ class GoalsController < ApplicationController
   end
 
   def new
-    @goal = Current.company.goals.new(parent_id: params[:parent_id])
+    @goal = Current.company.goals.new
   end
 
   def create
@@ -49,6 +48,6 @@ class GoalsController < ApplicationController
   end
 
   def goal_params
-    params.require(:goal).permit(:title, :description, :parent_id, :position, :role_id)
+    params.require(:goal).permit(:title, :description, :position, :role_id)
   end
 end

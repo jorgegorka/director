@@ -1,6 +1,6 @@
-<% content_for(:title, @goal.parent_id? ? "New Objective" : "New Mission") %>
+<% content_for(:title, "New Goal") %>
 
 <section class="form-page">
-  <h1><%= @goal.parent_id? ? "New Objective" : "New Mission" %></h1>
+  <h1>New Goal</h1>
   <%= render "form", goal: @goal %>
 </section>

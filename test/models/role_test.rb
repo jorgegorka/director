@@ -603,23 +603,16 @@ class RoleTest < ActiveSupport::TestCase
     assert_nil child.adapter_type
   end
 
-  # --- Default job_spec ---
-
-  test "sets default job_spec on create when blank" do
-    role = Role.create!(title: "New Agent", company: @company, role_category: role_categories(:worker))
-    assert_includes role.job_spec, "task_workflow"
-    assert_includes role.job_spec, "task_review"
-  end
+  # --- job_spec ---
 
   test "preserves explicit job_spec on create" do
     role = Role.create!(title: "Custom Agent", company: @company, role_category: role_categories(:worker), job_spec: "Delegate all tasks to direct reports.")
     assert_equal "Delegate all tasks to direct reports.", role.job_spec
   end
 
-  test "does not overwrite job_spec on update" do
-    role = Role.create!(title: "Agent X", company: @company, role_category: role_categories(:worker), job_spec: "Custom instructions.")
-    role.update!(job_spec: "")
-    assert_equal "", role.job_spec
+  test "allows blank job_spec" do
+    role = Role.create!(title: "New Agent", company: @company, role_category: role_categories(:worker))
+    assert role.job_spec.blank?
   end
 
   # --- by_category scope ---
@@ -697,8 +690,8 @@ class RoleTest < ActiveSupport::TestCase
 
     @ceo.reload
     skill_keys = @ceo.skills.pluck(:key).sort
-    expected_keys = %w[decision_making risk_assessment strategic_planning task_review task_workflow]
-    assert_equal expected_keys, skill_keys, "Role should have all CEO default skills including base skills"
+    expected_keys = %w[decision_making risk_assessment strategic_planning]
+    assert_equal expected_keys, skill_keys, "Role should have all CEO default skills"
   end
 
   test "first agent configuration does not duplicate existing skills" do
@@ -718,79 +711,25 @@ class RoleTest < ActiveSupport::TestCase
     assert_equal 1, sp_count, "strategic_planning should not be duplicated"
   end
 
-  test "unknown role title assigns only base skills" do
+  test "unknown role title assigns no skills" do
     role = Role.create!(title: "Chief Happiness Officer", company: @company, role_category: role_categories(:worker))
 
-    assert_difference("RoleSkill.count", 2) do
+    assert_no_difference("RoleSkill.count") do
       role.update!(adapter_type: :http, adapter_config: { "url" => "https://example.com" })
     end
 
-    skill_keys = role.skills.pluck(:key).sort
-    assert_equal %w[task_review task_workflow], skill_keys
+    assert_equal [], role.skills.pluck(:key)
   end
 
-  test "default_skill_keys_for returns base skills for unknown title" do
-    keys = Role.default_skill_keys_for("Nonexistent Role")
-    assert_includes keys, "task_workflow"
-    assert_includes keys, "task_review"
+  test "default_skill_keys_for returns empty for unknown title" do
+    assert_equal [], Role.default_skill_keys_for("Nonexistent Role")
   end
 
-  test "default_skill_keys_for is case-insensitive and includes base skills" do
+  test "default_skill_keys_for is case-insensitive" do
     ceo_keys = Role.default_skill_keys_for("CEO")
     assert_includes ceo_keys, "strategic_planning"
-    assert_includes ceo_keys, "task_workflow"
 
     ceo_keys_lower = Role.default_skill_keys_for("ceo")
     assert_equal ceo_keys.sort, ceo_keys_lower.sort
-  end
-
-  # --- ensure_base_skills! ---
-
-  test "ensure_base_skills! adds missing base skills" do
-    role = roles(:developer)
-    role.role_skills.destroy_all
-    assert_equal 0, role.skills.count
-
-    role.ensure_base_skills!
-
-    skill_keys = role.skills.pluck(:key)
-    assert_includes skill_keys, "task_workflow"
-    assert_includes skill_keys, "task_review"
-  end
-
-  test "ensure_base_skills! is idempotent" do
-    role = roles(:developer)
-    role.role_skills.destroy_all
-
-    role.ensure_base_skills!
-    count_after_first = role.role_skills.count
-
-    role.ensure_base_skills!
-    count_after_second = role.role_skills.count
-
-    assert_equal count_after_first, count_after_second
-  end
-
-  test "ensure_base_skills! does not touch non-base skills" do
-    role = roles(:cto)
-    initial_keys = role.skills.pluck(:key).sort
-
-    role.ensure_base_skills!
-
-    updated_keys = role.skills.pluck(:key).sort
-    # Should only have added base skills, not removed anything
-    initial_keys.each do |key|
-      assert_includes updated_keys, key
-    end
-  end
-
-  test "ensure_base_skills! no-ops when company lacks skill records" do
-    role = roles(:developer)
-    role.role_skills.destroy_all
-    role.company.skills.where(key: %w[task_workflow task_review]).destroy_all
-
-    role.ensure_base_skills!
-
-    assert_equal 0, role.skills.count
   end
 end

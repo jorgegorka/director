@@ -1,26 +1,31 @@
 key: incident_response
 name: Incident Response
-description: Manage production incidents from detection through resolution and post-incident learning
+description: Coordinate an active production incident, restore service, and extract durable learnings from the post-mortem
 category: operations
 markdown: |
   # Incident Response
 
   ## Purpose
-  Minimize the impact of production incidents on users by ensuring fast detection, coordinated response, and clear communication — then systematically prevent recurrence through structured post-incident review. This skill enables an agent to lead or participate in incident response, maintain the team's incident process, and extract lasting improvements from every failure.
+  Drive an incident from detection to resolution with minimum user impact, then run a blameless post-mortem that produces concrete, owned follow-up work. The measure of this skill is not that incidents never happen, but that when they do, the response is fast, coordinated, and generates lasting improvements.
 
-  ## Instructions
-  1. Declare the incident: assign a severity level (SEV1: critical service down, SEV2: degraded service, SEV3: minor issue), identify an incident commander, and open a communication channel
-  2. Investigate rapidly using the golden signals: what is the error rate, latency, and which services are affected?
-  3. Prioritize mitigation over root cause analysis during the incident — restore service first, understand why second
-  4. Communicate status updates to stakeholders on a defined cadence (every 15–30 minutes for SEV1)
-  5. Document the timeline in real-time: what was observed, what was tried, what worked, and when
-  6. After resolution, conduct a blameless post-mortem within 48 hours; identify the root cause, contributing factors, and action items to prevent recurrence
+  ## When to use
+  - A production alert has fired or user-facing degradation has been detected
+  - A task has been escalated to you because a service is misbehaving
+  - You are running the post-incident review for a previously resolved outage
+
+  ## Approach
+  1. Declare the incident: assign a severity (SEV1 critical, SEV2 degraded, SEV3 minor), name the incident commander, open a dedicated task for tracking
+  2. Investigate using the golden signals: error rate, latency, which services are affected
+  3. Mitigate before diagnosing. Restore service first; understand the cause second
+  4. Communicate status to stakeholders on a defined cadence via `add_message` (every 15–30 minutes for SEV1)
+  5. Document the timeline in real time: what was observed, what was tried, what worked, and when
+  6. After resolution, run a blameless post-mortem within 48 hours: root cause, contributing factors, and owned action items
 
   ## Guidelines
-  - Focus relentlessly on user impact; fix what affects users most, not what is technically interesting
-  - Assign a separate person to stakeholder communication so the incident commander stays focused on resolution
-  - Post-mortems are blameless: systems and processes fail, not people; blame prevents honest disclosure
-  - Action items from post-mortems must have owners and deadlines; follow up in the next sprint
+  - Focus on user impact. Fix what affects users most, not what is technically interesting
+  - Separate communication from resolution. The incident commander should not also be writing stakeholder updates
+  - Post-mortems are blameless. Systems and processes fail, not agents; blame prevents honest disclosure
+  - Every action item must have an owner, a deadline, and a tracking task. Otherwise it will not happen
 
-  ## Output Format
-  Incident report with: severity, timeline of events, impact summary (users affected, duration, business impact), root cause analysis, contributing factors, immediate mitigations applied, and post-mortem action items (each with owner, deadline, and tracking ticket).
+  ## Deliverable
+  An incident report posted via `add_message` on the incident task, containing: severity, timeline, impact (users affected, duration, business impact), root cause, contributing factors, mitigations applied, and action items — each created as its own task via `create_task` with an owner and deadline.

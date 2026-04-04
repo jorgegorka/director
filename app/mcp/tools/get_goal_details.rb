@@ -21,14 +21,6 @@ module Tools
     def call(arguments)
       goal = company.goals.find(arguments["goal_id"])
 
-      ancestry = goal.ancestry_chain.map do |g|
-        { id: g.id, title: g.title }
-      end
-
-      children = goal.children.ordered.map do |child|
-        { id: child.id, title: child.title, completion_percentage: child.completion_percentage }
-      end
-
       tasks = goal.tasks.includes(:assignee, :creator).map do |task|
         { id: task.id, title: task.title, status: task.status, assignee_title: task.assignee&.title }
       end
@@ -39,9 +31,6 @@ module Tools
         description: goal.description,
         role_id: goal.role_id,
         completion_percentage: goal.completion_percentage,
-        is_mission: goal.mission?,
-        ancestry: ancestry,
-        children: children,
         tasks: tasks
       }
     end

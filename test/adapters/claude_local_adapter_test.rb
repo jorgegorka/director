@@ -22,6 +22,16 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     kill_calls  = @kill_calls  = []
     poll_count  = 0
 
+    # Save originals so teardown can restore them. Singleton methods share one
+    # slot, so `remove_method` after `define_singleton_method` would destroy
+    # `def self.X` — save/restore preserves it.
+    @original_adapter_methods = {}
+    %i[poll_sleep spawn_session pane_alive? session_exists? capture_pane kill_session].each do |m|
+      if ClaudeLocalAdapter.singleton_class.method_defined?(m, false)
+        @original_adapter_methods[m] = ClaudeLocalAdapter.singleton_class.instance_method(m)
+      end
+    end
+
     ClaudeLocalAdapter.define_singleton_method(:poll_sleep) { |_n| nil }
     ClaudeLocalAdapter.define_singleton_method(:spawn_session) do |cmd|
       spawn_calls << cmd
@@ -44,7 +54,9 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
   teardown do
     ENV.delete("ANTHROPIC_API_KEY")
     %i[poll_sleep spawn_session pane_alive? session_exists? capture_pane kill_session].each do |m|
-      if ClaudeLocalAdapter.singleton_class.method_defined?(m, false)
+      if (original = @original_adapter_methods[m])
+        ClaudeLocalAdapter.singleton_class.define_method(m, original)
+      elsif ClaudeLocalAdapter.singleton_class.method_defined?(m, false)
         ClaudeLocalAdapter.singleton_class.remove_method(m)
       end
     end
@@ -571,12 +583,10 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     assert File.directory?(dir)
   end
 
-  test "system prompt includes job_spec with skill references when present" do
-    @role.job_spec = Role::DEFAULT_JOB_SPEC
+  test "system prompt includes category job_spec" do
     prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @role, {})
 
-    assert_includes prompt, "task_workflow"
-    assert_includes prompt, "task_review"
+    assert_includes prompt, @role.role_category.job_spec
   end
 
   test "system prompt includes role_category job_spec after role job_spec" do
@@ -611,7 +621,6 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
 
     assert_includes prompt, "pending your review"
     assert_includes prompt, "Marketing Planner"
-    assert_includes prompt, "task_review skill"
     assert_not_includes prompt, "assigned"
   end
 
@@ -658,32 +667,24 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
   end
 
   test "stall detection raises ExecutionError after STALL_TIMEOUT with no new output" do
-    stall_clock = 0.0
-    ClaudeLocalAdapter.define_singleton_method(:poll_sleep) { |_n| stall_clock += ClaudeLocalAdapter::STALL_TIMEOUT + 1 }
+    with_fake_time do |advance|
+      ClaudeLocalAdapter.define_singleton_method(:poll_sleep) { |_n| advance.call(ClaudeLocalAdapter::STALL_TIMEOUT + 1) }
+      ClaudeLocalAdapter.define_singleton_method(:pane_alive?) { |_name| true }
+      ClaudeLocalAdapter.define_singleton_method(:capture_pane) { |_name| ASSISTANT_EVENT }
 
-    # Override clock to simulate time passing during stalls
-    original_clock = Process.method(:clock_gettime)
-    Process.define_singleton_method(:clock_gettime) { |*_args| stall_clock }
+      run = RoleRun.create!(
+        role: @role, task: @task, company: @company,
+        status: :queued, trigger_type: "task_assigned"
+      )
+      @context[:run_id] = run.id
 
-    # pane_alive? always true so we rely on stall detection to break
-    ClaudeLocalAdapter.define_singleton_method(:pane_alive?) { |_name| true }
-    # Return same output every poll (no new lines)
-    ClaudeLocalAdapter.define_singleton_method(:capture_pane) { |_name| ASSISTANT_EVENT }
+      error = assert_raises(ClaudeLocalAdapter::ExecutionError) do
+        ClaudeLocalAdapter.execute(@role, @context)
+      end
 
-    run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
-      status: :queued, trigger_type: "task_assigned"
-    )
-    @context[:run_id] = run.id
-
-    error = assert_raises(ClaudeLocalAdapter::ExecutionError) do
-      ClaudeLocalAdapter.execute(@role, @context)
+      assert_match(/stalled/i, error.message)
+      assert_match(/#{ClaudeLocalAdapter::STALL_TIMEOUT}/, error.message)
     end
-
-    assert_match(/stalled/i, error.message)
-    assert_match(/#{ClaudeLocalAdapter::STALL_TIMEOUT}/, error.message)
-  ensure
-    Process.define_singleton_method(:clock_gettime, original_clock) if original_clock
   end
 
   test "stall timer resets when new output appears" do
@@ -730,37 +731,30 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
       end
     end
 
-    stall_clock = 0.0
-    original_clock = Process.method(:clock_gettime)
-    Process.define_singleton_method(:clock_gettime) do |*_args|
-      stall_clock
-    end
-
-    ClaudeLocalAdapter.define_singleton_method(:poll_sleep) do |_n|
-      # On first attempt, fast-forward past stall timeout
-      stall_clock += (ClaudeLocalAdapter::STALL_TIMEOUT + 1) if attempt <= 2
-    end
-
-    # First attempt: only assistant event (stalls). Second: full result.
-    ClaudeLocalAdapter.define_singleton_method(:capture_pane) do |_name|
-      if attempt <= 2
-        ASSISTANT_EVENT
-      else
-        ASSISTANT_EVENT + "\n" + RESULT_EVENT
+    with_fake_time do |advance|
+      ClaudeLocalAdapter.define_singleton_method(:poll_sleep) do |_n|
+        advance.call(ClaudeLocalAdapter::STALL_TIMEOUT + 1) if attempt <= 2
       end
+
+      # First attempt: only assistant event (stalls). Second: full result.
+      ClaudeLocalAdapter.define_singleton_method(:capture_pane) do |_name|
+        if attempt <= 2
+          ASSISTANT_EVENT
+        else
+          ASSISTANT_EVENT + "\n" + RESULT_EVENT
+        end
+      end
+
+      run = RoleRun.create!(
+        role: @role, task: @task, company: @company,
+        status: :queued, trigger_type: "task_assigned"
+      )
+      @context[:run_id] = run.id
+
+      result = ClaudeLocalAdapter.execute(@role, @context)
+
+      assert_equal "sess_new_xyz", result[:session_id]
     end
-
-    run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
-      status: :queued, trigger_type: "task_assigned"
-    )
-    @context[:run_id] = run.id
-
-    result = ClaudeLocalAdapter.execute(@role, @context)
-
-    assert_equal "sess_new_xyz", result[:session_id]
-  ensure
-    Process.define_singleton_method(:clock_gettime, original_clock) if original_clock
   end
 
   test "retries once on missing result event then succeeds" do
@@ -814,26 +808,23 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
   end
 
   test "gives up after exhausting retries" do
-    stall_clock = 0.0
-    original_clock = Process.method(:clock_gettime)
-    Process.define_singleton_method(:clock_gettime) { |*_args| stall_clock }
-    ClaudeLocalAdapter.define_singleton_method(:poll_sleep) { |_n| stall_clock += ClaudeLocalAdapter::STALL_TIMEOUT + 1 }
-    ClaudeLocalAdapter.define_singleton_method(:pane_alive?) { |_name| true }
-    ClaudeLocalAdapter.define_singleton_method(:capture_pane) { |_name| ASSISTANT_EVENT }
+    with_fake_time do |advance|
+      ClaudeLocalAdapter.define_singleton_method(:poll_sleep) { |_n| advance.call(ClaudeLocalAdapter::STALL_TIMEOUT + 1) }
+      ClaudeLocalAdapter.define_singleton_method(:pane_alive?) { |_name| true }
+      ClaudeLocalAdapter.define_singleton_method(:capture_pane) { |_name| ASSISTANT_EVENT }
 
-    run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
-      status: :queued, trigger_type: "task_assigned"
-    )
-    @context[:run_id] = run.id
+      run = RoleRun.create!(
+        role: @role, task: @task, company: @company,
+        status: :queued, trigger_type: "task_assigned"
+      )
+      @context[:run_id] = run.id
 
-    error = assert_raises(ClaudeLocalAdapter::ExecutionError) do
-      ClaudeLocalAdapter.execute(@role, @context)
+      error = assert_raises(ClaudeLocalAdapter::ExecutionError) do
+        ClaudeLocalAdapter.execute(@role, @context)
+      end
+
+      assert_match(/stalled/i, error.message)
     end
-
-    assert_match(/stalled/i, error.message)
-  ensure
-    Process.define_singleton_method(:clock_gettime, original_clock) if original_clock
   end
 
   test "display_name, description, config_schema unchanged" do
@@ -847,11 +838,9 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
   # System prompt integration tests — full prompt assembly per scenario
   # ---------------------------------------------------------------------------
 
-  test "task assignment: system prompt includes identity, job_spec, and base skills" do
-    @role.job_spec = Role::DEFAULT_JOB_SPEC
+  test "task assignment: system prompt includes identity and category job_spec" do
     skills = [
-      { key: "task_workflow", name: "Task Workflow", description: "Universal task lifecycle", category: "operations", markdown: "# Task Workflow\n\n## Instructions\n1. Do the work" },
-      { key: "task_review", name: "Task Review", description: "Review submitted tasks", category: "operations", markdown: "# Task Review\n\n## Instructions\n1. Read task details" }
+      { key: "code_review", name: "Code Review", description: "Review code changes", category: "technical", markdown: "# Code Review" }
     ]
     context = {
       task_id: @task.id,
@@ -866,11 +855,9 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     # System prompt includes all expected sections
     assert_includes system_prompt, "Your Identity"
     assert_includes system_prompt, @role.title
-    assert_includes system_prompt, "task_workflow"
-    assert_includes system_prompt, "task_review"
+    assert_includes system_prompt, @role.role_category.job_spec
     assert_includes system_prompt, "Your Skills"
-    assert_includes system_prompt, "Task Workflow"
-    assert_includes system_prompt, "Task Review"
+    assert_includes system_prompt, "Code Review"
 
     # User prompt includes task details
     assert_includes user_prompt, "Task ##{@task.id}"
@@ -878,32 +865,27 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     assert_includes user_prompt, "start working immediately"
   end
 
-  test "task review: system prompt includes skills and user prompt references task_review skill" do
-    skills = [
-      { key: "task_review", name: "Task Review", description: "Review submitted tasks", category: "operations", markdown: "# Task Review\n\n## Instructions\n1. Read task details" }
-    ]
+  test "task review: user prompt cues review without referencing skill name" do
     context = {
       trigger_type: "task_pending_review",
       task_id: @task.id,
       task_title: @task.title,
-      assignee_role_title: "Senior Developer",
-      skills: skills
+      assignee_role_title: "Senior Developer"
     }
 
     system_prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @role, context)
     user_prompt = ClaudeLocalAdapter.send(:build_user_prompt, context)
 
-    assert_includes system_prompt, "Task Review"
-    assert_includes system_prompt, "Your Skills"
+    assert_includes system_prompt, "Your Identity"
 
     assert_includes user_prompt, "pending your review"
     assert_includes user_prompt, "Senior Developer"
-    assert_includes user_prompt, "task_review skill"
+    assert_not_includes user_prompt, "task_review skill"
   end
 
   test "goal-only: system prompt includes goal section with focus rules and skills" do
     skills = [
-      { key: "task_workflow", name: "Task Workflow", description: "Universal task lifecycle", category: "operations", markdown: "# Task Workflow" }
+      { key: "code_review", name: "Code Review", description: "Review code changes", category: "technical", markdown: "# Code Review" }
     ]
     context = {
       goal_id: 1,
@@ -943,5 +925,71 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
 
     assert_includes system_prompt, "Your Identity"
     assert_not_includes system_prompt, "Your Skills"
+  end
+
+  private
+
+  # Stubs Time.current with a controllable clock the caller can advance. The
+  # adapter's stall detector uses Time.current, so tests that fast-forward
+  # "wall-clock" stall the same way production does.
+  def with_fake_time
+    fake_now = Time.current
+    original = Time.method(:current)
+    Time.define_singleton_method(:current) { fake_now }
+    yield ->(seconds) { fake_now += seconds }
+  ensure
+    Time.define_singleton_method(:current, original) if original
+  end
+end
+
+# ---------------------------------------------------------------------------
+# pane_alive? fail-closed semantics -- separate class so the outer suite's
+# setup (which stubs pane_alive?) does not replace the real method we want to
+# exercise here.
+# ---------------------------------------------------------------------------
+class ClaudeLocalAdapterPaneAliveTest < ActiveSupport::TestCase
+  setup do
+    @original_capture2 = Open3.method(:capture2)
+  end
+
+  teardown do
+    if ClaudeLocalAdapter.singleton_class.method_defined?(:session_exists?, false)
+      ClaudeLocalAdapter.singleton_class.remove_method(:session_exists?)
+    end
+    Open3.define_singleton_method(:capture2, @original_capture2) if @original_capture2
+  end
+
+  def stub_capture2(out, success)
+    fake_status = Struct.new(:success?).new(success)
+    Open3.define_singleton_method(:capture2) { |*_args| [ out, fake_status ] }
+  end
+
+  test "pane_alive? returns false when session does not exist" do
+    ClaudeLocalAdapter.define_singleton_method(:session_exists?) { |_name| false }
+    assert_equal false, ClaudeLocalAdapter.pane_alive?("director_run_test")
+  end
+
+  test "pane_alive? returns true only when tmux reports pane_dead=0" do
+    ClaudeLocalAdapter.define_singleton_method(:session_exists?) { |_name| true }
+    stub_capture2("0\n", true)
+    assert_equal true, ClaudeLocalAdapter.pane_alive?("director_run_test")
+  end
+
+  test "pane_alive? returns false when tmux reports pane_dead=1" do
+    ClaudeLocalAdapter.define_singleton_method(:session_exists?) { |_name| true }
+    stub_capture2("1\n", true)
+    assert_equal false, ClaudeLocalAdapter.pane_alive?("director_run_test")
+  end
+
+  test "pane_alive? fails closed when tmux command exits non-zero" do
+    ClaudeLocalAdapter.define_singleton_method(:session_exists?) { |_name| true }
+    stub_capture2("", false)
+    assert_equal false, ClaudeLocalAdapter.pane_alive?("director_run_test")
+  end
+
+  test "pane_alive? fails closed on unexpected output" do
+    ClaudeLocalAdapter.define_singleton_method(:session_exists?) { |_name| true }
+    stub_capture2("tmux: no server running\n", true)
+    assert_equal false, ClaudeLocalAdapter.pane_alive?("director_run_test")
   end
 end

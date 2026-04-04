@@ -5,10 +5,6 @@ class Goal::Detail
     @goal = goal
   end
 
-  def children
-    @children ||= goal.children.ordered
-  end
-
   def tasks
     @tasks ||= goal.tasks.includes(:assignee, :creator).by_priority
   end
@@ -26,10 +22,6 @@ class Goal::Detail
     (eval_pass_count.to_f / eval_total * 100).round
   end
 
-  def any_children?
-    children.any?
-  end
-
   def any_tasks?
     tasks.any?
   end
@@ -41,6 +33,6 @@ class Goal::Detail
   private
 
     def evaluations
-      @evaluations ||= GoalEvaluation.where(goal_id: [ goal.id ] + goal.descendant_ids)
+      @evaluations ||= goal.goal_evaluations
     end
 end

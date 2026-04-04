@@ -3,9 +3,7 @@
 # Role titles are matched case-insensitively.
 # _base skills are assigned to every role regardless of title.
 
-_base:
-  - task_workflow
-  - task_review
+_base: []
 
 ceo:
   - strategic_planning
@@ -24,9 +22,7 @@ cto:
 cmo:
   - market_analysis
   - content_strategy
-  - brand_management
   - campaign_planning
-  - audience_research
   - escalation_handling
 
 cfo:
@@ -44,17 +40,9 @@ engineer:
   - testing
   - documentation
 
-designer:
-  - ui_design
-  - ux_research
-  - prototyping
-  - design_systems
-  - accessibility_review
-
 pm:
   - project_planning
   - requirements_gathering
-  - sprint_management
   - progress_reporting
 
 qa:
@@ -79,7 +67,6 @@ researcher:
   - market_analysis
 
 general:
-  - task_execution
   - communication
   - documentation
   - problem_solving
@@ -88,7 +75,6 @@ general:
 
 vp engineering:
   - project_planning
-  - sprint_management
   - technical_strategy
   - progress_reporting
   - escalation_handling
@@ -121,29 +107,24 @@ seo specialist:
 marketing manager:
   - team_management
   - project_planning
-  - sprint_management
   - progress_reporting
   - escalation_handling
 
 linkedin specialist:
   - content_strategy
   - communication
-  - audience_research
 
 blog content specialist:
   - content_strategy
   - communication
-  - audience_research
 
 page specialist:
   - content_strategy
   - communication
-  - audience_research
 
 email specialist:
   - content_strategy
   - communication
-  - audience_research
 
 # --- Operations department template roles ---
 
@@ -158,11 +139,9 @@ operations manager:
   - project_planning
   - progress_reporting
   - problem_solving
-  - task_execution
 
 project manager:
   - project_planning
-  - sprint_management
   - requirements_gathering
   - progress_reporting
 
@@ -175,7 +154,6 @@ business analyst:
 executive assistant:
   - communication
   - documentation
-  - task_execution
 
 # --- Finance department template roles ---
 

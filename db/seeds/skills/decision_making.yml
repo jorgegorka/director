@@ -1,26 +1,31 @@
 key: decision_making
 name: Decision Making
-description: Evaluate options rigorously, weigh trade-offs, and reach well-reasoned decisions under uncertainty
+description: Reach a well-reasoned decision under uncertainty and record the rationale so it can be revisited later
 category: leadership
 markdown: |
   # Decision Making
 
   ## Purpose
-  Apply structured reasoning to choose the best course of action when faced with competing options, incomplete information, or high stakes. This skill enables an agent to frame problems clearly, gather relevant input efficiently, evaluate trade-offs transparently, and commit to a decision with documented rationale.
+  Choose among competing options in a way that is transparent, defensible, and revisable. The output of this skill is not just "a decision" — it is a record that future agents (including you) can audit if circumstances change.
 
-  ## Instructions
-  1. Define the decision clearly: what question must be answered and by when?
-  2. Identify decision criteria (cost, speed, risk, alignment) and weight them by importance
-  3. Generate at least three distinct options — avoid framing choices as binary when a third path exists
-  4. Evaluate each option against the weighted criteria using available data
-  5. Identify the key assumptions and risks behind the preferred option; run a pre-mortem
-  6. Document the decision, rationale, trade-offs accepted, and conditions for revisiting it
+  ## When to use
+  - A goal or task explicitly asks you to choose between options
+  - You are about to commit to an approach that would be expensive to reverse
+  - Your reportees are blocked because nobody has decided the next step
+
+  ## Approach
+  1. Frame the decision as a single clear question with a deadline. If the question is not yet clear, your first job is to sharpen it
+  2. List decision criteria and weight them by importance — typical criteria: impact, cost, speed, reversibility, risk
+  3. Generate at least three options. Binary framing ("do X or not") is a warning sign that you missed a third path
+  4. Score each option against the weighted criteria using the evidence you have. Mark unknowns as unknowns; do not pretend to knowledge you lack
+  5. Run a brief pre-mortem on the preferred option: if this fails in six months, what would the reason most likely be?
+  6. Commit. Record the decision, the rationale, the assumptions, and the trigger that would prompt revisiting it (a date or an event)
 
   ## Guidelines
-  - Separate data gathering from deliberation — making decisions in the same meeting they're framed leads to poor outcomes
-  - Name the person or role who owns the final call; committee decisions without an owner drift
-  - Distinguish reversible from irreversible decisions — irreversible ones warrant more rigor
-  - Record dissenting views so they can be revisited if circumstances change
+  - Distinguish reversible from irreversible decisions — irreversible ones warrant more rigor and slower commitment
+  - Do not gather data indefinitely. The cost of delay is real; name the decision deadline up front
+  - A single owner makes the final call. If the goal gives you the decision, you own it — do not defer back without reason
+  - Record dissenting considerations; they are the first thing to revisit if the decision turns out wrong
 
-  ## Output Format
-  A decision record containing: decision statement, options considered, evaluation matrix, chosen option with rationale, key risks, and a review trigger (date or event that would prompt revisiting).
+  ## Deliverable
+  A decision record posted via `add_message` (and, where the decision changes goal scope, reflected via `update_goal`) containing: the question, the options, the criteria and weights, the chosen option with rationale, the key assumption, and the review trigger.

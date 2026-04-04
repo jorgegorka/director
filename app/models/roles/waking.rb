@@ -61,6 +61,15 @@ module Roles
         return
       end
 
+      # Defense in depth: short-circuit any trigger targeting a done task.
+      if context[:task_id].present?
+        task = Task.find_by(id: context[:task_id])
+        if task&.terminal?
+          event.mark_delivered!(response: { status: "skipped_terminal_task", task_status: task.status })
+          return
+        end
+      end
+
       run_attrs = {
         task_id: context[:task_id],
         goal_id: context[:goal_id],

@@ -1,26 +1,31 @@
 key: progress_reporting
 name: Progress Reporting
-description: Produce clear, accurate status reports that keep stakeholders informed and enable timely decisions
+description: Produce concise upward status updates that surface risks, name decisions needed, and forecast the next period
 category: operations
 markdown: |
   # Progress Reporting
 
   ## Purpose
-  Communicate project and team progress in a format that gives stakeholders the information they need to make decisions and maintain confidence in delivery. This skill enables an agent to synthesize status across workstreams, surface risks proactively, and produce reports calibrated to each audience's level of detail preference.
+  Summarize the state of the work you own for an audience one level up: accomplishments, risks, decisions needed, and forecast. The report must be short enough to be read in full and specific enough to be acted on.
 
-  ## Instructions
-  1. Define reporting cadence and audience: who receives this report, how often, and what decisions does it support?
-  2. Gather status from task tracking systems, team members, and milestone completion data
-  3. Assess overall health using a simple RAG (Red/Amber/Green) framework for scope, schedule, and budget
-  4. Summarize key accomplishments since the last report; quantify progress where possible
-  5. Identify risks, issues, and decisions needed from the audience; be explicit about what's asked of them
-  6. Forecast the next period: what will be completed and what might slip?
+  ## When to use
+  - Your manager has asked for a status update
+  - A reporting cadence has arrived (weekly, per-milestone) and an update is due
+  - A material change in scope, schedule, or risk needs to be communicated upward
+
+  ## Approach
+  1. Read your current tasks and goals via `list_my_tasks` and `list_my_goals`, plus any reportee status messages via `get_task_details`
+  2. Assess overall health using a simple RAG rating (Red / Amber / Green) for scope, schedule, and risk
+  3. Summarize accomplishments since the last report. Quantify where possible
+  4. Identify risks, issues, and explicitly name any decisions you need from your manager
+  5. Forecast the next period: what will be completed, what might slip
+  6. Keep the executive summary to 5–10 lines. Details go below for the reader who wants them
 
   ## Guidelines
-  - Lead with exceptions — stakeholders need to know about problems, not just that everything is fine
-  - Be accurate even when the news is bad; delayed bad news is always more expensive than timely bad news
-  - Distinguish facts from estimates and clearly label predictions as such
-  - Keep executive summaries to one page; details go in appendices for those who need them
+  - Lead with exceptions. The reader needs to know about problems, not that everything is fine
+  - Be accurate even when the news is bad. Delayed bad news is always more expensive than timely bad news
+  - Distinguish facts from estimates. Label predictions as such
+  - If you need a decision, ask for it explicitly — do not bury the ask in the middle of a paragraph
 
-  ## Output Format
-  Progress report with: executive summary (RAG status, headline accomplishments, headline risks), accomplishments since last report, upcoming milestones, risks and issues log (with owner and resolution date), decisions needed, and a health trend over the last three reporting periods.
+  ## Deliverable
+  A status report posted via `add_message` on the relevant goal or parent task, containing: RAG summary, accomplishments, upcoming milestones, risks and issues (with owners and ETAs), decisions needed, and the health trend.

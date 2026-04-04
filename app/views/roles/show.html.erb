@@ -231,9 +231,6 @@
             <% @detail.role_goals.each do |goal| %>
               <li>
                 <%= link_to goal.title, goal_path(goal) %>
-                <% if goal.mission? %>
-                  <span class="goal-tree__label goal-tree__label--mission">Mission</span>
-                <% end %>
               </li>
             <% end %>
           </ul>

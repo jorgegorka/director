@@ -17,19 +17,14 @@ class GoalsControllerTest < ActionDispatch::IntegrationTest
   test "should get index" do
     get goals_url
     assert_response :success
-    assert_select ".goal-tree"
+    assert_select ".goal-list"
   end
 
   test "should only show goals for current company" do
     get goals_url
     assert_response :success
-    assert_select ".goal-tree__title", text: "Build the best AI platform"
-    assert_select ".goal-tree__title", text: "Dominate widget market", count: 0
-  end
-
-  test "index shows mission label on root goal" do
-    get goals_url
-    assert_select ".goal-tree__label--mission", minimum: 1
+    assert_select ".goal-list__title", text: "Build the best AI platform"
+    assert_select ".goal-list__title", text: "Dominate widget market", count: 0
   end
 
   # --- Show ---
@@ -40,20 +35,9 @@ class GoalsControllerTest < ActionDispatch::IntegrationTest
     assert_select "h1", "Build the best AI platform"
   end
 
-  test "should show mission label for root goal" do
-    get goal_url(@mission)
-    assert_select ".goal-tree__label--mission", text: "Mission"
-  end
-
   test "should show progress percentage" do
     get goal_url(@mission)
     assert_match(/\d+% complete/, response.body)
-  end
-
-  test "should show child objectives" do
-    get goal_url(@mission)
-    assert_select ".goal-tree__title", text: "Launch MVP by Q2"
-    assert_select ".goal-tree__title", text: "Achieve 99.9% uptime"
   end
 
   test "should show linked tasks" do
@@ -67,13 +51,6 @@ class GoalsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_url
   end
 
-  test "should show breadcrumb for nested goal" do
-    get goal_url(@sub_objective)
-    assert_response :success
-    assert_select ".goal-detail__breadcrumb", text: /Build the best AI platform/
-    assert_select ".goal-detail__breadcrumb", text: /Launch MVP by Q2/
-  end
-
   # --- New ---
 
   test "should get new" do
@@ -82,15 +59,9 @@ class GoalsControllerTest < ActionDispatch::IntegrationTest
     assert_select "form"
   end
 
-  test "should get new with parent_id param" do
-    get new_goal_url(parent_id: @mission.id)
-    assert_response :success
-    assert_select "form"
-  end
-
-  test "new goal form shows parent select" do
+  test "new goal form has no parent select" do
     get new_goal_url
-    assert_select "select[name='goal[parent_id]']"
+    assert_select "select[name='goal[parent_id]']", count: 0
   end
 
   # --- Create ---
@@ -110,48 +81,10 @@ class GoalsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to goal_url(goal)
   end
 
-  test "should create mission (no parent)" do
-    assert_difference("Goal.count", 1) do
-      post goals_url, params: {
-        goal: {
-          title: "New top-level mission",
-          parent_id: ""
-        }
-      }
-    end
-    goal = Goal.order(:created_at).last
-    assert goal.root?
-  end
-
-  test "should create objective under mission" do
-    assert_difference("Goal.count", 1) do
-      post goals_url, params: {
-        goal: {
-          title: "New objective",
-          parent_id: @mission.id
-        }
-      }
-    end
-    goal = Goal.order(:created_at).last
-    assert_equal @mission, goal.parent
-  end
-
   test "should not create goal without title" do
     assert_no_difference("Goal.count") do
       post goals_url, params: {
         goal: { title: "" }
-      }
-    end
-    assert_response :unprocessable_entity
-  end
-
-  test "should not create goal with cross-company parent" do
-    assert_no_difference("Goal.count") do
-      post goals_url, params: {
-        goal: {
-          title: "Cross-company objective",
-          parent_id: @widgets_mission.id
-        }
       }
     end
     assert_response :unprocessable_entity
@@ -169,11 +102,11 @@ class GoalsControllerTest < ActionDispatch::IntegrationTest
 
   test "should update goal" do
     patch goal_url(@mission), params: {
-      goal: { title: "Updated mission title" }
+      goal: { title: "Updated goal title" }
     }
     assert_redirected_to goal_url(@mission)
     @mission.reload
-    assert_equal "Updated mission title", @mission.title
+    assert_equal "Updated goal title", @mission.title
   end
 
   test "should not update goal without title" do
@@ -186,7 +119,6 @@ class GoalsControllerTest < ActionDispatch::IntegrationTest
   # --- Destroy ---
 
   test "should destroy goal" do
-    # Use objective_two which has no children
     goal_to_delete = goals(:acme_objective_two)
     assert_difference("Goal.count", -1) do
       delete goal_url(goal_to_delete)
@@ -194,21 +126,11 @@ class GoalsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to goals_url
   end
 
-  test "destroying goal destroys children" do
-    # objective_one has acme_sub_objective as a child
-    assert_difference("Goal.count", -2) do
-      delete goal_url(@objective)
-    end
-    assert_raises(ActiveRecord::RecordNotFound) { @sub_objective.reload }
-  end
-
-  test "destroying goal nullifies task goal_id" do
-    # write_tests task is linked to acme_sub_objective; destroying acme_objective_one
-    # cascades to acme_sub_objective which nullifies write_tests.goal_id
+  test "destroying goal nullifies its tasks goal_id" do
     task = tasks(:write_tests)
     assert_equal @sub_objective.id, task.goal_id
 
-    delete goal_url(@objective)
+    delete goal_url(@sub_objective)
     task.reload
     assert_nil task.goal_id
   end
@@ -230,7 +152,7 @@ class GoalsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "update changes goal role" do
-    goal = goals(:acme_objective_two)  # has no role
+    goal = goals(:acme_objective_two)
 
     patch goal_path(goal), params: { goal: {
       title: goal.title,
@@ -242,7 +164,7 @@ class GoalsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "update clears goal role" do
-    goal = goals(:acme_objective_one)  # has cto assigned
+    goal = goals(:acme_objective_one)
 
     patch goal_path(goal), params: { goal: {
       title: goal.title,

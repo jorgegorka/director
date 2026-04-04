@@ -40,6 +40,5 @@ class Tools::ListMyGoalsTest < ActiveSupport::TestCase
     assert_includes goal.keys, :title
     assert_includes goal.keys, :description
     assert_includes goal.keys, :completion_percentage
-    assert_includes goal.keys, :parent_id
   end
 end

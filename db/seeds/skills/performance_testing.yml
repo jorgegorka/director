@@ -1,26 +1,31 @@
 key: performance_testing
 name: Performance Testing
-description: Measure and validate system performance under load to ensure it meets scalability and latency requirements
+description: Measure system behavior under load, identify bottlenecks, and recommend targeted fixes with expected impact
 category: operations
 markdown: |
   # Performance Testing
 
   ## Purpose
-  Validate that the system meets defined performance requirements under expected and peak load conditions, identifying bottlenecks before they affect users. This skill enables an agent to design load tests, execute them against realistic scenarios, and translate results into actionable engineering recommendations.
+  Validate that a system meets its performance targets under realistic and peak load, and identify the specific bottlenecks that would cause it to miss those targets. The output is a diagnosis with actionable recommendations, not just a set of graphs.
 
-  ## Instructions
-  1. Define performance requirements: target response times (p50, p95, p99), throughput (requests/second), and error rate thresholds
-  2. Design test scenarios that reflect real usage patterns: identify key user flows, their relative frequency, and peak load multipliers
-  3. Set up the test environment with production-representative data volumes and infrastructure configuration
-  4. Execute a baseline test at normal load to establish current performance characteristics
-  5. Run load, stress, and spike tests: gradually increase load to find the system's breaking point and recovery behavior
-  6. Analyze results: identify bottlenecks (CPU, memory, database query times, external API latency), and reproduce them in isolation
+  ## When to use
+  - A new feature or system is approaching release and the performance profile is unknown
+  - A production incident was caused by load and the root cause has not been fully characterized
+  - A refactor or infrastructure change could affect latency or throughput
+
+  ## Approach
+  1. Define performance requirements: target response times (p50, p95, p99), throughput, and error rate thresholds
+  2. Design scenarios that reflect real usage patterns — identify key flows, their relative frequency, and realistic peak multipliers
+  3. Set up a test environment with production-representative data volumes. Tests against tiny datasets miss the interesting failures
+  4. Establish a baseline at normal load. You cannot detect regressions without one
+  5. Run load, stress, and spike tests. Find the breaking point and the recovery behavior, not only the happy case
+  6. Analyze: which resource (CPU, memory, database query time, external API) is the bottleneck? Reproduce in isolation
 
   ## Guidelines
-  - Use production-representative data — tests against small datasets miss index and query plan issues that only appear at scale
-  - Test the whole system, not just the application server; databases, caches, and third-party APIs all fail under load
-  - Establish a performance baseline and run tests on every significant release — performance regressions are easy to miss otherwise
-  - Fix the bottleneck, not just the symptom; adding cache to a slow query may help short-term but the query still needs to be fixed
+  - Test the whole system. Databases, caches, and third-party APIs fail under load too
+  - Fix the bottleneck, not the symptom. A cache in front of a slow query buys time but the query still needs to be fixed
+  - Re-run performance tests on significant releases — regressions are otherwise easy to miss
+  - Separate the test report from the remediation recommendations; each has its own audience
 
-  ## Output Format
-  Performance test report with: test objectives and SLAs, test scenarios, environment configuration, baseline results, load/stress test results (throughput, latency percentiles, error rates at each load level), identified bottlenecks with evidence, and prioritized recommendations with expected impact.
+  ## Deliverable
+  A performance test report posted via `add_message`, containing: objectives and SLAs, scenarios, environment, baseline, results (throughput, latency percentiles, error rates at each load level), identified bottlenecks with evidence, and prioritized recommendations with expected impact.
