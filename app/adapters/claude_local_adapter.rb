@@ -14,7 +14,8 @@ class ClaudeLocalAdapter < BaseAdapter
   POLL_INTERVAL  = 0.5   # seconds between capture-pane polls
   SESSION_PREFIX = "director_run"  # tmux session name prefix
   MAX_POLL_WAIT  = 300   # seconds, maximum time to poll before timeout (5 minutes)
-  STALL_TIMEOUT  = 120   # seconds without new output before declaring stall
+  STALL_TIMEOUT  = 60    # seconds without new output before declaring stall
+  STALL_RETRIES  = 1     # retry count for transient stall/crash errors
 
   def self.display_name
     "Claude Code (Local)"
@@ -32,6 +33,7 @@ class ClaudeLocalAdapter < BaseAdapter
   # back into the RoleRun log. Returns a result hash with exit_code, session_id,
   # and cost_cents extracted from the stream-JSON result event.
   #
+  # Retries once on transient errors (stalls, missing result events) before giving up.
   # Raises BudgetExhausted (CLAUDE-06) before spawning if role.budget_exhausted?.
   # Raises ExecutionError if tmux spawn fails or execution times out.
   def self.execute(role, context)
@@ -39,6 +41,19 @@ class ClaudeLocalAdapter < BaseAdapter
       raise BudgetExhausted, "Role budget exhausted: spent #{role.monthly_spend_cents} of #{role.budget_cents} cents budget"
     end
 
+    retries_remaining = STALL_RETRIES
+    begin
+      execute_once(role, context)
+    rescue ExecutionError => e
+      if retries_remaining > 0 && retryable_error?(e)
+        retries_remaining -= 1
+        retry
+      end
+      raise
+    end
+  end
+
+  private_class_method def self.execute_once(role, context)
     role_run     = RoleRun.find(context[:run_id])
     session_name = "#{SESSION_PREFIX}_#{context[:run_id]}"
     working_dir  = resolve_working_directory(role.effective_working_directory)
@@ -70,6 +85,10 @@ class ClaudeLocalAdapter < BaseAdapter
   ensure
     cleanup_session(session_name) if defined?(session_name) && session_name
     temp_files&.each { |f| f.close! rescue nil }
+  end
+
+  private_class_method def self.retryable_error?(error)
+    error.message.match?(/stalled|exited without producing a result/i)
   end
 
   # ---------------------------------------------------------------------------
@@ -314,7 +333,14 @@ class ClaudeLocalAdapter < BaseAdapter
     elsif context[:goal_id].present?
       prompt = "You have been assigned Goal: **#{context[:goal_title]}**"
       prompt += "\n\n#{context[:goal_description]}" if context[:goal_description].present?
-      prompt += "\n\nCheck your tasks with list_my_tasks and goals with list_my_goals, then execute the highest-priority work."
+
+      if context[:goal_active_tasks].present?
+        task_list = context[:goal_active_tasks].map { |t| "- Task ##{t[:id]}: #{t[:title]} (#{t[:status]})" }.join("\n")
+        prompt += "\n\n## Active Tasks\n\n#{task_list}"
+        prompt += "\n\nThis goal already has work in progress. Focus on completing the existing tasks above — do NOT create new tasks unless all current ones are completed or blocked and more work is clearly needed."
+      else
+        prompt += "\n\nThis is a new goal with no tasks yet. Break it down into tasks and delegate to your reports."
+      end
       prompt.strip
     else
       "Check your assigned goals with list_my_goals and tasks with list_my_tasks, then execute the highest-priority work."
@@ -394,6 +420,10 @@ class ClaudeLocalAdapter < BaseAdapter
         exit_code = 1
         error_message = event["result"]
       end
+    end
+
+    if session_id.nil? && error_message.nil?
+      raise ExecutionError, "Agent process exited without producing a result"
     end
 
     { exit_code: exit_code, session_id: session_id, cost_cents: cost_cents, error_message: error_message }

@@ -66,6 +66,13 @@ class ExecuteRoleJob < ApplicationJob
       ctx[:goal_id] = goal.id
       ctx[:goal_title] = goal.title
       ctx[:goal_description] = goal.description
+
+      active_tasks = goal.tasks.active.order(priority: :desc, created_at: :desc)
+      if active_tasks.any?
+        ctx[:goal_active_tasks] = active_tasks.map { |t|
+          { id: t.id, title: t.title, status: t.status, assignee_id: t.assignee_id }
+        }
+      end
     end
 
     session_id = task ? role.latest_session_id_for(task) : role.latest_session_id

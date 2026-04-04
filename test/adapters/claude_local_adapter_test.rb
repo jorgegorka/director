@@ -218,7 +218,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     assert_equal "sess_new_xyz", result[:session_id]
   end
 
-  test "missing result event returns nil session_id and cost_cents" do
+  test "missing result event raises ExecutionError" do
     ClaudeLocalAdapter.define_singleton_method(:capture_pane) { |_name| ASSISTANT_EVENT }
 
     run = RoleRun.create!(
@@ -226,10 +226,12 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
       status: :queued, trigger_type: "task_assigned"
     )
     @context[:run_id] = run.id
-    result = ClaudeLocalAdapter.execute(@role, @context)
 
-    assert_nil result[:session_id]
-    assert_nil result[:cost_cents]
+    error = assert_raises(ClaudeLocalAdapter::ExecutionError) do
+      ClaudeLocalAdapter.execute(@role, @context)
+    end
+
+    assert_match(/exited without producing a result/i, error.message)
   end
 
   test "cost_cents converted from total_cost_usd" do
@@ -620,12 +622,32 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     assert_includes prompt, @task.title
   end
 
-  test "build_user_prompt falls back to goal context" do
+  test "build_user_prompt falls back to goal context with no active tasks" do
     context = { goal_id: 1, goal_title: "Improve SEO", goal_description: "Increase traffic" }
     prompt = ClaudeLocalAdapter.send(:build_user_prompt, context)
 
     assert_includes prompt, "Improve SEO"
-    assert_includes prompt, "list_my_tasks"
+    assert_includes prompt, "new goal with no tasks yet"
+    assert_includes prompt, "Break it down into tasks"
+  end
+
+  test "build_user_prompt goal with active tasks shows task list and continuation instructions" do
+    context = {
+      goal_id: 1,
+      goal_title: "Improve SEO",
+      goal_description: "Increase traffic",
+      goal_active_tasks: [
+        { id: 10, title: "Audit sitemap", status: "in_progress" },
+        { id: 11, title: "Fix meta tags", status: "open" }
+      ]
+    }
+    prompt = ClaudeLocalAdapter.send(:build_user_prompt, context)
+
+    assert_includes prompt, "Improve SEO"
+    assert_includes prompt, "Task #10: Audit sitemap (in_progress)"
+    assert_includes prompt, "Task #11: Fix meta tags (open)"
+    assert_includes prompt, "work in progress"
+    assert_includes prompt, "do NOT create new tasks"
   end
 
   test "build_user_prompt generic fallback when no task or goal" do
@@ -689,6 +711,129 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     end
 
     assert_equal "sess_new_xyz", result[:session_id]
+  end
+
+  test "stall timeout is 60 seconds" do
+    assert_equal 60, ClaudeLocalAdapter::STALL_TIMEOUT
+  end
+
+  test "retries once on stall then succeeds" do
+    attempt = 0
+    ClaudeLocalAdapter.define_singleton_method(:pane_alive?) do |_name|
+      attempt += 1
+      # First attempt: always alive (triggers stall)
+      # Second attempt: die after 1 poll (succeeds)
+      if attempt <= 2
+        true
+      else
+        attempt <= 3
+      end
+    end
+
+    stall_clock = 0.0
+    original_clock = Process.method(:clock_gettime)
+    Process.define_singleton_method(:clock_gettime) do |*_args|
+      stall_clock
+    end
+
+    ClaudeLocalAdapter.define_singleton_method(:poll_sleep) do |_n|
+      # On first attempt, fast-forward past stall timeout
+      stall_clock += (ClaudeLocalAdapter::STALL_TIMEOUT + 1) if attempt <= 2
+    end
+
+    # First attempt: only assistant event (stalls). Second: full result.
+    ClaudeLocalAdapter.define_singleton_method(:capture_pane) do |_name|
+      if attempt <= 2
+        ASSISTANT_EVENT
+      else
+        ASSISTANT_EVENT + "\n" + RESULT_EVENT
+      end
+    end
+
+    run = RoleRun.create!(
+      role: @role, task: @task, company: @company,
+      status: :queued, trigger_type: "task_assigned"
+    )
+    @context[:run_id] = run.id
+
+    result = ClaudeLocalAdapter.execute(@role, @context)
+
+    assert_equal "sess_new_xyz", result[:session_id]
+  ensure
+    Process.define_singleton_method(:clock_gettime, original_clock) if original_clock
+  end
+
+  test "retries once on missing result event then succeeds" do
+    attempt = 0
+    poll_per_attempt = 0
+    ClaudeLocalAdapter.define_singleton_method(:pane_alive?) do |_name|
+      poll_per_attempt += 1
+      poll_per_attempt <= 1
+    end
+
+    # First attempt: only assistant event (no result). Second: full result.
+    ClaudeLocalAdapter.define_singleton_method(:capture_pane) do |_name|
+      attempt += 1
+      if attempt <= 1
+        poll_per_attempt = 0
+        ASSISTANT_EVENT
+      else
+        ASSISTANT_EVENT + "\n" + RESULT_EVENT
+      end
+    end
+
+    run = RoleRun.create!(
+      role: @role, task: @task, company: @company,
+      status: :queued, trigger_type: "task_assigned"
+    )
+    @context[:run_id] = run.id
+
+    result = ClaudeLocalAdapter.execute(@role, @context)
+
+    assert_equal "sess_new_xyz", result[:session_id]
+  end
+
+  test "does not retry non-retryable errors like tmux spawn failure" do
+    spawn_count = 0
+    ClaudeLocalAdapter.define_singleton_method(:spawn_session) do |_cmd|
+      spawn_count += 1
+      raise ClaudeLocalAdapter::ExecutionError, "tmux spawn failed: session creation error"
+    end
+
+    run = RoleRun.create!(
+      role: @role, task: @task, company: @company,
+      status: :queued, trigger_type: "task_assigned"
+    )
+    @context[:run_id] = run.id
+
+    assert_raises(ClaudeLocalAdapter::ExecutionError) do
+      ClaudeLocalAdapter.execute(@role, @context)
+    end
+
+    assert_equal 1, spawn_count, "non-retryable errors should not trigger retry"
+  end
+
+  test "gives up after exhausting retries" do
+    stall_clock = 0.0
+    original_clock = Process.method(:clock_gettime)
+    Process.define_singleton_method(:clock_gettime) { |*_args| stall_clock }
+    ClaudeLocalAdapter.define_singleton_method(:poll_sleep) { |_n| stall_clock += ClaudeLocalAdapter::STALL_TIMEOUT + 1 }
+    ClaudeLocalAdapter.define_singleton_method(:pane_alive?) { |_name| true }
+    ClaudeLocalAdapter.define_singleton_method(:capture_pane) { |_name| ASSISTANT_EVENT }
+
+    run = RoleRun.create!(
+      role: @role, task: @task, company: @company,
+      status: :queued, trigger_type: "task_assigned"
+    )
+    @context[:run_id] = run.id
+
+    error = assert_raises(ClaudeLocalAdapter::ExecutionError) do
+      ClaudeLocalAdapter.execute(@role, @context)
+    end
+
+    assert_match(/stalled/i, error.message)
+  ensure
+    Process.define_singleton_method(:clock_gettime, original_clock) if original_clock
   end
 
   test "display_name, description, config_schema unchanged" do
@@ -776,7 +921,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     assert_includes system_prompt, "Your Skills"
 
     assert_includes user_prompt, "Increase revenue"
-    assert_includes user_prompt, "list_my_tasks"
+    assert_includes user_prompt, "new goal with no tasks yet"
   end
 
   test "fallback: no task or goal produces generic user prompt" do
