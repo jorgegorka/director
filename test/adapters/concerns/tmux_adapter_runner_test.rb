@@ -28,7 +28,7 @@ class TmuxAdapterRunnerTest < ActiveSupport::TestCase
       "echo hello"
     end
 
-    def self.env_flags
+    def self.env_flags(_role)
       "-e FOO=bar"
     end
 

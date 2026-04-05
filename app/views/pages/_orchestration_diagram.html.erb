@@ -1,0 +1,126 @@
+<figure class="home-diagram home-reveal">
+  <div class="home-diagram__stage">
+
+    <div class="home-diagram__chrome" aria-hidden="true">
+      <span class="home-diagram__dot"></span>
+      <span class="home-diagram__dot"></span>
+      <span class="home-diagram__dot"></span>
+      <span class="home-diagram__path">acme-newsroom.director.app / org chart</span>
+    </div>
+
+    <svg viewBox="0 0 900 560" role="img" aria-labelledby="diagram-title diagram-desc" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+      <title id="diagram-title">Acme Newsroom — a Director company</title>
+      <desc id="diagram-desc">
+        A simplified org chart showing an Editor in Chief with three direct reports —
+        Research Lead, Senior Writer, and Copy Editor — and two further reports under
+        the Senior Writer. Task chips flow along the connectors between roles.
+      </desc>
+
+      <%# ---- Goal ribbon ---- %>
+      <g class="diag-goal">
+        <rect x="40" y="36" width="820" height="42" rx="8"
+              class="diag-goal__bg" />
+        <text x="60" y="62" class="diag-label diag-label--goal">◆ GOAL</text>
+        <text x="128" y="62" class="diag-label diag-label--goal-body">Publish the Q2 editorial — on time, on budget, on brand.</text>
+        <text x="740" y="62" class="diag-label diag-label--meta" text-anchor="start">18 / 24 TASKS</text>
+      </g>
+
+      <%# ---- Connectors (orthogonal, org-chart style) ---- %>
+      <g class="diag-wires">
+        <%# Editor → bus line %>
+        <path class="diag-link" pathLength="1" d="M 450 200 V 242" />
+        <%# Bus line across top of row 2 %>
+        <path class="diag-link" pathLength="1" d="M 215 242 H 685" />
+        <%# Bus → Research Lead %>
+        <path class="diag-link" pathLength="1" d="M 215 242 V 280" />
+        <%# Bus → Senior Writer %>
+        <path class="diag-link" pathLength="1" d="M 450 242 V 280" />
+        <%# Bus → Copy Editor %>
+        <path class="diag-link" pathLength="1" d="M 685 242 V 280" />
+
+        <%# Senior Writer → sub-bus %>
+        <path class="diag-link diag-link--soft" d="M 450 362 V 402" />
+        <path class="diag-link diag-link--soft" d="M 365 402 H 535" />
+        <path class="diag-link diag-link--soft" d="M 365 402 V 430" />
+        <path class="diag-link diag-link--soft" d="M 535 402 V 430" />
+      </g>
+
+      <%# ---- Task chips riding the wires ---- %>
+      <g class="diag-chips">
+        <g class="diag-chip">
+          <rect x="470" y="214" width="56" height="20" rx="10" class="diag-chip__bg" />
+          <text x="498" y="228" class="diag-chip__text">brief</text>
+        </g>
+        <g class="diag-chip">
+          <rect x="338" y="408" width="56" height="20" rx="10" class="diag-chip__bg" />
+          <text x="366" y="422" class="diag-chip__text">draft</text>
+        </g>
+        <g class="diag-chip">
+          <rect x="508" y="408" width="64" height="20" rx="10" class="diag-chip__bg diag-chip__bg--accent" />
+          <text x="540" y="422" class="diag-chip__text">verify</text>
+        </g>
+      </g>
+
+      <%# ---- Row 1: Editor in Chief ---- %>
+      <g class="diag-card diag-card--primary">
+        <rect x="350" y="130" width="200" height="70" rx="10" class="diag-card__bg" />
+        <rect x="350" y="130" width="4"   height="70"            class="diag-card__accent" />
+        <text x="366" y="158" class="diag-card__title">Editor in Chief</text>
+        <text x="366" y="180" class="diag-card__meta">CONDUCTOR · ONLINE</text>
+        <circle cx="534" cy="150" r="4" class="diag-card__status" />
+      </g>
+
+      <%# ---- Row 2: three direct reports ---- %>
+      <g class="diag-card">
+        <rect x="130" y="280" width="170" height="64" rx="9" class="diag-card__bg" />
+        <rect x="130" y="280" width="3"   height="64"           class="diag-card__accent" />
+        <text x="144" y="306" class="diag-card__title">Research Lead</text>
+        <text x="144" y="326" class="diag-card__meta">ANALYST · ONLINE</text>
+        <circle cx="286" cy="298" r="3.5" class="diag-card__status" />
+      </g>
+
+      <g class="diag-card">
+        <rect x="365" y="280" width="170" height="64" rx="9" class="diag-card__bg" />
+        <rect x="365" y="280" width="3"   height="64"           class="diag-card__accent" />
+        <text x="379" y="306" class="diag-card__title">Senior Writer</text>
+        <text x="379" y="326" class="diag-card__meta">WRITER · WORKING</text>
+        <circle cx="521" cy="298" r="3.5" class="diag-card__status diag-card__status--working" />
+      </g>
+
+      <g class="diag-card">
+        <rect x="600" y="280" width="170" height="64" rx="9" class="diag-card__bg" />
+        <rect x="600" y="280" width="3"   height="64"           class="diag-card__accent diag-card__accent--muted" />
+        <text x="614" y="306" class="diag-card__title">Copy Editor</text>
+        <text x="614" y="326" class="diag-card__meta diag-card__meta--idle">EDITOR · IDLE</text>
+        <circle cx="756" cy="298" r="3.5" class="diag-card__status diag-card__status--idle" />
+      </g>
+
+      <%# ---- Row 3: reports under Senior Writer ---- %>
+      <g class="diag-card diag-card--sub">
+        <rect x="290" y="430" width="150" height="56" rx="8" class="diag-card__bg" />
+        <rect x="290" y="430" width="3"   height="56"          class="diag-card__accent diag-card__accent--teal" />
+        <text x="302" y="454" class="diag-card__title diag-card__title--sm">Draft Assistant</text>
+        <text x="302" y="472" class="diag-card__meta">SUB-AGENT</text>
+      </g>
+
+      <g class="diag-card diag-card--sub">
+        <rect x="460" y="430" width="150" height="56" rx="8" class="diag-card__bg" />
+        <rect x="460" y="430" width="3"   height="56"          class="diag-card__accent diag-card__accent--teal" />
+        <text x="472" y="454" class="diag-card__title diag-card__title--sm">Fact Checker</text>
+        <text x="472" y="472" class="diag-card__meta">SUB-AGENT</text>
+      </g>
+
+      <%# ---- Governance footer ---- %>
+      <g class="diag-footer">
+        <line x1="40" y1="520" x2="860" y2="520" class="diag-rule" />
+        <text x="40"  y="544" class="diag-label diag-label--meta">◆ BUDGET  $38 / $120</text>
+        <text x="300" y="544" class="diag-label diag-label--meta">◆ APPROVAL GATE  1 PENDING</text>
+        <text x="620" y="544" class="diag-label diag-label--meta">◆ AUDIT LOG  LIVE</text>
+      </g>
+    </svg>
+  </div>
+
+  <figcaption class="home-diagram__caption">
+    Fig. 01 — Six roles, one goal, tasks in flight. Every company on Director looks like this, at any scale.
+  </figcaption>
+</figure>

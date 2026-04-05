@@ -293,7 +293,7 @@ class OpencodeAdapterTest < ActiveSupport::TestCase
     ENV["ANTHROPIC_API_KEY"] = "sk-ant-123"
     ENV["OPENAI_API_KEY"] = "sk-openai-456"
 
-    flags = OpencodeAdapter.env_flags
+    flags = OpencodeAdapter.env_flags(@role)
 
     assert_includes flags, "ANTHROPIC_API_KEY=sk-ant-123"
     assert_includes flags, "OPENAI_API_KEY=sk-openai-456"
@@ -303,10 +303,42 @@ class OpencodeAdapterTest < ActiveSupport::TestCase
   end
 
   test "env_flags includes HOME and PATH when present" do
-    flags = OpencodeAdapter.env_flags
+    flags = OpencodeAdapter.env_flags(@role)
 
     assert_includes flags, "HOME=" if ENV["HOME"].present?
     assert_includes flags, "PATH=" if ENV["PATH"].present?
+  end
+
+  test "env_flags with provider=ollama emits OPENAI_BASE_URL and OPENAI_API_KEY=ollama" do
+    original_openai = ENV["OPENAI_API_KEY"]
+    original_anthropic = ENV["ANTHROPIC_API_KEY"]
+    ENV["OPENAI_API_KEY"] = "sk-should-not-leak"
+    ENV["ANTHROPIC_API_KEY"] = "sk-ant-should-not-leak"
+
+    @role.update!(adapter_config: {
+      "model" => "openai/qwen3-coder",
+      "provider" => "ollama",
+      "base_url" => "http://localhost:11434/v1"
+    })
+
+    flags = OpencodeAdapter.env_flags(@role)
+
+    assert_includes flags, "-e OPENAI_BASE_URL=http://localhost:11434/v1"
+    assert_includes flags, "-e OPENAI_API_KEY=ollama"
+    assert_no_match(/OPENAI_API_KEY=sk-should-not-leak/, flags)
+    assert_no_match(/ANTHROPIC_API_KEY=sk-ant-should-not-leak/, flags)
+    assert_includes flags, "-e HOME="
+  ensure
+    ENV["OPENAI_API_KEY"] = original_openai
+    ENV["ANTHROPIC_API_KEY"] = original_anthropic
+  end
+
+  test "env_flags with provider=ollama defaults base_url when blank" do
+    @role.update!(adapter_config: { "model" => "openai/llama3.1", "provider" => "ollama" })
+
+    flags = OpencodeAdapter.env_flags(@role)
+
+    assert_includes flags, "-e OPENAI_BASE_URL=http://localhost:11434/v1"
   end
 
   test "retryable_error detects stall messages" do

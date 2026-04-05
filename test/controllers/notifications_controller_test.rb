@@ -38,13 +38,13 @@ class NotificationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "header shows notification bell when company selected" do
-    get root_url
+    get dashboard_url
     assert_response :success
     assert_select ".notification-dropdown__trigger"
   end
 
   test "header shows badge count for unread notifications" do
-    get root_url
+    get dashboard_url
     assert_response :success
     assert_select ".notification-dropdown__badge"
   end

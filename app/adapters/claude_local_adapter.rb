@@ -12,7 +12,7 @@ class ClaudeLocalAdapter < BaseAdapter
   end
 
   def self.config_schema
-    { required: %w[model], optional: %w[max_turns session_id allowed_tools] }
+    { required: %w[model], optional: %w[max_turns session_id allowed_tools provider base_url] }
   end
 
   # Auth priority for Claude CLI in tmux sessions:
@@ -24,11 +24,22 @@ class ClaudeLocalAdapter < BaseAdapter
   # process's, so we explicitly forward all relevant variables.
   FORWARDED_ENV_VARS = %w[HOME PATH ANTHROPIC_API_KEY CLAUDE_CODE_OAUTH_TOKEN].freeze
 
-  def self.env_flags
-    flags = FORWARDED_ENV_VARS.filter_map do |var|
-      value = ENV[var]
-      "-e #{var}=#{value.shellescape}" if value.present?
-    end
+  OLLAMA_DEFAULT_BASE_URL = "http://localhost:11434".freeze
+
+  # Returns `-e KEY=value` flags for tmux new-session, branching on provider:
+  #
+  #   - provider "anthropic" (default): forwards hosted API credentials from
+  #     ENV or Rails credentials, plus an isolated CLAUDE_CONFIG_DIR.
+  #   - provider "ollama": forwards ANTHROPIC_BASE_URL + ANTHROPIC_AUTH_TOKEN
+  #     pointing at the local Ollama server, and explicitly blanks
+  #     ANTHROPIC_API_KEY so the Claude CLI does not bypass the base URL.
+  def self.env_flags(role)
+    provider = role.adapter_config&.dig("provider").to_s
+    provider == "ollama" ? ollama_env_flags(role) : anthropic_env_flags
+  end
+
+  def self.anthropic_env_flags
+    flags = forward_env_flags(FORWARDED_ENV_VARS)
 
     # Fall back to Rails credentials for keys not in ENV
     { "ANTHROPIC_API_KEY" => %i[anthropic api_key],
@@ -38,11 +49,22 @@ class ClaudeLocalAdapter < BaseAdapter
       flags << "-e #{var}=#{value.shellescape}" if value.present?
     end
 
-    # Isolate agent sessions from user's personal Claude Code config.
-    # Without this, agents inherit hooks, plugins, and MCP servers from ~/.claude/,
-    # which bloats the system prompt and injects conflicting behavioral instructions.
     flags << "-e CLAUDE_CONFIG_DIR=#{agent_config_dir.shellescape}"
+    flags.join(" ")
+  end
 
+  # Ollama exposes an Anthropic-compatible API. The Claude CLI routes through
+  # it when ANTHROPIC_BASE_URL is set and ANTHROPIC_AUTH_TOKEN is present. We
+  # must also blank ANTHROPIC_API_KEY — if it is set (via ENV, credentials, or
+  # the user's shell), the CLI prefers it and ignores ANTHROPIC_BASE_URL.
+  def self.ollama_env_flags(role)
+    base_url = role.adapter_config&.dig("base_url").presence || OLLAMA_DEFAULT_BASE_URL
+
+    flags = forward_env_flags(%w[HOME PATH])
+    flags << "-e ANTHROPIC_BASE_URL=#{base_url.shellescape}"
+    flags << "-e ANTHROPIC_AUTH_TOKEN=ollama"
+    flags << "-e ANTHROPIC_API_KEY="
+    flags << "-e CLAUDE_CONFIG_DIR=#{agent_config_dir.shellescape}"
     flags.join(" ")
   end
 

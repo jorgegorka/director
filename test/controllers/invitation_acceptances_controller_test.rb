@@ -86,6 +86,7 @@ class InvitationAcceptancesControllerTest < ActionDispatch::IntegrationTest
     sign_in_as(new_user)
 
     patch invitation_acceptance_url(token: @invitation.token)
+    follow_redirect! # root → pages#home redirects authenticated users to dashboard
     follow_redirect!
     assert_response :success
     # Should show the company name from the invitation

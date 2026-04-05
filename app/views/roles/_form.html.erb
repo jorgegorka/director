@@ -100,18 +100,53 @@
   </fieldset>
 
   <!-- Claude Local adapter config fields -->
+  <% claude_provider = role.adapter_config&.dig("provider").presence || "anthropic" %>
   <fieldset class="form__fieldset" data-adapter-config-target="configGroup" data-adapter-type="claude_local">
     <legend>Claude Code Configuration</legend>
+
     <div class="form__field">
-      <%= label_tag "role_adapter_config_model", "Model" %>
-      <%= select_tag "role[adapter_config][model]",
-            options_for_select(
-              [ [ "Claude Sonnet 4", "claude-sonnet-4-20250514" ], [ "Claude Opus 4", "claude-opus-4-20250514" ] ],
-              role.adapter_config&.dig("model")
-            ),
-            id: "role_adapter_config_model",
-            class: "form__select" %>
+      <%= label_tag "role_adapter_config_provider", "Provider" %>
+      <%= select_tag "role[adapter_config][provider]",
+            options_for_select([
+              [ "Anthropic (hosted API)", "anthropic" ],
+              [ "Ollama (local)", "ollama" ]
+            ], claude_provider),
+            id: "role_adapter_config_provider",
+            class: "form__select",
+            data: { provider_select: "", action: "change->adapter-config#toggleProvider" } %>
     </div>
+
+    <div data-provider-value="anthropic">
+      <div class="form__field">
+        <%= label_tag "role_adapter_config_model", "Model" %>
+        <%= select_tag "role[adapter_config][model]",
+              options_for_select(
+                [ [ "Claude Sonnet 4", "claude-sonnet-4-20250514" ], [ "Claude Opus 4", "claude-opus-4-20250514" ] ],
+                role.adapter_config&.dig("model")
+              ),
+              id: "role_adapter_config_model",
+              class: "form__select" %>
+      </div>
+    </div>
+
+    <div data-provider-value="ollama">
+      <div class="form__field">
+        <%= label_tag "role_adapter_config_base_url", "Ollama base URL" %>
+        <%= text_field_tag "role[adapter_config][base_url]",
+              role.adapter_config&.dig("base_url") || "http://localhost:11434",
+              id: "role_adapter_config_base_url" %>
+        <p class="form__hint">Anthropic-compatible endpoint exposed by your local Ollama server.</p>
+      </div>
+      <div class="form__field">
+        <%= label_tag "role_adapter_config_model_ollama", "Model" %>
+        <%= text_field_tag "role[adapter_config][model]",
+              role.adapter_config&.dig("model"),
+              placeholder: "e.g. qwen3-coder, glm-4.7:cloud",
+              id: "role_adapter_config_model_ollama" %>
+        <p class="form__hint">Any model you have pulled with <code>ollama pull</code>.</p>
+      </div>
+    </div>
+
     <div class="form__field">
       <%= label_tag "role_adapter_config_max_turns", "Max Turns (optional)" %>
       <%= number_field_tag "role[adapter_config][max_turns]",
@@ -123,22 +158,57 @@
   </fieldset>
 
   <!-- OpenCode adapter config fields -->
+  <% opencode_provider = role.adapter_config&.dig("provider").presence || "default" %>
   <fieldset class="form__fieldset" data-adapter-config-target="configGroup" data-adapter-type="opencode">
     <legend>OpenCode Configuration</legend>
+
     <div class="form__field">
-      <%= label_tag "role_adapter_config_model", "Model" %>
-      <%= select_tag "role[adapter_config][model]",
+      <%= label_tag "role_adapter_config_opencode_provider", "Provider" %>
+      <%= select_tag "role[adapter_config][provider]",
             options_for_select([
-              [ "Claude Sonnet 4", "claude-sonnet-4-20250514" ],
-              [ "Claude Opus 4", "claude-opus-4-20250514" ],
-              [ "Claude 3.7 Sonnet", "claude-3-7-sonnet-20250219" ],
-              [ "GPT-4o", "gpt-4o" ],
-              [ "GPT-4.1", "gpt-4.1" ],
-              [ "Gemini 2.5 Pro", "gemini-2.5-pro" ]
-            ], role.adapter_config&.dig("model")),
-            id: "role_adapter_config_model",
-            class: "form__select" %>
+              [ "Hosted providers (Anthropic, OpenAI, etc.)", "default" ],
+              [ "Ollama (local)", "ollama" ]
+            ], opencode_provider),
+            id: "role_adapter_config_opencode_provider",
+            class: "form__select",
+            data: { provider_select: "", action: "change->adapter-config#toggleProvider" } %>
     </div>
+
+    <div data-provider-value="default">
+      <div class="form__field">
+        <%= label_tag "role_adapter_config_model", "Model" %>
+        <%= select_tag "role[adapter_config][model]",
+              options_for_select([
+                [ "Claude Sonnet 4", "claude-sonnet-4-20250514" ],
+                [ "Claude Opus 4", "claude-opus-4-20250514" ],
+                [ "Claude 3.7 Sonnet", "claude-3-7-sonnet-20250219" ],
+                [ "GPT-4o", "gpt-4o" ],
+                [ "GPT-4.1", "gpt-4.1" ],
+                [ "Gemini 2.5 Pro", "gemini-2.5-pro" ]
+              ], role.adapter_config&.dig("model")),
+              id: "role_adapter_config_model",
+              class: "form__select" %>
+      </div>
+    </div>
+
+    <div data-provider-value="ollama">
+      <div class="form__field">
+        <%= label_tag "role_adapter_config_opencode_base_url", "Ollama base URL" %>
+        <%= text_field_tag "role[adapter_config][base_url]",
+              role.adapter_config&.dig("base_url") || "http://localhost:11434/v1",
+              id: "role_adapter_config_opencode_base_url" %>
+        <p class="form__hint">OpenAI-compatible endpoint exposed by your local Ollama server (note the <code>/v1</code> suffix).</p>
+      </div>
+      <div class="form__field">
+        <%= label_tag "role_adapter_config_opencode_model_ollama", "Model" %>
+        <%= text_field_tag "role[adapter_config][model]",
+              role.adapter_config&.dig("model"),
+              placeholder: "e.g. openai/qwen3-coder",
+              id: "role_adapter_config_opencode_model_ollama" %>
+        <p class="form__hint">Prefix with the OpenCode provider (usually <code>openai/</code>) followed by your pulled Ollama model name.</p>
+      </div>
+    </div>
+
     <div class="form__field">
       <%= label_tag "role_adapter_config_max_turns", "Max Turns (optional)" %>
       <%= number_field_tag "role[adapter_config][max_turns]",

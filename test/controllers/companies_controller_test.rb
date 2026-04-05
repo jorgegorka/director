@@ -37,9 +37,10 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
 
   test "should set session company_id after creation" do
     post companies_url, params: { company: { name: "Session Test Corp" } }
+    follow_redirect! # root → pages#home redirects authenticated users to dashboard
     follow_redirect!
     assert_response :success
-    # The home page should show the new company name
+    # The dashboard should show the new company name
     assert_select "h1", "Session Test Corp"
   end
 

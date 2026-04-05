@@ -312,10 +312,35 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
   test "missing ANTHROPIC_API_KEY omits it from env_flags but keeps HOME and PATH" do
     ENV.delete("ANTHROPIC_API_KEY")
 
-    flags = ClaudeLocalAdapter.env_flags
+    flags = ClaudeLocalAdapter.env_flags(@role)
     assert_not_includes flags, "ANTHROPIC_API_KEY"
     assert_includes flags, "-e HOME="
     assert_includes flags, "-e PATH="
+  end
+
+  test "env_flags with provider=ollama emits ANTHROPIC_BASE_URL and blanks ANTHROPIC_API_KEY" do
+    ENV["ANTHROPIC_API_KEY"] = "sk-ant-should-not-leak"
+    @role.adapter_config = { "model" => "qwen3-coder", "provider" => "ollama", "base_url" => "http://localhost:11434" }
+
+    flags = ClaudeLocalAdapter.env_flags(@role)
+
+    assert_includes flags, "-e ANTHROPIC_BASE_URL=http://localhost:11434"
+    assert_includes flags, "-e ANTHROPIC_AUTH_TOKEN=ollama"
+    # Exactly one empty ANTHROPIC_API_KEY flag — ENV value must not leak through.
+    assert_equal 1, flags.scan(/-e ANTHROPIC_API_KEY=/).size
+    assert_match(/-e ANTHROPIC_API_KEY=(?:\s|$)/, flags)
+    assert_no_match(/ANTHROPIC_API_KEY=sk-ant-should-not-leak/, flags)
+    assert_not_includes flags, "CLAUDE_CODE_OAUTH_TOKEN"
+    assert_includes flags, "-e HOME="
+    assert_includes flags, "-e CLAUDE_CONFIG_DIR="
+  end
+
+  test "env_flags with provider=ollama defaults base_url when blank" do
+    @role.adapter_config = { "model" => "llama3.1", "provider" => "ollama" }
+
+    flags = ClaudeLocalAdapter.env_flags(@role)
+
+    assert_includes flags, "-e ANTHROPIC_BASE_URL=http://localhost:11434"
   end
 
   test "missing ANTHROPIC_API_KEY omits it from tmux command" do
@@ -587,7 +612,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
   end
 
   test "env_flags sets CLAUDE_CONFIG_DIR to isolated agent config directory" do
-    flags = ClaudeLocalAdapter.env_flags
+    flags = ClaudeLocalAdapter.env_flags(@role)
 
     assert_includes flags, "-e CLAUDE_CONFIG_DIR="
     assert_includes flags, "tmp/claude_agent_config"

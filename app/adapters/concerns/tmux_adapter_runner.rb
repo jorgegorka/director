@@ -13,9 +13,11 @@ require "tempfile"
 #       The module wraps it in a tempfile shell script so backticks or $()
 #       in prompts are not interpreted by /bin/sh as command substitution.
 #
-#   - `env_flags` -> String
+#   - `env_flags(role)` -> String
 #       Returns `-e KEY=value` pairs for tmux new-session, adapter-specific
-#       (different providers forward different credentials).
+#       (different providers forward different credentials). Receives the
+#       role so adapters can vary env based on `role.adapter_config` (e.g.
+#       switching between hosted and Ollama providers).
 #
 #   - `parse_result(accumulated_lines)` -> Hash
 #       Parses the stream output captured from tmux and returns an
@@ -107,7 +109,7 @@ module TmuxAdapterRunner
     spawn_cmd  = "tmux new-session -d -s #{session_name.shellescape}"
     spawn_cmd += " -x #{PANE_WIDTH} -y #{PANE_HEIGHT}"
     spawn_cmd += " -c #{working_dir.shellescape}" if working_dir.present?
-    flags = env_flags
+    flags = env_flags(role)
     spawn_cmd += " #{flags}" if flags.present?
     spawn_cmd += " #{cmd_file.path.shellescape}"
     # remain-on-exit keeps the tmux pane alive after the command exits so we
@@ -126,6 +128,15 @@ module TmuxAdapterRunner
 
   def retryable_error?(error)
     error.message.match?(/stalled|exited without producing a result/i)
+  end
+
+  # Builds `-e KEY=value` flags from the current process ENV, skipping blanks
+  # and shellescaping values. Shared by adapter `env_flags` implementations.
+  def forward_env_flags(vars)
+    vars.filter_map do |var|
+      value = ENV[var]
+      "-e #{var}=#{value.shellescape}" if value.present?
+    end
   end
 
   # Overridable hook for poll sleep — enables zero-sleep in tests.

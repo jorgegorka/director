@@ -17,8 +17,10 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
         }
       }
     end
-    # New users are redirected to root, which then redirects to company creation
+    # New users are redirected to root → dashboard → company creation (no companies yet)
     assert_redirected_to root_url
+    follow_redirect!
+    assert_redirected_to dashboard_url
     follow_redirect!
     assert_redirected_to new_company_url
   end
@@ -71,7 +73,8 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
         password_confirmation: "password123"
       }
     }
-    # After redirect to root, new user is redirected to company creation (no companies yet)
+    # After redirect to root, new user is bounced through dashboard to company creation
+    follow_redirect!
     follow_redirect!
     assert_redirected_to new_company_url
   end

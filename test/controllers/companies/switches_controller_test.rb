@@ -9,6 +9,7 @@ class Companies::SwitchesControllerTest < ActionDispatch::IntegrationTest
   test "should switch active company" do
     post company_switch_url(companies(:widgets))
     assert_redirected_to root_url
+    follow_redirect! # root → pages#home redirects authenticated users to dashboard
     follow_redirect!
     assert_response :success
     assert_select "h1", "Widget Factory"

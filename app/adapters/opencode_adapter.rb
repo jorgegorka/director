@@ -12,7 +12,7 @@ class OpencodeAdapter < BaseAdapter
   end
 
   def self.config_schema
-    { required: %w[model], optional: %w[max_turns working_directory] }
+    { required: %w[model], optional: %w[max_turns working_directory provider base_url] }
   end
 
   # Environment variables to forward to the tmux session.
@@ -26,11 +26,28 @@ class OpencodeAdapter < BaseAdapter
     VERTEXAI_PROJECT VERTEXAI_LOCATION LOCAL_ENDPOINT
   ].freeze
 
-  def self.env_flags
-    FORWARDED_ENV_VARS.filter_map do |var|
-      value = ENV[var]
-      "-e #{var}=#{value.shellescape}" if value.present?
-    end.join(" ")
+  OLLAMA_DEFAULT_BASE_URL = "http://localhost:11434/v1".freeze
+
+  # Returns `-e KEY=value` flags for tmux new-session. When the role's
+  # adapter_config has provider=ollama, OpenCode is pointed at the local
+  # Ollama server via OPENAI_BASE_URL (Ollama exposes an OpenAI-compatible
+  # API at /v1), avoiding any edit to the user's ~/.config/opencode/opencode.json.
+  def self.env_flags(role)
+    provider = role.adapter_config&.dig("provider").to_s
+    provider == "ollama" ? ollama_env_flags(role) : default_env_flags
+  end
+
+  def self.default_env_flags
+    forward_env_flags(FORWARDED_ENV_VARS).join(" ")
+  end
+
+  def self.ollama_env_flags(role)
+    base_url = role.adapter_config&.dig("base_url").presence || OLLAMA_DEFAULT_BASE_URL
+
+    flags = forward_env_flags(%w[HOME PATH])
+    flags << "-e OPENAI_BASE_URL=#{base_url.shellescape}"
+    flags << "-e OPENAI_API_KEY=ollama"
+    flags.join(" ")
   end
 
   # Hook for TmuxAdapterRunner: returns the opencode CLI invocation string.

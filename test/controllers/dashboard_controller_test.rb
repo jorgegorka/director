@@ -42,8 +42,10 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_company_url
   end
 
-  test "root path shows dashboard" do
+  test "root path redirects authenticated users to dashboard" do
     get root_url
+    assert_redirected_to dashboard_url
+    follow_redirect!
     assert_response :success
     assert_select ".dashboard"
   end
@@ -129,7 +131,7 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "activity shows link to full audit log" do
-    get root_url
+    get dashboard_url
     assert_response :success
     assert_select "a[href='#{audit_logs_path}']"
   end
