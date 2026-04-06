@@ -31,42 +31,61 @@
   </head>
 
   <body>
-    <header class="app-header">
-      <div class="app-header__brand">
-        <%= link_to "Director", root_path, class: "app-header__logo" %>
-      </div>
+    <% if Current.user && Current.company %>
+      <div class="app-layout" data-controller="sidebar">
+        <%= render "layouts/sidebar" %>
+        <div class="sidebar__backdrop" data-sidebar-target="backdrop" data-action="click->sidebar#closeDrawer"></div>
 
-      <nav class="app-header__nav">
-        <% if Current.user %>
-          <% if Current.company %>
-            <%= link_to "Dashboard", root_path, class: "nav__link #{"nav__link--active" if controller_name == "dashboard"}" %>
-            <%= link_to "Roles", roles_path, class: "nav__link #{"nav__link--active" if controller_name == "roles"}" %>
-            <%= link_to "Tasks", tasks_path, class: "nav__link #{"nav__link--active" if controller_name == "tasks"}" %>
-            <%= link_to "Skills", skills_path, class: "nav__link #{"nav__link--active" if controller_name == "skills"}" %>
-            <%= link_to "Audit Log", audit_logs_path, class: "nav__link #{"nav__link--active" if controller_name == "audit_logs"}" %>
-            <%= render "notifications/dropdown" %>
-            <%= button_to "Emergency Stop", emergency_stop_company_path(Current.company),
-                  method: :post,
-                  class: "btn btn--sm emergency-stop-btn",
-                  data: { turbo_confirm: "EMERGENCY STOP: This will pause ALL active roles in #{Current.company.name}. Continue?" } %>
-          <% end %>
+        <header class="app-topbar">
+          <button class="topbar__hamburger" data-action="click->sidebar#openDrawer" type="button" aria-label="Open navigation">
+            <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10zm0 5.25a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75z" clip-rule="evenodd" />
+            </svg>
+          </button>
+          <%= render "notifications/dropdown" %>
+          <%= button_to "Emergency Stop", emergency_stop_company_path(Current.company),
+                method: :post,
+                class: "btn btn--sm emergency-stop-btn",
+                data: { turbo_confirm: "EMERGENCY STOP: This will pause ALL active roles in #{Current.company.name}. Continue?" } %>
           <%= render "layouts/company_switcher" %>
-        <% else %>
-          <%= link_to "Log in", new_session_path, class: "btn btn--ghost btn--sm" %>
-          <%= link_to "Sign up", new_registration_path, class: "btn btn--primary btn--sm" %>
+        </header>
+
+        <% if notice %>
+          <div class="flash flash--notice" role="status" data-controller="flash"><%= notice %></div>
         <% end %>
-      </nav>
-    </header>
+        <% if alert %>
+          <div class="flash flash--alert" role="alert" data-controller="flash"><%= alert %></div>
+        <% end %>
 
-    <% if notice %>
-      <div class="flash flash--notice" role="status" data-controller="flash"><%= notice %></div>
-    <% end %>
-    <% if alert %>
-      <div class="flash flash--alert" role="alert" data-controller="flash"><%= alert %></div>
-    <% end %>
+        <main class="app-main">
+          <%= yield %>
+        </main>
+      </div>
+    <% else %>
+      <header class="app-topbar" style="justify-content: space-between;">
+        <span class="sidebar__brand" style="border: none; padding: var(--space-3) var(--space-6);">
+          <%= link_to "Director", root_path, style: "color: var(--color-brand-500); text-decoration: none; font-weight: 800; font-size: var(--font-size-lg); letter-spacing: var(--letter-spacing-tight);" %>
+        </span>
+        <nav style="display: flex; align-items: center; gap: var(--space-3); padding-inline-end: var(--space-6);">
+          <% if Current.user %>
+            <%= render "layouts/company_switcher" %>
+          <% else %>
+            <%= link_to "Log in", new_session_path, class: "btn btn--ghost btn--sm" %>
+            <%= link_to "Sign up", new_registration_path, class: "btn btn--primary btn--sm" %>
+          <% end %>
+        </nav>
+      </header>
 
-    <main class="app-main">
-      <%= yield %>
-    </main>
+      <% if notice %>
+        <div class="flash flash--notice" role="status" data-controller="flash"><%= notice %></div>
+      <% end %>
+      <% if alert %>
+        <div class="flash flash--alert" role="alert" data-controller="flash"><%= alert %></div>
+      <% end %>
+
+      <main class="app-main" style="margin-inline: auto;">
+        <%= yield %>
+      </main>
+    <% end %>
   </body>
 </html>
