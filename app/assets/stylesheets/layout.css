@@ -2,71 +2,47 @@
    LAYOUT
    ============================================================ */
 @layer components {
-  .app-header {
+  /* ---- App shell grid ---- */
+  .app-layout {
+    display: grid;
+    grid-template-columns: var(--sidebar-width) 1fr;
+    grid-template-rows: auto 1fr;
+    min-block-size: 100dvh;
+  }
+
+  .app-layout > .sidebar {
+    grid-row: 1 / -1;
+  }
+
+  /* ---- Top bar (replaces old app-header) ---- */
+  .app-topbar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
+    gap: var(--space-3);
     padding-inline: var(--space-6);
     block-size: var(--header-height);
     background-color: var(--bg-surface);
     border-block-end: 1px solid var(--border);
     box-shadow: 0 1px 8px -2px var(--glow-brand);
-    position: sticky;
-    inset-block-start: 0;
-    z-index: 10;
   }
 
-  .app-header__brand {
-    display: flex;
-    align-items: center;
+  /* Push hamburger to the left, actions to the right */
+  .app-topbar .topbar__hamburger {
+    margin-inline-end: auto;
   }
 
-  .app-header__logo {
-    font-size: var(--font-size-lg);
-    font-weight: 800;
-    color: var(--color-brand-500);
-    letter-spacing: var(--letter-spacing-tight);
-    text-decoration: none;
-  }
-
-  .app-header__logo:hover {
-    text-decoration: none;
-    color: var(--color-brand-600);
-  }
-
-  .app-header__nav {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-  }
-
-  .app-header__user {
-    font-size: var(--font-size-sm);
-    color: var(--text-muted);
-  }
-
-  .nav__link {
-    font-size: var(--font-size-sm);
-    font-weight: 500;
-    color: var(--text-subtle);
-    text-decoration: none;
-    transition: color var(--transition-fast);
-
-    &:hover {
-      color: var(--color-brand-500);
-      text-decoration: none;
-    }
-  }
-
-  .nav__link--active {
-    color: var(--color-brand-500);
-    font-weight: 600;
-  }
-
+  /* ---- Main content ---- */
   .app-main {
-    margin-inline: auto;
-    max-inline-size: var(--content-max-width);
     padding-block: var(--space-8);
     padding-inline: var(--space-6);
+    max-inline-size: var(--content-max-width);
+  }
+
+  /* ---- Responsive: single column on mobile ---- */
+  @media (max-width: 48rem) {
+    .app-layout {
+      grid-template-columns: 1fr;
+    }
   }
 }
