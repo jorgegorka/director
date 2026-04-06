@@ -1,0 +1,214 @@
+/* ============================================================
+   SIDEBAR NAVIGATION (inside @layer components)
+   ============================================================ */
+@layer components {
+  /* ---- Sidebar shell ---- */
+  .sidebar {
+    position: sticky;
+    inset-block-start: 0;
+    block-size: 100dvh;
+    overflow-y: auto;
+    background-color: var(--sidebar-bg);
+    border-inline-end: 1px solid var(--sidebar-border);
+    display: flex;
+    flex-direction: column;
+    z-index: 20;
+  }
+
+  /* ---- Brand header ---- */
+  .sidebar__brand {
+    padding: var(--space-5) var(--space-6);
+    font-size: var(--font-size-lg);
+    font-weight: 800;
+    color: var(--color-brand-500);
+    letter-spacing: var(--letter-spacing-tight);
+    text-decoration: none;
+    display: block;
+    border-block-end: 1px solid var(--sidebar-border);
+  }
+
+  .sidebar__brand:hover {
+    color: var(--color-brand-600);
+    text-decoration: none;
+  }
+
+  /* ---- Navigation list ---- */
+  .sidebar__nav {
+    padding: var(--space-3) 0;
+    flex: 1;
+  }
+
+  /* ---- Section (collapsible group) ---- */
+  .sidebar__section {
+    /* no special styles needed, just a grouping container */
+  }
+
+  /* ---- Section toggle button ---- */
+  .sidebar__toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    inline-size: 100%;
+    padding: var(--space-3) var(--space-6);
+    border: none;
+    background: none;
+    font-family: inherit;
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--text-subtle);
+    cursor: pointer;
+    transition: background-color var(--transition-fast), color var(--transition-fast);
+  }
+
+  .sidebar__toggle:hover {
+    background-color: var(--color-neutral-100);
+    color: var(--text-base);
+  }
+
+  /* Active parent section */
+  .sidebar__toggle--active {
+    color: var(--color-brand-500);
+    font-weight: 600;
+    background-color: var(--sidebar-active-bg);
+    border-inline-start: 3px solid var(--sidebar-active-border);
+    padding-inline-start: calc(var(--space-6) - 3px);
+  }
+
+  /* ---- Chevron ---- */
+  .sidebar__chevron {
+    inline-size: 1rem;
+    block-size: 1rem;
+    transition: transform var(--transition-base);
+    flex-shrink: 0;
+    color: var(--text-muted);
+  }
+
+  .sidebar__section--expanded .sidebar__chevron {
+    transform: rotate(90deg);
+  }
+
+  /* ---- Submenu (animated via grid-template-rows) ---- */
+  .sidebar__submenu {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 200ms ease;
+  }
+
+  .sidebar__section--expanded .sidebar__submenu {
+    grid-template-rows: 1fr;
+  }
+
+  .sidebar__submenu-inner {
+    overflow: hidden;
+  }
+
+  /* ---- Submenu links ---- */
+  .sidebar__link {
+    display: block;
+    padding: var(--space-2) var(--space-6);
+    padding-inline-start: var(--space-12);
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: background-color var(--transition-fast), color var(--transition-fast);
+  }
+
+  .sidebar__link:hover {
+    background-color: var(--color-neutral-100);
+    color: var(--text-base);
+    text-decoration: none;
+  }
+
+  .sidebar__link--active {
+    color: var(--color-brand-500);
+    font-weight: 600;
+    background-color: var(--sidebar-active-bg);
+  }
+
+  /* ---- Direct link (no sub-items, e.g. Audit Log) ---- */
+  .sidebar__direct-link {
+    display: block;
+    padding: var(--space-3) var(--space-6);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--text-subtle);
+    text-decoration: none;
+    transition: background-color var(--transition-fast), color var(--transition-fast);
+  }
+
+  .sidebar__direct-link:hover {
+    background-color: var(--color-neutral-100);
+    color: var(--text-base);
+    text-decoration: none;
+  }
+
+  .sidebar__direct-link--active {
+    color: var(--color-brand-500);
+    font-weight: 600;
+    background-color: var(--sidebar-active-bg);
+    border-inline-start: 3px solid var(--sidebar-active-border);
+    padding-inline-start: calc(var(--space-6) - 3px);
+  }
+
+  /* ---- Mobile backdrop ---- */
+  .sidebar__backdrop {
+    display: none;
+  }
+
+  /* ---- Hamburger button (in top bar) ---- */
+  .topbar__hamburger {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-2);
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: var(--text-subtle);
+    border-radius: var(--radius-sm);
+  }
+
+  .topbar__hamburger:hover {
+    background-color: var(--color-neutral-100);
+    color: var(--text-base);
+  }
+
+  .topbar__hamburger svg {
+    inline-size: 1.25rem;
+    block-size: 1.25rem;
+  }
+
+  /* ---- Responsive: mobile drawer ---- */
+  @media (max-width: 48rem) {
+    .sidebar {
+      position: fixed;
+      inset-block-start: 0;
+      inset-inline-start: 0;
+      block-size: 100dvh;
+      inline-size: var(--sidebar-width);
+      transform: translateX(-100%);
+      transition: transform 250ms ease;
+      z-index: 100;
+    }
+
+    .sidebar--open {
+      transform: translateX(0);
+    }
+
+    .sidebar__backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background-color: oklch(0% 0 0 / 0.4);
+      z-index: 99;
+    }
+
+    .sidebar__backdrop--visible {
+      display: block;
+    }
+
+    .topbar__hamburger {
+      display: flex;
+    }
+  }
+}
