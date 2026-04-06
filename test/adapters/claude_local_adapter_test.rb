@@ -704,6 +704,51 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     assert_includes prompt, "do NOT create new tasks"
   end
 
+  test "build_user_prompt includes task documents when present" do
+    context = {
+      task_id: 42,
+      task_title: "Write blog post",
+      task_description: "Write about our company",
+      task_documents: [
+        { id: 1, title: "Company Mission", body: "We build great things." },
+        { id: 2, title: "Brand Style Guide", body: "Keep it professional." }
+      ]
+    }
+    prompt = ClaudeLocalAdapter.send(:build_user_prompt, context)
+
+    assert_includes prompt, "## Reference Documents"
+    assert_includes prompt, '<document title="Company Mission">'
+    assert_includes prompt, "We build great things."
+    assert_includes prompt, '<document title="Brand Style Guide">'
+    assert_includes prompt, "Keep it professional."
+  end
+
+  test "build_user_prompt omits reference documents section when no task documents" do
+    prompt = ClaudeLocalAdapter.send(:build_user_prompt, @context)
+
+    assert_not_includes prompt, "Reference Documents"
+    assert_not_includes prompt, "<document"
+  end
+
+  test "skill catalog includes linked document hints" do
+    skills = [
+      {
+        key: "blog_writing", name: "Blog Writing", description: "Write blog posts",
+        category: "creative", markdown: "# Blog Writing",
+        linked_documents: [ { id: 1, title: "Company Mission" }, { id: 2, title: "Brand Guide" } ]
+      },
+      {
+        key: "code_review", name: "Code Review", description: "Review code",
+        category: "technical", markdown: "# Code Review"
+      }
+    ]
+
+    prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @role, { skills: skills })
+
+    assert_includes prompt, 'Related docs: "Company Mission", "Brand Guide"'
+    assert_not_includes prompt, "Related docs: " + '"' + "Review", "Skills without linked docs should not have Related docs line"
+  end
+
   test "build_user_prompt generic fallback when no task or goal" do
     prompt = ClaudeLocalAdapter.send(:build_user_prompt, {})
 

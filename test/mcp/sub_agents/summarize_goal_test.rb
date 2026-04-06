@@ -29,7 +29,7 @@ class SubAgents::SummarizeGoalTest < ActiveSupport::TestCase
     assert_includes prompt, @role.company.name
     assert_includes prompt, "get_goal_details"
     assert_includes prompt, "update_goal_summary"
-    assert_includes prompt, "task titles verbatim"
+    assert_includes prompt, "markdown link"
   end
 
   test "user_message serializes the goal id" do

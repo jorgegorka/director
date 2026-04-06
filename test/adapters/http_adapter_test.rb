@@ -213,6 +213,34 @@ class HttpAdapterTest < ActiveSupport::TestCase
     end
   end
 
+  test "payload includes task documents when present" do
+    stub_request(:post, AGENT_URL).to_return(status: 200, body: '{"ok":true}')
+
+    @context[:task_documents] = [
+      { id: 1, title: "Company Mission", body: "We build great things." }
+    ]
+
+    HttpAdapter.execute(@role, @context)
+
+    assert_requested(:post, AGENT_URL) do |req|
+      body = JSON.parse(req.body)
+      body["task"]["documents"].is_a?(Array) &&
+        body["task"]["documents"].length == 1 &&
+        body["task"]["documents"][0]["title"] == "Company Mission"
+    end
+  end
+
+  test "payload omits task documents when none present" do
+    stub_request(:post, AGENT_URL).to_return(status: 200, body: '{"ok":true}')
+
+    HttpAdapter.execute(@role, @context)
+
+    assert_requested(:post, AGENT_URL) do |req|
+      body = JSON.parse(req.body)
+      !body["task"].key?("documents")
+    end
+  end
+
   test "display_name, description, config_schema unchanged" do
     assert_equal "HTTP API", HttpAdapter.display_name
     assert_equal "Connect to a cloud-hosted agent via HTTP POST requests", HttpAdapter.description

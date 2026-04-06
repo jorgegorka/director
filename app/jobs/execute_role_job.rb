@@ -58,6 +58,10 @@ class ExecuteRoleJob < ApplicationJob
       ctx[:task_title] = task.title
       ctx[:task_description] = task.description
       ctx[:assignee_role_title] = task.assignee&.title
+
+      docs = task.documents.load.map { |d| { id: d.id, title: d.title, body: d.body } }
+      ctx[:task_documents] = docs if docs.any?
+
       goal = task.goal
     end
 
@@ -79,20 +83,23 @@ class ExecuteRoleJob < ApplicationJob
     session_id = task ? role.latest_session_id_for(task) : role.latest_session_id
     ctx[:resume_session_id] = session_id if session_id.present?
 
-    skills = role.skills.to_a
+    skills = role.skills.includes(:documents).to_a
     ctx[:skills] = serialize_skills(skills)
     ctx
   end
 
   def serialize_skills(skills)
     skills.map do |skill|
-      {
+      hash = {
         key: skill.key,
         name: skill.name,
         description: skill.description,
         category: skill.category,
         markdown: skill.markdown
       }
+      linked = skill.documents.map { |d| { id: d.id, title: d.title } }
+      hash[:linked_documents] = linked if linked.any?
+      hash
     end
   end
 

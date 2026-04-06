@@ -253,7 +253,14 @@ class ClaudeLocalAdapter < BaseAdapter
   end
 
   private_class_method def self.build_skills_prompt(skills)
-    catalog = skills.map { |s| "- **#{s[:name]}** (#{s[:key]}): #{s[:description]}" }.join("\n")
+    catalog = skills.map { |s|
+      line = "- **#{s[:name]}** (#{s[:key]}): #{s[:description]}"
+      if s[:linked_documents].present?
+        doc_names = s[:linked_documents].map { |d| "\"#{d[:title]}\"" }.join(", ")
+        line += "\n  Related docs: #{doc_names}"
+      end
+      line
+    }.join("\n")
     details = skills.map { |s| "<skill key=\"#{s[:key]}\">\n#{s[:markdown]}\n</skill>" }.join("\n\n")
 
     <<~PROMPT.strip
@@ -280,6 +287,14 @@ class ClaudeLocalAdapter < BaseAdapter
       prompt = "You have been assigned Task ##{context[:task_id]}"
       prompt += ": #{context[:task_title]}" if context[:task_title].present?
       prompt += "\n\n#{context[:task_description]}" if context[:task_description].present?
+
+      if context[:task_documents].present?
+        prompt += "\n\n## Reference Documents\n\n"
+        prompt += context[:task_documents].map { |d|
+          "<document title=\"#{d[:title]}\">\n#{d[:body]}\n</document>"
+        }.join("\n\n")
+      end
+
       prompt += "\n\nThe task is already marked in_progress. The details above are complete — start working immediately."
       prompt.strip
     elsif context[:goal_id].present?

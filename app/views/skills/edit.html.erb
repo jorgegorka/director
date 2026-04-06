@@ -1,9 +1,7 @@
 <% content_for(:title, "Edit #{@skill.name}") %>
 
-<section class="skills-page">
-  <div class="skills-page__header">
-    <h1>Edit <%= @skill.name %></h1>
-  </div>
-
+<section class="form-card form-card--wide">
+  <h1>Edit Skill</h1>
+  <p class="form-card__subtitle">Update details for "<%= @skill.name %>".</p>
   <%= render "form", skill: @skill %>
 </section>

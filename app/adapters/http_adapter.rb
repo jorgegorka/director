@@ -54,8 +54,9 @@ class HttpAdapter < BaseAdapter
       task: context[:task_id] ? {
         id: context[:task_id],
         title: context[:task_title],
-        description: context[:task_description]
-      } : nil,
+        description: context[:task_description],
+        documents: context[:task_documents]
+      }.compact : nil,
       goal: context[:goal_id] ? {
         id: context[:goal_id],
         title: context[:goal_title],

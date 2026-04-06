@@ -42,9 +42,9 @@ module SubAgents
 
         Process:
         1. Call get_goal_details on the goal once. Read the title, original description, and every task -- especially their titles, statuses, and reviewer notes. These are the record of what was done.
-        2. Write a plain-text summary, 2-4 sentences, under 500 characters. It must:
+        2. Write a summary, 2-4 sentences, under 600 characters. It must:
            - Say what was actually delivered (not what was planned).
-           - Name the relevant task titles verbatim so the user can click through to details.
+           - Reference each relevant task as a markdown link: [Task Title](/tasks/ID) using the task's id from get_goal_details. Never use bare titles.
            - Be specific. No filler ("successfully completed the goal"), no restating the goal description.
         3. Call update_goal_summary exactly once with the goal_id and the summary text.
         4. After the summary is written, respond with one short confirmation sentence and stop.
