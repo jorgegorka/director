@@ -123,6 +123,11 @@
   --content-max-width: 80rem;
   --auth-form-width:   28rem;
   --header-height:     3.5rem;
+  --sidebar-width:         15rem;
+  --sidebar-bg:            var(--color-neutral-0);
+  --sidebar-border:        var(--color-neutral-200);
+  --sidebar-active-bg:     oklch(94% 0.04 265);
+  --sidebar-active-border: var(--color-brand-500);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -166,5 +171,8 @@
     /* ---- Shadows: deeper ---- */
     --shadow-sm: 0 1px 2px oklch(0% 0 0 / 0.2);
     --shadow-md: 0 4px 6px oklch(0% 0 0 / 0.3), 0 1px 3px oklch(0% 0 0 / 0.2);
+
+    /* ---- Sidebar ---- */
+    --sidebar-active-bg:     oklch(24% 0.06 265);
   }
 }
