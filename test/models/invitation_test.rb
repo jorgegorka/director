@@ -2,13 +2,13 @@ require "test_helper"
 
 class InvitationTest < ActiveSupport::TestCase
   setup do
-    @company = companies(:acme)
+    @project = projects(:acme)
     @inviter = users(:one)
   end
 
   test "valid invitation" do
     invitation = Invitation.new(
-      company: @company,
+      project: @project,
       inviter: @inviter,
       email_address: "new@example.com",
       role: :member
@@ -18,7 +18,7 @@ class InvitationTest < ActiveSupport::TestCase
 
   test "generates token on create" do
     invitation = Invitation.create!(
-      company: @company,
+      project: @project,
       inviter: @inviter,
       email_address: "token@example.com",
       role: :member
@@ -29,7 +29,7 @@ class InvitationTest < ActiveSupport::TestCase
 
   test "sets expiration on create" do
     invitation = Invitation.create!(
-      company: @company,
+      project: @project,
       inviter: @inviter,
       email_address: "expires@example.com",
       role: :member
@@ -43,25 +43,25 @@ class InvitationTest < ActiveSupport::TestCase
   end
 
   test "invalid without email" do
-    invitation = Invitation.new(company: @company, inviter: @inviter, role: :member, email_address: nil)
+    invitation = Invitation.new(project: @project, inviter: @inviter, role: :member, email_address: nil)
     assert_not invitation.valid?
   end
 
   test "invalid with malformed email" do
-    invitation = Invitation.new(company: @company, inviter: @inviter, role: :member, email_address: "not-an-email")
+    invitation = Invitation.new(project: @project, inviter: @inviter, role: :member, email_address: "not-an-email")
     assert_not invitation.valid?
   end
 
   test "prevents inviting existing member" do
     # user :two is already a member of :acme via fixtures
     invitation = Invitation.new(
-      company: @company,
+      project: @project,
       inviter: @inviter,
       email_address: "two@example.com",
       role: :member
     )
     assert_not invitation.valid?
-    assert_includes invitation.errors[:email_address], "is already a member of this company"
+    assert_includes invitation.errors[:email_address], "is already a member of this project"
   end
 
   test "acceptable when pending and not expired" do
@@ -87,7 +87,7 @@ class InvitationTest < ActiveSupport::TestCase
     invitation.reload
     assert invitation.accepted?
     assert_not_nil invitation.accepted_at
-    assert @company.memberships.exists?(user: new_user, role: :member)
+    assert @project.memberships.exists?(user: new_user, role: :member)
   end
 
   test "role enum has member and admin only" do
@@ -95,7 +95,7 @@ class InvitationTest < ActiveSupport::TestCase
   end
 
   test "active scope returns only pending non-expired invitations" do
-    active = Invitation.active.where(company: @company)
+    active = Invitation.active.where(project: @project)
     assert_includes active, invitations(:pending_invite)
     assert_not_includes active, invitations(:expired_invite)
     assert_not_includes active, invitations(:accepted_invite)

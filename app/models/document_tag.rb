@@ -4,5 +4,5 @@ class DocumentTag < ApplicationRecord
   has_many :document_taggings, dependent: :destroy
   has_many :documents, through: :document_taggings
 
-  validates :name, presence: true, uniqueness: { scope: :company_id }
+  validates :name, presence: true, uniqueness: { scope: :project_id }
 end

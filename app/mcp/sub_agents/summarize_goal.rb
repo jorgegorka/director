@@ -36,7 +36,7 @@ module SubAgents
 
     def system_prompt
       <<~PROMPT
-        You are a goal-summary specialist working on behalf of #{role.title} at #{role.company.name}. A goal has just reached 100% completion and needs a short outcome summary for the user.
+        You are a goal-summary specialist working on behalf of #{role.title} at #{role.project.name}. A goal has just reached 100% completion and needs a short outcome summary for the user.
 
         Your single job: read the goal and its tasks, then write one concise summary. Exactly one update_goal_summary call.
 

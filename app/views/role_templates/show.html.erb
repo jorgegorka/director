@@ -10,7 +10,7 @@
     <div class="template-detail__actions">
       <%= button_to "Apply Template", apply_role_template_path(@template.key),
             class: "btn btn--primary",
-            data: { turbo_confirm: "Apply the #{@template.name} template? This will create #{@template.roles.size} roles in your company." } %>
+            data: { turbo_confirm: "Apply the #{@template.name} template? This will create #{@template.roles.size} roles in your project." } %>
     </div>
   </div>
 

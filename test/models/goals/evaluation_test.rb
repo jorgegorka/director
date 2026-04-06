@@ -4,7 +4,7 @@ class Goals::EvaluationTest < ActiveSupport::TestCase
   setup do
     ENV["ANTHROPIC_API_KEY"] = "test-key"
 
-    @company = companies(:acme)
+    @project = projects(:acme)
     @role = roles(:cto)
     @goal = goals(:acme_objective_one)
 
@@ -12,7 +12,7 @@ class Goals::EvaluationTest < ActiveSupport::TestCase
     @task = Task.create!(
       title: "Build search feature",
       description: "Add full-text search",
-      company: @company,
+      project: @project,
       assignee: @role,
       goal: @goal,
       status: :open
@@ -40,7 +40,7 @@ class Goals::EvaluationTest < ActiveSupport::TestCase
     assert_equal @task.id, evaluation.task_id
     assert_equal @goal.id, evaluation.goal_id
     assert_equal @role.id, evaluation.role_id
-    assert_equal @company.id, evaluation.company_id
+    assert_equal @project.id, evaluation.project_id
   end
 
   test "task stays completed on pass" do
@@ -111,9 +111,9 @@ class Goals::EvaluationTest < ActiveSupport::TestCase
   # --- Retry exhaustion ---
 
   test "blocks task after MAX_ATTEMPTS failed evaluations" do
-    GoalEvaluation.create!(company: @company, task: @task, goal: @goal, role: @role,
+    GoalEvaluation.create!(project: @project, task: @task, goal: @goal, role: @role,
       result: :fail, feedback: "Attempt 1", attempt_number: 1, cost_cents: 50)
-    GoalEvaluation.create!(company: @company, task: @task, goal: @goal, role: @role,
+    GoalEvaluation.create!(project: @project, task: @task, goal: @goal, role: @role,
       result: :fail, feedback: "Attempt 2", attempt_number: 2, cost_cents: 50)
 
     stub_ai_response(result: "fail", feedback: "Still not aligned.")
@@ -125,9 +125,9 @@ class Goals::EvaluationTest < ActiveSupport::TestCase
   end
 
   test "records audit event on retry exhaustion" do
-    GoalEvaluation.create!(company: @company, task: @task, goal: @goal, role: @role,
+    GoalEvaluation.create!(project: @project, task: @task, goal: @goal, role: @role,
       result: :fail, feedback: "Attempt 1", attempt_number: 1, cost_cents: 50)
-    GoalEvaluation.create!(company: @company, task: @task, goal: @goal, role: @role,
+    GoalEvaluation.create!(project: @project, task: @task, goal: @goal, role: @role,
       result: :fail, feedback: "Attempt 2", attempt_number: 2, cost_cents: 50)
 
     stub_ai_response(result: "fail", feedback: "Still not aligned.")
@@ -142,7 +142,7 @@ class Goals::EvaluationTest < ActiveSupport::TestCase
 
   test "skips evaluation when max attempts already reached" do
     3.times do |i|
-      GoalEvaluation.create!(company: @company, task: @task, goal: @goal, role: @role,
+      GoalEvaluation.create!(project: @project, task: @task, goal: @goal, role: @role,
         result: :fail, feedback: "Attempt #{i + 1}", attempt_number: i + 1, cost_cents: 50)
     end
 

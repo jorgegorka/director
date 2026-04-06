@@ -1,9 +1,9 @@
 class TaskDocumentsController < ApplicationController
-  before_action :require_company!
+  before_action :require_project!
   before_action :set_task
 
   def create
-    document = Current.company.documents.find(params[:document_id])
+    document = Current.project.documents.find(params[:document_id])
     @task.task_documents.find_or_create_by!(document: document)
     redirect_to @task, notice: "#{document.title} linked to this task."
   end
@@ -18,6 +18,6 @@ class TaskDocumentsController < ApplicationController
   private
 
   def set_task
-    @task = Current.company.tasks.find(params[:task_id])
+    @task = Current.project.tasks.find(params[:task_id])
   end
 end

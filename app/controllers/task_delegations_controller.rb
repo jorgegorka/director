@@ -3,7 +3,7 @@ class TaskDelegationsController < ApplicationController
   before_action :set_task
 
   def create
-    target_role = Current.company.roles.find_by(id: delegation_params[:role_id])
+    target_role = Current.project.roles.find_by(id: delegation_params[:role_id])
 
     unless target_role
       return respond_error(@task, "Role not found.")

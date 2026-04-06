@@ -1,15 +1,15 @@
 acme_policy_tag:
-  company: acme
+  project: acme
   name: policy
 
 acme_technical_tag:
-  company: acme
+  project: acme
   name: technical
 
 acme_process_tag:
-  company: acme
+  project: acme
   name: process
 
 widgets_general_tag:
-  company: widgets
+  project: widgets
   name: general

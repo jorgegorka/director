@@ -3,9 +3,9 @@ require "test_helper"
 class RoleCategoriesControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:one)
-    @company = companies(:acme)
+    @project = projects(:acme)
     sign_in_as(@user)
-    post company_switch_url(@company)
+    post project_switch_url(@project)
     @orchestrator = role_categories(:orchestrator)
     @planner = role_categories(:planner)
     @worker = role_categories(:worker)
@@ -19,11 +19,11 @@ class RoleCategoriesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".role-category-card", minimum: 3
   end
 
-  test "should only show categories for current company" do
+  test "should only show categories for current project" do
     get role_categories_url
     assert_response :success
     assert_select ".role-category-card__title", text: "Orchestrator"
-    # widgets company has its own Orchestrator — not shown here
+    # widgets project has its own Orchestrator — not shown here
   end
 
   # --- Show ---
@@ -54,7 +54,7 @@ class RoleCategoriesControllerTest < ActionDispatch::IntegrationTest
     end
     category = RoleCategory.order(:created_at).last
     assert_equal "Specialist", category.name
-    assert_equal @company.id, category.company_id
+    assert_equal @project.id, category.project_id
     assert_redirected_to role_category_url(category)
   end
 
@@ -76,7 +76,7 @@ class RoleCategoriesControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
   end
 
-  test "should not create duplicate name in same company" do
+  test "should not create duplicate name in same project" do
     assert_no_difference("RoleCategory.count") do
       post role_categories_url, params: {
         role_category: { name: "Orchestrator", job_spec: "Duplicate." }
@@ -104,7 +104,7 @@ class RoleCategoriesControllerTest < ActionDispatch::IntegrationTest
   # --- Destroy ---
 
   test "should destroy category with no roles" do
-    category = RoleCategory.create!(name: "Disposable", job_spec: "Temp.", company: @company)
+    category = RoleCategory.create!(name: "Disposable", job_spec: "Temp.", project: @project)
     assert_difference("RoleCategory.count", -1) do
       delete role_category_url(category)
     end
@@ -119,9 +119,9 @@ class RoleCategoriesControllerTest < ActionDispatch::IntegrationTest
     assert_match(/Cannot delete/, flash[:alert])
   end
 
-  # --- Company scoping ---
+  # --- Project scoping ---
 
-  test "cannot access other company categories" do
+  test "cannot access other project categories" do
     widgets_cat = role_categories(:widgets_orchestrator)
     get role_category_url(widgets_cat)
     assert_redirected_to root_url

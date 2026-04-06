@@ -34,9 +34,9 @@ module Roles
     end
 
     def notify_gate_triggered!(action = "gate_pending_approval")
-      role.company.admin_recipients.each do |user|
+      role.project.admin_recipients.each do |user|
         Notification.create!(
-          company: role.company,
+          project: role.project,
           recipient: user,
           actor: role,
           notifiable: role,
@@ -55,7 +55,7 @@ module Roles
       role.record_audit_event!(
         actor: role,
         action: audit_action,
-        company: role.company,
+        project: role.project,
         metadata: {
           action_type: action_type,
           role_title: role.title,

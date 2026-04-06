@@ -1,5 +1,5 @@
 passing_eval:
-  company: acme
+  project: acme
   task: eval_ready_task
   goal: acme_objective_one
   role: cto
@@ -9,7 +9,7 @@ passing_eval:
   cost_cents: 50
 
 failed_eval:
-  company: acme
+  project: acme
   task: completed_task
   goal: acme_sub_objective
   role: cto

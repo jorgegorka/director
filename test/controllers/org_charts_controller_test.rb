@@ -3,9 +3,9 @@ require "test_helper"
 class OrgChartsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:one)
-    @company = companies(:acme)
+    @project = projects(:acme)
     sign_in_as(@user)
-    post company_switch_url(@company)
+    post project_switch_url(@project)
   end
 
   test "should show org chart page" do
@@ -28,9 +28,9 @@ class OrgChartsControllerTest < ActionDispatch::IntegrationTest
     assert_match "CTO", response.body
   end
 
-  test "should not include roles from other companies" do
+  test "should not include roles from other projects" do
     get org_chart_url
-    # Operations Lead belongs to widgets company, should not appear
+    # Operations Lead belongs to widgets project, should not appear
     # Check the data attribute specifically
     assert_select "[data-org-chart-roles-value]" do |elements|
       refute_match(/Operations Lead/, elements.first["data-org-chart-roles-value"])
@@ -39,7 +39,7 @@ class OrgChartsControllerTest < ActionDispatch::IntegrationTest
 
   test "should show empty state when no roles exist" do
     sign_in_as(@user)
-    post company_switch_url(companies(:widgets))
+    post project_switch_url(projects(:widgets))
     roles(:widgets_lead).destroy
     get org_chart_url
     assert_response :success
@@ -52,10 +52,10 @@ class OrgChartsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_session_url
   end
 
-  test "should redirect user without company" do
-    user_without_company = User.create!(email_address: "lonely@example.com", password: "password", password_confirmation: "password")
-    sign_in_as(user_without_company)
+  test "should redirect user without project" do
+    user_without_project = User.create!(email_address: "lonely@example.com", password: "password", password_confirmation: "password")
+    sign_in_as(user_without_project)
     get org_chart_url
-    assert_redirected_to new_company_url
+    assert_redirected_to new_project_url
   end
 end

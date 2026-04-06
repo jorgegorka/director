@@ -1,8 +1,8 @@
 class AuditLogsController < ApplicationController
-  before_action :require_company!
+  before_action :require_project!
 
   def index
-    @index = AuditEvent::Index.new(Current.company, filter_params)
+    @index = AuditEvent::Index.new(Current.project, filter_params)
   end
 
   private

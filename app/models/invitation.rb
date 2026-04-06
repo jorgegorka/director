@@ -1,7 +1,7 @@
 class Invitation < ApplicationRecord
   EXPIRATION_PERIOD = 30.days
 
-  belongs_to :company
+  belongs_to :project
   belongs_to :inviter, class_name: "User"
 
   enum :role, { member: 0, admin: 1 }
@@ -30,7 +30,7 @@ class Invitation < ApplicationRecord
 
   def accept!(user)
     transaction do
-      company.memberships.create!(user: user, role: role)
+      project.memberships.create!(user: user, role: role)
       update!(status: :accepted, accepted_at: Time.current)
     end
   end
@@ -46,10 +46,10 @@ class Invitation < ApplicationRecord
   end
 
   def invitee_not_already_member
-    if company && email_address.present?
+    if project && email_address.present?
       existing_user = User.find_by(email_address: email_address)
-      if existing_user && company.memberships.exists?(user: existing_user)
-        errors.add(:email_address, "is already a member of this company")
+      if existing_user && project.memberships.exists?(user: existing_user)
+        errors.add(:email_address, "is already a member of this project")
       end
     end
   end

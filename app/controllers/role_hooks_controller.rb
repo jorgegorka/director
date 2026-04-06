@@ -1,5 +1,5 @@
 class RoleHooksController < ApplicationController
-  before_action :require_company!
+  before_action :require_project!
   before_action :set_role
   before_action :set_role_hook, only: [ :show, :edit, :update, :destroy ]
 
@@ -18,7 +18,7 @@ class RoleHooksController < ApplicationController
 
   def create
     @role_hook = @role.role_hooks.new(role_hook_params)
-    @role_hook.company = Current.company
+    @role_hook.project = Current.project
 
     if @role_hook.save
       redirect_to role_role_hook_url(@role, @role_hook), notice: "Hook \"#{@role_hook.name}\" has been created."
@@ -47,7 +47,7 @@ class RoleHooksController < ApplicationController
   private
 
   def set_role
-    @role = Current.company.roles.find(params[:role_id])
+    @role = Current.project.roles.find(params[:role_id])
   end
 
   def set_role_hook

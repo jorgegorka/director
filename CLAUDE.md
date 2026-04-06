@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-Director is a Rails 8 orchestration platform for AI agent companies. Users create virtual companies staffed by AI agents, organize them in hierarchies, assign goals/tasks, enforce budgets, and govern operations through approval gates.
+Director is a Rails 8 orchestration platform for AI agent projects. Users create projects staffed by AI agents, organize them in hierarchies, assign goals/tasks, enforce budgets, and govern operations through approval gates.
 
 ## Hard Constraints
 
@@ -13,7 +13,7 @@ Director is a Rails 8 orchestration platform for AI agent companies. Users creat
 - **CSS**: Pure custom CSS with OKLCH colors, CSS layers, logical properties — see `docs/style-guide.md`
 - **IDs**: Standard integer auto-increment — NO UUIDs
 - **Testing**: Minitest + fixtures — NO RSpec, NO FactoryBot, NO system/integration tests
-- **Multi-tenancy**: `Current.account` scoping — NO acts_as_tenant gem
+- **Multi-tenancy**: `Current.project` scoping — NO acts_as_tenant gem
 - **Database**: SQLite for everything (primary + Solid Queue/Cache/Cable)
 - **Deployment**: Kamal + Docker
 

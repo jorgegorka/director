@@ -1,9 +1,9 @@
 class GoalsController < ApplicationController
-  before_action :require_company!
+  before_action :require_project!
   before_action :set_goal, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    @goals = Current.company.goals.ordered
+    @goals = Current.project.goals.ordered
   end
 
   def show
@@ -11,11 +11,11 @@ class GoalsController < ApplicationController
   end
 
   def new
-    @goal = Current.company.goals.new
+    @goal = Current.project.goals.new
   end
 
   def create
-    @goal = Current.company.goals.new(goal_params)
+    @goal = Current.project.goals.new(goal_params)
 
     if @goal.save
       redirect_to @goal, notice: "Goal '#{@goal.title}' has been created."
@@ -44,7 +44,7 @@ class GoalsController < ApplicationController
   private
 
   def set_goal
-    @goal = Current.company.goals.find(params[:id])
+    @goal = Current.project.goals.find(params[:id])
   end
 
   def goal_params

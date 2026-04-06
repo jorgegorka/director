@@ -23,7 +23,7 @@ module Tools
     end
 
     def call(arguments)
-      goal = company.goals.find(arguments["goal_id"])
+      goal = project.goals.find(arguments["goal_id"])
 
       validate_permission!(goal)
 

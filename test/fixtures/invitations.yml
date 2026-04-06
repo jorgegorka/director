@@ -1,5 +1,5 @@
 pending_invite:
-  company: acme
+  project: acme
   inviter: one
   email_address: invitee@example.com
   role: 0  # member
@@ -8,7 +8,7 @@ pending_invite:
   expires_at: <%= 29.days.from_now.iso8601 %>
 
 expired_invite:
-  company: acme
+  project: acme
   inviter: one
   email_address: expired@example.com
   role: 0  # member
@@ -17,7 +17,7 @@ expired_invite:
   expires_at: <%= 1.day.ago.iso8601 %>
 
 accepted_invite:
-  company: acme
+  project: acme
   inviter: one
   email_address: two@example.com
   role: 0  # member

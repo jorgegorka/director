@@ -1,9 +1,9 @@
 class SkillDocumentsController < ApplicationController
-  before_action :require_company!
+  before_action :require_project!
   before_action :set_skill
 
   def create
-    document = Current.company.documents.find(params[:document_id])
+    document = Current.project.documents.find(params[:document_id])
     @skill.skill_documents.find_or_create_by!(document: document)
     redirect_to @skill, notice: "#{document.title} linked to #{@skill.name}."
   end
@@ -18,6 +18,6 @@ class SkillDocumentsController < ApplicationController
   private
 
   def set_skill
-    @skill = Current.company.skills.find(params[:skill_id])
+    @skill = Current.project.skills.find(params[:skill_id])
   end
 end

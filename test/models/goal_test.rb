@@ -4,8 +4,8 @@ class GoalTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
 
   setup do
-    @company = companies(:acme)
-    @other_company = companies(:widgets)
+    @project = projects(:acme)
+    @other_project = projects(:widgets)
     @mission = goals(:acme_mission)
     @objective_one = goals(:acme_objective_one)
     @objective_two = goals(:acme_objective_two)
@@ -15,32 +15,32 @@ class GoalTest < ActiveSupport::TestCase
 
   # --- Validations ---
 
-  test "valid with title and company" do
-    goal = Goal.new(title: "New Goal", company: @company)
+  test "valid with title and project" do
+    goal = Goal.new(title: "New Goal", project: @project)
     assert goal.valid?
   end
 
   test "invalid without title" do
-    goal = Goal.new(title: nil, company: @company)
+    goal = Goal.new(title: nil, project: @project)
     assert_not goal.valid?
     assert_includes goal.errors[:title], "can't be blank"
   end
 
-  test "title unique within company" do
-    duplicate = Goal.new(title: "Launch MVP by Q2", company: @company)
+  test "title unique within project" do
+    duplicate = Goal.new(title: "Launch MVP by Q2", project: @project)
     assert_not duplicate.valid?
     assert_includes duplicate.errors[:title], "has already been taken"
   end
 
-  test "allows same title across companies" do
-    goal = Goal.new(title: "Launch MVP by Q2", company: @other_company)
+  test "allows same title across projects" do
+    goal = Goal.new(title: "Launch MVP by Q2", project: @other_project)
     assert goal.valid?
   end
 
   # --- Associations ---
 
-  test "belongs to company" do
-    assert_equal @company, @mission.company
+  test "belongs to project" do
+    assert_equal @project, @mission.project
   end
 
   test "has many tasks" do
@@ -60,20 +60,20 @@ class GoalTest < ActiveSupport::TestCase
   # --- Scopes ---
 
   test "ordered scope sorts by position then title" do
-    Current.company = @company
-    ordered = @company.goals.ordered.to_a
+    Current.project = @project
+    ordered = @project.goals.ordered.to_a
     assert_equal @mission, ordered.first
   ensure
-    Current.company = nil
+    Current.project = nil
   end
 
-  test "for_current_company scopes to tenant" do
-    Current.company = @company
-    goals = Goal.for_current_company
+  test "for_current_project scopes to tenant" do
+    Current.project = @project
+    goals = Goal.for_current_project
     assert_includes goals, @mission
     assert_not_includes goals, @widgets_mission
   ensure
-    Current.company = nil
+    Current.project = nil
   end
 
   # --- Completion percentage recalculation ---
@@ -97,7 +97,7 @@ class GoalTest < ActiveSupport::TestCase
 
   test "creating a task enqueues recalculation job" do
     assert_enqueued_with(job: RecalculateGoalCompletionJob, args: [ @objective_two.id ]) do
-      Task.create!(title: "New task", company: @company, creator: roles(:ceo), goal: @objective_two)
+      Task.create!(title: "New task", project: @project, creator: roles(:ceo), goal: @objective_two)
     end
   end
 
@@ -127,9 +127,9 @@ class GoalTest < ActiveSupport::TestCase
     assert task.valid?
   end
 
-  test "task invalid when goal from different company" do
-    task = Task.new(title: "Bad Goal Task", company: @company, goal: @widgets_mission)
+  test "task invalid when goal from different project" do
+    task = Task.new(title: "Bad Goal Task", project: @project, goal: @widgets_mission)
     assert_not task.valid?
-    assert_includes task.errors[:goal], "must belong to the same company"
+    assert_includes task.errors[:goal], "must belong to the same project"
   end
 end

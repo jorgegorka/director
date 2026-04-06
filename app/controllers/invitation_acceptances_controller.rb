@@ -48,8 +48,8 @@ class InvitationAcceptancesController < ApplicationController
 
   def accept_invitation(user)
     @invitation.accept!(user)
-    session[:company_id] = @invitation.company_id
-    redirect_to root_path, notice: "Welcome to #{@invitation.company.name}!"
+    session[:project_id] = @invitation.project_id
+    redirect_to root_path, notice: "Welcome to #{@invitation.project.name}!"
   end
 
   def user_params

@@ -19,7 +19,7 @@ module Tools
     end
 
     def call(arguments)
-      goal = company.goals.find(arguments["goal_id"])
+      goal = project.goals.find(arguments["goal_id"])
 
       tasks = goal.tasks.includes(:assignee, :creator).map do |task|
         { id: task.id, title: task.title, status: task.status, assignee_title: task.assignee&.title }

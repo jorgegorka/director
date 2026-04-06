@@ -7,7 +7,7 @@ module Tools
     def definition
       {
         name: name,
-        description: "Search the company document library by title or tag.",
+        description: "Search the project document library by title or tag.",
         inputSchema: {
           type: "object",
           properties: {
@@ -19,7 +19,7 @@ module Tools
     end
 
     def call(arguments)
-      scope = company.documents.includes(:tags)
+      scope = project.documents.includes(:tags)
       scope = scope.search_by_title(arguments["query"]) if arguments["query"].present?
       scope = scope.tagged_with(arguments["tag"]) if arguments["tag"].present?
 

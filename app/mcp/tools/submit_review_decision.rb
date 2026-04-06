@@ -25,7 +25,7 @@ module Tools
     end
 
     def call(arguments)
-      task = company.tasks.find(arguments["task_id"])
+      task = project.tasks.find(arguments["task_id"])
 
       case arguments["decision"]
       when "approve"

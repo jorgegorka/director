@@ -35,7 +35,7 @@ module NotificationsHelper
     case notification.notifiable_type
     when "Role"
       role_path(notification.notifiable_id)
-    when "Company"
+    when "Project"
       roles_path
     else
       "#"

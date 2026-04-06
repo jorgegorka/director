@@ -29,7 +29,7 @@ class SubAgents::CreateTaskTest < ActiveSupport::TestCase
   test "system_prompt is scoped to this one role and narrows the specialist's job" do
     prompt = @sub_agent.system_prompt
     assert_includes prompt, @role.title
-    assert_includes prompt, @role.company.name
+    assert_includes prompt, @role.project.name
     assert_includes prompt, "ONE well-scoped task"
     assert_includes prompt, "list_available_roles"
     assert_includes prompt, "create_task"

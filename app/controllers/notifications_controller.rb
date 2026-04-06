@@ -1,8 +1,8 @@
 class NotificationsController < ApplicationController
-  before_action :require_company!
+  before_action :require_project!
 
   def index
-    @notifications = Current.company.notifications
+    @notifications = Current.project.notifications
                       .where(recipient: Current.user)
                       .recent
                       .includes(:notifiable, :actor)
@@ -14,7 +14,7 @@ class NotificationsController < ApplicationController
   end
 
   def mark_read
-    notification = Current.company.notifications
+    notification = Current.project.notifications
                     .where(recipient: Current.user)
                     .find(params[:id])
     notification.mark_as_read!
@@ -32,7 +32,7 @@ class NotificationsController < ApplicationController
   end
 
   def mark_all_read
-    Current.company.notifications
+    Current.project.notifications
       .where(recipient: Current.user)
       .unread
       .update_all(read_at: Time.current)

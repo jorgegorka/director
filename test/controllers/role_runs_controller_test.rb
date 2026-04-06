@@ -3,9 +3,9 @@ require "test_helper"
 class RoleRunsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:one)
-    @company = companies(:acme)
+    @project = projects(:acme)
     sign_in_as(@user)
-    post company_switch_url(@company)
+    post project_switch_url(@project)
     @role = roles(:cto)
   end
 
@@ -23,7 +23,7 @@ class RoleRunsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_session_url
   end
 
-  test "index scopes to current company" do
+  test "index scopes to current project" do
     other_role = roles(:widgets_lead)
     get role_role_runs_url(other_role)
     assert_redirected_to root_url
@@ -60,7 +60,7 @@ class RoleRunsControllerTest < ActionDispatch::IntegrationTest
 
   test "show displays error message for failed run" do
     run = @role.role_runs.create!(
-      company: @company,
+      project: @project,
       status: :failed,
       trigger_type: "task_assigned",
       error_message: "Something went wrong",
@@ -75,7 +75,7 @@ class RoleRunsControllerTest < ActionDispatch::IntegrationTest
 
   test "cancel marks running run as cancelled" do
     run = @role.role_runs.create!(
-      company: @company,
+      project: @project,
       status: :running,
       trigger_type: "task_assigned",
       started_at: Time.current
@@ -116,10 +116,10 @@ class RoleRunsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_session_url
   end
 
-  test "cancel scopes to current company" do
+  test "cancel scopes to current project" do
     other_role = roles(:widgets_lead)
     run = other_role.role_runs.create!(
-      company: companies(:widgets),
+      project: projects(:widgets),
       status: :running,
       trigger_type: "task_assigned",
       started_at: Time.current

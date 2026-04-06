@@ -1,6 +1,6 @@
 module GoalsHelper
   def options_for_goal_select
-    Current.company.goals.ordered.pluck(:title, :id)
+    Current.project.goals.ordered.pluck(:title, :id)
   end
 
   def eval_pass_rate(pass_count, total)

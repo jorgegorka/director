@@ -1,6 +1,6 @@
-# Acme company skills
+# Acme project skills
 acme_strategic_planning:
-  company: acme
+  project: acme
   key: strategic_planning
   name: Strategic Planning
   description: "Develop and evaluate strategic initiatives"
@@ -9,7 +9,7 @@ acme_strategic_planning:
   builtin: true
 
 acme_code_review:
-  company: acme
+  project: acme
   key: code_review
   name: Code Review
   description: "Review code for quality and correctness"
@@ -18,7 +18,7 @@ acme_code_review:
   builtin: true
 
 acme_content_strategy:
-  company: acme
+  project: acme
   key: content_strategy
   name: Content Strategy
   description: "Plan and manage content creation"
@@ -27,7 +27,7 @@ acme_content_strategy:
   builtin: true
 
 acme_project_planning:
-  company: acme
+  project: acme
   key: project_planning
   name: Project Planning
   description: "Plan and coordinate project execution"
@@ -36,7 +36,7 @@ acme_project_planning:
   builtin: true
 
 acme_data_analysis:
-  company: acme
+  project: acme
   key: data_analysis
   name: Data Analysis
   description: "Analyze and interpret data sets"
@@ -45,16 +45,16 @@ acme_data_analysis:
   builtin: true
 
 acme_custom_skill:
-  company: acme
+  project: acme
   key: custom_deployment
   name: Custom Deployment
-  description: "Company-specific deployment procedures"
+  description: "Project-specific deployment procedures"
   markdown: "# Custom Deployment\n\n## Steps\n1. Run deploy script\n2. Verify health check"
   category: technical
   builtin: false
 
 acme_decision_making:
-  company: acme
+  project: acme
   key: decision_making
   name: Decision Making
   description: "Structured decision analysis"
@@ -63,7 +63,7 @@ acme_decision_making:
   builtin: true
 
 acme_risk_assessment:
-  company: acme
+  project: acme
   key: risk_assessment
   name: Risk Assessment
   description: "Identify and evaluate risks"
@@ -72,7 +72,7 @@ acme_risk_assessment:
   builtin: true
 
 acme_architecture_planning:
-  company: acme
+  project: acme
   key: architecture_planning
   name: Architecture Planning
   description: "Plan system architecture"
@@ -81,7 +81,7 @@ acme_architecture_planning:
   builtin: true
 
 acme_technical_strategy:
-  company: acme
+  project: acme
   key: technical_strategy
   name: Technical Strategy
   description: "Define technical direction"
@@ -90,7 +90,7 @@ acme_technical_strategy:
   builtin: true
 
 acme_system_design:
-  company: acme
+  project: acme
   key: system_design
   name: System Design
   description: "Design scalable systems"
@@ -99,7 +99,7 @@ acme_system_design:
   builtin: true
 
 acme_security_assessment:
-  company: acme
+  project: acme
   key: security_assessment
   name: Security Assessment
   description: "Evaluate security posture"
@@ -107,9 +107,9 @@ acme_security_assessment:
   category: technical
   builtin: true
 
-# Widgets company skill (same key as acme to test cross-company uniqueness)
+# Widgets project skill (same key as acme to test cross-project uniqueness)
 widgets_strategic_planning:
-  company: widgets
+  project: widgets
   key: strategic_planning
   name: Strategic Planning
   description: "Widget-specific strategic planning"

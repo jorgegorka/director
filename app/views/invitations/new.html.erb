@@ -1,7 +1,7 @@
 <% content_for(:title, "Invite Team Member") %>
 
 <section class="form-card">
-  <h1>Invite to <%= Current.company.name %></h1>
+  <h1>Invite to <%= Current.project.name %></h1>
   <p class="form-card__subtitle">Send an invitation link via email.</p>
 
   <%= form_with(model: @invitation, class: "form") do |f| %>

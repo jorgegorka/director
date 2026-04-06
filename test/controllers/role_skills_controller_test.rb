@@ -3,9 +3,9 @@ require "test_helper"
 class RoleSkillsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:one)
-    @company = companies(:acme)
+    @project = projects(:acme)
     sign_in_as(@user)
-    post company_switch_url(@company)
+    post project_switch_url(@project)
     @cto = roles(:cto)
     @developer = roles(:developer)
     @unassigned_skill = skills(:acme_project_planning)
@@ -30,12 +30,12 @@ class RoleSkillsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to role_url(@cto)
   end
 
-  test "should not assign skill from another company" do
+  test "should not assign skill from another project" do
     post role_role_skills_url(@cto), params: { skill_id: @widgets_skill.id }
     assert_redirected_to root_url
   end
 
-  test "should not assign skill to role from another company" do
+  test "should not assign skill to role from another project" do
     post role_role_skills_url(roles(:widgets_lead)), params: { skill_id: @unassigned_skill.id }
     assert_redirected_to root_url
   end
@@ -46,15 +46,15 @@ class RoleSkillsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_session_url
   end
 
-  test "should redirect user without company on create" do
-    user_without_company = User.create!(
-      email_address: "nocompany_askl@example.com",
+  test "should redirect user without project on create" do
+    user_without_project = User.create!(
+      email_address: "noproject_askl@example.com",
       password: "password",
       password_confirmation: "password"
     )
-    sign_in_as(user_without_company)
+    sign_in_as(user_without_project)
     post role_role_skills_url(@cto), params: { skill_id: @unassigned_skill.id }
-    assert_redirected_to new_company_url
+    assert_redirected_to new_project_url
   end
 
   # --- Destroy ---
@@ -74,7 +74,7 @@ class RoleSkillsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_url
   end
 
-  test "should not remove skill from role in another company" do
+  test "should not remove skill from role in another project" do
     role_skill = role_skills(:cto_code_review)
     delete role_role_skill_url(roles(:widgets_lead), role_skill)
     assert_redirected_to root_url

@@ -7,7 +7,7 @@ class SkillDocumentTest < ActiveSupport::TestCase
     @widgets_document = documents(:widgets_doc)
   end
 
-  test "valid with skill and document from same company" do
+  test "valid with skill and document from same project" do
     sd = SkillDocument.new(skill: @skill, document: @document)
     assert sd.valid?
   end
@@ -29,10 +29,10 @@ class SkillDocumentTest < ActiveSupport::TestCase
     assert sd.valid?
   end
 
-  test "invalid when skill and document from different companies" do
+  test "invalid when skill and document from different projects" do
     sd = SkillDocument.new(skill: @skill, document: @widgets_document)
     assert_not sd.valid?
-    assert_includes sd.errors[:document], "must belong to the same company as the skill"
+    assert_includes sd.errors[:document], "must belong to the same project as the skill"
   end
 
   test "belongs to skill" do

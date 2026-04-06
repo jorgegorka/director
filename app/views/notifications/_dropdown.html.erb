@@ -6,7 +6,7 @@
         <path d="M8 16.5a2 2 0 004 0" stroke="currentColor" stroke-width="1.5" fill="none"/>
       </svg>
     </span>
-    <% unread_count = Current.user.unread_notification_count(company: Current.company) %>
+    <% unread_count = Current.user.unread_notification_count(project: Current.project) %>
     <% if unread_count > 0 %>
       <span class="notification-dropdown__badge" id="notification-badge"><%= unread_count > 99 ? "99+" : unread_count %></span>
     <% else %>

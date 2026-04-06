@@ -3,7 +3,7 @@ require "test_helper"
 class Budgets::EnforcementTest < ActiveSupport::TestCase
   setup do
     @role = roles(:cto)
-    @company = companies(:acme)
+    @project = projects(:acme)
     # Clear any existing notifications for clean tests
     Notification.where(notifiable: @role).delete_all
   end
@@ -28,7 +28,7 @@ class Budgets::EnforcementTest < ActiveSupport::TestCase
   end
 
   test "creates budget_alert notification at 80% threshold" do
-    Task.create!(title: "Cost task", company: @company, assignee: @role, cost_cents: 8500)
+    Task.create!(title: "Cost task", project: @project, assignee: @role, cost_cents: 8500)
     @role.reload
     @role.update_columns(budget_cents: 15000, budget_period_start: Date.current.beginning_of_month)
     assert_difference -> { Notification.where(action: "budget_alert").count } do
@@ -37,7 +37,7 @@ class Budgets::EnforcementTest < ActiveSupport::TestCase
   end
 
   test "does not create duplicate alert in same budget period" do
-    Task.create!(title: "Cost task", company: @company, assignee: @role, cost_cents: 8500)
+    Task.create!(title: "Cost task", project: @project, assignee: @role, cost_cents: 8500)
     @role.reload
     @role.update_columns(budget_cents: 15000, budget_period_start: Date.current.beginning_of_month)
     Budgets::Enforcement.check!(@role)
@@ -83,9 +83,9 @@ class Budgets::EnforcementTest < ActiveSupport::TestCase
     assert_equal original_paused_at.to_i, @role.paused_at.to_i
   end
 
-  test "notifies all company owners and admins" do
+  test "notifies all project owners and admins" do
     @role.update_columns(budget_cents: 1, status: Role.statuses[:idle])
-    owner_admin_count = @company.memberships.where(role: [ :owner, :admin ]).count
+    owner_admin_count = @project.memberships.where(role: [ :owner, :admin ]).count
     assert_difference -> { Notification.where(action: "budget_exhausted").count }, owner_admin_count do
       Budgets::Enforcement.check!(@role)
     end

@@ -1,5 +1,5 @@
 role_edit_version:
-  company: acme
+  project: acme
   versionable: cto (Role)
   author: one (User)
   action: update
@@ -13,7 +13,7 @@ role_edit_version:
       - "Chief Technology Officer"
 
 role_budget_version:
-  company: acme
+  project: acme
   versionable: cto (Role)
   author: one (User)
   action: update

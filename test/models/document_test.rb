@@ -2,15 +2,15 @@ require "test_helper"
 
 class DocumentTest < ActiveSupport::TestCase
   setup do
-    @company = companies(:acme)
-    @widgets = companies(:widgets)
+    @project = projects(:acme)
+    @widgets = projects(:widgets)
     @user = users(:one)
     @document = documents(:acme_refund_policy)
   end
 
-  test "valid with title, body, author, and company" do
+  test "valid with title, body, author, and project" do
     doc = Document.new(
-      company: @company,
+      project: @project,
       title: "New Doc",
       body: "# Content",
       author: @user
@@ -19,25 +19,25 @@ class DocumentTest < ActiveSupport::TestCase
   end
 
   test "invalid without title" do
-    doc = Document.new(company: @company, title: nil, body: "# Content", author: @user)
+    doc = Document.new(project: @project, title: nil, body: "# Content", author: @user)
     assert_not doc.valid?
     assert_includes doc.errors[:title], "can't be blank"
   end
 
   test "invalid without body" do
-    doc = Document.new(company: @company, title: "Test", body: nil, author: @user)
+    doc = Document.new(project: @project, title: "Test", body: nil, author: @user)
     assert_not doc.valid?
     assert_includes doc.errors[:body], "can't be blank"
   end
 
   test "invalid without author" do
-    doc = Document.new(company: @company, title: "Test", body: "# Content")
+    doc = Document.new(project: @project, title: "Test", body: "# Content")
     assert_not doc.valid?
     assert doc.errors[:author].any?
   end
 
-  test "belongs to company via Tenantable" do
-    assert_equal @company, @document.company
+  test "belongs to project via Tenantable" do
+    assert_equal @project, @document.project
   end
 
   test "has polymorphic author" do
@@ -58,9 +58,9 @@ class DocumentTest < ActiveSupport::TestCase
     assert @document.respond_to?(:tags)
   end
 
-  test "for_current_company scopes to Current.company" do
-    Current.company = @company
-    docs = Document.for_current_company
+  test "for_current_project scopes to Current.project" do
+    Current.project = @project
+    docs = Document.for_current_project
     assert_includes docs, documents(:acme_refund_policy)
     assert_not_includes docs, documents(:widgets_doc)
   end

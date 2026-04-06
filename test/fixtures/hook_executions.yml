@@ -1,7 +1,7 @@
 completed_execution:
   role_hook: cto_validation_hook
   task: completed_task
-  company: acme
+  project: acme
   status: 2  # completed
   input_payload:
     task_id: 1
@@ -15,7 +15,7 @@ completed_execution:
 failed_execution:
   role_hook: cto_webhook_hook
   task: design_homepage
-  company: acme
+  project: acme
   status: 3  # failed
   input_payload:
     task_id: 2

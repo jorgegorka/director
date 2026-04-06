@@ -1,7 +1,7 @@
 design_homepage:
   title: Design homepage
   description: "Create the main homepage design with responsive layout"
-  company: acme
+  project: acme
   creator: ceo
   assignee: cto
   status: 1  # in_progress
@@ -12,7 +12,7 @@ design_homepage:
 fix_login_bug:
   title: Fix login bug
   description: "Users cannot log in when using special characters in password"
-  company: acme
+  project: acme
   creator: cto
   assignee: developer
   status: 0  # open
@@ -23,7 +23,7 @@ fix_login_bug:
 write_tests:
   title: Write unit tests
   description: "Add comprehensive test coverage for authentication module"
-  company: acme
+  project: acme
   creator: ceo
   status: 0  # open
   priority: 1  # medium
@@ -33,7 +33,7 @@ write_tests:
 completed_task:
   title: Set up CI pipeline
   description: "Configure GitHub Actions for automated testing"
-  company: acme
+  project: acme
   creator: ceo
   assignee: cto
   status: 3  # completed
@@ -44,7 +44,7 @@ completed_task:
 
 subtask_one:
   title: Design header component
-  company: acme
+  project: acme
   creator: ceo
   parent_task: design_homepage
   status: 0  # open
@@ -53,7 +53,7 @@ subtask_one:
 eval_ready_task:
   title: Implement search feature
   description: "Add full-text search to the product catalog"
-  company: acme
+  project: acme
   creator: ceo
   assignee: cto
   status: 3  # completed
@@ -65,7 +65,7 @@ eval_ready_task:
 pending_review_task:
   title: Draft marketing plan
   description: "Create Q2 marketing plan with budget breakdown"
-  company: acme
+  project: acme
   creator: ceo  # top-level role (no parent) — requires human review
   assignee: cto
   status: 5  # pending_review
@@ -74,7 +74,7 @@ pending_review_task:
 widgets_task:
   title: Update widget catalog
   description: "Refresh the product catalog with new widgets"
-  company: widgets
+  project: widgets
   creator: widgets_lead
   status: 0  # open
   priority: 0  # low

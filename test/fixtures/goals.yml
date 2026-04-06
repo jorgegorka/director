@@ -1,32 +1,32 @@
-# Flat goals for Acme and Widgets companies.
+# Flat goals for Acme and Widgets projects.
 
 acme_mission:
   title: "Build the best AI platform"
   description: "Our north-star goal for Acme AI Corp"
-  company: acme
+  project: acme
   position: 0
 
 acme_objective_one:
   title: "Launch MVP by Q2"
   description: "Ship core features to first customers"
-  company: acme
+  project: acme
   position: 1
   role: cto
 
 acme_objective_two:
   title: "Achieve 99.9% uptime"
   description: "Reliability as a competitive advantage"
-  company: acme
+  project: acme
   position: 2
 
 acme_sub_objective:
   title: "Complete authentication module"
   description: "Auth must be production-ready"
-  company: acme
+  project: acme
   position: 3
 
 widgets_mission:
   title: "Dominate widget market"
   description: "Widgets everywhere"
-  company: widgets
+  project: widgets
   position: 0

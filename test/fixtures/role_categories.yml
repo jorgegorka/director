@@ -2,22 +2,22 @@ orchestrator:
   name: Orchestrator
   description: "Delegates work to direct reports, reviews results, and coordinates execution."
   job_spec: "You are an orchestrator. You delegate — you do NOT do implementation work yourself."
-  company: acme
+  project: acme
 
 planner:
   name: Planner
   description: "Researches, analyzes, and produces strategic plans and recommendations."
   job_spec: "You are a planner. You research, analyze, and produce plans."
-  company: acme
+  project: acme
 
 worker:
   name: Worker
   description: "Does the work directly and produces deliverables."
   job_spec: "You are a worker. You do the work yourself — you do not delegate."
-  company: acme
+  project: acme
 
 widgets_orchestrator:
   name: Orchestrator
   description: "Delegates work to direct reports."
   job_spec: "You are an orchestrator. You delegate."
-  company: widgets
+  project: widgets

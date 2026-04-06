@@ -3,9 +3,9 @@ require "test_helper"
 class TaskQuestionsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:one)
-    @company = companies(:acme)
+    @project = projects(:acme)
     sign_in_as(@user)
-    post company_switch_url(@company)
+    post project_switch_url(@project)
 
     @cto = roles(:cto)
     @developer = roles(:developer)
@@ -61,7 +61,7 @@ class TaskQuestionsControllerTest < ActionDispatch::IntegrationTest
     assert_match "cannot be blank", flash[:alert]
   end
 
-  test "human user cannot ask question on task from another company" do
+  test "human user cannot ask question on task from another project" do
     post ask_question_task_url(@widgets_task), params: { body: "Question?" }
 
     assert_redirected_to root_url
@@ -138,7 +138,7 @@ class TaskQuestionsControllerTest < ActionDispatch::IntegrationTest
     assert_response :unauthorized
   end
 
-  test "role API cannot ask question on task from another company" do
+  test "role API cannot ask question on task from another project" do
     sign_out
 
     post ask_question_task_url(@task, format: :json),

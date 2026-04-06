@@ -2,9 +2,9 @@ require "test_helper"
 
 class Role::DetailTest < ActiveSupport::TestCase
   setup do
-    @company = companies(:acme)
+    @project = projects(:acme)
     @role = roles(:cto)
-    @detail = Role::Detail.new(@role, @company)
+    @detail = Role::Detail.new(@role, @project)
   end
 
   test "recent_heartbeats returns heartbeat events in reverse chronological order" do
@@ -29,16 +29,16 @@ class Role::DetailTest < ActiveSupport::TestCase
     assert_same @detail.recent_runs, @detail.recent_runs
   end
 
-  test "company_skills returns skills ordered by category and name" do
-    skills = @detail.company_skills
+  test "project_skills returns skills ordered by category and name" do
+    skills = @detail.project_skills
     assert_kind_of ActiveRecord::Relation, skills
-    assert skills.all? { |s| s.company_id == @company.id }
+    assert skills.all? { |s| s.project_id == @project.id }
     categories = skills.map(&:category)
     assert_equal categories, categories.sort
   end
 
-  test "company_skills is memoized" do
-    assert_same @detail.company_skills, @detail.company_skills
+  test "project_skills is memoized" do
+    assert_same @detail.project_skills, @detail.project_skills
   end
 
   test "role_skills_by_skill_id returns hash indexed by skill_id" do
@@ -104,7 +104,7 @@ class Role::DetailTest < ActiveSupport::TestCase
 
   test "any_evaluations? returns false when no evaluations" do
     role = roles(:developer)
-    detail = Role::Detail.new(role, @company)
+    detail = Role::Detail.new(role, @project)
     assert_not detail.any_evaluations?
   end
 
@@ -120,12 +120,12 @@ class Role::DetailTest < ActiveSupport::TestCase
 
   test "eval_pass_rate returns 0 when no evaluations" do
     role = roles(:developer)
-    detail = Role::Detail.new(role, @company)
+    detail = Role::Detail.new(role, @project)
     assert_equal 0, detail.eval_pass_rate
   end
 
-  test "exposes role and company via attr_reader" do
+  test "exposes role and project via attr_reader" do
     assert_equal @role, @detail.role
-    assert_equal @company, @detail.company
+    assert_equal @project, @detail.project
   end
 end

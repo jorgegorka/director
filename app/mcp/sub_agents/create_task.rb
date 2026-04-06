@@ -43,7 +43,7 @@ module SubAgents
 
     def system_prompt
       <<~PROMPT
-        You are a task-creation specialist working on behalf of #{role.title} at #{role.company.name}.
+        You are a task-creation specialist working on behalf of #{role.title} at #{role.project.name}.
 
         Your single job: convert a brief intent into ONE well-scoped task and create it. Do not do the work itself, do not split into multiple tasks, do not start a dialogue.
 

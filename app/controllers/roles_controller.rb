@@ -1,35 +1,35 @@
 class RolesController < ApplicationController
   include ActionView::RecordIdentifier
 
-  before_action :require_company!
+  before_action :require_project!
   before_action :set_role, only: [ :show, :edit, :update, :destroy, :run, :pause, :resume, :terminate, :approve, :reject ]
 
   def index
-    @roles = Current.company.roles.includes(:parent, :children, :skills, :role_category).order(:title)
+    @roles = Current.project.roles.includes(:parent, :children, :skills, :role_category).order(:title)
   end
 
   def show
-    @detail = Role::Detail.new(@role, Current.company)
+    @detail = Role::Detail.new(@role, Current.project)
   end
 
   def new
-    @role = Current.company.roles.new
-    @role_categories = Current.company.role_categories.order(:name)
+    @role = Current.project.roles.new
+    @role_categories = Current.project.role_categories.order(:name)
   end
 
   def create
-    @role = Current.company.roles.new(role_params)
+    @role = Current.project.roles.new(role_params)
 
     if @role.save
       redirect_to @role, notice: "#{@role.title} has been created."
     else
-      @role_categories = Current.company.role_categories.order(:name)
+      @role_categories = Current.project.role_categories.order(:name)
       render :new, status: :unprocessable_entity
     end
   end
 
   def edit
-    @role_categories = Current.company.role_categories.order(:name)
+    @role_categories = Current.project.role_categories.order(:name)
   end
 
   def update
@@ -37,7 +37,7 @@ class RolesController < ApplicationController
       sync_approval_gates
       redirect_to @role, notice: "#{@role.title} has been updated."
     else
-      @role_categories = Current.company.role_categories.order(:name)
+      @role_categories = Current.project.role_categories.order(:name)
       render :edit, status: :unprocessable_entity
     end
   end
@@ -172,11 +172,11 @@ class RolesController < ApplicationController
   private
 
   def approvals_pending_count
-    Current.company.approvals_pending_count
+    Current.project.approvals_pending_count
   end
 
   def set_role
-    @role = Current.company.roles.includes(:skills, :approval_gates, :role_skills, :role_category, children: [ :skills, :role_category ]).find(params[:id])
+    @role = Current.project.roles.includes(:skills, :approval_gates, :role_skills, :role_category, children: [ :skills, :role_category ]).find(params[:id])
   end
 
   def sync_approval_gates

@@ -1,16 +1,16 @@
 class Dashboard::Overview
-  attr_reader :company
+  attr_reader :project
 
-  def initialize(company)
-    @company = company
+  def initialize(project)
+    @project = project
   end
 
   def tasks_active_count
-    @tasks_active_count ||= company.tasks.active.count
+    @tasks_active_count ||= project.tasks.active.count
   end
 
   def tasks_completed_count
-    @tasks_completed_count ||= company.tasks.completed.count
+    @tasks_completed_count ||= project.tasks.completed.count
   end
 
   def total_roles_count
@@ -28,7 +28,7 @@ class Dashboard::Overview
   def budget_roles
     @budget_roles ||= begin
       roles = active_roles.with_budget.order(:title)
-      @_total_spend_cents = company.preload_monthly_spend(roles)
+      @_total_spend_cents = project.preload_monthly_spend(roles)
       roles
     end
   end
@@ -43,7 +43,7 @@ class Dashboard::Overview
   end
 
   def top_goal
-    @top_goal ||= company.goals.ordered.first
+    @top_goal ||= project.goals.ordered.first
   end
 
   def show_budget?
@@ -52,6 +52,6 @@ class Dashboard::Overview
 
   private
     def active_roles
-      @active_roles ||= company.roles.active
+      @active_roles ||= project.roles.active
     end
 end

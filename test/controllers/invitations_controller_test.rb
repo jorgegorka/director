@@ -4,10 +4,10 @@ class InvitationsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @owner = users(:one)
     @member = users(:two)
-    @company = companies(:acme)
+    @project = projects(:acme)
     sign_in_as(@owner)
-    # Ensure session has the right company
-    post company_switch_url(@company)
+    # Ensure session has the right project
+    post project_switch_url(@project)
   end
 
   test "owner can view invitations index" do
@@ -17,7 +17,7 @@ class InvitationsControllerTest < ActionDispatch::IntegrationTest
 
   test "member cannot view invitations" do
     sign_in_as(@member)
-    post company_switch_url(@company)
+    post project_switch_url(@project)
     get invitations_url
     assert_redirected_to root_url
   end
@@ -53,7 +53,7 @@ class InvitationsControllerTest < ActionDispatch::IntegrationTest
   test "admin can invite as member" do
     # user :one is admin of :widgets
     sign_in_as(@owner)
-    post company_switch_url(companies(:widgets))
+    post project_switch_url(projects(:widgets))
     assert_difference("Invitation.count", 1) do
       post invitations_url, params: {
         invitation: { email_address: "widgets_new@example.com", role: "member" }
@@ -63,7 +63,7 @@ class InvitationsControllerTest < ActionDispatch::IntegrationTest
 
   test "admin cannot invite as admin" do
     sign_in_as(@owner)
-    post company_switch_url(companies(:widgets))
+    post project_switch_url(projects(:widgets))
     assert_no_difference("Invitation.count") do
       post invitations_url, params: {
         invitation: { email_address: "widgets_admin@example.com", role: "admin" }

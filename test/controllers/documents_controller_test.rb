@@ -3,9 +3,9 @@ require "test_helper"
 class DocumentsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:one)
-    @company = companies(:acme)
+    @project = projects(:acme)
     sign_in_as(@user)
-    post company_switch_url(@company)
+    post project_switch_url(@project)
     @document = documents(:acme_refund_policy)
     @widgets_doc = documents(:widgets_doc)
   end
@@ -17,7 +17,7 @@ class DocumentsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "should only show documents for current company" do
+  test "should only show documents for current project" do
     get documents_url
     assert_response :success
   end
@@ -29,7 +29,7 @@ class DocumentsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "should not show document from another company" do
+  test "should not show document from another project" do
     get document_url(@widgets_doc)
     assert_redirected_to root_url
   end
@@ -54,7 +54,7 @@ class DocumentsControllerTest < ActionDispatch::IntegrationTest
     doc = Document.order(:created_at).last
     assert_equal "New Document", doc.title
     assert_equal @user, doc.author
-    assert_equal @company, doc.company
+    assert_equal @project, doc.project
     assert_redirected_to document_url(doc)
   end
 
@@ -114,7 +114,7 @@ class DocumentsControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
   end
 
-  test "should not update document from another company" do
+  test "should not update document from another project" do
     patch document_url(@widgets_doc), params: {
       document: { title: "Hacked" }
     }
@@ -130,7 +130,7 @@ class DocumentsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to documents_url
   end
 
-  test "should not destroy document from another company" do
+  test "should not destroy document from another project" do
     assert_no_difference("Document.count") do
       delete document_url(@widgets_doc)
     end

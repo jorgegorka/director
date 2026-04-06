@@ -1,5 +1,5 @@
 /* ============================================================
-   CARDS (auth-card, form-card, company-card)
+   CARDS (auth-card, form-card, project-card)
    ============================================================ */
 @layer components {
   /* --- Authentication card --- */
@@ -58,7 +58,7 @@
     color: var(--text-muted);
   }
 
-  /* --- Form Card (company creation, etc.) --- */
+  /* --- Form Card (project creation, etc.) --- */
   .form-card {
     margin-inline: auto;
     margin-block-start: var(--space-12);
@@ -147,8 +147,8 @@
   }
 
 
-  /* --- Company Card --- */
-  .company-card {
+  /* --- Project Card --- */
+  .project-card {
     background-color: var(--bg-surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
@@ -163,7 +163,7 @@
       box-shadow: var(--shadow-md);
     }
 
-    &.company-card--active {
+    &.project-card--active {
       border-color: var(--color-brand-400);
       box-shadow:
         var(--shadow-sm),
@@ -172,25 +172,25 @@
     }
   }
 
-  .company-card__name {
+  .project-card__name {
     font-size: var(--font-size-lg);
     margin-block-end: var(--space-1);
   }
 
-  .company-card__role {
+  .project-card__role {
     font-size: var(--font-size-sm);
     color: var(--text-muted);
     text-transform: capitalize;
     margin-block-end: var(--space-4);
   }
 
-  .company-card__actions {
+  .project-card__actions {
     display: flex;
     align-items: center;
     gap: var(--space-2);
   }
 
-  .company-card__badge {
+  .project-card__badge {
     display: inline-flex;
     align-items: center;
     padding-block: var(--space-1);

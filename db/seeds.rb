@@ -1,6 +1,6 @@
 # db/seeds.rb
 #
-# Minimal seed: one company, one admin, and a three-role agent tree
+# Minimal seed: one project, one admin, and a three-role agent tree
 # (Orchestrator → Planner, Worker) all wired to the Claude Code local adapter.
 # Run: bin/rails db:seed
 # This REPLACES all existing data.
@@ -10,25 +10,25 @@ puts "Seeding Director AI..."
 ActiveRecord::Base.transaction do
   Session.destroy_all
   User.destroy_all
-  Company.destroy_all
+  Project.destroy_all
 
   user = User.create!(
     email_address: "admin@director.ai",
     password: "password123"
   )
 
-  company = Company.create!(name: "Director AI")
+  project = Project.create!(name: "Director AI")
   # after_create callback auto-seeds builtin skills and role categories.
 
-  Membership.create!(user: user, company: company, role: :owner)
+  Membership.create!(user: user, project: project, role: :owner)
 
-  categories = company.role_categories.index_by(&:name)
+  categories = project.role_categories.index_by(&:name)
 
   adapter_config = { "model" => "claude-sonnet-4-20250514" }
   budget_period_start = Date.current.beginning_of_month
 
   orchestrator = Role.create!(
-    company: company,
+    project: project,
     title: "Orchestrator",
     description: "Delegates work to direct reports and coordinates execution.",
     job_spec: "You are the Orchestrator.",
@@ -42,7 +42,7 @@ ActiveRecord::Base.transaction do
   )
 
   Role.create!(
-    company: company,
+    project: project,
     title: "Planner",
     description: "Researches and produces plans for the Orchestrator.",
     job_spec: "You are the Planner.",
@@ -56,7 +56,7 @@ ActiveRecord::Base.transaction do
   )
 
   Role.create!(
-    company: company,
+    project: project,
     title: "Worker",
     description: "Executes tasks assigned by the Orchestrator.",
     job_spec: "You are the Worker.",
@@ -70,7 +70,7 @@ ActiveRecord::Base.transaction do
   )
 
   puts "  Created user: admin@director.ai"
-  puts "  Created company: #{company.name}"
+  puts "  Created project: #{project.name}"
   puts "  Created 3 roles: Orchestrator → [Planner, Worker]"
 end
 

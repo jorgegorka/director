@@ -23,8 +23,8 @@ module AuditLogsHelper
       link_to_if(event.auditable, event.auditable&.title || "Deleted task", event.auditable)
     when "Role"
       link_to_if(event.auditable, event.auditable&.title || "Deleted role", event.auditable)
-    when "Company"
-      event.auditable&.name || "Company"
+    when "Project"
+      event.auditable&.name || "Project"
     else
       "#{event.auditable_type} ##{event.auditable_id}"
     end

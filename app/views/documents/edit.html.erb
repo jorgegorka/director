@@ -1,6 +1,7 @@
 <% content_for(:title, "Edit #{@document.title}") %>
 
-<section class="documents-page">
-  <h1>Edit <%= @document.title %></h1>
+<section class="form-card form-card--wide">
+  <h1>Edit Document</h1>
+  <p class="form-card__subtitle">Update "<%= @document.title %>".</p>
   <%= render "form", document: @document %>
 </section>

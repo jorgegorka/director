@@ -15,8 +15,8 @@ class PendingHireTest < ActiveSupport::TestCase
     assert_not @pending_hire.valid?
   end
 
-  test "requires company" do
-    @pending_hire.company = nil
+  test "requires project" do
+    @pending_hire.project = nil
     assert_not @pending_hire.valid?
   end
 
@@ -39,7 +39,7 @@ class PendingHireTest < ActiveSupport::TestCase
   end
 
   test "default status is pending" do
-    hire = PendingHire.new(role: roles(:cmo), company: companies(:acme), template_role_title: "Marketing Planner", budget_cents: 10000)
+    hire = PendingHire.new(role: roles(:cmo), project: projects(:acme), template_role_title: "Marketing Planner", budget_cents: 10000)
     assert hire.pending?
   end
 

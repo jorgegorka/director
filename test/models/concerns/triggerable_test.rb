@@ -2,7 +2,7 @@ require "test_helper"
 
 class TriggerableTaskTest < ActiveSupport::TestCase
   setup do
-    @company = companies(:acme)
+    @project = projects(:acme)
     @user = users(:one)
     @developer = roles(:developer)
     @cto = roles(:cto)
@@ -15,7 +15,7 @@ class TriggerableTaskTest < ActiveSupport::TestCase
     assert_difference -> { HeartbeatEvent.count }, 1 do
       Task.create!(
         title: "New task for role",
-        company: @company,
+        project: @project,
         creator: @cto,
         assignee: @developer
       )
@@ -30,14 +30,14 @@ class TriggerableTaskTest < ActiveSupport::TestCase
     assert_no_difference -> { HeartbeatEvent.count } do
       Task.create!(
         title: "Unassigned task",
-        company: @company,
+        project: @project,
         creator: @cto
       )
     end
   end
 
   test "assigning role to existing task triggers wake event" do
-    task = Task.create!(title: "Unassigned", company: @company, creator: @cto)
+    task = Task.create!(title: "Unassigned", project: @project, creator: @cto)
     assert_difference -> { HeartbeatEvent.count }, 1 do
       task.update!(assignee: @cto)
     end
@@ -48,7 +48,7 @@ class TriggerableTaskTest < ActiveSupport::TestCase
   end
 
   test "reassigning task to different role triggers wake for new role" do
-    task = Task.create!(title: "Assigned", company: @company, creator: @cto, assignee: @developer)
+    task = Task.create!(title: "Assigned", project: @project, creator: @cto, assignee: @developer)
     # Clear events from initial creation
     HeartbeatEvent.delete_all
 
@@ -67,7 +67,7 @@ class TriggerableTaskTest < ActiveSupport::TestCase
   end
 
   test "unassigning task (setting assignee to nil) does not trigger wake" do
-    task = Task.create!(title: "Assigned", company: @company, creator: @cto, assignee: @developer)
+    task = Task.create!(title: "Assigned", project: @project, creator: @cto, assignee: @developer)
     HeartbeatEvent.delete_all
 
     assert_no_difference -> { HeartbeatEvent.count } do
@@ -79,19 +79,19 @@ class TriggerableTaskTest < ActiveSupport::TestCase
     terminated_role = Role.create!(
       role_category: role_categories(:worker),
       title: "Dead Role",
-      company: @company,
+      project: @project,
       parent: @cto,
       adapter_type: :http,
       adapter_config: { "url" => "https://example.com" },
       status: :terminated
     )
     assert_no_difference -> { HeartbeatEvent.count } do
-      Task.create!(title: "Task for dead", company: @company, creator: @cto, assignee: terminated_role)
+      Task.create!(title: "Task for dead", project: @project, creator: @cto, assignee: terminated_role)
     end
   end
 
   test "task assignment trigger includes task context" do
-    task = Task.create!(title: "Important work", company: @company, creator: @cto, assignee: @developer)
+    task = Task.create!(title: "Important work", project: @project, creator: @cto, assignee: @developer)
     event = HeartbeatEvent.last
     assert_equal task.id, event.request_payload["task_id"]
     assert_equal "Important work", event.request_payload["task_title"]
@@ -100,7 +100,7 @@ end
 
 class TriggerableMentionTest < ActiveSupport::TestCase
   setup do
-    @company = companies(:acme)
+    @project = projects(:acme)
     @user = users(:one)
     @task = tasks(:design_homepage)
     @developer = roles(:developer)
@@ -165,7 +165,7 @@ class TriggerableMentionTest < ActiveSupport::TestCase
     end
   end
 
-  test "mention of role from different company does not trigger" do
+  test "mention of role from different project does not trigger" do
     assert_no_difference -> { HeartbeatEvent.count } do
       Message.create!(
         task: @task,

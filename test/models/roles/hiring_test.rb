@@ -2,7 +2,7 @@ require "test_helper"
 
 class Roles::HiringTest < ActiveSupport::TestCase
   setup do
-    @company = companies(:acme)
+    @project = projects(:acme)
     @ceo = roles(:ceo)
     @cmo = roles(:cmo)
   end
@@ -15,7 +15,7 @@ class Roles::HiringTest < ActiveSupport::TestCase
     assert_equal "marketing", template.key
   end
 
-  test "CEO has no department template (it is the company root)" do
+  test "CEO has no department template (it is the project root)" do
     assert_nil @ceo.department_template
   end
 
@@ -30,8 +30,8 @@ class Roles::HiringTest < ActiveSupport::TestCase
     assert_not_includes hirable_titles, "CMO"
   end
 
-  test "hirable_roles excludes roles that already exist in the company" do
-    @company.roles.create!(title: "Marketing Planner", description: "Planner", parent: @cmo, role_category: role_categories(:planner))
+  test "hirable_roles excludes roles that already exist in the project" do
+    @project.roles.create!(title: "Marketing Planner", description: "Planner", parent: @cmo, role_category: role_categories(:planner))
 
     hirable = @cmo.hirable_roles
     hirable_titles = hirable.map(&:title)
@@ -70,7 +70,7 @@ class Roles::HiringTest < ActiveSupport::TestCase
       assert_equal @cmo.adapter_type, new_role.adapter_type
       assert_equal @cmo.adapter_config, new_role.adapter_config
       assert_equal 20000, new_role.budget_cents
-      assert_equal @company, new_role.company
+      assert_equal @project, new_role.project
       assert new_role.idle?
     end
   end
@@ -113,7 +113,7 @@ class Roles::HiringTest < ActiveSupport::TestCase
     assert_match(/cannot hire/i, error.message)
   end
 
-  test "hire! raises when role already exists in company" do
+  test "hire! raises when role already exists in project" do
     @cmo.update!(auto_hire_enabled: true)
     @cmo.hire!(template_role_title: "Marketing Planner", budget_cents: 20000)
 
@@ -162,7 +162,7 @@ class Roles::HiringTest < ActiveSupport::TestCase
   test "execute_hire! creates the role from pending hire data" do
     pending_hire = PendingHire.create!(
       role: @cmo,
-      company: @company,
+      project: @project,
       template_role_title: "Marketing Planner",
       budget_cents: 20000
     )

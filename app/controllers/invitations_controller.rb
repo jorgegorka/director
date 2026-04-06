@@ -1,18 +1,18 @@
 class InvitationsController < ApplicationController
-  before_action :require_company!
+  before_action :require_project!
   before_action :authorize_inviter!
 
   def index
-    @invitations = Current.company.invitations.active.order(created_at: :desc)
-    @memberships = Current.company.memberships.includes(:user).order(:role)
+    @invitations = Current.project.invitations.active.order(created_at: :desc)
+    @memberships = Current.project.memberships.includes(:user).order(:role)
   end
 
   def new
-    @invitation = Current.company.invitations.new
+    @invitation = Current.project.invitations.new
   end
 
   def create
-    @invitation = Current.company.invitations.new(invitation_params)
+    @invitation = Current.project.invitations.new(invitation_params)
     @invitation.inviter = Current.user
 
     if @invitation.save
@@ -34,7 +34,7 @@ class InvitationsController < ApplicationController
   end
 
   def authorize_inviter!
-    membership = Current.company.memberships.find_by(user: Current.user)
+    membership = Current.project.memberships.find_by(user: Current.user)
 
     unless membership&.owner? || membership&.admin?
       redirect_to root_path, alert: "You don't have permission to manage invitations."
@@ -43,7 +43,7 @@ class InvitationsController < ApplicationController
 
     # Admin can only invite members, not other admins
     if membership.admin? && invitation_params_role == "admin"
-      redirect_to new_invitation_path, alert: "Only the company owner can invite admins."
+      redirect_to new_invitation_path, alert: "Only the project owner can invite admins."
     end
   end
 

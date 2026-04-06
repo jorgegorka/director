@@ -4,7 +4,7 @@ class RoleCategory < ApplicationRecord
   has_many :roles, dependent: :restrict_with_error
 
   validates :name, presence: true,
-                   uniqueness: { scope: :company_id, message: "already exists in this company" }
+                   uniqueness: { scope: :project_id, message: "already exists in this project" }
   validates :job_spec, presence: true
 
   def self.default_definitions

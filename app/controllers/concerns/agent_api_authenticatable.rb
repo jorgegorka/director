@@ -20,7 +20,7 @@ module AgentApiAuthenticatable
     session_record = Session.find_by(id: cookies.signed[:session_id]) if cookies.signed[:session_id]
     if session_record
       Current.session = session_record
-      set_current_company
+      set_current_project
       return
     end
 
@@ -28,7 +28,7 @@ module AgentApiAuthenticatable
     if token.present?
       @current_role = Role.find_by(api_token: token)
       if @current_role
-        Current.company = @current_role.company
+        Current.project = @current_role.project
         return
       end
     end
@@ -47,7 +47,7 @@ module AgentApiAuthenticatable
   end
 
   def set_task
-    @task = Current.company.tasks.find(params[:task_id] || params[:id])
+    @task = Current.project.tasks.find(params[:task_id] || params[:id])
   end
 
   def current_actor_role

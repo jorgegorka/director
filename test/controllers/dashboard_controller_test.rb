@@ -4,7 +4,7 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:one)
     sign_in_as(@user)
-    post company_switch_url(companies(:acme))
+    post project_switch_url(projects(:acme))
   end
 
   test "should get show" do
@@ -31,15 +31,15 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_session_url
   end
 
-  test "should require company" do
-    user_without_company = User.create!(
-      email_address: "nocompany@example.com",
+  test "should require project" do
+    user_without_project = User.create!(
+      email_address: "noproject@example.com",
       password: "password",
       password_confirmation: "password"
     )
-    sign_in_as(user_without_company)
+    sign_in_as(user_without_project)
     get dashboard_url
-    assert_redirected_to new_company_url
+    assert_redirected_to new_project_url
   end
 
   test "root path redirects authenticated users to dashboard" do
@@ -56,15 +56,15 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     assert_select ".dashboard-mission"
   end
 
-  test "dashboard only shows current company data" do
+  test "dashboard only shows current project data" do
     # Acme has active agent-configured roles (cto, developer, process_role)
-    acme_role_count = companies(:acme).roles.active.where.not(adapter_type: nil).count
+    acme_role_count = projects(:acme).roles.active.where.not(adapter_type: nil).count
 
-    # Switch to widgets company and verify data changes
-    post company_switch_url(companies(:widgets))
+    # Switch to widgets project and verify data changes
+    post project_switch_url(projects(:widgets))
     get dashboard_url
     assert_response :success
-    widgets_role_count = companies(:widgets).roles.active.where.not(adapter_type: nil).count
+    widgets_role_count = projects(:widgets).roles.active.where.not(adapter_type: nil).count
 
     assert_not_equal acme_role_count, widgets_role_count
   end

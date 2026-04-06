@@ -3,7 +3,7 @@ require "test_helper"
 class ReapStalledRoleRunsJobTest < ActiveSupport::TestCase
   setup do
     @role = roles(:developer)
-    @company = companies(:acme)
+    @project = projects(:acme)
     @task = tasks(:fix_login_bug)
 
     # Capture kill_session calls so we can assert on them without touching tmux.
@@ -66,7 +66,7 @@ class ReapStalledRoleRunsJobTest < ActiveSupport::TestCase
 
   test "ignores queued runs even if last_activity_at is stale" do
     run = RoleRun.create!(
-      role: @role, company: @company, task: @task,
+      role: @role, project: @project, task: @task,
       status: :queued, last_activity_at: 1.hour.ago
     )
 
@@ -80,7 +80,7 @@ class ReapStalledRoleRunsJobTest < ActiveSupport::TestCase
     # on the very first watchdog tick. They'll be picked up once they stream
     # any output or are dispatched fresh.
     run = RoleRun.create!(
-      role: @role, company: @company, task: @task,
+      role: @role, project: @project, task: @task,
       status: :running, started_at: 1.hour.ago, last_activity_at: nil
     )
 
@@ -164,7 +164,7 @@ class ReapStalledRoleRunsJobTest < ActiveSupport::TestCase
   def create_running_run(last_activity_at:, role: @role)
     RoleRun.create!(
       role: role,
-      company: @company,
+      project: @project,
       task: @task,
       status: :running,
       started_at: 1.hour.ago,

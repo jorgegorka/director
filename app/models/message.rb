@@ -27,10 +27,10 @@ class Message < ApplicationRecord
   end
 
   def trigger_mention_wake
-    company = task&.company
-    return unless company
+    project = task&.project
+    return unless project
 
-    mentioned_roles = detect_mentions(body, company)
+    mentioned_roles = detect_mentions(body, project)
     mentioned_roles.each do |mentioned_role|
       next if mentioned_role == author
 

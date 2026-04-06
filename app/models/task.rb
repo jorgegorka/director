@@ -25,10 +25,10 @@ class Task < ApplicationRecord
   validates :title, presence: true
   validates :cost_cents, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, allow_nil: true
   validates :completion_percentage, numericality: { only_integer: true, in: 0..100 }
-  validate :assignee_belongs_to_same_company
-  validate :creator_belongs_to_same_company
-  validate :parent_task_belongs_to_same_company
-  validate :goal_belongs_to_same_company
+  validate :assignee_belongs_to_same_project
+  validate :creator_belongs_to_same_project
+  validate :parent_task_belongs_to_same_project
+  validate :goal_belongs_to_same_project
   validate :assignee_within_delegation_scope
 
   scope :active, -> { where.not(status: [ :completed, :cancelled ]) }
@@ -101,13 +101,13 @@ class Task < ApplicationRecord
   private
 
   def broadcast_kanban_update
-    return unless company_id
+    return unless project_id
     Turbo::StreamsChannel.broadcast_remove_to(
-      "dashboard_company_#{company_id}",
+      "dashboard_project_#{project_id}",
       target: "kanban-task-#{id}"
     )
     Turbo::StreamsChannel.broadcast_append_to(
-      "dashboard_company_#{company_id}",
+      "dashboard_project_#{project_id}",
       target: "kanban-column-body-#{status}",
       partial: "dashboard/kanban_card",
       locals: { task: self }
@@ -115,28 +115,28 @@ class Task < ApplicationRecord
   end
 
   def broadcast_kanban_remove
-    return unless company_id
+    return unless project_id
     Turbo::StreamsChannel.broadcast_remove_to(
-      "dashboard_company_#{company_id}",
+      "dashboard_project_#{project_id}",
       target: "kanban-task-#{id}"
     )
   end
 
-  def assignee_belongs_to_same_company
-    if assignee.present? && assignee.company_id != company_id
-      errors.add(:assignee, "must belong to the same company")
+  def assignee_belongs_to_same_project
+    if assignee.present? && assignee.project_id != project_id
+      errors.add(:assignee, "must belong to the same project")
     end
   end
 
-  def parent_task_belongs_to_same_company
-    if parent_task.present? && parent_task.company_id != company_id
-      errors.add(:parent_task, "must belong to the same company")
+  def parent_task_belongs_to_same_project
+    if parent_task.present? && parent_task.project_id != project_id
+      errors.add(:parent_task, "must belong to the same project")
     end
   end
 
-  def goal_belongs_to_same_company
-    if goal.present? && goal.company_id != company_id
-      errors.add(:goal, "must belong to the same company")
+  def goal_belongs_to_same_project
+    if goal.present? && goal.project_id != project_id
+      errors.add(:goal, "must belong to the same project")
     end
   end
 
@@ -174,9 +174,9 @@ class Task < ApplicationRecord
     EvaluateGoalAlignmentJob.perform_later(id)
   end
 
-  def creator_belongs_to_same_company
-    if creator.present? && creator.company_id != company_id
-      errors.add(:creator, "must belong to the same company")
+  def creator_belongs_to_same_project
+    if creator.present? && creator.project_id != project_id
+      errors.add(:creator, "must belong to the same project")
     end
   end
 
@@ -202,12 +202,12 @@ class Task < ApplicationRecord
   end
 
   def broadcast_approvals_badge
-    return unless company_id
+    return unless project_id
 
-    count = company.approvals_pending_count
+    count = project.approvals_pending_count
 
     Turbo::StreamsChannel.broadcast_replace_to(
-      "dashboard_company_#{company_id}",
+      "dashboard_project_#{project_id}",
       target: "approvals-badge",
       partial: "dashboard/approvals_badge",
       locals: { count: count }

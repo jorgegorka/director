@@ -20,8 +20,8 @@ module Tools
 
     private
 
-    def company
-      role.company
+    def project
+      role.project
     end
   end
 end

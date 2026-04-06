@@ -6,7 +6,7 @@ class SubAgentInvocationTest < ActiveSupport::TestCase
     @role_run.update_column(:cost_cents, 500)
   end
 
-  test "start! creates a running invocation scoped to the role_run's company" do
+  test "start! creates a running invocation scoped to the role_run's project" do
     invocation = SubAgentInvocation.start!(
       role_run: @role_run,
       sub_agent_name: "create_task",
@@ -15,7 +15,7 @@ class SubAgentInvocationTest < ActiveSupport::TestCase
 
     assert invocation.running?
     assert_equal @role_run, invocation.role_run
-    assert_equal @role_run.company, invocation.company
+    assert_equal @role_run.project, invocation.project
     assert_equal "create_task", invocation.sub_agent_name
     assert_equal 0, invocation.cost_cents
   end

@@ -5,7 +5,7 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
   setup do
     @role = roles(:cto)
     @task = tasks(:design_homepage)
-    @company = companies(:acme)
+    @project = projects(:acme)
     # Prevent real tmux sessions — specific adapter tests override as needed.
     # Raise like the real method does on failure so the job's rescue marks the run as failed.
     ClaudeLocalAdapter.define_singleton_method(:spawn_session) { |_cmd| raise ClaudeLocalAdapter::ExecutionError, "tmux spawn failed: stub" }
@@ -35,7 +35,7 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
 
   test "transitions role_run from queued to running" do
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
 
@@ -49,7 +49,7 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
   test "role returns to idle after execution failure" do
     @role.update!(status: :idle)
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
 
@@ -61,7 +61,7 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
 
   test "role_run is marked failed with error message on exception" do
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
 
@@ -76,7 +76,7 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
 
   test "build_context includes task details when task present" do
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
 
@@ -91,14 +91,14 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
 
   test "build_context includes resume_session_id when role has prior session" do
     RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :completed, trigger_type: "scheduled",
       claude_session_id: "sess_prior_123",
       started_at: 1.hour.ago, completed_at: 30.minutes.ago
     )
 
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
 
@@ -110,7 +110,7 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
 
   test "build_context omits resume_session_id when no prior session" do
     run = RoleRun.create!(
-      role: roles(:developer), task: @task, company: @company,
+      role: roles(:developer), task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
 
@@ -146,21 +146,21 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
 
     # Create a completed run for task_a with a session
     RoleRun.create!(
-      role: @role, task: task_a, company: @company,
+      role: @role, task: task_a, project: @project,
       status: :completed, trigger_type: "task_assigned",
       claude_session_id: "sess_goal_a", completed_at: 2.hours.ago
     )
     # Create a more recent completed run for an unrelated task (no goal)
-    unrelated_task = Task.create!(title: "Unrelated", company: @company, status: :open)
+    unrelated_task = Task.create!(title: "Unrelated", project: @project, status: :open)
     RoleRun.create!(
-      role: @role, task: unrelated_task, company: @company,
+      role: @role, task: unrelated_task, project: @project,
       status: :completed, trigger_type: "task_assigned",
       claude_session_id: "sess_unrelated_latest", completed_at: 1.hour.ago
     )
 
     # New run for task_b (same goal as task_a)
     run = RoleRun.create!(
-      role: @role, task: task_b, company: @company,
+      role: @role, task: task_b, project: @project,
       status: :queued, trigger_type: "mention"
     )
 
@@ -173,7 +173,7 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
 
   test "build_context includes goal context when task has a goal" do
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
 
@@ -187,9 +187,9 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
   end
 
   test "build_context omits goal context when task has no goal" do
-    task_no_goal = Task.create!(title: "No goal task", company: @company, status: :open)
+    task_no_goal = Task.create!(title: "No goal task", project: @project, status: :open)
     run = RoleRun.create!(
-      role: @role, task: task_no_goal, company: @company,
+      role: @role, task: task_no_goal, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
 
@@ -202,13 +202,13 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
 
   test "build_context uses global session for heartbeats with no task" do
     RoleRun.create!(
-      role: @role, task: nil, company: @company,
+      role: @role, task: nil, project: @project,
       status: :completed, trigger_type: "scheduled",
       claude_session_id: "sess_heartbeat_global", completed_at: 1.hour.ago
     )
 
     run = RoleRun.create!(
-      role: @role, task: nil, company: @company,
+      role: @role, task: nil, project: @project,
       status: :queued, trigger_type: "scheduled"
     )
 
@@ -229,7 +229,7 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
     HttpAdapter.define_singleton_method(:backoff_sleep) { |_n| nil }
 
     run = RoleRun.create!(
-      role: http_role, task: @task, company: @company,
+      role: http_role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
 
@@ -251,7 +251,7 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
     HttpAdapter.define_singleton_method(:backoff_sleep) { |_n| nil }
 
     run = RoleRun.create!(
-      role: http_role, task: @task, company: @company,
+      role: http_role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
 
@@ -287,7 +287,7 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
     ClaudeLocalAdapter.define_singleton_method(:kill_session) { |_name| true }
 
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
 
@@ -310,14 +310,14 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
 
   test "Claude Local adapter budget exhausted marks run as failed" do
     Task.create!(
-      company: @company, assignee: @role,
+      project: @project, assignee: @role,
       title: "Prior expensive task", status: :open,
       cost_cents: @role.budget_cents,
       created_at: Date.current.beginning_of_month + 1.hour
     )
 
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
 
@@ -338,7 +338,7 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
     role = roles(:cto)
     role_run = RoleRun.create!(
       role: role,
-      company: role.company,
+      project: role.project,
       status: :queued,
       trigger_type: :scheduled
     )
@@ -357,7 +357,7 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
     role = roles(:cto)
     role_run = RoleRun.create!(
       role: role,
-      company: role.company,
+      project: role.project,
       status: :queued,
       trigger_type: :scheduled
     )
@@ -382,8 +382,8 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
   # ---------------------------------------------------------------------------
 
   test "dispatches next throttled run after successful completion" do
-    @company.update!(max_concurrent_agents: 1)
-    RoleRun.where(company: @company).delete_all
+    @project.update!(max_concurrent_agents: 1)
+    RoleRun.where(project: @project).delete_all
 
     http_role = roles(:developer)
     stub_request(:post, "https://api.example.com/agent")
@@ -391,12 +391,12 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
     HttpAdapter.define_singleton_method(:backoff_sleep) { |_n| nil }
 
     run = RoleRun.create!(
-      role: http_role, task: @task, company: @company,
+      role: http_role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
 
     throttled = RoleRun.create!(
-      role: @role, company: @company,
+      role: @role, project: @project,
       status: :throttled, trigger_type: "scheduled"
     )
 
@@ -415,7 +415,7 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
   test "fails fast with clear error when role has no adapter configured" do
     @role.update_column(:adapter_type, nil)
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
 
@@ -432,7 +432,7 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
 
   test "posts message to task when run fails" do
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
 
@@ -448,7 +448,7 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
 
   test "does not post message when run has no task" do
     run = RoleRun.create!(
-      role: @role, task: nil, company: @company,
+      role: @role, task: nil, project: @project,
       status: :queued, trigger_type: "scheduled"
     )
 
@@ -462,7 +462,7 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
     assert creator.present?, "Task must have a creator for this test"
 
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
 
@@ -478,13 +478,13 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
   test "does not escalate when failing role is the task creator" do
     self_task = Task.create!(
       title: "Self-created task",
-      company: @company,
+      project: @project,
       creator: @role,
       assignee: @role,
       status: :in_progress
     )
     run = RoleRun.create!(
-      role: @role, task: self_task, company: @company,
+      role: @role, task: self_task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
 
@@ -500,7 +500,7 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
   test "does not escalate when task is already terminal" do
     done_task = tasks(:completed_task)
     run = RoleRun.create!(
-      role: @role, task: done_task, company: @company,
+      role: @role, task: done_task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
 
@@ -512,16 +512,16 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
   end
 
   test "dispatches next throttled run after failure" do
-    @company.update!(max_concurrent_agents: 1)
-    RoleRun.where(company: @company).delete_all
+    @project.update!(max_concurrent_agents: 1)
+    RoleRun.where(project: @project).delete_all
 
     run = RoleRun.create!(
-      role: @role, task: nil, company: @company,
+      role: @role, task: nil, project: @project,
       status: :queued, trigger_type: "scheduled"
     )
 
     throttled = RoleRun.create!(
-      role: roles(:developer), company: @company,
+      role: roles(:developer), project: @project,
       status: :throttled, trigger_type: "scheduled"
     )
 

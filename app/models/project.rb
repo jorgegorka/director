@@ -1,4 +1,4 @@
-class Company < ApplicationRecord
+class Project < ApplicationRecord
   has_many :memberships, dependent: :destroy
   has_many :users, through: :memberships
   has_many :invitations, dependent: :destroy
@@ -78,7 +78,7 @@ class Company < ApplicationRecord
 
   def approvals_pending_count
     roles.where(status: :pending_approval).count +
-      PendingHire.where(company: self, status: :pending).count +
+      PendingHire.where(project: self, status: :pending).count +
       tasks.pending_human_review.count
   end
 

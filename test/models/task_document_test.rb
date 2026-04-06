@@ -7,7 +7,7 @@ class TaskDocumentTest < ActiveSupport::TestCase
     @widgets_document = documents(:widgets_doc)
   end
 
-  test "valid with task and document from same company" do
+  test "valid with task and document from same project" do
     td = TaskDocument.new(task: @task, document: @document)
     assert td.valid?
   end
@@ -29,10 +29,10 @@ class TaskDocumentTest < ActiveSupport::TestCase
     assert td.valid?
   end
 
-  test "invalid when task and document from different companies" do
+  test "invalid when task and document from different projects" do
     td = TaskDocument.new(task: @task, document: @widgets_document)
     assert_not td.valid?
-    assert_includes td.errors[:document], "must belong to the same company as the task"
+    assert_includes td.errors[:document], "must belong to the same project as the task"
   end
 
   test "belongs to task" do

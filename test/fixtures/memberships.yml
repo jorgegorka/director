@@ -1,14 +1,14 @@
 one_owns_acme:
-  company: acme
+  project: acme
   user: one
   role: 2  # owner
 
 two_member_acme:
-  company: acme
+  project: acme
   user: two
   role: 0  # member
 
 one_admin_widgets:
-  company: widgets
+  project: widgets
   user: one
   role: 1  # admin

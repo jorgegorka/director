@@ -31,7 +31,7 @@
   </head>
 
   <body>
-    <% if Current.user && Current.company %>
+    <% if Current.user && Current.project %>
       <div class="app-layout" data-controller="sidebar">
         <%= render "layouts/sidebar" %>
         <div class="sidebar__backdrop" data-sidebar-target="backdrop" data-action="click->sidebar#closeDrawer"></div>
@@ -43,11 +43,11 @@
             </svg>
           </button>
           <%= render "notifications/dropdown" %>
-          <%= button_to "Emergency Stop", emergency_stop_company_path(Current.company),
+          <%= button_to "Emergency Stop", emergency_stop_project_path(Current.project),
                 method: :post,
                 class: "btn btn--sm emergency-stop-btn",
-                data: { turbo_confirm: "EMERGENCY STOP: This will pause ALL active roles in #{Current.company.name}. Continue?" } %>
-          <%= render "layouts/company_switcher" %>
+                data: { turbo_confirm: "EMERGENCY STOP: This will pause ALL active roles in #{Current.project.name}. Continue?" } %>
+          <%= render "layouts/project_switcher" %>
         </header>
 
         <% if notice %>
@@ -68,7 +68,7 @@
         </span>
         <nav style="display: flex; align-items: center; gap: var(--space-3); padding-inline-end: var(--space-6);">
           <% if Current.user %>
-            <%= render "layouts/company_switcher" %>
+            <%= render "layouts/project_switcher" %>
           <% else %>
             <%= link_to "Log in", new_session_path, class: "btn btn--ghost btn--sm" %>
             <%= link_to "Sign up", new_registration_path, class: "btn btn--primary btn--sm" %>

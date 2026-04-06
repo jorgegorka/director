@@ -5,7 +5,7 @@ class Tools::UpdateGoalTest < ActiveSupport::TestCase
     @ceo = roles(:ceo)
     @cto = roles(:cto)
     @developer = roles(:developer)
-    @company = companies(:acme)
+    @project = projects(:acme)
     @objective_one = goals(:acme_objective_one)  # assigned to cto
     @objective_two = goals(:acme_objective_two)  # unassigned
   end
@@ -105,7 +105,7 @@ class Tools::UpdateGoalTest < ActiveSupport::TestCase
     assert_equal 60, @objective_one.completion_percentage
   end
 
-  test "goal not found in other company raises error" do
+  test "goal not found in other project raises error" do
     widgets_mission = goals(:widgets_mission)
     tool = Tools::UpdateGoal.new(@cto)
     assert_raises(ActiveRecord::RecordNotFound) do

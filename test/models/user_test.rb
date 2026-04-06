@@ -12,10 +12,10 @@ class UserTest < ActiveSupport::TestCase
     assert count >= 0
   end
 
-  test "unread_notification_count scoped to company" do
+  test "unread_notification_count scoped to project" do
     user = users(:one)
-    company = companies(:acme)
-    count = user.unread_notification_count(company: company)
+    project = projects(:acme)
+    count = user.unread_notification_count(project: project)
     assert count >= 0
   end
 end

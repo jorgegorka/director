@@ -4,7 +4,7 @@ class Dashboards::ActivitiesControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:one)
     sign_in_as(@user)
-    post company_switch_url(companies(:acme))
+    post project_switch_url(projects(:acme))
   end
 
   test "should get index" do
@@ -40,7 +40,7 @@ class Dashboards::ActivitiesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "respects company isolation" do
+  test "respects project isolation" do
     get dashboard_activities_url
     assert_response :success
     assert_select ".activity-feed"
@@ -64,14 +64,14 @@ class Dashboards::ActivitiesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_session_url
   end
 
-  test "requires company" do
-    user_without_company = User.create!(
-      email_address: "nocompany@example.com",
+  test "requires project" do
+    user_without_project = User.create!(
+      email_address: "noproject@example.com",
       password: "password",
       password_confirmation: "password"
     )
-    sign_in_as(user_without_company)
+    sign_in_as(user_without_project)
     get dashboard_activities_url
-    assert_redirected_to new_company_url
+    assert_redirected_to new_project_url
   end
 end

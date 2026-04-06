@@ -2,7 +2,7 @@ require "test_helper"
 
 class ProcessValidationResultJobTest < ActiveSupport::TestCase
   setup do
-    @company = companies(:acme)
+    @project = projects(:acme)
     @cto = roles(:cto)
     @developer = roles(:developer)
     @parent_task = tasks(:design_homepage)  # in_progress, assigned to cto
@@ -17,7 +17,7 @@ class ProcessValidationResultJobTest < ActiveSupport::TestCase
   test "skips when task is not completed" do
     subtask = Task.create!(
       title: "Validate: Test",
-      company: @company,
+      project: @project,
       assignee: @developer,
       parent_task: @parent_task,
       status: :open
@@ -39,7 +39,7 @@ class ProcessValidationResultJobTest < ActiveSupport::TestCase
   test "calls Hooks::ValidationProcessor for completed subtask with parent" do
     subtask = Task.create!(
       title: "Validate: #{@parent_task.title}",
-      company: @company,
+      project: @project,
       assignee: @developer,
       parent_task: @parent_task,
       status: :open

@@ -17,7 +17,7 @@ class Tools::GetDocumentTest < ActiveSupport::TestCase
     assert result[:updated_at].present?
   end
 
-  test "raises not found for document from another company" do
+  test "raises not found for document from another project" do
     widgets_doc = documents(:widgets_doc)
 
     assert_raises(ActiveRecord::RecordNotFound) do

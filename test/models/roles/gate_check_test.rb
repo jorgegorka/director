@@ -3,7 +3,7 @@ require "test_helper"
 class Roles::GateCheckTest < ActiveSupport::TestCase
   setup do
     @role = roles(:cto)
-    @company = companies(:acme)
+    @project = projects(:acme)
     # cto has task_creation and budget_spend gates enabled in fixtures
   end
 
@@ -45,7 +45,7 @@ class Roles::GateCheckTest < ActiveSupport::TestCase
     end
     audit = AuditEvent.where(action: "gate_blocked").last
     assert_equal "task_creation", audit.metadata["action_type"]
-    assert_equal @company.id, audit.company_id
+    assert_equal @project.id, audit.project_id
   end
 
   test "does not pause terminated role" do

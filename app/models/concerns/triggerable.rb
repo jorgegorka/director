@@ -15,15 +15,15 @@ module Triggerable
   end
 
   # Uses substring matching to support multi-word role titles (e.g. "@API Bot")
-  def detect_mentions(text, company)
-    return [] if text.blank? || company.nil?
+  def detect_mentions(text, project)
+    return [] if text.blank? || project.nil?
     return [] unless text.include?("@")
 
     text_downcased = text.downcase
-    matched_ids = company.roles.active.pluck(:id, :title).filter_map do |id, title|
+    matched_ids = project.roles.active.pluck(:id, :title).filter_map do |id, title|
       id if text_downcased.include?("@#{title.downcase}")
     end
 
-    matched_ids.any? ? company.roles.where(id: matched_ids).to_a : []
+    matched_ids.any? ? project.roles.where(id: matched_ids).to_a : []
   end
 end

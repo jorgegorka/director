@@ -2,12 +2,12 @@ class InvitationMailer < ApplicationMailer
   def invite(invitation)
     @invitation = invitation
     @accept_url = invitation_acceptance_url(token: @invitation.token)
-    @company = invitation.company
+    @project = invitation.project
     @inviter = invitation.inviter
 
     mail(
       to: @invitation.email_address,
-      subject: "You've been invited to join #{@company.name} on Director"
+      subject: "You've been invited to join #{@project.name} on Director"
     )
   end
 end

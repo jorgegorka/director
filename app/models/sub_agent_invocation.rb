@@ -16,7 +16,7 @@ class SubAgentInvocation < ApplicationRecord
   def self.start!(role_run:, sub_agent_name:, input_summary: nil)
     create!(
       role_run: role_run,
-      company: role_run.company,
+      project: role_run.project,
       sub_agent_name: sub_agent_name,
       status: :running,
       input_summary: input_summary

@@ -2,8 +2,8 @@ require "test_helper"
 
 class Dashboard::TaskBoardTest < ActiveSupport::TestCase
   setup do
-    @company = companies(:acme)
-    @task_board = Dashboard::TaskBoard.new(@company)
+    @project = projects(:acme)
+    @task_board = Dashboard::TaskBoard.new(@project)
   end
 
   test "tasks_by_status includes all status keys" do
@@ -16,9 +16,9 @@ class Dashboard::TaskBoardTest < ActiveSupport::TestCase
     end
   end
 
-  test "all_tasks scoped to company" do
+  test "all_tasks scoped to project" do
     @task_board.all_tasks.each do |task|
-      assert_equal @company.id, task.company_id
+      assert_equal @project.id, task.project_id
     end
   end
 
@@ -39,8 +39,8 @@ class Dashboard::TaskBoardTest < ActiveSupport::TestCase
     assert task.association(:creator).loaded?
   end
 
-  test "scoped to company only" do
-    widgets_board = Dashboard::TaskBoard.new(companies(:widgets))
+  test "scoped to project only" do
+    widgets_board = Dashboard::TaskBoard.new(projects(:widgets))
     assert_not_equal @task_board.all_tasks.count, widgets_board.all_tasks.count
   end
 end

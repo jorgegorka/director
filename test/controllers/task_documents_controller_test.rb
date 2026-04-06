@@ -3,9 +3,9 @@ require "test_helper"
 class TaskDocumentsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:one)
-    @company = companies(:acme)
+    @project = projects(:acme)
     sign_in_as(@user)
-    post company_switch_url(@company)
+    post project_switch_url(@project)
     @task = tasks(:design_homepage)
   end
 

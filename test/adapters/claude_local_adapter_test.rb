@@ -7,7 +7,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
   setup do
     @role    = roles(:cto)
     @task    = tasks(:design_homepage)
-    @company = companies(:acme)
+    @project = projects(:acme)
     @context = {
       run_id: nil,
       trigger_type: "task_assigned",
@@ -64,7 +64,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
 
   test "budget exhausted raises BudgetExhausted without spawning tmux" do
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
     @context[:run_id] = run.id
@@ -85,7 +85,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
 
   test "budget OK allows execution to proceed" do
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
     @context[:run_id] = run.id
@@ -100,7 +100,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
 
   test "claude command does not include --bare flag" do
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
     @context[:run_id] = run.id
@@ -113,7 +113,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     ENV["ANTHROPIC_API_KEY"] = "test_key_123"
 
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
     @context[:run_id] = run.id
@@ -125,7 +125,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
 
   test "tmux command always forwards HOME and PATH" do
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
     @context[:run_id] = run.id
@@ -138,7 +138,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
 
   test "claude command includes --output-format stream-json" do
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
     @context[:run_id] = run.id
@@ -149,7 +149,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
 
   test "claude command includes --model from adapter_config" do
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
     @context[:run_id] = run.id
@@ -166,7 +166,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     # "Agent process exited without producing a result" error. The fix is to
     # spawn with explicit wide pane geometry and to use `-J` on capture-pane.
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
     @context[:run_id] = run.id
@@ -180,7 +180,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
 
   test "tmux session name uses run_id" do
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
     @context[:run_id] = run.id
@@ -193,7 +193,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     @role.adapter_config["max_turns"] = 5
 
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
     @context[:run_id] = run.id
@@ -204,7 +204,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
 
   test "claude command includes --resume when resume_session_id present" do
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
     @context[:run_id] = run.id
@@ -216,7 +216,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
 
   test "claude command omits --resume when no resume_session_id" do
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
     @context[:run_id] = run.id
@@ -228,7 +228,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
 
   test "stream-JSON lines accumulated in RoleRun log" do
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
     @context[:run_id] = run.id
@@ -241,7 +241,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
 
   test "session_id extracted from result event" do
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
     @context[:run_id] = run.id
@@ -254,7 +254,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     ClaudeLocalAdapter.define_singleton_method(:capture_pane) { |_name| ASSISTANT_EVENT }
 
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
     @context[:run_id] = run.id
@@ -268,7 +268,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
 
   test "cost_cents converted from total_cost_usd" do
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
     @context[:run_id] = run.id
@@ -282,7 +282,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     ClaudeLocalAdapter.define_singleton_method(:capture_pane) { |_name| ASSISTANT_EVENT + "\n" + large_result }
 
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
     @context[:run_id] = run.id
@@ -297,7 +297,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     end
 
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
     @context[:run_id] = run.id
@@ -347,7 +347,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     ENV.delete("ANTHROPIC_API_KEY")
 
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
     @context[:run_id] = run.id
@@ -361,7 +361,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     ClaudeLocalAdapter.define_singleton_method(:pane_alive?) { |_name| raise RuntimeError, "poll exploded" }
 
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
     @context[:run_id] = run.id
@@ -396,12 +396,12 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
 
     assert_includes prompt, "Your Identity"
     assert_includes prompt, @role.title
-    assert_includes prompt, @role.company.name
+    assert_includes prompt, @role.project.name
   end
 
   test "claude command includes --system-prompt-file flag when skills present" do
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
     @context[:run_id] = run.id
@@ -416,7 +416,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
 
   test "claude command always includes --system-prompt-file for identity context" do
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
     @context[:run_id] = run.id
@@ -446,7 +446,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     @role.working_directory = dir
 
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
     @context[:run_id] = run.id
@@ -465,7 +465,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     @role.working_directory = nil
 
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
     @context[:run_id] = run.id
@@ -482,7 +482,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     @role.working_directory = nil
 
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
     @context[:run_id] = run.id
@@ -498,7 +498,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     ClaudeLocalAdapter.define_singleton_method(:capture_pane) { |_name| auth_failed_event + "\n" + result_event }
 
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
     @context[:run_id] = run.id
@@ -515,7 +515,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     ClaudeLocalAdapter.define_singleton_method(:capture_pane) { |_name| error_result }
 
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
     @context[:run_id] = run.id
@@ -600,7 +600,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
 
   test "user prompt includes task_id and title" do
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
     @context[:run_id] = run.id
@@ -708,7 +708,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     context = {
       task_id: 42,
       task_title: "Write blog post",
-      task_description: "Write about our company",
+      task_description: "Write about our project",
       task_documents: [
         { id: 1, title: "Company Mission", body: "We build great things." },
         { id: 2, title: "Brand Style Guide", body: "Keep it professional." }
@@ -763,7 +763,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
       ClaudeLocalAdapter.define_singleton_method(:capture_pane) { |_name| ASSISTANT_EVENT }
 
       run = RoleRun.create!(
-        role: @role, task: @task, company: @company,
+        role: @role, task: @task, project: @project,
         status: :queued, trigger_type: "task_assigned"
       )
       @context[:run_id] = run.id
@@ -792,7 +792,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     end
 
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
     @context[:run_id] = run.id
@@ -836,7 +836,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
       end
 
       run = RoleRun.create!(
-        role: @role, task: @task, company: @company,
+        role: @role, task: @task, project: @project,
         status: :queued, trigger_type: "task_assigned"
       )
       @context[:run_id] = run.id
@@ -867,7 +867,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     end
 
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
     @context[:run_id] = run.id
@@ -885,7 +885,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     end
 
     run = RoleRun.create!(
-      role: @role, task: @task, company: @company,
+      role: @role, task: @task, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
     @context[:run_id] = run.id
@@ -904,7 +904,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
       ClaudeLocalAdapter.define_singleton_method(:capture_pane) { |_name| ASSISTANT_EVENT }
 
       run = RoleRun.create!(
-        role: @role, task: @task, company: @company,
+        role: @role, task: @task, project: @project,
         status: :queued, trigger_type: "task_assigned"
       )
       @context[:run_id] = run.id

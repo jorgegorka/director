@@ -4,7 +4,7 @@ class HookableTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
 
   setup do
-    @company = companies(:acme)
+    @project = projects(:acme)
     @cto = roles(:cto)
     @developer = roles(:developer)
     @task = tasks(:design_homepage)  # in_progress, assigned to cto
@@ -29,7 +29,7 @@ class HookableTest < ActiveSupport::TestCase
     assert_equal "queued", execution.status
     assert_equal @validation_hook.id, execution.role_hook_id
     assert_equal @task.id, execution.task_id
-    assert_equal @company.id, execution.company_id
+    assert_equal @project.id, execution.project_id
   end
 
   test "input_payload contains task and hook context" do
@@ -132,7 +132,7 @@ class HookableTest < ActiveSupport::TestCase
     assert_difference "HookExecution.count", 2 do
       Task.create!(
         title: "Direct start task",
-        company: @company,
+        project: @project,
         assignee: @cto,
         status: :in_progress
       )

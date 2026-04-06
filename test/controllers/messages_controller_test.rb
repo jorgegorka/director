@@ -3,9 +3,9 @@ require "test_helper"
 class MessagesControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:one)
-    @company = companies(:acme)
+    @project = projects(:acme)
     sign_in_as(@user)
-    post company_switch_url(@company)
+    post project_switch_url(@project)
     @task = tasks(:design_homepage)
     @widgets_task = tasks(:widgets_task)
     @first_update = messages(:first_update)
@@ -54,10 +54,10 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
   end
 
-  test "should not create message on task from another company" do
+  test "should not create message on task from another project" do
     assert_no_difference("Message.count") do
       post task_messages_url(@widgets_task), params: {
-        message: { body: "Cross-company message." }
+        message: { body: "Cross-project message." }
       }
     end
     assert_redirected_to root_url

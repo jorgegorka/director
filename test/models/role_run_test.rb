@@ -5,7 +5,7 @@ class RoleRunTest < ActiveSupport::TestCase
     @role = roles(:cto)
     @developer = roles(:developer)
     @task = tasks(:design_homepage)
-    @company = companies(:acme)
+    @project = projects(:acme)
     @queued_run = role_runs(:queued_run)
     @running_run = role_runs(:running_run)
     @completed_run = role_runs(:completed_run)
@@ -14,26 +14,26 @@ class RoleRunTest < ActiveSupport::TestCase
 
   # --- Validations ---
 
-  test "valid with role, company, and status" do
-    run = RoleRun.new(role: @role, company: @company, status: :queued)
+  test "valid with role, project, and status" do
+    run = RoleRun.new(role: @role, project: @project, status: :queued)
     assert run.valid?
   end
 
   test "valid with optional task nil" do
-    run = RoleRun.new(role: @role, company: @company, status: :queued, task: nil)
+    run = RoleRun.new(role: @role, project: @project, status: :queued, task: nil)
     assert run.valid?
   end
 
   test "invalid without role" do
-    run = RoleRun.new(role: nil, company: @company, status: :queued)
+    run = RoleRun.new(role: nil, project: @project, status: :queued)
     assert_not run.valid?
     assert_includes run.errors[:role], "must exist"
   end
 
-  test "invalid without company" do
-    run = RoleRun.new(role: @role, company: nil, status: :queued)
+  test "invalid without project" do
+    run = RoleRun.new(role: @role, project: nil, status: :queued)
     assert_not run.valid?
-    assert_includes run.errors[:company], "must exist"
+    assert_includes run.errors[:project], "must exist"
   end
 
   # --- Associations ---
@@ -47,13 +47,13 @@ class RoleRunTest < ActiveSupport::TestCase
   end
 
   test "nil task is valid" do
-    run = RoleRun.create!(role: @role, company: @company, status: :queued, task: nil)
+    run = RoleRun.create!(role: @role, project: @project, status: :queued, task: nil)
     assert_nil run.task
     assert run.valid?
   end
 
-  test "belongs to company" do
-    assert_equal @company, @queued_run.company
+  test "belongs to project" do
+    assert_equal @project, @queued_run.project
   end
 
   # --- Enum ---
@@ -113,7 +113,7 @@ class RoleRunTest < ActiveSupport::TestCase
 
   test "recent filters by 24 hours" do
     old_run = RoleRun.create!(
-      role: @role, company: @company, status: :queued,
+      role: @role, project: @project, status: :queued,
       created_at: 25.hours.ago
     )
     recent = RoleRun.recent
@@ -133,32 +133,32 @@ class RoleRunTest < ActiveSupport::TestCase
     assert_equal timestamps, timestamps.sort.reverse
   end
 
-  test "for_current_company filters by Current.company" do
-    Current.company = @company
-    runs = RoleRun.for_current_company
-    assert runs.all? { |r| r.company_id == @company.id }
+  test "for_current_project filters by Current.project" do
+    Current.project = @project
+    runs = RoleRun.for_current_project
+    assert runs.all? { |r| r.project_id == @project.id }
   ensure
-    Current.company = nil
+    Current.project = nil
   end
 
   # --- mark_running! ---
 
   test "mark_running! transitions from queued to running" do
-    run = RoleRun.create!(role: @role, company: @company, status: :queued)
+    run = RoleRun.create!(role: @role, project: @project, status: :queued)
     assert run.queued?
     run.mark_running!
     assert run.running?
   end
 
   test "mark_running! sets started_at" do
-    run = RoleRun.create!(role: @role, company: @company, status: :queued)
+    run = RoleRun.create!(role: @role, project: @project, status: :queued)
     assert_nil run.started_at
     run.mark_running!
     assert_not_nil run.started_at
   end
 
   test "mark_running! sets last_activity_at so watchdog sees a heartbeat" do
-    run = RoleRun.create!(role: @role, company: @company, status: :queued)
+    run = RoleRun.create!(role: @role, project: @project, status: :queued)
     assert_nil run.last_activity_at
     run.mark_running!
     assert_not_nil run.last_activity_at
@@ -178,45 +178,45 @@ class RoleRunTest < ActiveSupport::TestCase
   end
 
   test "mark_running! raises from cancelled" do
-    run = RoleRun.create!(role: @role, company: @company, status: :cancelled)
+    run = RoleRun.create!(role: @role, project: @project, status: :cancelled)
     assert_raises(RuntimeError) { run.mark_running! }
   end
 
   # --- mark_completed! ---
 
   test "mark_completed! transitions to completed" do
-    run = RoleRun.create!(role: @role, company: @company, status: :running, started_at: 1.minute.ago)
+    run = RoleRun.create!(role: @role, project: @project, status: :running, started_at: 1.minute.ago)
     run.mark_completed!
     assert run.completed?
   end
 
   test "mark_completed! sets completed_at" do
-    run = RoleRun.create!(role: @role, company: @company, status: :running, started_at: 1.minute.ago)
+    run = RoleRun.create!(role: @role, project: @project, status: :running, started_at: 1.minute.ago)
     run.mark_completed!
     assert_not_nil run.completed_at
   end
 
   test "mark_completed! accepts optional exit_code" do
-    run = RoleRun.create!(role: @role, company: @company, status: :running, started_at: 1.minute.ago)
+    run = RoleRun.create!(role: @role, project: @project, status: :running, started_at: 1.minute.ago)
     run.mark_completed!(exit_code: 0)
     assert_equal 0, run.exit_code
   end
 
   test "mark_completed! accepts optional cost_cents" do
-    run = RoleRun.create!(role: @role, company: @company, status: :running, started_at: 1.minute.ago)
+    run = RoleRun.create!(role: @role, project: @project, status: :running, started_at: 1.minute.ago)
     run.mark_completed!(cost_cents: 500)
     assert_equal 500, run.cost_cents
   end
 
   test "mark_completed! accepts optional claude_session_id" do
-    run = RoleRun.create!(role: @role, company: @company, status: :running, started_at: 1.minute.ago)
+    run = RoleRun.create!(role: @role, project: @project, status: :running, started_at: 1.minute.ago)
     run.mark_completed!(claude_session_id: "sess_new_456")
     assert_equal "sess_new_456", run.claude_session_id
   end
 
   test "mark_completed! preserves existing claude_session_id if not passed" do
     run = RoleRun.create!(
-      role: @role, company: @company, status: :running,
+      role: @role, project: @project, status: :running,
       started_at: 1.minute.ago, claude_session_id: "sess_existing"
     )
     run.mark_completed!
@@ -226,25 +226,25 @@ class RoleRunTest < ActiveSupport::TestCase
   # --- mark_failed! ---
 
   test "mark_failed! transitions to failed" do
-    run = RoleRun.create!(role: @role, company: @company, status: :running, started_at: 1.minute.ago)
+    run = RoleRun.create!(role: @role, project: @project, status: :running, started_at: 1.minute.ago)
     run.mark_failed!(error_message: "Something went wrong")
     assert run.failed?
   end
 
   test "mark_failed! sets error_message" do
-    run = RoleRun.create!(role: @role, company: @company, status: :running, started_at: 1.minute.ago)
+    run = RoleRun.create!(role: @role, project: @project, status: :running, started_at: 1.minute.ago)
     run.mark_failed!(error_message: "Connection timeout")
     assert_equal "Connection timeout", run.error_message
   end
 
   test "mark_failed! sets completed_at" do
-    run = RoleRun.create!(role: @role, company: @company, status: :running, started_at: 1.minute.ago)
+    run = RoleRun.create!(role: @role, project: @project, status: :running, started_at: 1.minute.ago)
     run.mark_failed!(error_message: "Error")
     assert_not_nil run.completed_at
   end
 
   test "mark_failed! accepts optional exit_code" do
-    run = RoleRun.create!(role: @role, company: @company, status: :running, started_at: 1.minute.ago)
+    run = RoleRun.create!(role: @role, project: @project, status: :running, started_at: 1.minute.ago)
     run.mark_failed!(error_message: "Error", exit_code: 2)
     assert_equal 2, run.exit_code
   end
@@ -252,19 +252,19 @@ class RoleRunTest < ActiveSupport::TestCase
   # --- mark_cancelled! ---
 
   test "mark_cancelled! transitions from queued to cancelled" do
-    run = RoleRun.create!(role: @role, company: @company, status: :queued)
+    run = RoleRun.create!(role: @role, project: @project, status: :queued)
     run.mark_cancelled!
     assert run.cancelled?
   end
 
   test "mark_cancelled! transitions from running to cancelled" do
-    run = RoleRun.create!(role: @role, company: @company, status: :running, started_at: 1.minute.ago)
+    run = RoleRun.create!(role: @role, project: @project, status: :running, started_at: 1.minute.ago)
     run.mark_cancelled!
     assert run.cancelled?
   end
 
   test "mark_cancelled! sets completed_at" do
-    run = RoleRun.create!(role: @role, company: @company, status: :queued)
+    run = RoleRun.create!(role: @role, project: @project, status: :queued)
     run.mark_cancelled!
     assert_not_nil run.completed_at
   end
@@ -280,7 +280,7 @@ class RoleRunTest < ActiveSupport::TestCase
   # --- append_log! ---
 
   test "append_log! appends text to nil log_output" do
-    run = RoleRun.create!(role: @role, company: @company, status: :running, started_at: 1.minute.ago)
+    run = RoleRun.create!(role: @role, project: @project, status: :running, started_at: 1.minute.ago)
     assert_nil run.log_output
     run.append_log!("Hello world\n")
     assert_equal "Hello world\n", run.reload.log_output
@@ -288,7 +288,7 @@ class RoleRunTest < ActiveSupport::TestCase
 
   test "append_log! appends text to existing log_output" do
     run = RoleRun.create!(
-      role: @role, company: @company, status: :running,
+      role: @role, project: @project, status: :running,
       started_at: 1.minute.ago, log_output: "Line 1\n"
     )
     run.append_log!("Line 2\n")
@@ -296,20 +296,20 @@ class RoleRunTest < ActiveSupport::TestCase
   end
 
   test "append_log! ignores blank text" do
-    run = RoleRun.create!(role: @role, company: @company, status: :running, started_at: 1.minute.ago)
+    run = RoleRun.create!(role: @role, project: @project, status: :running, started_at: 1.minute.ago)
     run.append_log!("")
     assert_nil run.log_output
   end
 
   test "append_log! ignores nil text" do
-    run = RoleRun.create!(role: @role, company: @company, status: :running, started_at: 1.minute.ago)
+    run = RoleRun.create!(role: @role, project: @project, status: :running, started_at: 1.minute.ago)
     run.append_log!(nil)
     assert_nil run.log_output
   end
 
   test "append_log! bumps last_activity_at" do
     run = RoleRun.create!(
-      role: @role, company: @company, status: :running,
+      role: @role, project: @project, status: :running,
       started_at: 10.minutes.ago, last_activity_at: 10.minutes.ago
     )
     stale = run.last_activity_at
@@ -321,7 +321,7 @@ class RoleRunTest < ActiveSupport::TestCase
 
   test "append_log! ignoring blank text does not bump last_activity_at" do
     run = RoleRun.create!(
-      role: @role, company: @company, status: :running,
+      role: @role, project: @project, status: :running,
       started_at: 10.minutes.ago, last_activity_at: 10.minutes.ago
     )
     before = run.last_activity_at
@@ -357,7 +357,7 @@ class RoleRunTest < ActiveSupport::TestCase
     role = roles(:cto)
     role.update!(status: :running)
     run = role.role_runs.create!(
-      company: companies(:acme),
+      project: projects(:acme),
       status: :running,
       trigger_type: "task_assigned",
       started_at: Time.current
@@ -382,7 +382,7 @@ class RoleRunTest < ActiveSupport::TestCase
     role = roles(:developer)
     role.update!(status: :running)
     run = role.role_runs.create!(
-      company: companies(:acme),
+      project: projects(:acme),
       status: :running,
       trigger_type: "task_assigned",
       started_at: Time.current
@@ -404,7 +404,7 @@ class RoleRunTest < ActiveSupport::TestCase
     role.update!(status: :running)
     task = tasks(:design_homepage)
     run = role.role_runs.create!(
-      company: companies(:acme),
+      project: projects(:acme),
       status: :running,
       trigger_type: "task_assigned",
       task: task,
@@ -430,7 +430,7 @@ class RoleRunTest < ActiveSupport::TestCase
     role = roles(:cto)
     role.update!(status: :running)
     run = role.role_runs.create!(
-      company: companies(:acme),
+      project: projects(:acme),
       status: :running,
       trigger_type: "scheduled",
       task: nil,

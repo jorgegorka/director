@@ -4,8 +4,8 @@ class TaskTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
 
   setup do
-    @company = companies(:acme)
-    @other_company = companies(:widgets)
+    @project = projects(:acme)
+    @other_project = projects(:widgets)
     @user = users(:one)
     @ceo = roles(:ceo)
     @cto = roles(:cto)
@@ -15,77 +15,77 @@ class TaskTest < ActiveSupport::TestCase
 
   # --- Validations ---
 
-  test "valid with title, company, and creator" do
-    task = Task.new(title: "New Task", company: @company, creator: @ceo)
+  test "valid with title, project, and creator" do
+    task = Task.new(title: "New Task", project: @project, creator: @ceo)
     assert task.valid?
   end
 
   test "invalid without title" do
-    task = Task.new(title: nil, company: @company, creator: @ceo)
+    task = Task.new(title: nil, project: @project, creator: @ceo)
     assert_not task.valid?
     assert_includes task.errors[:title], "can't be blank"
   end
 
   test "valid without assignee (unassigned task)" do
-    task = Task.new(title: "Unassigned", company: @company, creator: @ceo)
+    task = Task.new(title: "Unassigned", project: @project, creator: @ceo)
     assert task.valid?
     assert_nil task.assignee
   end
 
   test "valid without parent_task (top-level task)" do
-    task = Task.new(title: "Top Level", company: @company, creator: @ceo)
+    task = Task.new(title: "Top Level", project: @project, creator: @ceo)
     assert task.valid?
     assert_nil task.parent_task
   end
 
-  test "invalid when assignee belongs to different company" do
+  test "invalid when assignee belongs to different project" do
     other_role = roles(:widgets_lead)
-    task = Task.new(title: "Bad Assignee", company: @company, creator: @ceo, assignee: other_role)
+    task = Task.new(title: "Bad Assignee", project: @project, creator: @ceo, assignee: other_role)
     assert_not task.valid?
-    assert_includes task.errors[:assignee], "must belong to the same company"
+    assert_includes task.errors[:assignee], "must belong to the same project"
   end
 
-  test "invalid when creator belongs to different company" do
+  test "invalid when creator belongs to different project" do
     other_role = roles(:widgets_lead)
-    task = Task.new(title: "Bad Creator", company: @company, creator: other_role)
+    task = Task.new(title: "Bad Creator", project: @project, creator: other_role)
     assert_not task.valid?
-    assert_includes task.errors[:creator], "must belong to the same company"
+    assert_includes task.errors[:creator], "must belong to the same project"
   end
 
-  test "invalid when parent_task belongs to different company" do
+  test "invalid when parent_task belongs to different project" do
     other_task = tasks(:widgets_task)
-    task = Task.new(title: "Bad Parent", company: @company, creator: @ceo, parent_task: other_task)
+    task = Task.new(title: "Bad Parent", project: @project, creator: @ceo, parent_task: other_task)
     assert_not task.valid?
-    assert_includes task.errors[:parent_task], "must belong to the same company"
+    assert_includes task.errors[:parent_task], "must belong to the same project"
   end
 
   # --- Assignment scope validation ---
 
   test "valid when assignee is a subordinate of creator" do
-    task = Task.new(title: "Delegated", company: @company, creator: @ceo, assignee: @cto)
+    task = Task.new(title: "Delegated", project: @project, creator: @ceo, assignee: @cto)
     assert task.valid?
   end
 
   test "valid when assignee is a deep subordinate of creator" do
-    task = Task.new(title: "Deep delegation", company: @company, creator: @ceo, assignee: @developer)
+    task = Task.new(title: "Deep delegation", project: @project, creator: @ceo, assignee: @developer)
     assert task.valid?
   end
 
   test "valid when assignee is a sibling of creator" do
     # developer and process_role are both children of cto
-    task = Task.new(title: "Sibling task", company: @company, creator: @developer, assignee: roles(:process_role))
+    task = Task.new(title: "Sibling task", project: @project, creator: @developer, assignee: roles(:process_role))
     assert task.valid?
   end
 
   test "invalid when assignee is not a subordinate or sibling" do
     # developer trying to assign to ceo (parent, not subordinate or sibling)
-    task = Task.new(title: "Bad scope", company: @company, creator: @developer, assignee: @ceo)
+    task = Task.new(title: "Bad scope", project: @project, creator: @developer, assignee: @ceo)
     assert_not task.valid?
     assert_includes task.errors[:assignee], "must be a subordinate or sibling of the creator role"
   end
 
   test "valid when creator assigns to self" do
-    task = Task.new(title: "Self task", company: @company, creator: @cto, assignee: @cto)
+    task = Task.new(title: "Self task", project: @project, creator: @cto, assignee: @cto)
     assert task.valid?
   end
 
@@ -139,8 +139,8 @@ class TaskTest < ActiveSupport::TestCase
 
   # --- Associations ---
 
-  test "belongs to company" do
-    assert_equal @company, @task.company
+  test "belongs to project" do
+    assert_equal @project, @task.project
   end
 
   test "belongs to creator (Role)" do
@@ -177,13 +177,13 @@ class TaskTest < ActiveSupport::TestCase
 
   # --- Scoping ---
 
-  test "for_current_company returns only tasks in Current.company" do
-    Current.company = @company
-    tasks = Task.for_current_company
+  test "for_current_project returns only tasks in Current.project" do
+    Current.project = @project
+    tasks = Task.for_current_project
     assert_includes tasks, @task
     assert_not_includes tasks, tasks(:widgets_task)
   ensure
-    Current.company = nil
+    Current.project = nil
   end
 
   test "active scope excludes completed and cancelled tasks" do
@@ -193,22 +193,22 @@ class TaskTest < ActiveSupport::TestCase
   end
 
   test "active scope excludes cancelled tasks" do
-    cancelled = Task.create!(title: "Cancelled", company: @company, creator: @ceo, status: :cancelled)
+    cancelled = Task.create!(title: "Cancelled", project: @project, creator: @ceo, status: :cancelled)
     assert_not_includes Task.active, cancelled
   end
 
   test "by_priority scope sorts urgent first then by created_at desc" do
     urgent = tasks(:fix_login_bug)  # urgent priority
     high = @task                     # high priority
-    Current.company = @company
-    ordered = Task.for_current_company.by_priority.to_a
+    Current.project = @project
+    ordered = Task.for_current_project.by_priority.to_a
     urgent_index = ordered.index(urgent)
     high_index = ordered.index(high)
     assert_not_nil urgent_index, "urgent task should be in results"
     assert_not_nil high_index, "high priority task should be in results"
     assert urgent_index < high_index, "urgent should come before high priority"
   ensure
-    Current.company = nil
+    Current.project = nil
   end
 
   test "roots scope excludes subtasks" do
@@ -220,7 +220,7 @@ class TaskTest < ActiveSupport::TestCase
   # --- Callbacks ---
 
   test "completing a task sets completed_at" do
-    task = Task.create!(title: "Fresh Task", company: @company, creator: @ceo, status: :open)
+    task = Task.create!(title: "Fresh Task", project: @project, creator: @ceo, status: :open)
     assert_nil task.completed_at
     task.update!(status: :completed)
     assert_not_nil task.completed_at
@@ -237,7 +237,7 @@ class TaskTest < ActiveSupport::TestCase
   # --- Pending review wake ---
 
   test "moving task to pending_review wakes the creator role" do
-    task = Task.create!(title: "Review me", company: @company, creator: @cto, assignee: @developer, status: :in_progress)
+    task = Task.create!(title: "Review me", project: @project, creator: @cto, assignee: @developer, status: :in_progress)
 
     assert_difference -> { HeartbeatEvent.count }, 1 do
       task.update!(status: :pending_review)
@@ -287,11 +287,11 @@ class TaskTest < ActiveSupport::TestCase
     end
   end
 
-  test "destroying company destroys its tasks" do
-    task_count = @company.tasks.count
+  test "destroying project destroys its tasks" do
+    task_count = @project.tasks.count
     assert task_count > 0
     assert_difference "Task.count", -task_count do
-      @company.destroy
+      @project.destroy
     end
   end
 
@@ -358,7 +358,7 @@ class TaskTest < ActiveSupport::TestCase
 
   test "enqueues goal evaluation job when task completes with goal and non-agent creator" do
     goal = goals(:acme_objective_one)
-    task = Task.create!(title: "Eval trigger test", company: @company, creator: @ceo, assignee: @cto, goal: goal, status: :open)
+    task = Task.create!(title: "Eval trigger test", project: @project, creator: @ceo, assignee: @cto, goal: goal, status: :open)
 
     assert_enqueued_with(job: EvaluateGoalAlignmentJob) do
       task.update!(status: :completed)
@@ -367,7 +367,7 @@ class TaskTest < ActiveSupport::TestCase
 
   test "does not enqueue goal evaluation when creator is an agent-configured role" do
     goal = goals(:acme_objective_one)
-    task = Task.create!(title: "Agent eval test", company: @company, creator: @cto, assignee: @developer, goal: goal, status: :open)
+    task = Task.create!(title: "Agent eval test", project: @project, creator: @cto, assignee: @developer, goal: goal, status: :open)
 
     assert_no_enqueued_jobs(only: EvaluateGoalAlignmentJob) do
       task.update!(status: :completed)
@@ -375,7 +375,7 @@ class TaskTest < ActiveSupport::TestCase
   end
 
   test "does not enqueue goal evaluation when task has no goal" do
-    task = Task.create!(title: "No goal trigger test", company: @company, creator: @ceo, assignee: @cto, status: :open)
+    task = Task.create!(title: "No goal trigger test", project: @project, creator: @ceo, assignee: @cto, status: :open)
 
     assert_no_enqueued_jobs(only: EvaluateGoalAlignmentJob) do
       task.update!(status: :completed)
@@ -384,7 +384,7 @@ class TaskTest < ActiveSupport::TestCase
 
   test "does not enqueue goal evaluation when task is not completed" do
     goal = goals(:acme_objective_one)
-    task = Task.create!(title: "Not completed test", company: @company, creator: @ceo, assignee: @cto, goal: goal, status: :open)
+    task = Task.create!(title: "Not completed test", project: @project, creator: @ceo, assignee: @cto, goal: goal, status: :open)
 
     assert_no_enqueued_jobs(only: EvaluateGoalAlignmentJob) do
       task.update!(status: :in_progress)
@@ -394,32 +394,32 @@ class TaskTest < ActiveSupport::TestCase
   # --- Completion percentage ---
 
   test "recalculate_completion! computes from subtasks" do
-    parent = Task.create!(title: "Parent", company: @company, creator: @ceo, status: :open)
-    Task.create!(title: "Sub 1", company: @company, creator: @ceo, parent_task: parent, status: :completed)
-    Task.create!(title: "Sub 2", company: @company, creator: @ceo, parent_task: parent, status: :open)
+    parent = Task.create!(title: "Parent", project: @project, creator: @ceo, status: :open)
+    Task.create!(title: "Sub 1", project: @project, creator: @ceo, parent_task: parent, status: :completed)
+    Task.create!(title: "Sub 2", project: @project, creator: @ceo, parent_task: parent, status: :open)
 
     parent.recalculate_completion!
     assert_equal 50, parent.completion_percentage
   end
 
   test "recalculate_completion! returns 0 when no subtasks" do
-    parent = Task.create!(title: "No subs", company: @company, creator: @ceo, status: :open)
+    parent = Task.create!(title: "No subs", project: @project, creator: @ceo, status: :open)
     parent.recalculate_completion!
     assert_equal 0, parent.completion_percentage
   end
 
   test "recalculate_completion! returns 100 when all subtasks completed" do
-    parent = Task.create!(title: "All done", company: @company, creator: @ceo, status: :open)
-    Task.create!(title: "Sub 1", company: @company, creator: @ceo, parent_task: parent, status: :completed)
-    Task.create!(title: "Sub 2", company: @company, creator: @ceo, parent_task: parent, status: :completed)
+    parent = Task.create!(title: "All done", project: @project, creator: @ceo, status: :open)
+    Task.create!(title: "Sub 1", project: @project, creator: @ceo, parent_task: parent, status: :completed)
+    Task.create!(title: "Sub 2", project: @project, creator: @ceo, parent_task: parent, status: :completed)
 
     parent.recalculate_completion!
     assert_equal 100, parent.completion_percentage
   end
 
   test "completing subtask enqueues RecalculateTaskCompletionJob for parent" do
-    parent = Task.create!(title: "Parent", company: @company, creator: @ceo, status: :open)
-    sub = Task.create!(title: "Sub", company: @company, creator: @ceo, parent_task: parent, status: :open)
+    parent = Task.create!(title: "Parent", project: @project, creator: @ceo, status: :open)
+    sub = Task.create!(title: "Sub", project: @project, creator: @ceo, parent_task: parent, status: :open)
 
     assert_enqueued_with(job: RecalculateTaskCompletionJob, args: [ parent.id ]) do
       sub.update!(status: :completed)

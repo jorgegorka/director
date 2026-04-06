@@ -1,6 +1,6 @@
 module RolesHelper
   def options_for_role_select(exclude: nil, scope: :active)
-    base = Current.company.roles
+    base = Current.project.roles
     base = base.send(scope) unless scope == :all
     roles = base.roots.order(:title)
     excluded_ids = exclude ? Set.new([ exclude.id ] + exclude.descendant_ids) : Set.new

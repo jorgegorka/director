@@ -1,6 +1,6 @@
 cto_validation_hook:
   role: cto
-  company: acme
+  project: acme
   lifecycle_event: after_task_complete
   action_type: 0  # trigger_agent
   action_config:
@@ -12,7 +12,7 @@ cto_validation_hook:
 
 cto_webhook_hook:
   role: cto
-  company: acme
+  project: acme
   lifecycle_event: after_task_start
   action_type: 1  # webhook
   action_config:
@@ -25,7 +25,7 @@ cto_webhook_hook:
 
 disabled_hook:
   role: developer
-  company: acme
+  project: acme
   lifecycle_event: after_task_complete
   action_type: 0  # trigger_agent
   action_config:
@@ -35,7 +35,7 @@ disabled_hook:
 
 cto_start_validation_hook:
   role: cto
-  company: acme
+  project: acme
   lifecycle_event: after_task_start
   action_type: 0  # trigger_agent
   action_config:

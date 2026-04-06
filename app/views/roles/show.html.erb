@@ -174,7 +174,7 @@
       <div class="role-detail__card">
         <h2 class="role-detail__card-title">Skills</h2>
         <div class="skill-manager">
-          <% skills_by_category = @detail.company_skills.group_by(&:category) %>
+          <% skills_by_category = @detail.project_skills.group_by(&:category) %>
           <% (SkillsHelper::SKILL_CATEGORIES + [ nil ]).each do |category| %>
             <% category_skills = category ? skills_by_category[category] : skills_by_category.except(*SkillsHelper::SKILL_CATEGORIES).values.flatten %>
             <% next unless category_skills&.any? %>
@@ -189,8 +189,8 @@
               </div>
             </div>
           <% end %>
-          <% if @detail.company_skills.empty? %>
-            <p class="role-detail__empty-note">No skills in company library. <%= link_to "Create skills", skills_path %></p>
+          <% if @detail.project_skills.empty? %>
+            <p class="role-detail__empty-note">No skills in project library. <%= link_to "Create skills", skills_path %></p>
           <% end %>
         </div>
       </div>

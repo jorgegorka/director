@@ -3,9 +3,9 @@ require "test_helper"
 class HeartbeatsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:one)
-    @company = companies(:acme)
+    @project = projects(:acme)
     sign_in_as(@user)
-    post company_switch_url(@company)
+    post project_switch_url(@project)
     @cto = roles(:cto)
     @developer = roles(:developer)
   end
@@ -22,7 +22,7 @@ class HeartbeatsControllerTest < ActionDispatch::IntegrationTest
   test "should show empty state for role without events" do
     role = Role.create!(
       title: "Empty Role",
-      company: @company,
+      project: @project,
       role_category: role_categories(:worker),
       adapter_type: :http,
       adapter_config: { "url" => "https://example.com" }
@@ -56,7 +56,7 @@ class HeartbeatsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href=?]", role_path(@cto)
   end
 
-  test "should not show heartbeats for role from another company" do
+  test "should not show heartbeats for role from another project" do
     widgets_lead = roles(:widgets_lead)
     get role_heartbeats_url(widgets_lead)
     assert_redirected_to root_url
@@ -68,15 +68,15 @@ class HeartbeatsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_session_url
   end
 
-  test "should redirect user without company" do
-    user_without_company = User.create!(
+  test "should redirect user without project" do
+    user_without_project = User.create!(
       email_address: "heartbeatless@example.com",
       password: "password",
       password_confirmation: "password"
     )
-    sign_in_as(user_without_company)
+    sign_in_as(user_without_project)
     get role_heartbeats_url(@cto)
-    assert_redirected_to new_company_url
+    assert_redirected_to new_project_url
   end
 
   # --- Pagination ---

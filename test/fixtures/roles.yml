@@ -2,14 +2,14 @@ ceo:
   title: CEO
   description: Chief Executive Officer
   job_spec: "Oversee all company operations and strategy"
-  company: acme
+  project: acme
   role_category: orchestrator
 
 cto:
   title: CTO
   description: Chief Technology Officer
   job_spec: "Lead technology strategy and engineering"
-  company: acme
+  project: acme
   parent: ceo
   role_category: orchestrator
   adapter_type: 2  # claude_local
@@ -25,7 +25,7 @@ developer:
   title: Senior Developer
   description: Senior software developer
   job_spec: "Build and maintain software products"
-  company: acme
+  project: acme
   parent: cto
   role_category: worker
   adapter_type: 0  # http
@@ -42,7 +42,7 @@ process_role:
   title: Script Runner
   description: "Runs scripts for processing"
   job_spec: "Execute automated scripts"
-  company: acme
+  project: acme
   parent: cto
   role_category: worker
   adapter_type: 1  # process
@@ -56,7 +56,7 @@ cmo:
   title: CMO
   description: Chief Marketing Officer
   job_spec: "Define marketing strategy and brand positioning"
-  company: acme
+  project: acme
   parent: ceo
   role_category: orchestrator
   adapter_type: 2  # claude_local
@@ -71,7 +71,7 @@ pending_role:
   title: Content Writer
   description: Writes marketing content
   job_spec: "Create blog posts and social media content"
-  company: acme
+  project: acme
   parent: cmo
   role_category: worker
   status: 5        # pending_approval
@@ -82,7 +82,7 @@ widgets_lead:
   title: Operations Lead
   description: Leads widget operations
   job_spec: "Manage daily operations"
-  company: widgets
+  project: widgets
   role_category: widgets_orchestrator
   adapter_type: 0  # http
   adapter_config:

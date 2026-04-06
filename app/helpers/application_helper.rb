@@ -1,6 +1,6 @@
 module ApplicationHelper
   def options_for_role_select
-    Current.company.roles.active.order(:title).map { |r| [ r.title, r.id ] }
+    Current.project.roles.active.order(:title).map { |r| [ r.title, r.id ] }
   end
 
   def polymorphic_actor_label(record, type_method: :actor_type, assoc: :actor)

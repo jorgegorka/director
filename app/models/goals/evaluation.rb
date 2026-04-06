@@ -59,7 +59,7 @@ module Goals
     end
 
     def system_prompt
-      "You are evaluating whether a completed task advances a company goal. " \
+      "You are evaluating whether a completed task advances a project goal. " \
       "Respond ONLY with valid JSON: {\"result\": \"pass\" or \"fail\", \"feedback\": \"2-3 sentence explanation\"}"
     end
 
@@ -91,7 +91,7 @@ module Goals
       cost_cents = Agents::AiClient.estimate_cost_cents(result[:usage])
 
       evaluation = GoalEvaluation.create!(
-        company_id: task.company_id,
+        project_id: task.project_id,
         task: task,
         goal: goal,
         role: role,
@@ -171,7 +171,7 @@ module Goals
       task.record_audit_event!(
         actor: role,
         action: "goal_evaluation_exhausted",
-        company: task.company,
+        project: task.project,
         metadata: {
           goal_id: goal.id,
           goal_title: goal.title,

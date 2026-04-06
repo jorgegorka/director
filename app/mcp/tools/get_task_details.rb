@@ -19,7 +19,7 @@ module Tools
     end
 
     def call(arguments)
-      task = company.tasks.find(arguments["task_id"])
+      task = project.tasks.find(arguments["task_id"])
 
       messages = task.messages.includes(:author).chronological.map do |msg|
         {

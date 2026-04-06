@@ -2,7 +2,7 @@ require "test_helper"
 
 class Hooks::ValidationProcessorTest < ActiveSupport::TestCase
   setup do
-    @company = companies(:acme)
+    @project = projects(:acme)
     @cto = roles(:cto)
     @developer = roles(:developer)
     @parent_task = tasks(:design_homepage)  # in_progress, assigned to cto
@@ -11,7 +11,7 @@ class Hooks::ValidationProcessorTest < ActiveSupport::TestCase
     @validation_task = Task.create!(
       title: "Validate: #{@parent_task.title}",
       description: "Review the completed work.",
-      company: @company,
+      project: @project,
       assignee: @developer,
       parent_task: @parent_task,
       status: :open
@@ -128,7 +128,7 @@ class Hooks::ValidationProcessorTest < ActiveSupport::TestCase
     audit = AuditEvent.where(action: "validation_feedback_received").last
     assert_equal @parent_task, audit.auditable
     assert_equal @developer, audit.actor
-    assert_equal @company, audit.company
+    assert_equal @project, audit.project
     assert_equal @validation_task.id, audit.metadata["validation_task_id"]
     assert_equal @parent_task.id, audit.metadata["parent_task_id"]
   end
@@ -145,7 +145,7 @@ class Hooks::ValidationProcessorTest < ActiveSupport::TestCase
   test "returns nil when validation task has no parent" do
     orphan_task = Task.create!(
       title: "Orphan task",
-      company: @company,
+      project: @project,
       assignee: @developer,
       status: :open
     )

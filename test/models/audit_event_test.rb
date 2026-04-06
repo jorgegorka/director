@@ -85,12 +85,12 @@ class AuditEventTest < ActiveSupport::TestCase
     assert_equal "in_progress", event.metadata["to"]
   end
 
-  # --- Company scoping ---
+  # --- Project scoping ---
 
-  test "for_company returns events for specified company" do
-    company = companies(:acme)
-    events = AuditEvent.for_company(company)
-    events.each { |e| assert_equal company.id, e.company_id }
+  test "for_project returns events for specified project" do
+    project = projects(:acme)
+    events = AuditEvent.for_project(project)
+    events.each { |e| assert_equal project.id, e.project_id }
   end
 
   test "for_actor_type filters by actor type" do
@@ -132,7 +132,7 @@ class AuditEventTest < ActiveSupport::TestCase
       auditable: roles(:cto),
       actor: users(:one),
       action: "test_action",
-      company: companies(:acme)
+      project: projects(:acme)
     )
     assert event.respond_to?(:broadcast_activity_event, true)
   end
@@ -143,7 +143,7 @@ class AuditEventTest < ActiveSupport::TestCase
         auditable: roles(:cto),
         actor: users(:one),
         action: "test_broadcast",
-        company: companies(:acme)
+        project: projects(:acme)
       )
     end
   end

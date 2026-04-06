@@ -1,5 +1,5 @@
 class HeartbeatsController < ApplicationController
-  before_action :require_company!
+  before_action :require_project!
   before_action :set_role
 
   def index
@@ -17,6 +17,6 @@ class HeartbeatsController < ApplicationController
   private
 
   def set_role
-    @role = Current.company.roles.find(params[:role_id])
+    @role = Current.project.roles.find(params[:role_id])
   end
 end

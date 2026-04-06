@@ -1,9 +1,9 @@
 class TasksController < ApplicationController
-  before_action :require_company!
+  before_action :require_project!
   before_action :set_task, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    @tasks = Current.company.tasks
+    @tasks = Current.project.tasks
                .left_joins(:messages)
                .includes(:creator, :assignee, :parent_task)
                .select("tasks.*, COUNT(messages.id) AS messages_count")
@@ -16,11 +16,11 @@ class TasksController < ApplicationController
   end
 
   def new
-    @task = Current.company.tasks.new(priority: :medium, goal_id: params[:goal_id])
+    @task = Current.project.tasks.new(priority: :medium, goal_id: params[:goal_id])
   end
 
   def create
-    @task = Current.company.tasks.new(task_params)
+    @task = Current.project.tasks.new(task_params)
 
     if @task.save
       @task.record_audit_event!(
@@ -81,7 +81,7 @@ class TasksController < ApplicationController
   private
 
   def set_task
-    @task = Current.company.tasks.find(params[:id])
+    @task = Current.project.tasks.find(params[:id])
   end
 
   def task_params

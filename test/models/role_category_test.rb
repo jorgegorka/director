@@ -2,43 +2,43 @@ require "test_helper"
 
 class RoleCategoryTest < ActiveSupport::TestCase
   setup do
-    @company = companies(:acme)
+    @project = projects(:acme)
     @orchestrator = role_categories(:orchestrator)
-    Current.company = @company
+    Current.project = @project
   end
 
   teardown do
-    Current.company = nil
+    Current.project = nil
   end
 
   # --- Validations ---
 
-  test "valid with name, job_spec, and company" do
-    category = RoleCategory.new(name: "Custom", job_spec: "Do custom work.", company: @company)
+  test "valid with name, job_spec, and project" do
+    category = RoleCategory.new(name: "Custom", job_spec: "Do custom work.", project: @project)
     assert category.valid?
   end
 
   test "requires name" do
-    category = RoleCategory.new(job_spec: "Do work.", company: @company)
+    category = RoleCategory.new(job_spec: "Do work.", project: @project)
     assert_not category.valid?
     assert_includes category.errors[:name], "can't be blank"
   end
 
   test "requires job_spec" do
-    category = RoleCategory.new(name: "Custom", company: @company)
+    category = RoleCategory.new(name: "Custom", project: @project)
     assert_not category.valid?
     assert_includes category.errors[:job_spec], "can't be blank"
   end
 
-  test "name must be unique within company" do
-    duplicate = RoleCategory.new(name: "Orchestrator", job_spec: "Duplicate.", company: @company)
+  test "name must be unique within project" do
+    duplicate = RoleCategory.new(name: "Orchestrator", job_spec: "Duplicate.", project: @project)
     assert_not duplicate.valid?
-    assert_includes duplicate.errors[:name], "already exists in this company"
+    assert_includes duplicate.errors[:name], "already exists in this project"
   end
 
-  test "same name allowed in different companies" do
-    widgets = companies(:widgets)
-    category = RoleCategory.new(name: "Planner", job_spec: "Plan things.", company: widgets)
+  test "same name allowed in different projects" do
+    widgets = projects(:widgets)
+    category = RoleCategory.new(name: "Planner", job_spec: "Plan things.", project: widgets)
     assert category.valid?
   end
 
@@ -55,16 +55,16 @@ class RoleCategoryTest < ActiveSupport::TestCase
   end
 
   test "can delete category with no roles" do
-    category = RoleCategory.create!(name: "Temporary", job_spec: "Temp.", company: @company)
+    category = RoleCategory.create!(name: "Temporary", job_spec: "Temp.", project: @project)
     assert category.destroy
   end
 
   # --- Tenantable ---
 
-  test "scoped to current company" do
-    scoped = RoleCategory.for_current_company
-    assert_includes scoped.map(&:company_id).uniq, @company.id
-    assert_not_includes scoped.map(&:company_id).uniq, companies(:widgets).id
+  test "scoped to current project" do
+    scoped = RoleCategory.for_current_project
+    assert_includes scoped.map(&:project_id).uniq, @project.id
+    assert_not_includes scoped.map(&:project_id).uniq, projects(:widgets).id
   end
 
   # --- Default definitions ---

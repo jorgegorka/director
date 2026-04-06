@@ -73,7 +73,7 @@ module Roles
       run_attrs = {
         task_id: context[:task_id],
         goal_id: context[:goal_id],
-        company_id: role.company_id,
+        project_id: role.project_id,
         trigger_type: trigger_type
       }
 
@@ -84,7 +84,7 @@ module Roles
         return
       end
 
-      if role.company.concurrent_agent_limit_reached?
+      if role.project.concurrent_agent_limit_reached?
         role.role_runs.create!(**run_attrs, status: :throttled)
         return
       end
@@ -99,7 +99,7 @@ module Roles
         trigger: trigger_type,
         role_id: role.id,
         role_title: role.title,
-        company_id: role.company_id,
+        project_id: role.project_id,
         triggered_at: Time.current.iso8601
       }.merge(context)
     end

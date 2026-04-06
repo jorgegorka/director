@@ -2,7 +2,7 @@ require "test_helper"
 
 class NotificationTest < ActiveSupport::TestCase
   setup do
-    @company = companies(:acme)
+    @project = projects(:acme)
     @user = users(:one)
     @role = roles(:cto)
     @budget_alert = notifications(:budget_alert_claude)
@@ -12,9 +12,9 @@ class NotificationTest < ActiveSupport::TestCase
 
   # --- Validations ---
 
-  test "valid with company, recipient, and action" do
+  test "valid with project, recipient, and action" do
     notification = Notification.new(
-      company: @company,
+      project: @project,
       recipient: @user,
       action: "budget_alert"
     )
@@ -23,7 +23,7 @@ class NotificationTest < ActiveSupport::TestCase
 
   test "invalid without action" do
     notification = Notification.new(
-      company: @company,
+      project: @project,
       recipient: @user,
       action: nil
     )
@@ -33,8 +33,8 @@ class NotificationTest < ActiveSupport::TestCase
 
   # --- Associations ---
 
-  test "belongs to company via Tenantable" do
-    assert_equal @company, @budget_alert.company
+  test "belongs to project via Tenantable" do
+    assert_equal @project, @budget_alert.project
   end
 
   test "belongs to recipient (User)" do
@@ -51,7 +51,7 @@ class NotificationTest < ActiveSupport::TestCase
 
   test "actor is optional" do
     notification = Notification.new(
-      company: @company,
+      project: @project,
       recipient: @user,
       action: "system_alert",
       actor: nil
@@ -61,7 +61,7 @@ class NotificationTest < ActiveSupport::TestCase
 
   test "notifiable is optional" do
     notification = Notification.new(
-      company: @company,
+      project: @project,
       recipient: @user,
       action: "system_alert",
       notifiable: nil
@@ -92,14 +92,14 @@ class NotificationTest < ActiveSupport::TestCase
     end
   end
 
-  test "for_current_company returns only notifications in Current.company" do
-    Current.company = @company
-    notifications = Notification.for_current_company
+  test "for_current_project returns only notifications in Current.project" do
+    Current.project = @project
+    notifications = Notification.for_current_project
     notifications.each do |n|
-      assert_equal @company, n.company
+      assert_equal @project, n.project
     end
   ensure
-    Current.company = nil
+    Current.project = nil
   end
 
   # --- Methods ---
@@ -136,11 +136,11 @@ class NotificationTest < ActiveSupport::TestCase
 
   # --- Deletion ---
 
-  test "destroying company destroys notifications" do
-    notification_count = @company.notifications.count
+  test "destroying project destroys notifications" do
+    notification_count = @project.notifications.count
     assert notification_count > 0
     assert_difference "Notification.count", -notification_count do
-      @company.destroy
+      @project.destroy
     end
   end
 

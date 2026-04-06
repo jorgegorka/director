@@ -3,9 +3,9 @@ require "test_helper"
 class GoalsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:one)
-    @company = companies(:acme)
+    @project = projects(:acme)
     sign_in_as(@user)
-    post company_switch_url(@company)
+    post project_switch_url(@project)
     @mission = goals(:acme_mission)
     @objective = goals(:acme_objective_one)
     @sub_objective = goals(:acme_sub_objective)
@@ -20,7 +20,7 @@ class GoalsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".goal-list"
   end
 
-  test "should only show goals for current company" do
+  test "should only show goals for current project" do
     get goals_url
     assert_response :success
     assert_select ".goal-list__title", text: "Build the best AI platform"
@@ -46,7 +46,7 @@ class GoalsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".task-card__title a", text: "Fix login bug"
   end
 
-  test "should not show goal from another company" do
+  test "should not show goal from another project" do
     get goal_url(@widgets_mission)
     assert_redirected_to root_url
   end
@@ -77,7 +77,7 @@ class GoalsControllerTest < ActionDispatch::IntegrationTest
     end
     goal = Goal.order(:created_at).last
     assert_equal "New test goal", goal.title
-    assert_equal @company, goal.company
+    assert_equal @project, goal.project
     assert_redirected_to goal_url(goal)
   end
 
@@ -183,14 +183,14 @@ class GoalsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_session_url
   end
 
-  test "requires company" do
-    user_without_company = User.create!(
+  test "requires project" do
+    user_without_project = User.create!(
       email_address: "goalsless@example.com",
       password: "password",
       password_confirmation: "password"
     )
-    sign_in_as(user_without_company)
+    sign_in_as(user_without_project)
     get goals_url
-    assert_redirected_to new_company_url
+    assert_redirected_to new_project_url
   end
 end

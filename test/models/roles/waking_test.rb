@@ -110,7 +110,7 @@ class Roles::WakingTest < ActiveSupport::TestCase
     assert run.queued?
     assert_equal @developer, run.role
     assert_equal tasks(:fix_login_bug), run.task
-    assert_equal @developer.company_id, run.company_id
+    assert_equal @developer.project_id, run.project_id
     assert_equal "task_assigned", run.trigger_type
   end
 
@@ -188,7 +188,7 @@ class Roles::WakingTest < ActiveSupport::TestCase
   test "attaches goal_id to active run when goal_assigned trigger finds existing run" do
     # Create an active run without a goal
     active_run = @cto.role_runs.create!(
-      company: @cto.company, status: :running, trigger_type: "scheduled"
+      project: @cto.project, status: :running, trigger_type: "scheduled"
     )
     assert_nil active_run.goal_id
 
@@ -209,7 +209,7 @@ class Roles::WakingTest < ActiveSupport::TestCase
   test "does not overwrite existing goal_id on active run" do
     original_goal = goals(:acme_mission)
     active_run = @cto.role_runs.create!(
-      company: @cto.company, status: :running, trigger_type: "goal_assigned",
+      project: @cto.project, status: :running, trigger_type: "goal_assigned",
       goal: original_goal
     )
 
@@ -229,7 +229,7 @@ class Roles::WakingTest < ActiveSupport::TestCase
 
   test "creates throttled RoleRun when task assigned to busy role" do
     active_run = @cto.role_runs.create!(
-      company: @cto.company, status: :running, trigger_type: "scheduled"
+      project: @cto.project, status: :running, trigger_type: "scheduled"
     )
 
     assert_no_enqueued_jobs(only: ExecuteRoleJob) do
@@ -251,7 +251,7 @@ class Roles::WakingTest < ActiveSupport::TestCase
 
   test "scheduled wake on busy role does not create throttled RoleRun" do
     @cto.role_runs.create!(
-      company: @cto.company, status: :running, trigger_type: "scheduled"
+      project: @cto.project, status: :running, trigger_type: "scheduled"
     )
 
     assert_no_difference -> { RoleRun.count } do
@@ -265,7 +265,7 @@ class Roles::WakingTest < ActiveSupport::TestCase
 
   test "goal-only wake on busy role does not create throttled RoleRun" do
     @cto.role_runs.create!(
-      company: @cto.company, status: :running, trigger_type: "scheduled"
+      project: @cto.project, status: :running, trigger_type: "scheduled"
     )
 
     assert_no_difference -> { RoleRun.count } do
@@ -278,14 +278,14 @@ class Roles::WakingTest < ActiveSupport::TestCase
     end
   end
 
-  # --- Company concurrency throttling ---
+  # --- Project concurrency throttling ---
 
-  test "creates throttled run when company concurrency limit reached" do
-    company = @developer.company
-    company.update!(max_concurrent_agents: 1)
+  test "creates throttled run when project concurrency limit reached" do
+    project = @developer.project
+    project.update!(max_concurrent_agents: 1)
     # Create an active run on a different role
     other_role = roles(:cto)
-    other_role.role_runs.create!(company: company, status: :running, trigger_type: "scheduled")
+    other_role.role_runs.create!(project: project, status: :running, trigger_type: "scheduled")
 
     assert_no_enqueued_jobs(only: ExecuteRoleJob) do
       Roles::Waking.call(
@@ -300,9 +300,9 @@ class Roles::WakingTest < ActiveSupport::TestCase
     assert_equal @developer, run.role
   end
 
-  test "creates queued run when company concurrency limit not reached" do
-    company = @developer.company
-    company.update!(max_concurrent_agents: 5)
+  test "creates queued run when project concurrency limit not reached" do
+    project = @developer.project
+    project.update!(max_concurrent_agents: 5)
 
     assert_enqueued_with(job: ExecuteRoleJob) do
       Roles::Waking.call(
@@ -349,9 +349,9 @@ class Roles::WakingTest < ActiveSupport::TestCase
     assert_equal "skipped_terminal_task", event.response_payload["status"]
   end
 
-  test "creates queued run when company concurrency limit is zero (unlimited)" do
-    company = @developer.company
-    company.update!(max_concurrent_agents: 0)
+  test "creates queued run when project concurrency limit is zero (unlimited)" do
+    project = @developer.project
+    project.update!(max_concurrent_agents: 0)
 
     assert_enqueued_with(job: ExecuteRoleJob) do
       Roles::Waking.call(

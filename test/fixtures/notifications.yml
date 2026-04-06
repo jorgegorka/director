@@ -1,5 +1,5 @@
 budget_alert_claude:
-  company: acme
+  project: acme
   recipient: one (User)
   actor: cto (Role)
   notifiable: cto (Role)
@@ -12,7 +12,7 @@ budget_alert_claude:
   read_at:
 
 budget_exhausted_http:
-  company: acme
+  project: acme
   recipient: one (User)
   actor: developer (Role)
   notifiable: developer (Role)
@@ -24,7 +24,7 @@ budget_exhausted_http:
   read_at: <%= 1.hour.ago.to_fs(:db) %>
 
 read_notification:
-  company: acme
+  project: acme
   recipient: two (User)
   actor: cto (Role)
   notifiable: cto (Role)

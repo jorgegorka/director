@@ -11,7 +11,7 @@ class RoleSkillTest < ActiveSupport::TestCase
 
   # --- Validations ---
 
-  test "valid with role and skill from same company" do
+  test "valid with role and skill from same project" do
     role_skill = RoleSkill.new(role: @cto, skill: skills(:acme_data_analysis))
     assert role_skill.valid?
   end
@@ -27,10 +27,10 @@ class RoleSkillTest < ActiveSupport::TestCase
     assert role_skill.valid?
   end
 
-  test "invalid when role and skill from different companies" do
+  test "invalid when role and skill from different projects" do
     role_skill = RoleSkill.new(role: @cto, skill: @widgets_skill)
     assert_not role_skill.valid?
-    assert_includes role_skill.errors[:skill], "must belong to the same company as the role"
+    assert_includes role_skill.errors[:skill], "must belong to the same project as the role"
   end
 
   test "invalid when widget role assigned acme skill" do

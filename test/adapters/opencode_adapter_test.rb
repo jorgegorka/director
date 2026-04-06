@@ -171,7 +171,7 @@ class OpencodeAdapterTest < ActiveSupport::TestCase
     # Create a task to simulate spending
     @role.assigned_tasks.create!(
       title: "Test task",
-      company: companies(:acme),
+      project: projects(:acme),
       cost_cents: 150,
       created_at: Time.current
     )
@@ -200,7 +200,7 @@ class OpencodeAdapterTest < ActiveSupport::TestCase
   test "mcp config returns nil when no api_token" do
     @role_without_token = Role.create!(
       title: "Test Role No Token",
-      company: companies(:acme),
+      project: projects(:acme),
       role_category: role_categories(:worker),
       api_token: nil,
       adapter_type: nil

@@ -1,5 +1,5 @@
 class MessagesController < ApplicationController
-  before_action :require_company!
+  before_action :require_project!
   before_action :set_task
 
   def create
@@ -17,7 +17,7 @@ class MessagesController < ApplicationController
   private
 
   def set_task
-    @task = Current.company.tasks.find(params[:task_id])
+    @task = Current.project.tasks.find(params[:task_id])
   end
 
   def message_params

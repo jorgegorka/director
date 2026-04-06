@@ -26,7 +26,7 @@ class SubAgents::SummarizeGoalTest < ActiveSupport::TestCase
   test "system_prompt is scoped to this one role and narrows the specialist's job" do
     prompt = @sub_agent.system_prompt
     assert_includes prompt, @role.title
-    assert_includes prompt, @role.company.name
+    assert_includes prompt, @role.project.name
     assert_includes prompt, "get_goal_details"
     assert_includes prompt, "update_goal_summary"
     assert_includes prompt, "markdown link"

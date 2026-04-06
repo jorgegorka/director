@@ -48,7 +48,7 @@ class RoleRun < ApplicationRecord
     return if terminal?
     mark_failed!(error_message: error_message, exit_code: exit_code)
     role.update!(status: :idle) if role.running?
-    role.company.dispatch_next_throttled_run!
+    role.project.dispatch_next_throttled_run!
   end
 
   def mark_cancelled!
@@ -63,7 +63,7 @@ class RoleRun < ApplicationRecord
     mark_cancelled!
     task&.post_system_comment(author: role, body: "My session was cancelled before completing work.")
     role.update!(status: :idle) if role.running?
-    role.company.dispatch_next_throttled_run!
+    role.project.dispatch_next_throttled_run!
   end
 
   # Terminates the adapter's execution session (tmux pane for claude_local,

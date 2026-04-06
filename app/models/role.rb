@@ -24,7 +24,7 @@ class Role < ApplicationRecord
   enum :status, { idle: 0, running: 1, paused: 2, error: 3, terminated: 4, pending_approval: 5 }
 
   validates :title, presence: true,
-                    uniqueness: { scope: :company_id, message: "already exists in this company" }
+                    uniqueness: { scope: :project_id, message: "already exists in this project" }
   validates :adapter_type, presence: true, if: :agent_configured?
   validates :adapter_config, presence: true, if: :agent_configured?
   validates :heartbeat_interval, numericality: { only_integer: true, greater_than: 0 }, allow_nil: true
@@ -221,24 +221,24 @@ class Role < ApplicationRecord
   end
 
   def broadcast_overview_stats
-    roles = company.roles.active
+    roles = project.roles.active
     Turbo::StreamsChannel.broadcast_replace_to(
-      "dashboard_company_#{company_id}",
+      "dashboard_project_#{project_id}",
       target: "dashboard-overview-stats",
       partial: "dashboard/overview_stats",
       locals: {
         total_roles: roles.count,
         roles_online: roles.online.count,
-        tasks_active: company.tasks.active.count,
-        tasks_completed: company.tasks.completed.count
+        tasks_active: project.tasks.active.count,
+        tasks_completed: project.tasks.completed.count
       }
     )
   end
 
   def broadcast_running_agents
-    running_roles = company.roles.where(status: :running).includes(role_runs: :task)
+    running_roles = project.roles.where(status: :running).includes(role_runs: :task)
     Turbo::StreamsChannel.broadcast_replace_to(
-      "dashboard_company_#{company_id}",
+      "dashboard_project_#{project_id}",
       target: "dashboard-running-agents",
       partial: "dashboard/running_agents",
       locals: { running_roles: running_roles }
@@ -246,10 +246,10 @@ class Role < ApplicationRecord
   end
 
   def broadcast_approvals_badge
-    count = company.approvals_pending_count
+    count = project.approvals_pending_count
 
     Turbo::StreamsChannel.broadcast_replace_to(
-      "dashboard_company_#{company_id}",
+      "dashboard_project_#{project_id}",
       target: "approvals-badge",
       partial: "dashboard/approvals_badge",
       locals: { count: count }
@@ -292,7 +292,7 @@ class Role < ApplicationRecord
     missing_keys = keys - existing_keys
     return if missing_keys.empty?
 
-    company.skills.where(key: missing_keys).find_each do |skill|
+    project.skills.where(key: missing_keys).find_each do |skill|
       role_skills.find_or_create_by!(skill: skill)
     end
 

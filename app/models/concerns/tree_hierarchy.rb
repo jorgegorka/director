@@ -7,7 +7,7 @@ module TreeHierarchy
 
     scope :roots, -> { where(parent_id: nil) }
 
-    validate :parent_belongs_to_same_company
+    validate :parent_belongs_to_same_project
     validate :parent_is_not_self
     validate :parent_is_not_descendant
   end
@@ -46,9 +46,9 @@ module TreeHierarchy
 
   private
 
-  def parent_belongs_to_same_company
-    if parent.present? && parent.company_id != company_id
-      errors.add(:parent, "must belong to the same company")
+  def parent_belongs_to_same_project
+    if parent.present? && parent.project_id != project_id
+      errors.add(:parent, "must belong to the same project")
     end
   end
 

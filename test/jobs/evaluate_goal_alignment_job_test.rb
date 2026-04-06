@@ -2,7 +2,7 @@ require "test_helper"
 
 class EvaluateGoalAlignmentJobTest < ActiveSupport::TestCase
   setup do
-    @company = companies(:acme)
+    @project = projects(:acme)
     @role = roles(:cto)
     @goal = goals(:acme_objective_one)
     ENV["ANTHROPIC_API_KEY"] = "test-key"
@@ -25,7 +25,7 @@ class EvaluateGoalAlignmentJobTest < ActiveSupport::TestCase
   test "skips when task has no goal" do
     task = Task.create!(
       title: "No goal task",
-      company: @company,
+      project: @project,
       assignee: @role,
       status: :open
     )
@@ -39,7 +39,7 @@ class EvaluateGoalAlignmentJobTest < ActiveSupport::TestCase
   test "calls Goals::Evaluation for eligible task" do
     task = Task.create!(
       title: "Eval job test",
-      company: @company,
+      project: @project,
       assignee: @role,
       goal: @goal,
       status: :open

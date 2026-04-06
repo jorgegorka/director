@@ -1,8 +1,8 @@
 class Dashboard::TaskBoard
-  attr_reader :company
+  attr_reader :project
 
-  def initialize(company)
-    @company = company
+  def initialize(project)
+    @project = project
   end
 
   def tasks_by_status
@@ -14,6 +14,6 @@ class Dashboard::TaskBoard
   end
 
   def all_tasks
-    @all_tasks ||= company.tasks.includes(:assignee, :creator, :parent_task).order(priority: :desc, created_at: :desc)
+    @all_tasks ||= project.tasks.includes(:assignee, :creator, :parent_task).order(priority: :desc, created_at: :desc)
   end
 end

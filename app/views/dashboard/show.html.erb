@@ -1,10 +1,10 @@
 <% content_for(:title, "Dashboard") %>
 <section class="dashboard">
-  <%= turbo_stream_from "dashboard_company_#{Current.company.id}" %>
+  <%= turbo_stream_from "dashboard_project_#{Current.project.id}" %>
   <div class="dashboard__header">
     <div>
-      <h1><%= @overview.company.name %></h1>
-      <p class="dashboard__subtitle">Company command center</p>
+      <h1><%= @overview.project.name %></h1>
+      <p class="dashboard__subtitle">Project command center</p>
     </div>
   </div>
 

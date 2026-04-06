@@ -1,5 +1,5 @@
 class RoleTemplatesController < ApplicationController
-  before_action :require_company!
+  before_action :require_project!
   before_action :set_template, only: [ :show, :apply ]
 
   def index
@@ -11,7 +11,7 @@ class RoleTemplatesController < ApplicationController
 
   def apply
     result = RoleTemplates::Applicator.call(
-      company: Current.company,
+      project: Current.project,
       template_key: @template.key
     )
 

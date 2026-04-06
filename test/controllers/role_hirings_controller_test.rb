@@ -3,9 +3,9 @@ require "test_helper"
 class RoleHiringsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:one)
-    @company = companies(:acme)
+    @project = projects(:acme)
     sign_in_as(@user)
-    post company_switch_url(@company)
+    post project_switch_url(@project)
 
     @cmo = roles(:cmo)
   end
@@ -82,7 +82,7 @@ class RoleHiringsControllerTest < ActionDispatch::IntegrationTest
     assert_response :unauthorized
   end
 
-  test "agent cannot hire for role in another company" do
+  test "agent cannot hire for role in another project" do
     sign_out
     widgets_lead = roles(:widgets_lead)
 
@@ -126,7 +126,7 @@ class RoleHiringsControllerTest < ActionDispatch::IntegrationTest
   test "approving a role with pending hire creates the hired role" do
     pending_hire = PendingHire.create!(
       role: @cmo,
-      company: @company,
+      project: @project,
       template_role_title: "Marketing Planner",
       budget_cents: 20000
     )
@@ -144,7 +144,7 @@ class RoleHiringsControllerTest < ActionDispatch::IntegrationTest
     pending_hire.reload
     assert pending_hire.approved?
 
-    new_role = @company.roles.find_by(title: "Marketing Planner")
+    new_role = @project.roles.find_by(title: "Marketing Planner")
     assert_not_nil new_role
     assert_equal @cmo, new_role.parent
   end
@@ -152,7 +152,7 @@ class RoleHiringsControllerTest < ActionDispatch::IntegrationTest
   test "rejecting a role with pending hire does not create role" do
     pending_hire = PendingHire.create!(
       role: @cmo,
-      company: @company,
+      project: @project,
       template_role_title: "Marketing Planner",
       budget_cents: 20000
     )

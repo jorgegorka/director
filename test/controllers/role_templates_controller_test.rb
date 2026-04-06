@@ -3,9 +3,9 @@ require "test_helper"
 class RoleTemplatesControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:one)
-    @company = companies(:acme)
+    @project = projects(:acme)
     sign_in_as(@user)
-    post company_switch_url(@company)
+    post project_switch_url(@project)
   end
 
   # --- Index ---
@@ -80,7 +80,7 @@ class RoleTemplatesControllerTest < ActionDispatch::IntegrationTest
 
   test "should create roles from template" do
     # acme already has CMO fixture, so 8 of 9 marketing roles are created
-    assert_difference("@company.roles.count", 8) do
+    assert_difference("@project.roles.count", 8) do
       post apply_role_template_url("marketing")
     end
   end
@@ -95,7 +95,7 @@ class RoleTemplatesControllerTest < ActionDispatch::IntegrationTest
   test "should handle already-existing roles gracefully" do
     post apply_role_template_url("marketing")
 
-    assert_no_difference("@company.roles.count") do
+    assert_no_difference("@project.roles.count") do
       post apply_role_template_url("marketing")
     end
     assert_redirected_to roles_url
@@ -110,14 +110,14 @@ class RoleTemplatesControllerTest < ActionDispatch::IntegrationTest
 
   # --- Auth guard ---
 
-  test "should require company for index" do
-    user_without_company = User.create!(
-      email_address: "no_company@example.com",
+  test "should require project for index" do
+    user_without_project = User.create!(
+      email_address: "no_project@example.com",
       password: "password",
       password_confirmation: "password"
     )
-    sign_in_as(user_without_company)
+    sign_in_as(user_without_project)
     get role_templates_url
-    assert_redirected_to new_company_path
+    assert_redirected_to new_project_path
   end
 end

@@ -17,7 +17,7 @@
     </ul>
   <% end %>
 
-  <% available_docs = Current.company.documents.where.not(id: linked_documents.map(&:document_id)).order(:title) %>
+  <% available_docs = Current.project.documents.where.not(id: linked_documents.map(&:document_id)).order(:title) %>
   <% if available_docs.any? %>
     <%= form_with url: link_path, method: :post, class: "document-picker__add" do |f| %>
       <%= f.select :document_id, available_docs.map { |d| [d.title, d.id] },

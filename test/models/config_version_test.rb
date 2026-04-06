@@ -2,7 +2,7 @@ require "test_helper"
 
 class ConfigVersionTest < ActiveSupport::TestCase
   setup do
-    @company = companies(:acme)
+    @project = projects(:acme)
     @user = users(:one)
     @role_version = config_versions(:role_edit_version)
     @budget_version = config_versions(:role_budget_version)
@@ -10,9 +10,9 @@ class ConfigVersionTest < ActiveSupport::TestCase
 
   # --- Validations ---
 
-  test "valid with company, versionable, action, and snapshot" do
+  test "valid with project, versionable, action, and snapshot" do
     version = ConfigVersion.new(
-      company: @company,
+      project: @project,
       versionable: roles(:cto),
       action: "update",
       snapshot: { title: "CTO" }
@@ -22,7 +22,7 @@ class ConfigVersionTest < ActiveSupport::TestCase
 
   test "invalid without action" do
     version = ConfigVersion.new(
-      company: @company,
+      project: @project,
       versionable: roles(:cto),
       action: nil,
       snapshot: { title: "CTO" }
@@ -32,7 +32,7 @@ class ConfigVersionTest < ActiveSupport::TestCase
 
   test "invalid with unrecognized action" do
     version = ConfigVersion.new(
-      company: @company,
+      project: @project,
       versionable: roles(:cto),
       action: "destroy",
       snapshot: { title: "CTO" }
@@ -43,7 +43,7 @@ class ConfigVersionTest < ActiveSupport::TestCase
   test "accepts create, update, and rollback actions" do
     %w[create update rollback].each do |action|
       version = ConfigVersion.new(
-        company: @company,
+        project: @project,
         versionable: roles(:cto),
         action: action,
         snapshot: { title: "CTO" }
@@ -54,8 +54,8 @@ class ConfigVersionTest < ActiveSupport::TestCase
 
   # --- Associations ---
 
-  test "belongs to company via Tenantable" do
-    assert_equal @company, @role_version.company
+  test "belongs to project via Tenantable" do
+    assert_equal @project, @role_version.project
   end
 
   test "belongs to versionable (Role)" do
@@ -68,7 +68,7 @@ class ConfigVersionTest < ActiveSupport::TestCase
 
   test "author is optional" do
     version = ConfigVersion.new(
-      company: @company,
+      project: @project,
       versionable: roles(:cto),
       action: "update",
       snapshot: { title: "CTO" },
@@ -98,7 +98,7 @@ class ConfigVersionTest < ActiveSupport::TestCase
     assert_not_includes attrs.keys, "id"
     assert_not_includes attrs.keys, "created_at"
     assert_not_includes attrs.keys, "updated_at"
-    assert_not_includes attrs.keys, "company_id"
+    assert_not_includes attrs.keys, "project_id"
   end
 
   test "diff_summary returns array of changes" do
@@ -113,7 +113,7 @@ class ConfigVersionTest < ActiveSupport::TestCase
   end
 
   test "restore! applies snapshot attributes to versionable" do
-    Current.company = @company
+    Current.project = @project
 
     role = roles(:cto)
     role.update!(description: "Temporary change")
@@ -123,23 +123,23 @@ class ConfigVersionTest < ActiveSupport::TestCase
     role.reload
     assert_equal "Chief Technology Officer", role.description
   ensure
-    Current.company = nil
+    Current.project = nil
   end
 
   # --- Deletion ---
 
-  test "destroying company destroys config versions" do
-    version_count = @company.config_versions.count
+  test "destroying project destroys config versions" do
+    version_count = @project.config_versions.count
     assert version_count > 0
     assert_difference "ConfigVersion.count", -version_count do
-      @company.destroy
+      @project.destroy
     end
   end
 
   # --- ConfigVersioned concern (via Role) ---
 
   test "updating role creates a config version" do
-    Current.company = @company
+    Current.project = @project
     role = roles(:cto)
     assert_difference "ConfigVersion.count" do
       role.update!(description: "New description for versioning test")
@@ -148,28 +148,28 @@ class ConfigVersionTest < ActiveSupport::TestCase
     assert_equal "update", version.action
     assert_equal "New description for versioning test", version.snapshot["description"]
   ensure
-    Current.company = nil
+    Current.project = nil
   end
 
   test "config version changeset records old and new values" do
-    Current.company = @company
+    Current.project = @project
     role = roles(:cto)
     old_desc = role.description
     role.update!(description: "Changed description")
     version = ConfigVersion.where(versionable: role).order(:created_at).last
     assert_equal [ old_desc, "Changed description" ], version.changeset["description"]
   ensure
-    Current.company = nil
+    Current.project = nil
   end
 
   test "updating non-governance attribute does not create version" do
-    Current.company = @company
+    Current.project = @project
     role = roles(:cto)
     initial_count = ConfigVersion.where(versionable: role).count
     # Touch only updated_at — should_version? filters out updated_at-only changes
     role.touch
     assert_equal initial_count, ConfigVersion.where(versionable: role).count
   ensure
-    Current.company = nil
+    Current.project = nil
   end
 end

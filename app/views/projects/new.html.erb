@@ -1,0 +1,25 @@
+<% content_for(:title, "New Project") %>
+
+<section class="form-card">
+  <h1>Create a Project</h1>
+  <p class="form-card__subtitle">Each project is an isolated workspace for your AI roles.</p>
+
+  <%= form_with(model: @project, class: "form") do |f| %>
+    <% if @project.errors.any? %>
+      <div class="form__errors" role="alert">
+        <% @project.errors.full_messages.each do |message| %>
+          <p><%= message %></p>
+        <% end %>
+      </div>
+    <% end %>
+
+    <div class="form__field">
+      <%= f.label :name, "Project name" %>
+      <%= f.text_field :name, autofocus: true, required: true, placeholder: "e.g. Acme AI Corp" %>
+    </div>
+
+    <div class="form__actions">
+      <%= f.submit "Create project", class: "btn btn--primary" %>
+    </div>
+  <% end %>
+</section>

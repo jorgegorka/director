@@ -15,7 +15,7 @@ class ConfigVersion < ApplicationRecord
   end
 
   def restorable_attributes
-    snapshot.except("id", "created_at", "updated_at", "company_id")
+    snapshot.except("id", "created_at", "updated_at", "project_id")
   end
 
   def diff_summary

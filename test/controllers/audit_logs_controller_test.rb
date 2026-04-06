@@ -3,9 +3,9 @@ require "test_helper"
 class AuditLogsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:one)
-    @company = companies(:acme)
+    @project = projects(:acme)
     sign_in_as(@user)
-    post company_switch_url(@company)
+    post project_switch_url(@project)
   end
 
   test "should get index" do
@@ -14,7 +14,7 @@ class AuditLogsControllerTest < ActionDispatch::IntegrationTest
     assert_select "h1", "Audit Log"
   end
 
-  test "should show audit events for current company" do
+  test "should show audit events for current project" do
     get audit_logs_url
     assert_response :success
     assert_select ".audit-table"
@@ -41,10 +41,10 @@ class AuditLogsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".audit-log-page__empty"
   end
 
-  test "should not show events from other companies" do
+  test "should not show events from other projects" do
     get audit_logs_url
     assert_response :success
-    # All events should be for acme company (enforced by for_company scope)
+    # All events should be for acme project (enforced by for_project scope)
   end
 
   test "should redirect unauthenticated user" do
@@ -53,15 +53,15 @@ class AuditLogsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_session_url
   end
 
-  test "should redirect user without company" do
-    user_without_company = User.create!(
+  test "should redirect user without project" do
+    user_without_project = User.create!(
       email_address: "auditless@example.com",
       password: "password",
       password_confirmation: "password"
     )
-    sign_in_as(user_without_company)
+    sign_in_as(user_without_project)
     get audit_logs_url
-    assert_redirected_to new_company_url
+    assert_redirected_to new_project_url
   end
 
   test "should show filter form" do

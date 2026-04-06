@@ -3,9 +3,9 @@ require "test_helper"
 class ConfigVersionsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:one)
-    @company = companies(:acme)
+    @project = projects(:acme)
     sign_in_as(@user)
-    post company_switch_url(@company)
+    post project_switch_url(@project)
     @role_version = config_versions(:role_edit_version)
     @role_budget_version = config_versions(:role_budget_version)
   end
@@ -78,10 +78,10 @@ class ConfigVersionsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "should not show versions from other company" do
+  test "should not show versions from other project" do
     get config_version_url(@role_version)
     assert_response :success
-    # Version belongs to acme, which is our current company
+    # Version belongs to acme, which is our current project
   end
 
   # --- Auth ---
@@ -92,14 +92,14 @@ class ConfigVersionsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_session_url
   end
 
-  test "should redirect user without company" do
-    user_without_company = User.create!(
+  test "should redirect user without project" do
+    user_without_project = User.create!(
       email_address: "versionless@example.com",
       password: "password",
       password_confirmation: "password"
     )
-    sign_in_as(user_without_company)
+    sign_in_as(user_without_project)
     get config_versions_url(type: "Role", record_id: roles(:cto).id)
-    assert_redirected_to new_company_url
+    assert_redirected_to new_project_url
   end
 end

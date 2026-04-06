@@ -57,9 +57,9 @@ module Budgets
         period_start: role.current_budget_period_start.to_s
       }.merge(extra_metadata)
 
-      role.company.admin_recipients.each do |user|
+      role.project.admin_recipients.each do |user|
         Notification.create!(
-          company: role.company,
+          project: role.project,
           recipient: user,
           actor: role,
           notifiable: role,

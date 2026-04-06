@@ -12,10 +12,10 @@ module RoleTemplates
       end
     end
 
-    attr_reader :company, :template_key, :parent_role
+    attr_reader :project, :template_key, :parent_role
 
-    def initialize(company:, template_key:, parent_role: nil)
-      @company = company
+    def initialize(project:, template_key:, parent_role: nil)
+      @project = project
       @template_key = template_key
       @parent_role = parent_role
     end
@@ -26,10 +26,10 @@ module RoleTemplates
 
     def call
       template = RoleTemplates::Registry.find(template_key)
-      existing_roles = company.roles.where(title: template.roles.map(&:title)).index_by(&:title)
+      existing_roles = project.roles.where(title: template.roles.map(&:title)).index_by(&:title)
       all_skill_keys = template.roles.flat_map(&:skill_keys).uniq
-      skills_by_key = company.skills.where(key: all_skill_keys).index_by(&:key)
-      categories_by_name = company.role_categories.index_by(&:name)
+      skills_by_key = project.skills.where(key: all_skill_keys).index_by(&:key)
+      categories_by_name = project.role_categories.index_by(&:name)
 
       created = 0
       skipped = 0
@@ -46,7 +46,7 @@ module RoleTemplates
         end
 
         parent = resolve_parent(template_role, roles_by_title)
-        role = company.roles.build(
+        role = project.roles.build(
           title: template_role.title,
           description: template_role.description,
           job_spec: template_role.job_spec,

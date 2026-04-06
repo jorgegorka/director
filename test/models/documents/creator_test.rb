@@ -2,7 +2,7 @@ require "test_helper"
 
 class Documents::CreatorTest < ActiveSupport::TestCase
   setup do
-    @company = companies(:acme)
+    @project = projects(:acme)
     @role = roles(:cto)
     @user = users(:one)
   end
@@ -10,7 +10,7 @@ class Documents::CreatorTest < ActiveSupport::TestCase
   test "creates document with role author" do
     doc = Documents::Creator.call(
       author: @role,
-      company: @company,
+      project: @project,
       title: "Role Report",
       body: "# Report\n\nFindings here."
     )
@@ -18,13 +18,13 @@ class Documents::CreatorTest < ActiveSupport::TestCase
     assert doc.persisted?
     assert_equal "Role Report", doc.title
     assert_equal @role, doc.author
-    assert_equal @company, doc.company
+    assert_equal @project, doc.project
   end
 
   test "creates document with user author" do
     doc = Documents::Creator.call(
       author: @user,
-      company: @company,
+      project: @project,
       title: "User Doc",
       body: "# User Doc\n\nContent."
     )
@@ -36,7 +36,7 @@ class Documents::CreatorTest < ActiveSupport::TestCase
   test "creates and links tags by name" do
     doc = Documents::Creator.call(
       author: @role,
-      company: @company,
+      project: @project,
       title: "Tagged Doc",
       body: "# Content",
       tag_names: [ "policy", "new-tag" ]
@@ -51,10 +51,10 @@ class Documents::CreatorTest < ActiveSupport::TestCase
   test "finds existing tags instead of creating duplicates" do
     existing_tag = document_tags(:acme_policy_tag)
 
-    assert_no_difference("DocumentTag.where(name: 'policy', company: @company).count") do
+    assert_no_difference("DocumentTag.where(name: 'policy', project: @project).count") do
       Documents::Creator.call(
         author: @role,
-        company: @company,
+        project: @project,
         title: "Doc with existing tag",
         body: "# Content",
         tag_names: [ "policy" ]
@@ -66,7 +66,7 @@ class Documents::CreatorTest < ActiveSupport::TestCase
     assert_raises(ActiveRecord::RecordInvalid) do
       Documents::Creator.call(
         author: @role,
-        company: @company,
+        project: @project,
         title: "",
         body: "# Content"
       )

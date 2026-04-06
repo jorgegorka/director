@@ -1,9 +1,9 @@
 module RoleTemplates
   class BulkApplicator
-    attr_reader :company
+    attr_reader :project
 
-    def initialize(company:)
-      @company = company
+    def initialize(project:)
+      @project = project
     end
 
     def self.call(**kwargs)
@@ -18,7 +18,7 @@ module RoleTemplates
 
       RoleTemplates::Registry.keys.each do |key|
         result = RoleTemplates::Applicator.call(
-          company: company,
+          project: project,
           template_key: key
         )
         total_created += result.created

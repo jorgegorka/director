@@ -2,16 +2,16 @@ require "test_helper"
 
 class SkillTest < ActiveSupport::TestCase
   setup do
-    @company = companies(:acme)
-    @widgets = companies(:widgets)
+    @project = projects(:acme)
+    @widgets = projects(:widgets)
     @skill = skills(:acme_code_review)
   end
 
   # --- Validations ---
 
-  test "valid with key, name, markdown, and company" do
+  test "valid with key, name, markdown, and project" do
     skill = Skill.new(
-      company: @company,
+      project: @project,
       key: "new_skill",
       name: "New Skill",
       markdown: "# New Skill\n\nContent here."
@@ -20,31 +20,31 @@ class SkillTest < ActiveSupport::TestCase
   end
 
   test "invalid without key" do
-    skill = Skill.new(company: @company, key: nil, name: "Test", markdown: "# Test")
+    skill = Skill.new(project: @project, key: nil, name: "Test", markdown: "# Test")
     assert_not skill.valid?
     assert_includes skill.errors[:key], "can't be blank"
   end
 
   test "invalid without name" do
-    skill = Skill.new(company: @company, key: "test_key", name: nil, markdown: "# Test")
+    skill = Skill.new(project: @project, key: "test_key", name: nil, markdown: "# Test")
     assert_not skill.valid?
     assert_includes skill.errors[:name], "can't be blank"
   end
 
   test "invalid without markdown" do
-    skill = Skill.new(company: @company, key: "test_key", name: "Test", markdown: nil)
+    skill = Skill.new(project: @project, key: "test_key", name: "Test", markdown: nil)
     assert_not skill.valid?
     assert_includes skill.errors[:markdown], "can't be blank"
   end
 
-  test "invalid with duplicate key in same company" do
-    skill = Skill.new(company: @company, key: "code_review", name: "Code Review 2", markdown: "# Duplicate")
+  test "invalid with duplicate key in same project" do
+    skill = Skill.new(project: @project, key: "code_review", name: "Code Review 2", markdown: "# Duplicate")
     assert_not skill.valid?
     assert skill.errors[:key].any?
   end
 
-  test "allows duplicate key across different companies" do
-    skill = Skill.new(company: @widgets, key: "code_review", name: "Code Review", markdown: "# Code Review")
+  test "allows duplicate key across different projects" do
+    skill = Skill.new(project: @widgets, key: "code_review", name: "Code Review", markdown: "# Code Review")
     assert skill.valid?
   end
 
@@ -55,8 +55,8 @@ class SkillTest < ActiveSupport::TestCase
 
   # --- Associations ---
 
-  test "belongs to company via Tenantable" do
-    assert_equal @company, @skill.company
+  test "belongs to project via Tenantable" do
+    assert_equal @project, @skill.project
   end
 
   test "has many role_skills" do
@@ -69,9 +69,9 @@ class SkillTest < ActiveSupport::TestCase
 
   # --- Scopes ---
 
-  test "for_current_company scopes to Current.company" do
-    Current.company = @company
-    acme_skills = Skill.for_current_company
+  test "for_current_project scopes to Current.project" do
+    Current.project = @project
+    acme_skills = Skill.for_current_project
     assert_includes acme_skills, skills(:acme_code_review)
     assert_not_includes acme_skills, skills(:widgets_strategic_planning)
   end

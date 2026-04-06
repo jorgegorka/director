@@ -3,9 +3,9 @@ require "test_helper"
 class NotificationsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:one)
-    @company = companies(:acme)
+    @project = projects(:acme)
     sign_in_as(@user)
-    post company_switch_url(@company)
+    post project_switch_url(@project)
     @notification = notifications(:budget_alert_claude)
   end
 
@@ -22,14 +22,14 @@ class NotificationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should mark all notifications as read" do
-    assert Notification.where(recipient: @user, company: @company).unread.count > 0
+    assert Notification.where(recipient: @user, project: @project).unread.count > 0
     post mark_all_read_notifications_url
-    assert_equal 0, Notification.where(recipient: @user, company: @company).unread.count
+    assert_equal 0, Notification.where(recipient: @user, project: @project).unread.count
   end
 
-  test "should not mark notification from another company" do
+  test "should not mark notification from another project" do
     widgets_notification = Notification.create!(
-      company: companies(:widgets),
+      project: projects(:widgets),
       recipient: @user,
       action: "test_alert"
     )
@@ -37,7 +37,7 @@ class NotificationsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_url
   end
 
-  test "header shows notification bell when company selected" do
+  test "header shows notification bell when project selected" do
     get dashboard_url
     assert_response :success
     assert_select ".notification-dropdown__trigger"

@@ -21,7 +21,7 @@ module Tools
     end
 
     def call(arguments)
-      task = company.tasks.find(arguments["task_id"])
+      task = project.tasks.find(arguments["task_id"])
 
       unless task.creator_id == role.id || task.assignee_id == role.id
         raise ArgumentError, "You must be the creator or assignee of this task to post messages"

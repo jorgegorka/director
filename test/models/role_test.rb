@@ -2,7 +2,7 @@ require "test_helper"
 
 class RoleTest < ActiveSupport::TestCase
   setup do
-    @company = companies(:acme)
+    @project = projects(:acme)
     @ceo = roles(:ceo)
     @cto = roles(:cto)
     @developer = roles(:developer)
@@ -11,38 +11,38 @@ class RoleTest < ActiveSupport::TestCase
 
   # --- Validations ---
 
-  test "valid with title, company, and category" do
-    role = Role.new(title: "Designer", company: @company, role_category: role_categories(:worker))
+  test "valid with title, project, and category" do
+    role = Role.new(title: "Designer", project: @project, role_category: role_categories(:worker))
     assert role.valid?
   end
 
   test "invalid without role_category" do
-    role = Role.new(title: "No Category", company: @company)
+    role = Role.new(title: "No Category", project: @project)
     assert_not role.valid?
     assert_includes role.errors[:role_category], "must exist"
   end
 
   test "invalid without title" do
-    role = Role.new(title: nil, company: @company, role_category: role_categories(:worker))
+    role = Role.new(title: nil, project: @project, role_category: role_categories(:worker))
     assert_not role.valid?
     assert_includes role.errors[:title], "can't be blank"
   end
 
-  test "invalid with duplicate title in same company" do
-    role = Role.new(title: "CEO", company: @company, role_category: role_categories(:worker))
+  test "invalid with duplicate title in same project" do
+    role = Role.new(title: "CEO", project: @project, role_category: role_categories(:worker))
     assert_not role.valid?
-    assert_includes role.errors[:title], "already exists in this company"
+    assert_includes role.errors[:title], "already exists in this project"
   end
 
-  test "allows same title in different companies" do
-    role = Role.new(title: "CEO", company: companies(:widgets), role_category: role_categories(:worker))
+  test "allows same title in different projects" do
+    role = Role.new(title: "CEO", project: projects(:widgets), role_category: role_categories(:worker))
     assert role.valid?
   end
 
-  test "invalid when parent belongs to different company" do
-    role = Role.new(title: "Cross-company", company: companies(:widgets), parent: @ceo, role_category: role_categories(:worker))
+  test "invalid when parent belongs to different project" do
+    role = Role.new(title: "Cross-project", project: projects(:widgets), parent: @ceo, role_category: role_categories(:worker))
     assert_not role.valid?
-    assert_includes role.errors[:parent], "must belong to the same company"
+    assert_includes role.errors[:parent], "must belong to the same project"
   end
 
   test "invalid when parent is self" do
@@ -63,7 +63,7 @@ class RoleTest < ActiveSupport::TestCase
   test "valid with adapter_type, adapter_config, and valid config" do
     role = Role.new(
       title: "New Agent Role",
-      company: @company,
+      project: @project,
       role_category: role_categories(:worker),
       adapter_type: :http,
       adapter_config: { "url" => "https://example.com" }
@@ -74,7 +74,7 @@ class RoleTest < ActiveSupport::TestCase
   test "invalid when http role missing url in adapter_config" do
     role = Role.new(
       title: "Bad HTTP",
-      company: @company,
+      project: @project,
       role_category: role_categories(:worker),
       adapter_type: :http,
       adapter_config: { "method" => "POST" }
@@ -86,7 +86,7 @@ class RoleTest < ActiveSupport::TestCase
   test "invalid when process role missing command in adapter_config" do
     role = Role.new(
       title: "Bad Process",
-      company: @company,
+      project: @project,
       role_category: role_categories(:worker),
       adapter_type: :process,
       adapter_config: { "timeout" => 30 }
@@ -98,7 +98,7 @@ class RoleTest < ActiveSupport::TestCase
   test "invalid when claude_local role missing model in adapter_config" do
     role = Role.new(
       title: "Bad Claude",
-      company: @company,
+      project: @project,
       role_category: role_categories(:worker),
       adapter_type: :claude_local,
       adapter_config: { "max_turns" => 5 }
@@ -110,7 +110,7 @@ class RoleTest < ActiveSupport::TestCase
   test "valid adapter_config with only required keys" do
     role = Role.new(
       title: "Minimal Claude",
-      company: @company,
+      project: @project,
       role_category: role_categories(:worker),
       adapter_type: :claude_local,
       adapter_config: { "model" => "claude-opus-4" }
@@ -154,8 +154,8 @@ class RoleTest < ActiveSupport::TestCase
     assert_equal role_categories(:orchestrator), @ceo.role_category
   end
 
-  test "belongs to company via Tenantable" do
-    assert_equal @company, @ceo.company
+  test "belongs to project via Tenantable" do
+    assert_equal @project, @ceo.project
   end
 
   test "belongs to parent" do
@@ -221,26 +221,26 @@ class RoleTest < ActiveSupport::TestCase
   # --- Scoping ---
 
   test "roots scope returns only parentless roles" do
-    roots = Role.where(company: @company).roots
+    roots = Role.where(project: @project).roots
     assert_includes roots, @ceo
     assert_not_includes roots, @cto
     assert_not_includes roots, @developer
   end
 
-  test "for_current_company scope filters by Current.company" do
-    Current.company = @company
-    roles = Role.for_current_company
+  test "for_current_project scope filters by Current.project" do
+    Current.project = @project
+    roles = Role.for_current_project
     assert_includes roles, @ceo
     assert_includes roles, @cto
     assert_not_includes roles, roles(:widgets_lead)
   ensure
-    Current.company = nil
+    Current.project = nil
   end
 
   test "active scope excludes terminated roles" do
     terminated = Role.new(
       title: "Dead Role",
-      company: @company,
+      project: @project,
       role_category: role_categories(:worker),
       adapter_type: :http,
       adapter_config: { "url" => "https://example.com" },
@@ -317,11 +317,11 @@ class RoleTest < ActiveSupport::TestCase
     end
   end
 
-  test "destroying company destroys all its roles" do
-    role_count = @company.roles.count
+  test "destroying project destroys all its roles" do
+    role_count = @project.roles.count
     assert role_count > 0
     assert_difference("Role.count", -role_count) do
-      @company.destroy
+      @project.destroy
     end
   end
 
@@ -330,7 +330,7 @@ class RoleTest < ActiveSupport::TestCase
   test "generates api_token on create for agent-configured role" do
     role = Role.create!(
       title: "Token Role",
-      company: @company,
+      project: @project,
       role_category: role_categories(:worker),
       adapter_type: :http,
       adapter_config: { "url" => "https://example.com" }
@@ -342,14 +342,14 @@ class RoleTest < ActiveSupport::TestCase
   test "api_token is unique" do
     role1 = Role.create!(
       title: "Token Role 1",
-      company: @company,
+      project: @project,
       role_category: role_categories(:worker),
       adapter_type: :http,
       adapter_config: { "url" => "https://example.com" }
     )
     role2 = Role.create!(
       title: "Token Role 2",
-      company: @company,
+      project: @project,
       role_category: role_categories(:worker),
       adapter_type: :http,
       adapter_config: { "url" => "https://example.com" }
@@ -365,12 +365,12 @@ class RoleTest < ActiveSupport::TestCase
   end
 
   test "vacant role does not generate api_token" do
-    role = Role.create!(title: "Vacant Role", company: @company, role_category: role_categories(:worker))
+    role = Role.create!(title: "Vacant Role", project: @project, role_category: role_categories(:worker))
     assert_nil role.api_token
   end
 
   test "generates api_token when existing role is updated to become an agent" do
-    role = Role.create!(title: "Vacant Agent", company: @company, role_category: role_categories(:worker))
+    role = Role.create!(title: "Vacant Agent", project: @project, role_category: role_categories(:worker))
     assert_nil role.api_token
 
     role.update!(adapter_type: :http, adapter_config: { "url" => "https://example.com" })
@@ -381,7 +381,7 @@ class RoleTest < ActiveSupport::TestCase
   test "does not overwrite existing api_token on update" do
     role = Role.create!(
       title: "Existing Token",
-      company: @company,
+      project: @project,
       role_category: role_categories(:worker),
       adapter_type: :http,
       adapter_config: { "url" => "https://example.com" }
@@ -551,27 +551,27 @@ class RoleTest < ActiveSupport::TestCase
   # --- Working directory inheritance ---
 
   test "inherits working_directory from parent on create" do
-    parent = Role.create!(title: "Team Lead", company: @company, role_category: role_categories(:worker), working_directory: "/projects/website")
-    child = Role.create!(title: "Designer", company: @company, role_category: role_categories(:worker), parent: parent)
+    parent = Role.create!(title: "Team Lead", project: @project, role_category: role_categories(:worker), working_directory: "/projects/website")
+    child = Role.create!(title: "Designer", project: @project, role_category: role_categories(:worker), parent: parent)
 
     assert_equal "/projects/website", child.working_directory
   end
 
   test "does not override explicit working_directory with parent's" do
-    parent = Role.create!(title: "Team Lead", company: @company, role_category: role_categories(:worker), working_directory: "/projects/website")
-    child = Role.create!(title: "Designer", company: @company, role_category: role_categories(:worker), parent: parent, working_directory: "/projects/design")
+    parent = Role.create!(title: "Team Lead", project: @project, role_category: role_categories(:worker), working_directory: "/projects/website")
+    child = Role.create!(title: "Designer", project: @project, role_category: role_categories(:worker), parent: parent, working_directory: "/projects/design")
 
     assert_equal "/projects/design", child.working_directory
   end
 
   test "working_directory is nil when no parent" do
-    role = Role.create!(title: "Lone Wolf", company: @company, role_category: role_categories(:worker))
+    role = Role.create!(title: "Lone Wolf", project: @project, role_category: role_categories(:worker))
 
     assert_nil role.working_directory
   end
 
   test "working_directory is nil when parent has no working_directory" do
-    child = Role.create!(title: "Designer", company: @company, role_category: role_categories(:worker), parent: @ceo)
+    child = Role.create!(title: "Designer", project: @project, role_category: role_categories(:worker), parent: @ceo)
 
     assert_nil child.working_directory
   end
@@ -579,18 +579,18 @@ class RoleTest < ActiveSupport::TestCase
   # --- Adapter inheritance ---
 
   test "inherits adapter_type and adapter_config from parent on create" do
-    parent = Role.create!(title: "Team Lead", company: @company, role_category: role_categories(:worker),
+    parent = Role.create!(title: "Team Lead", project: @project, role_category: role_categories(:worker),
       adapter_type: :http, adapter_config: { "url" => "https://example.com" })
-    child = Role.create!(title: "Designer", company: @company, role_category: role_categories(:worker), parent: parent)
+    child = Role.create!(title: "Designer", project: @project, role_category: role_categories(:worker), parent: parent)
 
     assert_equal "http", child.adapter_type
     assert_equal({ "url" => "https://example.com" }, child.adapter_config)
   end
 
   test "does not override explicit adapter_type with parent's" do
-    parent = Role.create!(title: "Team Lead", company: @company, role_category: role_categories(:worker),
+    parent = Role.create!(title: "Team Lead", project: @project, role_category: role_categories(:worker),
       adapter_type: :http, adapter_config: { "url" => "https://example.com" })
-    child = Role.create!(title: "Designer", company: @company, role_category: role_categories(:worker), parent: parent,
+    child = Role.create!(title: "Designer", project: @project, role_category: role_categories(:worker), parent: parent,
       adapter_type: :process, adapter_config: { "command" => "bin/run" })
 
     assert_equal "process", child.adapter_type
@@ -598,7 +598,7 @@ class RoleTest < ActiveSupport::TestCase
   end
 
   test "adapter_type is nil when parent has no adapter_type" do
-    child = Role.create!(title: "Designer", company: @company, role_category: role_categories(:worker), parent: @ceo)
+    child = Role.create!(title: "Designer", project: @project, role_category: role_categories(:worker), parent: @ceo)
 
     assert_nil child.adapter_type
   end
@@ -606,12 +606,12 @@ class RoleTest < ActiveSupport::TestCase
   # --- job_spec ---
 
   test "preserves explicit job_spec on create" do
-    role = Role.create!(title: "Custom Agent", company: @company, role_category: role_categories(:worker), job_spec: "Delegate all tasks to direct reports.")
+    role = Role.create!(title: "Custom Agent", project: @project, role_category: role_categories(:worker), job_spec: "Delegate all tasks to direct reports.")
     assert_equal "Delegate all tasks to direct reports.", role.job_spec
   end
 
   test "allows blank job_spec" do
-    role = Role.create!(title: "New Agent", company: @company, role_category: role_categories(:worker))
+    role = Role.create!(title: "New Agent", project: @project, role_category: role_categories(:worker))
     assert role.job_spec.blank?
   end
 
@@ -630,9 +630,9 @@ class RoleTest < ActiveSupport::TestCase
     task_a = tasks(:design_homepage)
     task_b = tasks(:fix_login_bug)
 
-    RoleRun.create!(role: @cto, task: task_a, company: @company, status: :completed,
+    RoleRun.create!(role: @cto, task: task_a, project: @project, status: :completed,
       trigger_type: "task_assigned", claude_session_id: "sess_task_a", completed_at: 2.hours.ago)
-    RoleRun.create!(role: @cto, task: task_b, company: @company, status: :completed,
+    RoleRun.create!(role: @cto, task: task_b, project: @project, status: :completed,
       trigger_type: "task_assigned", claude_session_id: "sess_task_b", completed_at: 1.hour.ago)
 
     assert_equal "sess_task_a", @cto.latest_session_id_for(task_a)
@@ -642,7 +642,7 @@ class RoleTest < ActiveSupport::TestCase
     task_a = tasks(:design_homepage) # goal: acme_objective_one
     task_b = tasks(:eval_ready_task) # goal: acme_objective_one (same goal)
 
-    RoleRun.create!(role: @cto, task: task_a, company: @company, status: :completed,
+    RoleRun.create!(role: @cto, task: task_a, project: @project, status: :completed,
       trigger_type: "task_assigned", claude_session_id: "sess_sibling", completed_at: 1.hour.ago)
 
     # task_b has no direct session, but shares a goal with task_a
@@ -651,9 +651,9 @@ class RoleTest < ActiveSupport::TestCase
 
   test "latest_session_id_for returns nil when no related sessions exist" do
     task_obj_one = tasks(:design_homepage) # goal: acme_objective_one
-    task_unrelated = tasks(:widgets_task)  # different company, no goal
+    task_unrelated = tasks(:widgets_task)  # different project, no goal
 
-    RoleRun.create!(role: @cto, task: task_obj_one, company: @company, status: :completed,
+    RoleRun.create!(role: @cto, task: task_obj_one, project: @project, status: :completed,
       trigger_type: "task_assigned", claude_session_id: "sess_unrelated", completed_at: 1.hour.ago)
 
     # A task with no goal and no prior sessions for this role should return nil
@@ -661,7 +661,7 @@ class RoleTest < ActiveSupport::TestCase
   end
 
   test "latest_session_id_for falls back to global when task is nil" do
-    RoleRun.create!(role: @cto, task: nil, company: @company, status: :completed,
+    RoleRun.create!(role: @cto, task: nil, project: @project, status: :completed,
       trigger_type: "scheduled", claude_session_id: "sess_global", completed_at: 1.hour.ago)
 
     assert_equal "sess_global", @cto.latest_session_id_for(nil)
@@ -671,9 +671,9 @@ class RoleTest < ActiveSupport::TestCase
     task_a = tasks(:design_homepage) # goal: acme_objective_one
     task_b = tasks(:eval_ready_task) # goal: acme_objective_one (same goal)
 
-    RoleRun.create!(role: @cto, task: task_b, company: @company, status: :completed,
+    RoleRun.create!(role: @cto, task: task_b, project: @project, status: :completed,
       trigger_type: "task_assigned", claude_session_id: "sess_sibling", completed_at: 2.hours.ago)
-    RoleRun.create!(role: @cto, task: task_a, company: @company, status: :completed,
+    RoleRun.create!(role: @cto, task: task_a, project: @project, status: :completed,
       trigger_type: "task_assigned", claude_session_id: "sess_exact", completed_at: 1.hour.ago)
 
     assert_equal "sess_exact", @cto.latest_session_id_for(task_a)
@@ -697,7 +697,7 @@ class RoleTest < ActiveSupport::TestCase
   test "first agent configuration does not duplicate existing skills" do
     # Create a role whose title matches a default_skills key, pre-assign a skill, then configure adapter.
     roles(:ceo).destroy # free up the "CEO" title
-    role = Role.create!(title: "CEO", company: @company, role_category: role_categories(:worker))
+    role = Role.create!(title: "CEO", project: @project, role_category: role_categories(:worker))
     role.role_skills.create!(skill: skills(:acme_strategic_planning))
     initial_count = role.role_skills.count
     assert initial_count > 0, "Role should have some existing skills"
@@ -712,7 +712,7 @@ class RoleTest < ActiveSupport::TestCase
   end
 
   test "unknown role title assigns no skills" do
-    role = Role.create!(title: "Chief Happiness Officer", company: @company, role_category: role_categories(:worker))
+    role = Role.create!(title: "Chief Happiness Officer", project: @project, role_category: role_categories(:worker))
 
     assert_no_difference("RoleSkill.count") do
       role.update!(adapter_type: :http, adapter_config: { "url" => "https://example.com" })

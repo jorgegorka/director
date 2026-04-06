@@ -66,7 +66,7 @@ class TmuxAdapterRunnerTest < ActiveSupport::TestCase
     @role = roles(:cto)
     @role.define_singleton_method(:budget_exhausted?) { false }
     @run = RoleRun.create!(
-      role: @role, task: tasks(:design_homepage), company: companies(:acme),
+      role: @role, task: tasks(:design_homepage), project: projects(:acme),
       status: :queued, trigger_type: "task_assigned"
     )
     @context = { run_id: @run.id }

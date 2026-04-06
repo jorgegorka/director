@@ -9,24 +9,24 @@ Rails.application.routes.draw do
   # Account settings
   resource :settings, only: [ :show, :update ]
 
-  # Companies
-  resources :companies, only: [ :index, :new, :create, :edit, :update ] do
-    resource :switch, only: [ :create ], module: :companies, controller: "switches"
+  # Projects
+  resources :projects, only: [ :index, :new, :create, :edit, :update ] do
+    resource :switch, only: [ :create ], module: :projects, controller: "switches"
     member do
       post :emergency_stop
     end
   end
 
-  # Invitations (scoped to active company via Current.company)
+  # Invitations (scoped to active project via Current.project)
   resources :invitations, only: [ :index, :new, :create ]
 
   # Invitation acceptance (public, token-based)
   resources :invitation_acceptances, only: [ :show, :update ], param: :token
 
-  # Role Categories (scoped to active company via Current.company)
+  # Role Categories (scoped to active project via Current.project)
   resources :role_categories
 
-  # Org Chart & Roles (scoped to active company via Current.company)
+  # Org Chart & Roles (scoped to active project via Current.project)
   resources :roles do
     resources :role_skills, only: [ :create, :destroy ]
     resources :heartbeats, only: [ :index ]
@@ -55,16 +55,16 @@ Rails.application.routes.draw do
     end
   end
 
-  # Skills (scoped to active company via Current.company)
+  # Skills (scoped to active project via Current.project)
   resources :skills do
     resources :skill_documents, only: [ :create, :destroy ]
   end
 
-  # Documents (scoped to active company via Current.company)
+  # Documents (scoped to active project via Current.project)
   resources :documents
   resources :document_tags, only: [ :index, :create, :destroy ]
 
-  # Tasks (scoped to active company via Current.company)
+  # Tasks (scoped to active project via Current.project)
   resources :tasks do
     resources :task_documents, only: [ :create, :destroy ]
     resources :messages, only: [ :create ]
@@ -77,10 +77,10 @@ Rails.application.routes.draw do
     end
   end
 
-  # Goals (scoped to active company via Current.company)
+  # Goals (scoped to active project via Current.project)
   resources :goals
 
-  # Notifications (scoped to active company via Current.company)
+  # Notifications (scoped to active project via Current.project)
   resources :notifications, only: [ :index ] do
     member do
       patch :mark_read
@@ -90,7 +90,7 @@ Rails.application.routes.draw do
     end
   end
 
-  # Audit Log (scoped to active company via Current.company)
+  # Audit Log (scoped to active project via Current.project)
   resources :audit_logs, only: [ :index ]
 
   # Config Versions (version history and rollback for Role)
@@ -100,7 +100,7 @@ Rails.application.routes.draw do
     end
   end
 
-  # Dashboard (company command center — root landing page)
+  # Dashboard (project command center — root landing page)
   resource :dashboard, only: [ :show ], controller: "dashboard" do
     scope module: :dashboards do
       resources :tasks, only: [ :index ]

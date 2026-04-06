@@ -3,9 +3,9 @@ require "test_helper"
 class TaskEscalationsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:one)
-    @company = companies(:acme)
+    @project = projects(:acme)
     sign_in_as(@user)
-    post company_switch_url(@company)
+    post project_switch_url(@project)
 
     @cto = roles(:cto)
     @developer = roles(:developer)
@@ -75,7 +75,7 @@ class TaskEscalationsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Needs manager attention", event.metadata["reason"]
   end
 
-  test "human user cannot escalate task from another company" do
+  test "human user cannot escalate task from another project" do
     post escalate_task_url(@widgets_task)
 
     assert_redirected_to root_url
@@ -139,7 +139,7 @@ class TaskEscalationsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Unauthorized", json["error"]
   end
 
-  test "role API cannot escalate task from another company" do
+  test "role API cannot escalate task from another project" do
     sign_out
 
     post escalate_task_url(@task, format: :json),

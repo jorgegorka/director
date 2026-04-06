@@ -24,7 +24,7 @@ module Tools
     end
 
     def call(arguments)
-      task = company.tasks.new(
+      task = project.tasks.new(
         title: arguments["title"],
         description: arguments["description"],
         priority: arguments["priority"] || "medium",

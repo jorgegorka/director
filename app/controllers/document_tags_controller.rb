@@ -1,8 +1,8 @@
 class DocumentTagsController < ApplicationController
-  before_action :require_company!
+  before_action :require_project!
 
   def index
-    @tags = Current.company.document_tags
+    @tags = Current.project.document_tags
               .left_joins(:document_taggings)
               .select("document_tags.*, COUNT(document_taggings.id) AS documents_count")
               .group("document_tags.id")
@@ -10,7 +10,7 @@ class DocumentTagsController < ApplicationController
   end
 
   def create
-    @tag = Current.company.document_tags.new(tag_params)
+    @tag = Current.project.document_tags.new(tag_params)
 
     if @tag.save
       redirect_to document_tags_path, notice: "Tag '#{@tag.name}' created."
@@ -21,7 +21,7 @@ class DocumentTagsController < ApplicationController
   end
 
   def destroy
-    tag = Current.company.document_tags.find(params[:id])
+    tag = Current.project.document_tags.find(params[:id])
     tag.destroy
     redirect_to document_tags_path, notice: "Tag '#{tag.name}' deleted."
   end

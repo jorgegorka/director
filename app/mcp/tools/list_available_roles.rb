@@ -17,9 +17,9 @@ module Tools
 
     def call(_arguments)
       desc_ids = role.descendant_ids
-      subordinates = company.roles.active.where(id: desc_ids)
+      subordinates = project.roles.active.where(id: desc_ids)
       siblings = if role.parent_id.present?
-        company.roles.active.where(parent_id: role.parent_id).where.not(id: role.id)
+        project.roles.active.where(parent_id: role.parent_id).where.not(id: role.id)
       else
         Role.none
       end

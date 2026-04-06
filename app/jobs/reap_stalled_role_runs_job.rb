@@ -11,7 +11,7 @@ class ReapStalledRoleRunsJob < ApplicationJob
   def perform
     RoleRun.where(status: :running)
            .where("last_activity_at < ?", STALL_THRESHOLD.ago)
-           .includes(:task, role: :company)
+           .includes(:task, role: :project)
            .find_each { |run| reap(run) }
   end
 

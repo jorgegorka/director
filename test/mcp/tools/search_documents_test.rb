@@ -5,7 +5,7 @@ class Tools::SearchDocumentsTest < ActiveSupport::TestCase
     @tool = Tools::SearchDocuments.new(roles(:cto))
   end
 
-  test "returns all company documents with no filters" do
+  test "returns all project documents with no filters" do
     result = @tool.call({})
 
     titles = result[:documents].map { |d| d[:title] }
@@ -38,7 +38,7 @@ class Tools::SearchDocumentsTest < ActiveSupport::TestCase
     assert_empty result[:documents]
   end
 
-  test "does not return documents from another company" do
+  test "does not return documents from another project" do
     result = @tool.call({})
 
     titles = result[:documents].map { |d| d[:title] }

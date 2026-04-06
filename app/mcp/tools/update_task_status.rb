@@ -26,7 +26,7 @@ module Tools
     end
 
     def call(arguments)
-      task = company.tasks.find(arguments["task_id"])
+      task = project.tasks.find(arguments["task_id"])
       new_status = arguments["status"]
 
       unless ALLOWED_STATUSES.include?(new_status)

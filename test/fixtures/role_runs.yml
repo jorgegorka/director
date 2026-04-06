@@ -1,14 +1,14 @@
 queued_run:
   role: cto
   task: design_homepage
-  company: acme
+  project: acme
   status: 0  # queued
   trigger_type: task_assigned
 
 running_run:
   role: developer
   task: fix_login_bug
-  company: acme
+  project: acme
   status: 1  # running
   trigger_type: task_assigned
   started_at: <%= 5.minutes.ago.to_fs(:db) %>
@@ -16,7 +16,7 @@ running_run:
 completed_run:
   role: cto
   task: completed_task
-  company: acme
+  project: acme
   status: 2  # completed
   trigger_type: scheduled
   started_at: <%= 1.hour.ago.to_fs(:db) %>
@@ -29,7 +29,7 @@ completed_run:
 failed_run:
   role: developer
   task: design_homepage
-  company: acme
+  project: acme
   status: 3  # failed
   trigger_type: task_assigned
   started_at: <%= 2.hours.ago.to_fs(:db) %>

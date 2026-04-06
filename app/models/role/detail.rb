@@ -1,9 +1,9 @@
 class Role::Detail
-  attr_reader :role, :company
+  attr_reader :role, :project
 
-  def initialize(role, company)
+  def initialize(role, project)
     @role = role
-    @company = company
+    @project = project
   end
 
   def recent_heartbeats
@@ -14,8 +14,8 @@ class Role::Detail
     @recent_runs ||= role.role_runs.order(created_at: :desc).limit(5)
   end
 
-  def company_skills
-    @company_skills ||= company.skills.order(:category, :name)
+  def project_skills
+    @project_skills ||= project.skills.order(:category, :name)
   end
 
   def role_skills_by_skill_id

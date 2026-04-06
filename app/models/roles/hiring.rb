@@ -25,7 +25,7 @@ module Roles
 
       my_title = title
       descendant_titles = collect_template_descendants(template, my_title)
-      existing_titles = company.roles.where(title: descendant_titles).pluck(:title)
+      existing_titles = project.roles.where(title: descendant_titles).pluck(:title)
 
       template.roles.select { |tr| descendant_titles.include?(tr.title) && !existing_titles.include?(tr.title) }
     end
@@ -84,8 +84,8 @@ module Roles
 
     def validate_hire!(template_role_title, budget_cents)
       unless can_hire?(template_role_title)
-        if company.roles.exists?(title: template_role_title)
-          raise HiringError, "Cannot hire #{template_role_title}: role already exists in this company"
+        if project.roles.exists?(title: template_role_title)
+          raise HiringError, "Cannot hire #{template_role_title}: role already exists in this project"
         else
           raise HiringError, "Cannot hire #{template_role_title}: not a valid subordinate role for #{title}"
         end
@@ -102,12 +102,12 @@ module Roles
     end
 
     def create_hired_role(template_role, hire_budget_cents)
-      new_role = company.roles.create!(
+      new_role = project.roles.create!(
         title: template_role.title,
         description: template_role.description,
         job_spec: template_role.job_spec,
         parent: self,
-        role_category: company.role_categories.find_by(name: template_role.category),
+        role_category: project.role_categories.find_by(name: template_role.category),
         adapter_type: adapter_type,
         adapter_config: adapter_config,
 
@@ -131,7 +131,7 @@ module Roles
 
     def request_hire_approval(template_role_title, budget_cents)
       pending_hire = pending_hires.create!(
-        company: company,
+        project: project,
         template_role_title: template_role_title,
         budget_cents: budget_cents
       )
@@ -157,9 +157,9 @@ module Roles
     end
 
     def notify_admins_of_hire_request(template_role_title, budget_cents)
-      company.admin_recipients.each do |admin|
+      project.admin_recipients.each do |admin|
         Notification.create!(
-          company: company,
+          project: project,
           recipient: admin,
           actor: self,
           notifiable: self,

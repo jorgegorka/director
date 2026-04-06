@@ -36,11 +36,11 @@ module ConfigVersioned
   end
 
   def create_config_version
-    company = try(:company) || Current.company
-    return unless company
+    project = try(:project) || Current.project
+    return unless project
 
     ConfigVersion.create!(
-      company: company,
+      project: project,
       versionable: self,
       author: Current.user,
       action: previously_new_record? ? "create" : "update",
@@ -50,11 +50,11 @@ module ConfigVersioned
   end
 
   def record_rollback_version(source_version)
-    company = try(:company) || Current.company
-    return unless company
+    project = try(:project) || Current.project
+    return unless project
 
     ConfigVersion.create!(
-      company: company,
+      project: project,
       versionable: self,
       author: Current.user,
       action: "rollback",

@@ -3,7 +3,7 @@ require "webmock/minitest"
 
 class Hooks::ExecutorTest < ActiveSupport::TestCase
   setup do
-    @company = companies(:acme)
+    @project = projects(:acme)
     @cto = roles(:cto)
     @developer = roles(:developer)
     @task = tasks(:design_homepage)  # in_progress, assigned to cto
@@ -14,7 +14,7 @@ class Hooks::ExecutorTest < ActiveSupport::TestCase
     @trigger_execution = HookExecution.create!(
       role_hook: @trigger_hook,
       task: @task,
-      company: @company,
+      project: @project,
       status: :queued,
       input_payload: { task_id: @task.id, task_title: @task.title }
     )
@@ -24,7 +24,7 @@ class Hooks::ExecutorTest < ActiveSupport::TestCase
     @webhook_execution = HookExecution.create!(
       role_hook: @webhook_hook,
       task: @task,
-      company: @company,
+      project: @project,
       status: :queued,
       input_payload: { task_id: @task.id, task_title: @task.title }
     )
@@ -38,7 +38,7 @@ class Hooks::ExecutorTest < ActiveSupport::TestCase
     subtask = Task.find_by(parent_task: @task, assignee: @developer)
     assert subtask.present?, "Validation subtask should be created"
     assert_equal "Validate: #{@task.title}", subtask.title
-    assert_equal @task.company_id, subtask.company_id
+    assert_equal @task.project_id, subtask.project_id
     assert_equal @task.id, subtask.parent_task_id
     assert subtask.open?
   end
@@ -165,7 +165,7 @@ class Hooks::ExecutorTest < ActiveSupport::TestCase
     assert_equal "hook_executed", audit.action
     assert_equal @trigger_hook, audit.auditable
     assert_equal @cto, audit.actor
-    assert_equal @company, audit.company
+    assert_equal @project, audit.project
     assert_equal @task.id, audit.metadata["task_id"]
   end
 

@@ -1,7 +1,7 @@
 <% content_for(:title, "Accept Invitation") %>
 
 <section class="form-card">
-  <h1>Join <%= @invitation.company.name %></h1>
+  <h1>Join <%= @invitation.project.name %></h1>
   <p class="form-card__subtitle">
     <%= @invitation.inviter.email_address %> invited you to join as a <%= @invitation.role %>.
   </p>

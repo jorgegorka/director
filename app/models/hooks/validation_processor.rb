@@ -87,7 +87,7 @@ module Hooks
       parent_task.record_audit_event!(
         actor: validation_author,
         action: "validation_feedback_received",
-        company: parent_task.company,
+        project: parent_task.project,
         metadata: {
           validation_task_id: validation_task.id,
           validation_task_title: validation_task.title,

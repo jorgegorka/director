@@ -2,8 +2,8 @@ require "test_helper"
 
 class Dashboard::ApprovalQueueTest < ActiveSupport::TestCase
   setup do
-    @company = companies(:acme)
-    @queue = Dashboard::ApprovalQueue.new(@company)
+    @project = projects(:acme)
+    @queue = Dashboard::ApprovalQueue.new(@project)
   end
 
   test "gate_blocked_roles returns roles with pending_approval status" do
@@ -12,9 +12,9 @@ class Dashboard::ApprovalQueueTest < ActiveSupport::TestCase
     roles.each { |r| assert r.pending_approval? }
   end
 
-  test "gate_blocked_roles scoped to company" do
+  test "gate_blocked_roles scoped to project" do
     @queue.gate_blocked_roles.each do |role|
-      assert_equal @company.id, role.company_id
+      assert_equal @project.id, role.project_id
     end
   end
 
@@ -24,9 +24,9 @@ class Dashboard::ApprovalQueueTest < ActiveSupport::TestCase
     hires.each { |h| assert h.pending? }
   end
 
-  test "pending_hires scoped to company" do
+  test "pending_hires scoped to project" do
     @queue.pending_hires.each do |hire|
-      assert_equal @company.id, hire.company_id
+      assert_equal @project.id, hire.project_id
     end
   end
 
@@ -36,9 +36,9 @@ class Dashboard::ApprovalQueueTest < ActiveSupport::TestCase
     tasks.each { |t| assert t.pending_review? }
   end
 
-  test "tasks_pending_review scoped to company" do
+  test "tasks_pending_review scoped to project" do
     @queue.tasks_pending_review.each do |task|
-      assert_equal @company.id, task.company_id
+      assert_equal @project.id, task.project_id
     end
   end
 
@@ -51,8 +51,8 @@ class Dashboard::ApprovalQueueTest < ActiveSupport::TestCase
     assert @queue.any?
   end
 
-  test "other company not included" do
-    widgets_queue = Dashboard::ApprovalQueue.new(companies(:widgets))
+  test "other project not included" do
+    widgets_queue = Dashboard::ApprovalQueue.new(projects(:widgets))
     assert_equal 0, widgets_queue.total_count
     assert_not widgets_queue.any?
   end

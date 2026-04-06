@@ -29,7 +29,7 @@ class RoleHiringsController < ApplicationController
   private
 
   def set_role
-    @role = Current.company.roles.find(params[:id])
+    @role = Current.project.roles.find(params[:id])
   end
 
   def hire_params

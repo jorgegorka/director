@@ -3,9 +3,9 @@ require "test_helper"
 class TasksControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:one)
-    @company = companies(:acme)
+    @project = projects(:acme)
     sign_in_as(@user)
-    post company_switch_url(@company)
+    post project_switch_url(@project)
     @design_task = tasks(:design_homepage)
     @widgets_task = tasks(:widgets_task)
     @ceo = roles(:ceo)
@@ -21,7 +21,7 @@ class TasksControllerTest < ActionDispatch::IntegrationTest
     assert_select ".task-card", minimum: 1
   end
 
-  test "should only show tasks for current company" do
+  test "should only show tasks for current project" do
     get tasks_url
     assert_response :success
     assert_select ".task-card__title a", text: "Design homepage"
@@ -36,7 +36,7 @@ class TasksControllerTest < ActionDispatch::IntegrationTest
     assert_select "h1", "Design homepage"
   end
 
-  test "should not show task from another company" do
+  test "should not show task from another project" do
     get task_url(@widgets_task)
     assert_redirected_to root_url
   end
@@ -63,7 +63,7 @@ class TasksControllerTest < ActionDispatch::IntegrationTest
     task = Task.order(:created_at).last
     assert_equal "New test task", task.title
     assert_equal "medium", task.priority
-    assert_equal @company, task.company
+    assert_equal @project, task.project
     assert_equal @ceo, task.creator
     assert_redirected_to task_url(task)
   end
@@ -186,14 +186,14 @@ class TasksControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_session_url
   end
 
-  test "should redirect user without company" do
-    user_without_company = User.create!(
+  test "should redirect user without project" do
+    user_without_project = User.create!(
       email_address: "taskless@example.com",
       password: "password",
       password_confirmation: "password"
     )
-    sign_in_as(user_without_company)
+    sign_in_as(user_without_project)
     get tasks_url
-    assert_redirected_to new_company_url
+    assert_redirected_to new_project_url
   end
 end

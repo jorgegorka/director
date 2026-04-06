@@ -5,16 +5,16 @@ class HookExecutionTest < ActiveSupport::TestCase
     @completed_execution = hook_executions(:completed_execution)
     @failed_execution = hook_executions(:failed_execution)
     @validation_hook = role_hooks(:cto_validation_hook)
-    @company = companies(:acme)
+    @project = projects(:acme)
   end
 
   # --- Validations ---
 
-  test "valid with role_hook, task, company, and status" do
+  test "valid with role_hook, task, project, and status" do
     execution = HookExecution.new(
       role_hook: @validation_hook,
       task: tasks(:design_homepage),
-      company: @company,
+      project: @project,
       status: :queued
     )
     assert execution.valid?
@@ -57,8 +57,8 @@ class HookExecutionTest < ActiveSupport::TestCase
     assert_equal tasks(:completed_task), @completed_execution.task
   end
 
-  test "belongs to company" do
-    assert_equal @company, @completed_execution.company
+  test "belongs to project" do
+    assert_equal @project, @completed_execution.project
   end
 
   # --- Mark methods ---
@@ -67,7 +67,7 @@ class HookExecutionTest < ActiveSupport::TestCase
     execution = HookExecution.create!(
       role_hook: @validation_hook,
       task: tasks(:design_homepage),
-      company: @company,
+      project: @project,
       status: :queued
     )
     assert execution.queued?
@@ -82,7 +82,7 @@ class HookExecutionTest < ActiveSupport::TestCase
     execution = HookExecution.create!(
       role_hook: @validation_hook,
       task: tasks(:design_homepage),
-      company: @company,
+      project: @project,
       status: :running,
       started_at: 1.minute.ago
     )
@@ -97,7 +97,7 @@ class HookExecutionTest < ActiveSupport::TestCase
     execution = HookExecution.create!(
       role_hook: @validation_hook,
       task: tasks(:design_homepage),
-      company: @company,
+      project: @project,
       status: :running,
       started_at: 1.minute.ago
     )

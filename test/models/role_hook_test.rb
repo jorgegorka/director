@@ -2,7 +2,7 @@ require "test_helper"
 
 class RoleHookTest < ActiveSupport::TestCase
   setup do
-    @company = companies(:acme)
+    @project = projects(:acme)
     @cto = roles(:cto)
     @developer = roles(:developer)
     @validation_hook = role_hooks(:cto_validation_hook)
@@ -15,7 +15,7 @@ class RoleHookTest < ActiveSupport::TestCase
   test "valid trigger_agent hook with required fields" do
     hook = RoleHook.new(
       role: @cto,
-      company: @company,
+      project: @project,
       lifecycle_event: "after_task_complete",
       action_type: :trigger_agent,
       action_config: { "target_role_id" => @developer.id }
@@ -26,7 +26,7 @@ class RoleHookTest < ActiveSupport::TestCase
   test "valid webhook hook with required fields" do
     hook = RoleHook.new(
       role: @cto,
-      company: @company,
+      project: @project,
       lifecycle_event: "after_task_start",
       action_type: :webhook,
       action_config: { "url" => "https://example.com/hook" }
@@ -37,7 +37,7 @@ class RoleHookTest < ActiveSupport::TestCase
   test "invalid without lifecycle_event" do
     hook = RoleHook.new(
       role: @cto,
-      company: @company,
+      project: @project,
       action_type: :trigger_agent,
       action_config: { "target_role_id" => @developer.id }
     )
@@ -48,7 +48,7 @@ class RoleHookTest < ActiveSupport::TestCase
   test "invalid with unknown lifecycle_event" do
     hook = RoleHook.new(
       role: @cto,
-      company: @company,
+      project: @project,
       lifecycle_event: "before_task_delete",
       action_type: :trigger_agent,
       action_config: { "target_role_id" => @developer.id }
@@ -60,7 +60,7 @@ class RoleHookTest < ActiveSupport::TestCase
   test "invalid trigger_agent hook without target_role_id in config" do
     hook = RoleHook.new(
       role: @cto,
-      company: @company,
+      project: @project,
       lifecycle_event: "after_task_complete",
       action_type: :trigger_agent,
       action_config: { "prompt" => "Review this" }
@@ -72,7 +72,7 @@ class RoleHookTest < ActiveSupport::TestCase
   test "invalid webhook hook without url in config" do
     hook = RoleHook.new(
       role: @cto,
-      company: @company,
+      project: @project,
       lifecycle_event: "after_task_start",
       action_type: :webhook,
       action_config: { "headers" => {} }
@@ -84,7 +84,7 @@ class RoleHookTest < ActiveSupport::TestCase
   test "invalid with negative position" do
     hook = RoleHook.new(
       role: @cto,
-      company: @company,
+      project: @project,
       lifecycle_event: "after_task_complete",
       action_type: :trigger_agent,
       action_config: { "target_role_id" => @developer.id },
@@ -116,8 +116,8 @@ class RoleHookTest < ActiveSupport::TestCase
     assert_equal @cto, @validation_hook.role
   end
 
-  test "belongs to company via Tenantable" do
-    assert_equal @company, @validation_hook.company
+  test "belongs to project via Tenantable" do
+    assert_equal @project, @validation_hook.project
   end
 
   test "has many hook_executions" do
@@ -156,14 +156,14 @@ class RoleHookTest < ActiveSupport::TestCase
     assert_equal positions, positions.sort
   end
 
-  test "for_current_company scopes to Current.company" do
-    Current.company = @company
-    hooks = RoleHook.for_current_company
+  test "for_current_project scopes to Current.project" do
+    Current.project = @project
+    hooks = RoleHook.for_current_project
     hooks.each do |hook|
-      assert_equal @company.id, hook.company_id
+      assert_equal @project.id, hook.project_id
     end
   ensure
-    Current.company = nil
+    Current.project = nil
   end
 
   # --- Methods ---

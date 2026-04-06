@@ -3,9 +3,9 @@ require "test_helper"
 class TaskDelegationsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:one)
-    @company = companies(:acme)
+    @project = projects(:acme)
     sign_in_as(@user)
-    post company_switch_url(@company)
+    post project_switch_url(@project)
 
     @cto = roles(:cto)
     @developer = roles(:developer)
@@ -72,7 +72,7 @@ class TaskDelegationsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Delegating to senior developer", event.metadata["reason"]
   end
 
-  test "human user cannot delegate task from another company" do
+  test "human user cannot delegate task from another project" do
     post delegate_task_url(@widgets_task), params: { role_id: @developer.id }
 
     assert_redirected_to root_url
@@ -153,7 +153,7 @@ class TaskDelegationsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Unauthorized", json["error"]
   end
 
-  test "role API sets Current.company from role company" do
+  test "role API sets Current.project from role project" do
     sign_out
 
     post delegate_task_url(@task, format: :json),
@@ -165,7 +165,7 @@ class TaskDelegationsControllerTest < ActionDispatch::IntegrationTest
     assert_equal @developer, @task.assignee
   end
 
-  test "role API cannot delegate task from another company" do
+  test "role API cannot delegate task from another project" do
     sign_out
 
     post delegate_task_url(@task, format: :json),

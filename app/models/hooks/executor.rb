@@ -44,7 +44,7 @@ module Hooks
       validation_task = Task.create!(
         title: "Validate: #{task.title}",
         description: build_validation_description,
-        company_id: task.company_id,
+        project_id: task.project_id,
         assignee: target,
         parent_task: task,
         status: :open,
@@ -118,7 +118,7 @@ module Hooks
           status: task.status,
           description: task.description,
           assignee_id: task.assignee_id,
-          company_id: task.company_id,
+          project_id: task.project_id,
           completed_at: task.completed_at&.iso8601
         },
         triggered_at: Time.current.iso8601
@@ -129,7 +129,7 @@ module Hooks
       role_hook.record_audit_event!(
         actor: role_hook.role,
         action: "hook_executed",
-        company: task.company,
+        project: task.project,
         metadata: {
           hook_name: role_hook.name,
           action_type: role_hook.action_type,

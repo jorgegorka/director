@@ -8,7 +8,7 @@ class Skill < ApplicationRecord
   has_many :documents, through: :skill_documents
 
   validates :key, presence: true,
-                  uniqueness: { scope: :company_id }
+                  uniqueness: { scope: :project_id }
   validates :name, presence: true
   validates :markdown, presence: true
 

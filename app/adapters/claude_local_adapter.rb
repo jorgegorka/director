@@ -187,7 +187,7 @@ class ClaudeLocalAdapter < BaseAdapter
   end
 
   private_class_method def self.build_identity_prompt(role)
-    company_name = role.company&.name || "Unknown Company"
+    project_name = role.project&.name || "Unknown Project"
     manager = role.parent
     children = role.children.active.order(:title)
 
@@ -201,7 +201,7 @@ class ClaudeLocalAdapter < BaseAdapter
     <<~PROMPT.strip
       ## Your Identity
 
-      You are **#{role.title}** at **#{company_name}**.
+      You are **#{role.title}** at **#{project_name}**.
       #{role.description.present? ? "\n#{role.description}\n" : ""}
       ## Your Organization
 
@@ -224,7 +224,7 @@ class ClaudeLocalAdapter < BaseAdapter
       - **list_available_roles** / **list_hirable_roles** — see who is on your team
       - **update_task_status** — mark your own assigned tasks in_progress or pending_review
       - **add_message** — comment on a task
-      - **search_documents** / **get_document** — read from the company document library
+      - **search_documents** / **get_document** — read from the project document library
 
       Your job is to decide *what* needs to happen and hand each decision to the right specialist. Do not try to reproduce their reasoning.
 

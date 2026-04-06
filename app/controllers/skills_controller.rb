@@ -1,12 +1,12 @@
 class SkillsController < ApplicationController
-  before_action :require_company!
+  before_action :require_project!
   before_action :set_skill, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    @skills = Current.company.skills.includes(:roles).order(:name)
+    @skills = Current.project.skills.includes(:roles).order(:name)
     @skills = @skills.by_category(params[:category]) if params[:category].present?
     @current_category = params[:category]
-    @categories = Current.company.skills.where.not(category: [ nil, "" ]).distinct.pluck(:category).sort
+    @categories = Current.project.skills.where.not(category: [ nil, "" ]).distinct.pluck(:category).sort
   end
 
   def show
@@ -15,11 +15,11 @@ class SkillsController < ApplicationController
   end
 
   def new
-    @skill = Current.company.skills.new(builtin: false)
+    @skill = Current.project.skills.new(builtin: false)
   end
 
   def create
-    @skill = Current.company.skills.new(skill_params)
+    @skill = Current.project.skills.new(skill_params)
     @skill.builtin = false
 
     if @skill.save
@@ -54,7 +54,7 @@ class SkillsController < ApplicationController
   private
 
   def set_skill
-    @skill = Current.company.skills.find(params[:id])
+    @skill = Current.project.skills.find(params[:id])
   end
 
   def skill_params

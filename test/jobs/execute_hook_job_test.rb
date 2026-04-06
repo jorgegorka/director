@@ -18,7 +18,7 @@ class ExecuteHookJobTest < ActiveSupport::TestCase
     execution = HookExecution.create!(
       role_hook: hook,
       task: tasks(:design_homepage),
-      company: companies(:acme),
+      project: projects(:acme),
       status: :failed,
       error_message: "Transient error",
       started_at: 1.minute.ago,
@@ -55,7 +55,7 @@ class ExecuteHookJobTest < ActiveSupport::TestCase
     execution = HookExecution.create!(
       role_hook: hook,
       task: tasks(:design_homepage),
-      company: companies(:acme),
+      project: projects(:acme),
       status: :queued,
       input_payload: { task_id: tasks(:design_homepage).id }
     )
@@ -74,7 +74,7 @@ class ExecuteHookJobTest < ActiveSupport::TestCase
     execution = HookExecution.create!(
       role_hook: hook,
       task: tasks(:design_homepage),
-      company: companies(:acme),
+      project: projects(:acme),
       status: :running,
       started_at: Time.current,
       input_payload: { task_id: tasks(:design_homepage).id }

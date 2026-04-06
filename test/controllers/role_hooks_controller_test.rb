@@ -3,9 +3,9 @@ require "test_helper"
 class RoleHooksControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:one)
-    @company = companies(:acme)
+    @project = projects(:acme)
     sign_in_as(@user)
-    post company_switch_url(@company)
+    post project_switch_url(@project)
     @role = roles(:cto)
     @hook = role_hooks(:cto_validation_hook)
     @webhook_hook = role_hooks(:cto_webhook_hook)
@@ -33,7 +33,7 @@ class RoleHooksControllerTest < ActionDispatch::IntegrationTest
     assert_select ".hooks-page__empty"
   end
 
-  test "should not get index for role in another company" do
+  test "should not get index for role in another project" do
     get role_role_hooks_url(@widgets_role)
     assert_redirected_to root_url
   end
@@ -58,7 +58,7 @@ class RoleHooksControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_url
   end
 
-  test "should not show hook for role in another company" do
+  test "should not show hook for role in another project" do
     get role_role_hook_url(@widgets_role, @hook)
     assert_redirected_to root_url
   end
@@ -101,7 +101,7 @@ class RoleHooksControllerTest < ActionDispatch::IntegrationTest
     assert_equal target_role.id, hook.action_config["target_role_id"].to_i
     assert_equal "Please review.", hook.action_config["prompt"]
     assert_equal @role, hook.role
-    assert_equal @company, hook.company
+    assert_equal @project, hook.project
     assert_redirected_to role_role_hook_url(@role, hook)
   end
 
@@ -140,7 +140,7 @@ class RoleHooksControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
   end
 
-  test "should not create hook for role in another company" do
+  test "should not create hook for role in another project" do
     assert_no_difference("RoleHook.count") do
       post role_role_hooks_url(@widgets_role), params: {
         role_hook: {
@@ -208,14 +208,14 @@ class RoleHooksControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_session_url
   end
 
-  test "should redirect user without company on index" do
-    user_without_company = User.create!(
+  test "should redirect user without project on index" do
+    user_without_project = User.create!(
       email_address: "nohooks@example.com",
       password: "password",
       password_confirmation: "password"
     )
-    sign_in_as(user_without_company)
+    sign_in_as(user_without_project)
     get role_role_hooks_url(@role)
-    assert_redirected_to new_company_url
+    assert_redirected_to new_project_url
   end
 end

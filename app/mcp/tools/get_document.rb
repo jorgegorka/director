@@ -19,7 +19,7 @@ module Tools
     end
 
     def call(arguments)
-      doc = company.documents.find(arguments["document_id"])
+      doc = project.documents.find(arguments["document_id"])
 
       {
         id: doc.id,

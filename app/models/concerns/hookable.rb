@@ -21,7 +21,7 @@ module Hookable
       execution = HookExecution.create!(
         role_hook: hook,
         task: self,
-        company_id: company_id,
+        project_id: project_id,
         status: :queued,
         input_payload: build_hook_input_payload(hook)
       )

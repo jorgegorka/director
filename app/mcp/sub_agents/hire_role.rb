@@ -36,7 +36,7 @@ module SubAgents
     def system_prompt
       own_budget = role.budget_cents ? "#{role.budget_cents} cents/month" : "uncapped"
       <<~PROMPT
-        You are a hiring specialist working on behalf of #{role.title} at #{role.company.name}.
+        You are a hiring specialist working on behalf of #{role.title} at #{role.project.name}.
 
         Your single job: hire exactly ONE subordinate role that matches the intent, or refuse with a reason if no template fits.
 

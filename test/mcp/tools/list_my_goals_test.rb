@@ -24,7 +24,7 @@ class Tools::ListMyGoalsTest < ActiveSupport::TestCase
     assert_empty result[:goals]
   end
 
-  test "does not return goals from other companies" do
+  test "does not return goals from other projects" do
     tool = Tools::ListMyGoals.new(@ceo)
     result = tool.call({})
 

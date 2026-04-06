@@ -17,12 +17,12 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
         }
       }
     end
-    # New users are redirected to root → dashboard → company creation (no companies yet)
+    # New users are redirected to root → dashboard → project creation (no projects yet)
     assert_redirected_to root_url
     follow_redirect!
     assert_redirected_to dashboard_url
     follow_redirect!
-    assert_redirected_to new_company_url
+    assert_redirected_to new_project_url
   end
 
   test "should not create user with invalid email" do
@@ -73,9 +73,9 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
         password_confirmation: "password123"
       }
     }
-    # After redirect to root, new user is bounced through dashboard to company creation
+    # After redirect to root, new user is bounced through dashboard to project creation
     follow_redirect!
     follow_redirect!
-    assert_redirected_to new_company_url
+    assert_redirected_to new_project_url
   end
 end

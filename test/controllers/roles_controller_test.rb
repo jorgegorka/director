@@ -3,9 +3,9 @@ require "test_helper"
 class RolesControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:one)
-    @company = companies(:acme)
+    @project = projects(:acme)
     sign_in_as(@user)
-    post company_switch_url(@company)
+    post project_switch_url(@project)
     @ceo = roles(:ceo)
     @cto = roles(:cto)
     @developer = roles(:developer)
@@ -19,7 +19,7 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".role-card", minimum: 3
   end
 
-  test "should only show roles for current company" do
+  test "should only show roles for current project" do
     get roles_url
     assert_response :success
     assert_select ".role-card__title", text: "CEO"
@@ -40,7 +40,7 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".role-card__title", text: "CTO"
   end
 
-  test "should not show role from another company" do
+  test "should not show role from another project" do
     get role_url(roles(:widgets_lead))
     assert_redirected_to root_url
   end
@@ -69,7 +69,7 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
     role = Role.order(:created_at).last
     assert_equal "Designer", role.title
     assert_equal @cto, role.parent
-    assert_equal @company, role.company
+    assert_equal @project, role.project
     assert_redirected_to role_url(role)
   end
 
@@ -112,7 +112,7 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "New HTTP Role", role.title
     assert role.http?
     assert_equal "https://example.com/api", role.adapter_config["url"]
-    assert_equal @company, role.company
+    assert_equal @project, role.project
     assert_redirected_to role_url(role)
   end
 
@@ -200,11 +200,11 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_session_url
   end
 
-  test "should redirect user without company" do
-    user_without_company = User.create!(email_address: "lonely@example.com", password: "password", password_confirmation: "password")
-    sign_in_as(user_without_company)
+  test "should redirect user without project" do
+    user_without_project = User.create!(email_address: "lonely@example.com", password: "password", password_confirmation: "password")
+    sign_in_as(user_without_project)
     get roles_url
-    assert_redirected_to new_company_url
+    assert_redirected_to new_project_url
   end
 
   # --- Heartbeat Schedule ---
@@ -383,7 +383,7 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
 
   test "should not run role with active run" do
     @cto.update_columns(status: Role.statuses[:idle])
-    @cto.role_runs.create!(company: @company, status: :queued, trigger_type: :scheduled)
+    @cto.role_runs.create!(project: @project, status: :queued, trigger_type: :scheduled)
     assert_no_difference("RoleRun.count") do
       post run_role_url(@cto)
     end
@@ -462,12 +462,12 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
   # --- Emergency Stop ---
 
   test "should emergency stop all roles" do
-    @company.roles.where.not(adapter_type: nil).update_all(status: Role.statuses[:idle])
-    post emergency_stop_company_url(@company)
+    @project.roles.where.not(adapter_type: nil).update_all(status: Role.statuses[:idle])
+    post emergency_stop_project_url(@project)
     assert_redirected_to roles_url
   end
 
-  test "should not allow status actions on other company roles" do
+  test "should not allow status actions on other project roles" do
     post pause_role_url(roles(:widgets_lead))
     assert_redirected_to root_url
   end

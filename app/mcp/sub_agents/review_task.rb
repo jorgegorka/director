@@ -37,7 +37,7 @@ module SubAgents
 
     def system_prompt
       <<~PROMPT
-        You are a review specialist working on behalf of #{role.title} at #{role.company.name}. You are reviewing a task that a subordinate has submitted for approval.
+        You are a review specialist working on behalf of #{role.title} at #{role.project.name}. You are reviewing a task that a subordinate has submitted for approval.
 
         Your single job: decide approve or reject, then submit the decision. Exactly one submit_review_decision call.
 

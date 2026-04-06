@@ -8,9 +8,9 @@ class Goal < ApplicationRecord
   has_many :goal_evaluations, dependent: :destroy
 
   validates :title, presence: true,
-                    uniqueness: { scope: :company_id }
+                    uniqueness: { scope: :project_id }
   validates :completion_percentage, numericality: { only_integer: true, in: 0..100 }
-  validate :role_belongs_to_same_company
+  validate :role_belongs_to_same_project
 
   scope :ordered, -> { order(:position, :title) }
 
@@ -29,9 +29,9 @@ class Goal < ApplicationRecord
 
   private
 
-  def role_belongs_to_same_company
-    if role.present? && role.company_id != company_id
-      errors.add(:role, "must belong to the same company")
+  def role_belongs_to_same_project
+    if role.present? && role.project_id != project_id
+      errors.add(:role, "must belong to the same project")
     end
   end
 

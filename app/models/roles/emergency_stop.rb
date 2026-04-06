@@ -2,19 +2,19 @@ module Roles
   class EmergencyStop
     PAUSE_REASON = "Emergency stop: all roles paused by administrator"
 
-    attr_reader :company, :user
+    attr_reader :project, :user
 
-    def initialize(company:, user:)
-      @company = company
+    def initialize(project:, user:)
+      @project = project
       @user = user
     end
 
-    def self.call!(company:, user:)
-      new(company: company, user: user).call!
+    def self.call!(project:, user:)
+      new(project: project, user: user).call!
     end
 
     def call!
-      roles_to_pause = company.roles.active.agent_configured.where.not(status: [ :paused, :terminated ])
+      roles_to_pause = project.roles.active.agent_configured.where.not(status: [ :paused, :terminated ])
       paused_count = 0
 
       roles_to_pause.find_each do |role|
@@ -35,10 +35,10 @@ module Roles
 
     def record_audit_event!(paused_count)
       AuditEvent.create!(
-        auditable: company,
+        auditable: project,
         actor: user,
         action: "emergency_stop",
-        company: company,
+        project: project,
         metadata: {
           roles_paused: paused_count,
           triggered_by: user.email_address
@@ -47,12 +47,12 @@ module Roles
     end
 
     def notify_emergency_stop!(paused_count)
-      company.admin_recipients.each do |recipient_user|
+      project.admin_recipients.each do |recipient_user|
         Notification.create!(
-          company: company,
+          project: project,
           recipient: recipient_user,
           actor: user,
-          notifiable: company,
+          notifiable: project,
           action: "emergency_stop",
           metadata: {
             roles_paused: paused_count,

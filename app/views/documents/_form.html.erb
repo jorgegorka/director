@@ -18,7 +18,7 @@
           placeholder: "# Document Title\n\n## Purpose\nDescribe the purpose...\n\n## Details\nAdd content here." %>
   </div>
 
-  <% tags = Current.company.document_tags.order(:name) %>
+  <% tags = Current.project.document_tags.order(:name) %>
   <% if tags.any? %>
     <fieldset class="form__field">
       <legend>Tags</legend>

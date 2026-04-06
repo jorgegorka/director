@@ -1,8 +1,8 @@
 class AuditEvent::Index
-  attr_reader :company
+  attr_reader :project
 
-  def initialize(company, filters = {})
-    @company = company
+  def initialize(project, filters = {})
+    @project = project
     @filters = filters
   end
 
@@ -48,7 +48,7 @@ class AuditEvent::Index
   private
 
     def base_scope
-      AuditEvent.for_company(company)
+      AuditEvent.for_project(project)
     end
 
     def filtered_scope

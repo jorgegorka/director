@@ -3,9 +3,9 @@ require "test_helper"
 class SkillsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:one)
-    @company = companies(:acme)
+    @project = projects(:acme)
     sign_in_as(@user)
-    post company_switch_url(@company)
+    post project_switch_url(@project)
     @builtin_skill = skills(:acme_code_review)
     @custom_skill = skills(:acme_custom_skill)
     @leadership_skill = skills(:acme_strategic_planning)
@@ -20,7 +20,7 @@ class SkillsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".skill-card", minimum: 3
   end
 
-  test "should only show skills for current company" do
+  test "should only show skills for current project" do
     get skills_url
     assert_response :success
     assert_select ".skill-card__title", text: /Code Review/
@@ -120,7 +120,7 @@ class SkillsControllerTest < ActionDispatch::IntegrationTest
     assert_select "form[action='#{skill_path(@custom_skill)}'] input[name='_method'][value='delete']"
   end
 
-  test "should not show skill from another company" do
+  test "should not show skill from another project" do
     get skill_url(@widgets_skill)
     assert_redirected_to root_url
   end
@@ -150,7 +150,7 @@ class SkillsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "new_custom_skill", skill.key
     assert_equal "New Custom Skill", skill.name
     assert_equal false, skill.builtin, "Created skills must be custom (builtin: false)"
-    assert_equal @company, skill.company
+    assert_equal @project, skill.project
     assert_equal "technical", skill.category
     assert_redirected_to skill_url(skill)
   end
@@ -244,7 +244,7 @@ class SkillsControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
   end
 
-  test "should not update skill from another company" do
+  test "should not update skill from another project" do
     patch skill_url(@widgets_skill), params: {
       skill: { name: "Hacked Skill" }
     }
@@ -268,7 +268,7 @@ class SkillsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Built-in skills cannot be deleted.", flash[:alert]
   end
 
-  test "should not destroy skill from another company" do
+  test "should not destroy skill from another project" do
     assert_no_difference("Skill.count") do
       delete skill_url(@widgets_skill)
     end
@@ -283,14 +283,14 @@ class SkillsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_session_url
   end
 
-  test "should redirect user without company" do
-    user_without_company = User.create!(
+  test "should redirect user without project" do
+    user_without_project = User.create!(
       email_address: "skillless@example.com",
       password: "password",
       password_confirmation: "password"
     )
-    sign_in_as(user_without_company)
+    sign_in_as(user_without_project)
     get skills_url
-    assert_redirected_to new_company_url
+    assert_redirected_to new_project_url
   end
 end

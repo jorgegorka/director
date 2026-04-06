@@ -4,7 +4,7 @@ class Dashboards::TasksControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:one)
     sign_in_as(@user)
-    post company_switch_url(companies(:acme))
+    post project_switch_url(projects(:acme))
   end
 
   test "should get index" do
@@ -30,7 +30,7 @@ class Dashboards::TasksControllerTest < ActionDispatch::IntegrationTest
     assert_select ".kanban-card__title", text: /Design homepage/
   end
 
-  test "kanban does not show other company tasks" do
+  test "kanban does not show other project tasks" do
     get dashboard_tasks_url
     assert_response :success
     assert_select ".kanban-card__title", text: /Update widget catalog/, count: 0
@@ -72,14 +72,14 @@ class Dashboards::TasksControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_session_url
   end
 
-  test "requires company" do
-    user_without_company = User.create!(
-      email_address: "nocompany@example.com",
+  test "requires project" do
+    user_without_project = User.create!(
+      email_address: "noproject@example.com",
       password: "password",
       password_confirmation: "password"
     )
-    sign_in_as(user_without_company)
+    sign_in_as(user_without_project)
     get dashboard_tasks_url
-    assert_redirected_to new_company_url
+    assert_redirected_to new_project_url
   end
 end

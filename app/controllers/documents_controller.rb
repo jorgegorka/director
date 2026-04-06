@@ -1,12 +1,12 @@
 class DocumentsController < ApplicationController
-  before_action :require_company!
+  before_action :require_project!
   before_action :set_document, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    @documents = Current.company.documents.includes(:author, :tags).order(:title)
+    @documents = Current.project.documents.includes(:author, :tags).order(:title)
     @documents = @documents.tagged_with(params[:tag]) if params[:tag].present?
     @documents = @documents.search_by_title(params[:q]) if params[:q].present?
-    @tags = Current.company.document_tags.order(:name)
+    @tags = Current.project.document_tags.order(:name)
     @current_tag = params[:tag]
   end
 
@@ -16,11 +16,11 @@ class DocumentsController < ApplicationController
   end
 
   def new
-    @document = Current.company.documents.new
+    @document = Current.project.documents.new
   end
 
   def create
-    @document = Current.company.documents.new(document_params)
+    @document = Current.project.documents.new(document_params)
     @document.author = Current.user
 
     if @document.save
@@ -52,7 +52,7 @@ class DocumentsController < ApplicationController
   private
 
   def set_document
-    @document = Current.company.documents.find(params[:id])
+    @document = Current.project.documents.find(params[:id])
   end
 
   def document_params

@@ -2,7 +2,7 @@ task_created:
   auditable: design_homepage (Task)
   actor: one (User)
   action: created
-  company: acme
+  project: acme
   metadata:
     title: Design homepage
 
@@ -10,7 +10,7 @@ task_assigned:
   auditable: design_homepage (Task)
   actor: one (User)
   action: assigned
-  company: acme
+  project: acme
   metadata:
     assignee_name: CTO
     assignee_id: 1
@@ -19,7 +19,7 @@ task_status_changed:
   auditable: design_homepage (Task)
   actor: cto (Role)
   action: status_changed
-  company: acme
+  project: acme
   metadata:
     from: open
     to: in_progress
@@ -28,15 +28,15 @@ gate_approval_event:
   auditable: cto (Role)
   actor: one (User)
   action: gate_approval
-  company: acme
+  project: acme
   metadata:
     action_type: task_creation
     agent_name: CTO
 
 emergency_stop_event:
-  auditable: acme (Company)
+  auditable: acme (Project)
   actor: one (User)
   action: emergency_stop
-  company: acme
+  project: acme
   metadata:
     agents_paused: 3
