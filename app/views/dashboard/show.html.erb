@@ -6,11 +6,6 @@
       <h1><%= @overview.company.name %></h1>
       <p class="dashboard__subtitle">Company command center</p>
     </div>
-    <div class="dashboard-quick-links">
-      <%= link_to "Org Chart", org_chart_path, class: "btn btn--ghost btn--sm" %>
-      <%= link_to "Goals", goals_path, class: "btn btn--ghost btn--sm" %>
-      <%= link_to "Audit Log", audit_logs_path, class: "btn btn--ghost btn--sm" %>
-    </div>
   </div>
 
   <% if @overview.top_goal %>
