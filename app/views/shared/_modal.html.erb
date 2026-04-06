@@ -1,0 +1,23 @@
+<%#
+  Shared modal partial using native <dialog>.
+  Requires a parent element with data-controller="modal".
+
+  Arguments:
+    title — the modal heading (required)
+    size  — "sm" | "md" (default) | "lg"
+%>
+<dialog class="modal modal--<%= local_assigns.fetch(:size, "md") %>"
+        data-modal-target="dialog"
+        data-action="click->modal#clickOutside turbo:submit-end->modal#submitEnd">
+  <div class="modal__container">
+    <div class="modal__header">
+      <h2 class="modal__title"><%= title %></h2>
+      <button type="button" class="modal__close" data-action="modal#close" aria-label="Close">
+        &times;
+      </button>
+    </div>
+    <div class="modal__body">
+      <%= yield %>
+    </div>
+  </div>
+</dialog>

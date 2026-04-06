@@ -1,0 +1,93 @@
+/* ============================================================
+   MODAL (native <dialog> based — shared component)
+   ============================================================ */
+@layer components {
+  .modal {
+    border: none;
+    border-radius: var(--radius-lg);
+    padding: 0;
+    background: var(--bg-surface);
+    box-shadow: var(--shadow-lg);
+    max-block-size: min(90vh, 40rem);
+    overflow: visible;
+    color: var(--text-base);
+  }
+
+  .modal::backdrop {
+    background: oklch(0.15 0 0 / 0.5);
+    backdrop-filter: blur(2px);
+  }
+
+  /* Sizes */
+  .modal--sm { inline-size: min(90vw, 24rem); }
+  .modal--md { inline-size: min(90vw, 32rem); }
+  .modal--lg { inline-size: min(90vw, 44rem); }
+
+  .modal__container {
+    display: flex;
+    flex-direction: column;
+    max-block-size: min(90vh, 40rem);
+  }
+
+  .modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-5);
+    border-block-end: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .modal__title {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    margin: 0;
+    line-height: var(--line-height-tight);
+  }
+
+  .modal__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 2rem;
+    block-size: 2rem;
+    border: none;
+    border-radius: var(--radius-md);
+    background: transparent;
+    font-size: var(--font-size-xl);
+    color: var(--text-muted);
+    cursor: pointer;
+    line-height: 1;
+    flex-shrink: 0;
+    transition:
+      background-color var(--transition-fast),
+      color var(--transition-fast);
+
+    &:hover {
+      background-color: var(--color-neutral-100);
+      color: var(--text-base);
+    }
+  }
+
+  .modal__body {
+    padding: var(--space-5);
+    overflow-y: auto;
+
+    /* Remove bottom margin from last child to avoid double spacing */
+    & > :last-child {
+      margin-block-end: 0;
+    }
+  }
+
+  /* When a form is directly inside the modal body, tighten up spacing */
+  .modal__body > .form {
+    margin: 0;
+  }
+
+  .modal__body > .form .form__actions {
+    padding-block-start: var(--space-4);
+    border-block-start: 1px solid var(--border-subtle);
+    margin-block-start: var(--space-4);
+  }
+}

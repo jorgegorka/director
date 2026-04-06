@@ -18,16 +18,14 @@ class RoleTemplates::ApplicatorTest < ActiveSupport::TestCase
     project = projects(:widgets)
     result = RoleTemplates::Applicator.call(project: project, template_key: "marketing")
 
-    assert_equal 10, result.created
-    ceo     = project.roles.find_by!(title: "CEO")
+    assert_equal 9, result.created
     cmo     = project.roles.find_by!(title: "CMO")
     planner = project.roles.find_by!(title: "Marketing Planner")
     analyst = project.roles.find_by!(title: "Web Analyst")
     seo     = project.roles.find_by!(title: "SEO Specialist")
     manager = project.roles.find_by!(title: "Marketing Manager")
 
-    assert_nil ceo.parent_id, "CEO should have no parent"
-    assert_equal ceo, cmo.parent
+    assert_nil cmo.parent_id, "CMO should have no parent"
     assert_equal cmo, planner.parent
     assert_equal planner, analyst.parent
     assert_equal planner, seo.parent
@@ -52,8 +50,8 @@ class RoleTemplates::ApplicatorTest < ActiveSupport::TestCase
     project = projects(:widgets)
     RoleTemplates::Applicator.call(project: project, template_key: "marketing")
 
-    ceo = project.roles.find_by!(title: "CEO")
-    assert_nil ceo.parent_id
+    cmo = project.roles.find_by!(title: "CMO")
+    assert_nil cmo.parent_id
   end
 
   test "root role is nested under parent_role when provided" do
@@ -63,8 +61,9 @@ class RoleTemplates::ApplicatorTest < ActiveSupport::TestCase
     result = RoleTemplates::Applicator.call(project: project, template_key: "marketing", parent_role: ceo)
 
     assert result.success?
+    # CMO is the marketing template root — should be nested under the provided parent
     cmo = project.roles.find_by!(title: "CMO")
-    assert_equal ceo, cmo.parent
+    assert_equal ceo.id, cmo.parent_id
   end
 
   # --- Skip duplicate (APPLY-02) ---
@@ -74,9 +73,9 @@ class RoleTemplates::ApplicatorTest < ActiveSupport::TestCase
     first  = RoleTemplates::Applicator.call(project: project, template_key: "marketing")
     second = RoleTemplates::Applicator.call(project: project, template_key: "marketing")
 
-    assert_equal 10, first.created
+    assert_equal 9, first.created
     assert_equal 0, second.created
-    assert_equal 10, second.skipped
+    assert_equal 9, second.skipped
   end
 
   test "skip-duplicate is case-sensitive with default SQLite column (no COLLATE NOCASE)" do
@@ -122,7 +121,7 @@ class RoleTemplates::ApplicatorTest < ActiveSupport::TestCase
     result = RoleTemplates::Applicator.call(project: project, template_key: "marketing")
 
     assert result.success?, "Should succeed even when skill keys don't match project skills"
-    assert_equal 10, result.created
+    assert_equal 9, result.created
   end
 
   # --- Result object (APPLY-04) ---
@@ -131,7 +130,7 @@ class RoleTemplates::ApplicatorTest < ActiveSupport::TestCase
     project = projects(:widgets)
     result = RoleTemplates::Applicator.call(project: project, template_key: "marketing")
 
-    assert_equal 10, result.created
+    assert_equal 9, result.created
   end
 
   test "result reports correct skipped count" do
@@ -139,7 +138,7 @@ class RoleTemplates::ApplicatorTest < ActiveSupport::TestCase
     RoleTemplates::Applicator.call(project: project, template_key: "marketing")
     result = RoleTemplates::Applicator.call(project: project, template_key: "marketing")
 
-    assert_equal 10, result.skipped
+    assert_equal 9, result.skipped
   end
 
   test "result success? returns true when no errors" do
@@ -153,7 +152,7 @@ class RoleTemplates::ApplicatorTest < ActiveSupport::TestCase
     project = projects(:widgets)
     result = RoleTemplates::Applicator.call(project: project, template_key: "marketing")
 
-    assert_includes result.summary, "Created 10 roles"
+    assert_includes result.summary, "Created 9 roles"
   end
 
   test "result summary includes skipped when applicable" do
@@ -168,7 +167,7 @@ class RoleTemplates::ApplicatorTest < ActiveSupport::TestCase
     project = projects(:widgets)
     result = RoleTemplates::Applicator.call(project: project, template_key: "marketing")
 
-    assert_equal 10, result.created_roles.size
+    assert_equal 9, result.created_roles.size
     result.created_roles.each do |role|
       assert_kind_of Role, role
       assert role.persisted?
@@ -213,8 +212,8 @@ class RoleTemplates::ApplicatorTest < ActiveSupport::TestCase
     project = projects(:widgets)
     RoleTemplates::Applicator.call(project: project, template_key: "marketing", parent_role: nil)
 
-    ceo = project.roles.find_by!(title: "CEO")
-    assert_nil ceo.parent_id
+    cmo = project.roles.find_by!(title: "CMO")
+    assert_nil cmo.parent_id
   end
 
   # --- Cross-tenant isolation ---

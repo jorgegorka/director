@@ -18,7 +18,17 @@ class GoalsController < ApplicationController
     @goal = Current.project.goals.new(goal_params)
 
     if @goal.save
-      redirect_to @goal, notice: "Goal '#{@goal.title}' has been created."
+      respond_to do |format|
+        format.turbo_stream do
+          streams = []
+          if @goal.role_id
+            role = @goal.role.tap { |r| r.goals.load }
+            streams << turbo_stream.replace("org-chart-node-#{role.id}", partial: "roles/org_chart_node", locals: { role: role })
+          end
+          render turbo_stream: streams
+        end
+        format.html { redirect_to @goal, notice: "Goal '#{@goal.title}' has been created." }
+      end
     else
       render :new, status: :unprocessable_entity
     end

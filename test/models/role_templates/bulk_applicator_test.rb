@@ -35,15 +35,13 @@ class RoleTemplates::BulkApplicatorTest < ActiveSupport::TestCase
     project = projects(:widgets)
     RoleTemplates::BulkApplicator.call(project: project)
 
-    ceo     = project.roles.find_by!(title: "CEO")
     cmo     = project.roles.find_by!(title: "CMO")
     planner = project.roles.find_by!(title: "Marketing Planner")
     analyst = project.roles.find_by!(title: "Web Analyst")
     seo     = project.roles.find_by!(title: "SEO Specialist")
     manager = project.roles.find_by!(title: "Marketing Manager")
 
-    assert_nil ceo.parent_id
-    assert_equal ceo, cmo.parent
+    assert_nil cmo.parent_id
     assert_equal cmo, planner.parent
     assert_equal planner, analyst.parent
     assert_equal planner, seo.parent

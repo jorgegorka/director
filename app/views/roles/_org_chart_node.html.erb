@@ -1,0 +1,36 @@
+<div id="org-chart-node-<%= role.id %>"
+     class="org-chart-node-card org-chart-node-card--<%= role.status %>"
+     data-role-id="<%= role.id %>">
+  <div class="org-chart-node-card__header">
+    <span class="org-chart-node-card__dot org-chart-node-card__dot--<%= role.status %>"></span>
+    <%= link_to role.title, role_path(role), class: "org-chart-node-card__title", data: { turbo_frame: "_top" } %>
+  </div>
+
+  <span class="org-chart-node-card__status"><%= role.status.humanize %></span>
+
+  <div class="org-chart-node-card__actions">
+    <% unless role.terminated? %>
+      <% if role.idle? || role.error? %>
+        <%= button_to "Run", run_role_path(role), method: :post, class: "btn btn--success btn--xs", form: { data: { turbo_stream: true } } %>
+      <% elsif role.running? %>
+        <%= button_to "Pause", pause_role_path(role), method: :post, class: "btn btn--warning btn--xs", form: { data: { turbo_stream: true } } %>
+      <% elsif role.paused? %>
+        <%= button_to "Resume", resume_role_path(role), method: :post, class: "btn btn--success btn--xs", form: { data: { turbo_stream: true } } %>
+      <% elsif role.pending_approval? %>
+        <%= button_to "Approve", approve_role_path(role), method: :post, class: "btn btn--success btn--xs", form: { data: { turbo_stream: true } } %>
+      <% end %>
+      <%= button_to "Stop", terminate_role_path(role), method: :post, class: "btn btn--danger btn--xs",
+            form: { data: { turbo_confirm: "Terminate #{role.title}?", turbo_stream: true } } %>
+    <% end %>
+    <button type="button" class="btn btn--ghost btn--xs" data-action="click->org-chart#openGoalModal" data-role-id="<%= role.id %>">+ Goal</button>
+  </div>
+
+  <% top_goals = role.goals.first(3) %>
+  <% if top_goals.any? %>
+    <div class="org-chart-node-card__goals">
+      <% top_goals.each do |goal| %>
+        <span class="org-chart-node-card__goal-tag"><%= goal.title.truncate(20) %></span>
+      <% end %>
+    </div>
+  <% end %>
+</div>

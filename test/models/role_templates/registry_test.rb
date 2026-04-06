@@ -7,9 +7,9 @@ class RoleTemplates::RegistryTest < ActiveSupport::TestCase
 
   # --- .all ---
 
-  test "all returns one template" do
+  test "all returns all templates" do
     templates = RoleTemplates::Registry.all
-    assert_equal 1, templates.size
+    assert_equal 8, templates.size
   end
 
   test "all returns frozen array" do
@@ -52,7 +52,7 @@ class RoleTemplates::RegistryTest < ActiveSupport::TestCase
 
   test "keys returns all template keys" do
     keys = RoleTemplates::Registry.keys
-    assert_equal 1, keys.size
+    assert_equal 8, keys.size
     assert_includes keys, "marketing"
   end
 
@@ -189,9 +189,9 @@ class RoleTemplates::RegistryTest < ActiveSupport::TestCase
 
   # --- Specific template content ---
 
-  test "marketing template has CEO as root" do
+  test "marketing template has CMO as root" do
     template = RoleTemplates::Registry.find("marketing")
-    assert_equal "CEO", template.roles.first.title
+    assert_equal "CMO", template.roles.first.title
   end
 
   test "marketing template has correct role hierarchy" do

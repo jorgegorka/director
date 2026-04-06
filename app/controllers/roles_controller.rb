@@ -5,7 +5,13 @@ class RolesController < ApplicationController
   before_action :set_role, only: [ :show, :edit, :update, :destroy, :run, :pause, :resume, :terminate, :approve, :reject ]
 
   def index
-    @roles = Current.project.roles.includes(:parent, :children, :skills, :role_category).order(:title)
+    @roles = Current.project.roles.includes(:parent, :children, :skills, :role_category, :goals).order(:title)
+    @view = params[:view] || "chart"
+
+    if @view == "chart"
+      @roles_by_parent_id = @roles.group_by(&:parent_id)
+      @root_roles = @roles_by_parent_id[nil] || []
+    end
   end
 
   def show
@@ -63,7 +69,8 @@ class RolesController < ApplicationController
       trigger_type: :manual,
       trigger_source: "Manual run by #{Current.user.email_address}"
     )
-    redirect_to @role, notice: "#{@role.title} has been started."
+
+    respond_to_with_org_chart_node(@role.reload, "#{@role.title} has been started.")
   end
 
   def pause
@@ -83,7 +90,8 @@ class RolesController < ApplicationController
       paused_at: Time.current
     )
     @role.record_audit_event!(actor: Current.user, action: "role_paused", metadata: { reason: @role.pause_reason })
-    redirect_to @role, notice: "#{@role.title} has been paused."
+
+    respond_to_with_org_chart_node(@role, "#{@role.title} has been paused.")
   end
 
   def resume
@@ -98,7 +106,8 @@ class RolesController < ApplicationController
       paused_at: nil
     )
     @role.record_audit_event!(actor: Current.user, action: "role_resumed")
-    redirect_to @role, notice: "#{@role.title} has been resumed."
+
+    respond_to_with_org_chart_node(@role, "#{@role.title} has been resumed.")
   end
 
   def terminate
@@ -109,7 +118,8 @@ class RolesController < ApplicationController
 
     @role.update!(status: :terminated)
     @role.record_audit_event!(actor: Current.user, action: "role_terminated")
-    redirect_to @role, notice: "#{@role.title} has been terminated."
+
+    respond_to_with_org_chart_node(@role, "#{@role.title} has been terminated.")
   end
 
   def approve
@@ -170,6 +180,13 @@ class RolesController < ApplicationController
   end
 
   private
+
+  def respond_to_with_org_chart_node(role, notice)
+    respond_to do |format|
+      format.turbo_stream { render turbo_stream: turbo_stream.replace("org-chart-node-#{role.id}", partial: "roles/org_chart_node", locals: { role: role }) }
+      format.html { redirect_to role, notice: notice }
+    end
+  end
 
   def approvals_pending_count
     Current.project.approvals_pending_count

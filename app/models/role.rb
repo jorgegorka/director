@@ -209,6 +209,16 @@ class Role < ApplicationRecord
     broadcast_role_status
     broadcast_running_agents
     broadcast_approvals_badge
+    broadcast_org_chart_node
+  end
+
+  def broadcast_org_chart_node
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "org_chart_project_#{project_id}",
+      target: "org-chart-node-#{id}",
+      partial: "roles/org_chart_node",
+      locals: { role: self }
+    )
   end
 
   def broadcast_role_status

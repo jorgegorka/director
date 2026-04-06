@@ -13,17 +13,38 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
 
   # --- Index ---
 
-  test "should get index" do
+  test "should get index with org chart as default view" do
     get roles_url
+    assert_response :success
+    assert_select "[data-controller='org-chart']"
+    assert_select "[data-org-chart-roles-value]"
+  end
+
+  test "should get index with list view" do
+    get roles_url(view: "list")
     assert_response :success
     assert_select ".role-card", minimum: 3
   end
 
-  test "should only show roles for current project" do
+  test "should include role data in chart view" do
     get roles_url
+    assert_response :success
+    assert_match "CEO", response.body
+    assert_match "CTO", response.body
+  end
+
+  test "should only show roles for current project" do
+    get roles_url(view: "list")
     assert_response :success
     assert_select ".role-card__title", text: "CEO"
     assert_select ".role-card__title", text: "Operations Lead", count: 0
+  end
+
+  test "should not include other project roles in chart view" do
+    get roles_url
+    assert_select "[data-org-chart-roles-value]" do |elements|
+      refute_match(/Operations Lead/, elements.first["data-org-chart-roles-value"])
+    end
   end
 
   # --- Show ---
@@ -409,6 +430,37 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
     assert_match /Approval rejected/, @cto.pause_reason
   end
 
+  test "run responds with turbo_stream for org chart" do
+    @cto.update_columns(status: Role.statuses[:idle])
+    @cto.role_runs.active.update_all(status: RoleRun.statuses[:cancelled])
+    post run_role_url(@cto), headers: { "Accept" => "text/vnd.turbo-stream.html" }
+    assert_response :success
+  end
+
+  test "pause responds with turbo_stream for org chart" do
+    @cto.update_columns(status: Role.statuses[:idle])
+    post pause_role_url(@cto), headers: { "Accept" => "text/vnd.turbo-stream.html" }
+    assert_response :success
+    @cto.reload
+    assert @cto.paused?
+  end
+
+  test "resume responds with turbo_stream for org chart" do
+    @cto.update_columns(status: Role.statuses[:paused], pause_reason: "test", paused_at: Time.current)
+    post resume_role_url(@cto), headers: { "Accept" => "text/vnd.turbo-stream.html" }
+    assert_response :success
+    @cto.reload
+    assert @cto.idle?
+  end
+
+  test "terminate responds with turbo_stream for org chart" do
+    @cto.update_columns(status: Role.statuses[:idle])
+    post terminate_role_url(@cto), headers: { "Accept" => "text/vnd.turbo-stream.html" }
+    assert_response :success
+    @cto.reload
+    assert @cto.terminated?
+  end
+
   test "pause records audit event" do
     @cto.update_columns(status: Role.statuses[:idle])
     assert_difference -> { AuditEvent.where(action: "role_paused").count } do
@@ -562,8 +614,8 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
 
   # --- Skills: Role Card (index page) ---
 
-  test "should show skill tags in role card on index" do
-    get roles_url
+  test "should show skill tags in role card on list view" do
+    get roles_url(view: "list")
     assert_response :success
     assert_select ".role-card__skill-tag", minimum: 1
   end

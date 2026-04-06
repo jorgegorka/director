@@ -135,6 +135,28 @@ class GoalsControllerTest < ActionDispatch::IntegrationTest
     assert_nil task.goal_id
   end
 
+  # --- Turbo stream create (from org chart modal) ---
+
+  test "create with turbo_stream updates org chart node" do
+    role = roles(:cto)
+
+    assert_difference("Goal.count", 1) do
+      post goals_url,
+        params: { goal: { title: "Turbo goal", role_id: role.id } },
+        headers: { "Accept" => "text/vnd.turbo-stream.html" }
+    end
+    assert_response :success
+  end
+
+  test "create with turbo_stream and no role returns empty stream" do
+    assert_difference("Goal.count", 1) do
+      post goals_url,
+        params: { goal: { title: "No-role goal" } },
+        headers: { "Accept" => "text/vnd.turbo-stream.html" }
+    end
+    assert_response :success
+  end
+
   # --- Role assignment ---
 
   test "create assigns role to goal" do

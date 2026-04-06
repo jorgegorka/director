@@ -1,18 +1,37 @@
 import { Controller } from "@hotwired/stimulus"
 
 // Constants for tree layout
-const NODE_WIDTH = 220
-const NODE_HEIGHT = 100
+const NODE_WIDTH = 240
+const NODE_HEIGHT = 140
 const HORIZONTAL_GAP = 40
 const VERTICAL_GAP = 80
 const PADDING = 40
 
+// Zoom limits
+const MIN_ZOOM = 0.3
+const MAX_ZOOM = 3.0
+const ZOOM_STEP = 0.15
+
 export default class extends Controller {
-  static targets = ["svg"]
+  static targets = ["svg", "nodeTemplates", "goalModal"]
   static values = { roles: Array }
 
   connect() {
+    this.zoom = 1
+    this.panX = 0
+    this.panY = 0
+    this.isPanning = false
+    this.lastPointer = null
+    this.contentWidth = 0
+    this.contentHeight = 0
+    this.initialPinchDistance = null
+
     this.render()
+    this.initPanZoom()
+  }
+
+  disconnect() {
+    this.removePanZoomListeners()
   }
 
   render() {
@@ -27,9 +46,12 @@ export default class extends Controller {
 
     const layout = this.calculateLayout(roots)
 
-    svg.setAttribute("width", layout.width)
-    svg.setAttribute("height", layout.height)
-    svg.setAttribute("viewBox", `0 0 ${layout.width} ${layout.height}`)
+    this.contentWidth = layout.width
+    this.contentHeight = layout.height
+
+    svg.setAttribute("width", "100%")
+    svg.setAttribute("height", "100%")
+    this.updateViewBox()
 
     // Draw connections first (behind nodes)
     layout.connections.forEach(conn => this.drawConnection(svg, conn))
@@ -64,6 +86,7 @@ export default class extends Controller {
       const nodeY = y
 
       nodes.push({
+        id: node.id,
         x: nodeX,
         y: nodeY,
         width: NODE_WIDTH,
@@ -131,44 +154,236 @@ export default class extends Controller {
     foreignObject.setAttribute("width", node.width)
     foreignObject.setAttribute("height", node.height)
 
-    // Wrapper div
-    const wrapper = document.createElement("div")
-    wrapper.className = "org-chart-node"
-
-    // Link element
-    const link = document.createElement("a")
-    link.href = node.url
-    link.className = "org-chart-node__link"
-    link.dataset.turboFrame = "_top"
-
-    // Title
-    const titleSpan = document.createElement("span")
-    titleSpan.className = "org-chart-node__title"
-    titleSpan.textContent = node.title
-    link.appendChild(titleSpan)
-
-    // Role status
-    const statusSpan = document.createElement("span")
-    statusSpan.className = "org-chart-node__status"
-
-    const dot = document.createElement("span")
-    dot.className = `org-chart-node__dot org-chart-node__dot--${node.status || "inactive"}`
-    statusSpan.appendChild(dot)
-
-    const statusText = document.createTextNode(node.status ? node.status.charAt(0).toUpperCase() + node.status.slice(1) : "Inactive")
-    statusSpan.appendChild(statusText)
-    link.appendChild(statusSpan)
-
-    // Description (optional)
-    if (node.description) {
-      const descSpan = document.createElement("span")
-      descSpan.className = "org-chart-node__desc"
-      descSpan.textContent = node.description
-      link.appendChild(descSpan)
+    // Try to use server-rendered template
+    const template = this.findNodeTemplate(node.id)
+    if (template) {
+      const clone = template.content.cloneNode(true)
+      foreignObject.appendChild(clone)
+    } else {
+      foreignObject.appendChild(this.buildNodeFallback(node))
     }
 
-    wrapper.appendChild(link)
-    foreignObject.appendChild(wrapper)
     svg.appendChild(foreignObject)
+  }
+
+  findNodeTemplate(roleId) {
+    if (!this.hasNodeTemplatesTarget) return null
+    return this.nodeTemplatesTarget.querySelector(`template[data-role-id="${roleId}"]`)
+  }
+
+  buildNodeFallback(node) {
+    const wrapper = document.createElement("div")
+    wrapper.className = "org-chart-node-card"
+
+    const header = document.createElement("div")
+    header.className = "org-chart-node-card__header"
+
+    const dot = document.createElement("span")
+    dot.className = `org-chart-node-card__dot org-chart-node-card__dot--${node.status || "idle"}`
+    header.appendChild(dot)
+
+    const link = document.createElement("a")
+    link.href = node.url
+    link.className = "org-chart-node-card__title"
+    link.dataset.turboFrame = "_top"
+    link.textContent = node.title
+    header.appendChild(link)
+
+    wrapper.appendChild(header)
+
+    const statusSpan = document.createElement("span")
+    statusSpan.className = "org-chart-node-card__status"
+    statusSpan.textContent = node.status ? node.status.charAt(0).toUpperCase() + node.status.slice(1) : "Idle"
+    wrapper.appendChild(statusSpan)
+
+    return wrapper
+  }
+
+  // --- Pan & Zoom ---
+
+  initPanZoom() {
+    const svg = this.svgTarget
+
+    this._onWheel = this.onWheel.bind(this)
+    this._onPointerDown = this.onPointerDown.bind(this)
+    this._onPointerMove = this.onPointerMove.bind(this)
+    this._onPointerUp = this.onPointerUp.bind(this)
+    this._onTouchStart = this.onTouchStart.bind(this)
+    this._onTouchMove = this.onTouchMove.bind(this)
+    this._onTouchEnd = this.onTouchEnd.bind(this)
+
+    svg.addEventListener("wheel", this._onWheel, { passive: false })
+    svg.addEventListener("pointerdown", this._onPointerDown)
+    svg.addEventListener("pointermove", this._onPointerMove)
+    svg.addEventListener("pointerup", this._onPointerUp)
+    svg.addEventListener("pointercancel", this._onPointerUp)
+    svg.addEventListener("touchstart", this._onTouchStart, { passive: false })
+    svg.addEventListener("touchmove", this._onTouchMove, { passive: false })
+    svg.addEventListener("touchend", this._onTouchEnd)
+  }
+
+  removePanZoomListeners() {
+    const svg = this.svgTarget
+
+    svg.removeEventListener("wheel", this._onWheel)
+    svg.removeEventListener("pointerdown", this._onPointerDown)
+    svg.removeEventListener("pointermove", this._onPointerMove)
+    svg.removeEventListener("pointerup", this._onPointerUp)
+    svg.removeEventListener("pointercancel", this._onPointerUp)
+    svg.removeEventListener("touchstart", this._onTouchStart)
+    svg.removeEventListener("touchmove", this._onTouchMove)
+    svg.removeEventListener("touchend", this._onTouchEnd)
+  }
+
+  onWheel(e) {
+    e.preventDefault()
+
+    const rect = this.svgTarget.getBoundingClientRect()
+    const cursorX = e.clientX - rect.left
+    const cursorY = e.clientY - rect.top
+
+    const delta = e.deltaY > 0 ? -ZOOM_STEP : ZOOM_STEP
+    this.zoomAtPoint(delta, cursorX, cursorY, rect.width, rect.height)
+  }
+
+  onPointerDown(e) {
+    // Only pan with left button on SVG background (not on nodes)
+    if (e.button !== 0) return
+    if (this.isNodeElement(e.target)) return
+
+    this.isPanning = true
+    this.lastPointer = { x: e.clientX, y: e.clientY }
+    this.svgTarget.setPointerCapture(e.pointerId)
+    this.element.classList.add("org-chart-container--panning")
+  }
+
+  onPointerMove(e) {
+    if (!this.isPanning || !this.lastPointer) return
+
+    const rect = this.svgTarget.getBoundingClientRect()
+    const viewWidth = this.contentWidth / this.zoom
+    const viewHeight = this.contentHeight / this.zoom
+
+    // Convert pixel delta to SVG coordinate delta
+    const dx = (e.clientX - this.lastPointer.x) * (viewWidth / rect.width)
+    const dy = (e.clientY - this.lastPointer.y) * (viewHeight / rect.height)
+
+    this.panX -= dx
+    this.panY -= dy
+    this.lastPointer = { x: e.clientX, y: e.clientY }
+    this.updateViewBox()
+  }
+
+  onPointerUp(e) {
+    if (!this.isPanning) return
+
+    this.isPanning = false
+    this.lastPointer = null
+    this.svgTarget.releasePointerCapture(e.pointerId)
+    this.element.classList.remove("org-chart-container--panning")
+  }
+
+  onTouchStart(e) {
+    if (e.touches.length === 2) {
+      e.preventDefault()
+      this.initialPinchDistance = this.getTouchDistance(e.touches)
+    }
+  }
+
+  onTouchMove(e) {
+    if (e.touches.length === 2 && this.initialPinchDistance) {
+      e.preventDefault()
+      const currentDistance = this.getTouchDistance(e.touches)
+      const scale = currentDistance / this.initialPinchDistance
+
+      const rect = this.svgTarget.getBoundingClientRect()
+      const centerX = rect.width / 2
+      const centerY = rect.height / 2
+
+      const delta = (scale - 1) * 0.5
+      this.zoomAtPoint(delta, centerX, centerY, rect.width, rect.height)
+      this.initialPinchDistance = currentDistance
+    }
+  }
+
+  onTouchEnd() {
+    this.initialPinchDistance = null
+  }
+
+  getTouchDistance(touches) {
+    const dx = touches[0].clientX - touches[1].clientX
+    const dy = touches[0].clientY - touches[1].clientY
+    return Math.sqrt(dx * dx + dy * dy)
+  }
+
+  zoomAtPoint(delta, cursorX, cursorY, containerWidth, containerHeight) {
+    const oldZoom = this.zoom
+    this.zoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, this.zoom + delta))
+
+    if (this.zoom === oldZoom) return
+
+    // Adjust pan so the point under the cursor stays fixed
+    const viewWidthOld = this.contentWidth / oldZoom
+    const viewHeightOld = this.contentHeight / oldZoom
+    const viewWidthNew = this.contentWidth / this.zoom
+    const viewHeightNew = this.contentHeight / this.zoom
+
+    const cursorFractionX = cursorX / containerWidth
+    const cursorFractionY = cursorY / containerHeight
+
+    this.panX += (viewWidthOld - viewWidthNew) * cursorFractionX
+    this.panY += (viewHeightOld - viewHeightNew) * cursorFractionY
+
+    this.updateViewBox()
+  }
+
+  updateViewBox() {
+    const viewWidth = this.contentWidth / this.zoom
+    const viewHeight = this.contentHeight / this.zoom
+    this.svgTarget.setAttribute("viewBox", `${this.panX} ${this.panY} ${viewWidth} ${viewHeight}`)
+  }
+
+  isNodeElement(el) {
+    // Check if the clicked element is inside a foreignObject (node card)
+    let current = el
+    while (current && current !== this.svgTarget) {
+      if (current.tagName === "foreignObject" || current.tagName === "foreignobject") return true
+      current = current.parentElement || current.parentNode
+    }
+    return false
+  }
+
+  // --- Toolbar actions ---
+
+  zoomIn() {
+    const rect = this.svgTarget.getBoundingClientRect()
+    this.zoomAtPoint(ZOOM_STEP, rect.width / 2, rect.height / 2, rect.width, rect.height)
+  }
+
+  zoomOut() {
+    const rect = this.svgTarget.getBoundingClientRect()
+    this.zoomAtPoint(-ZOOM_STEP, rect.width / 2, rect.height / 2, rect.width, rect.height)
+  }
+
+  zoomReset() {
+    this.zoom = 1
+    this.panX = 0
+    this.panY = 0
+    this.updateViewBox()
+  }
+
+  // --- Goal modal ---
+
+  openGoalModal(e) {
+    e.preventDefault()
+    const roleId = e.currentTarget.dataset.roleId
+    const modalWrapper = this.goalModalTargets.find(el => el.dataset.roleId === roleId)
+    if (!modalWrapper) return
+
+    // Dispatch open on the modal controller
+    const modalController = this.application.getControllerForElementAndIdentifier(modalWrapper, "modal")
+    if (modalController) {
+      modalController.open()
+    }
   }
 }
