@@ -143,7 +143,8 @@ class ClaudeLocalAdapter < BaseAdapter
     mcp_config = build_mcp_config(role, temp_files)
     parts << "--mcp-config #{mcp_config.path.shellescape}" if mcp_config
 
-    parts << "--allowedTools #{config['allowed_tools'].shellescape}" if config["allowed_tools"].present?
+    allowed = config["allowed_tools"].presence || "mcp__director__*"
+    parts << "--allowedTools #{allowed.shellescape}"
     parts << "--resume #{context[:resume_session_id].shellescape}" if context[:resume_session_id].present?  # CLAUDE-04
     parts.join(" ")
   end

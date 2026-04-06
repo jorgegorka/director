@@ -1,0 +1,30 @@
+<nav class="docs-sidebar__nav" aria-label="Documentation navigation">
+  <div class="docs-sidebar__group">
+    <span class="docs-sidebar__heading">Get Started</span>
+    <ul class="docs-sidebar__list">
+      <li><%= link_to "Introduction", docs_path, class: "docs-sidebar__link docs-sidebar__link--active" %></li>
+      <li><%= link_to "Quick Start", docs_page_path(path: "quick-start"), class: "docs-sidebar__link" %></li>
+      <li><%= link_to "Installation", docs_page_path(path: "installation"), class: "docs-sidebar__link" %></li>
+    </ul>
+  </div>
+
+  <div class="docs-sidebar__group">
+    <span class="docs-sidebar__heading">Core Concepts</span>
+    <ul class="docs-sidebar__list">
+      <li><%= link_to "Projects", docs_page_path(path: "projects"), class: "docs-sidebar__link" %></li>
+      <li><%= link_to "Roles", docs_page_path(path: "roles"), class: "docs-sidebar__link" %></li>
+      <li><%= link_to "Tasks", docs_page_path(path: "tasks"), class: "docs-sidebar__link" %></li>
+      <li><%= link_to "Skills", docs_page_path(path: "skills"), class: "docs-sidebar__link" %></li>
+      <li><%= link_to "Documents", docs_page_path(path: "documents"), class: "docs-sidebar__link" %></li>
+    </ul>
+  </div>
+
+  <div class="docs-sidebar__group">
+    <span class="docs-sidebar__heading">Guides</span>
+    <ul class="docs-sidebar__list">
+      <li><%= link_to "Your First Agent", docs_page_path(path: "first-agent"), class: "docs-sidebar__link" %></li>
+      <li><%= link_to "Org Chart Setup", docs_page_path(path: "org-chart"), class: "docs-sidebar__link" %></li>
+      <li><%= link_to "Budgets & Governance", docs_page_path(path: "budgets"), class: "docs-sidebar__link" %></li>
+    </ul>
+  </div>
+</nav>

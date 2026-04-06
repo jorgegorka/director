@@ -59,20 +59,34 @@ class Roles::WakingTest < ActiveSupport::TestCase
     assert_nil result
   end
 
-  test "marks event failed for role with no adapter configured" do
+  test "marks event failed for role with no adapter configured and no ancestors with adapter" do
+    @developer.ancestors.each { |a| a.update_column(:adapter_type, nil) }
     @developer.update_column(:adapter_type, nil)
-    event = Roles::Waking.call(role: @developer, trigger_type: :scheduled)
+    event = Roles::Waking.call(role: @developer.reload, trigger_type: :scheduled)
 
     assert event.persisted?
     assert event.failed?
     assert_match(/no adapter/i, event.metadata["error"])
   end
 
-  test "does not create RoleRun for role with no adapter configured" do
+  test "does not create RoleRun for role with no adapter and no ancestors with adapter" do
+    @developer.ancestors.each { |a| a.update_column(:adapter_type, nil) }
     @developer.update_column(:adapter_type, nil)
     assert_no_difference -> { RoleRun.count } do
-      Roles::Waking.call(role: @developer, trigger_type: :scheduled)
+      Roles::Waking.call(role: @developer.reload, trigger_type: :scheduled)
     end
+  end
+
+  test "inherits adapter from parent when role has no adapter configured" do
+    parent = @developer.parent
+    parent.update!(adapter_type: :claude_local, adapter_config: { "model" => "sonnet" })
+    @developer.update_columns(adapter_type: nil, adapter_config: {})
+
+    Roles::Waking.call(role: @developer.reload, trigger_type: :scheduled)
+
+    @developer.reload
+    assert_equal "claude_local", @developer.adapter_type
+    assert_equal({ "model" => "sonnet" }, @developer.adapter_config)
   end
 
   test "request_payload includes trigger context" do
@@ -347,6 +361,40 @@ class Roles::WakingTest < ActiveSupport::TestCase
     assert event.persisted?
     assert event.delivered?
     assert_equal "skipped_terminal_task", event.response_payload["status"]
+  end
+
+  # --- Finalized goal guard ---
+
+  test "does not create RoleRun when goal is finalized" do
+    goal = goals(:acme_mission)
+    goal.update_column(:completion_percentage, 100)
+
+    assert_no_difference -> { RoleRun.count } do
+      assert_no_enqueued_jobs(only: ExecuteRoleJob) do
+        Roles::Waking.call(
+          role: @cto,
+          trigger_type: :goal_assigned,
+          trigger_source: "Goal##{goal.id}",
+          context: { goal_id: goal.id, goal_title: goal.title }
+        )
+      end
+    end
+  end
+
+  test "marks heartbeat event delivered with skipped_finalized_goal response" do
+    goal = goals(:acme_mission)
+    goal.update_column(:completion_percentage, 100)
+
+    event = Roles::Waking.call(
+      role: @cto,
+      trigger_type: :goal_assigned,
+      trigger_source: "Goal##{goal.id}",
+      context: { goal_id: goal.id, goal_title: goal.title }
+    )
+
+    assert event.persisted?
+    assert event.delivered?
+    assert_equal "skipped_finalized_goal", event.response_payload["status"]
   end
 
   test "creates queued run when project concurrency limit is zero (unlimited)" do

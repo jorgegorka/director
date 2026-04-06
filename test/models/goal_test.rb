@@ -132,4 +132,37 @@ class GoalTest < ActiveSupport::TestCase
     assert_not task.valid?
     assert_includes task.errors[:goal], "must belong to the same project"
   end
+
+  # --- finalized? ---
+
+  test "finalized? returns true when completion is 100" do
+    @mission.update_column(:completion_percentage, 100)
+    assert @mission.finalized?
+  end
+
+  test "finalized? returns false when completion is below 100" do
+    @mission.update_column(:completion_percentage, 99)
+    assert_not @mission.finalized?
+  end
+
+  # --- Goal assignment wake guard ---
+
+  test "assigning a finalized goal does not trigger wake" do
+    role = roles(:cto)
+    @objective_two.update_column(:completion_percentage, 100)
+
+    assert_no_enqueued_jobs(only: ExecuteRoleJob) do
+      @objective_two.update!(role: role)
+    end
+  end
+
+  test "assigning an incomplete goal triggers wake" do
+    RoleRun.active.delete_all
+    role = roles(:cto)
+    @objective_two.update_column(:completion_percentage, 50)
+
+    assert_enqueued_with(job: ExecuteRoleJob) do
+      @objective_two.update!(role: role)
+    end
+  end
 end

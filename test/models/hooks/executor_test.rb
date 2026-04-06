@@ -157,11 +157,9 @@ class Hooks::ExecutorTest < ActiveSupport::TestCase
   # --- Audit events ---
 
   test "records audit event on successful execution" do
-    assert_difference "AuditEvent.count", 1 do
-      Hooks::Executor.call(@trigger_execution)
-    end
+    Hooks::Executor.call(@trigger_execution)
 
-    audit = AuditEvent.last
+    audit = AuditEvent.where(action: "hook_executed").last
     assert_equal "hook_executed", audit.action
     assert_equal @trigger_hook, audit.auditable
     assert_equal @cto, audit.actor

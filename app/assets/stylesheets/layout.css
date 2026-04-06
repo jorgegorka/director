@@ -6,7 +6,7 @@
   .app-layout {
     display: grid;
     grid-template-columns: var(--sidebar-width) 1fr;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: auto auto 1fr;
     min-block-size: 100dvh;
   }
 

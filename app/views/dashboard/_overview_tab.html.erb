@@ -19,35 +19,3 @@
 </div>
 
 <%= render "dashboard/running_agents", running_roles: @overview.running_roles %>
-
-<section class="dashboard-budget-section">
-  <h2 class="dashboard-section-title">Budget Overview</h2>
-
-  <% if @overview.show_budget? %>
-    <div class="dashboard-budget-grid">
-      <% @overview.budget_roles.each do |role| %>
-        <div class="dashboard-budget-card">
-          <div class="dashboard-budget-card__header">
-            <span class="dashboard-budget-card__name">
-              <%= link_to role.title, role_path(role) %>
-            </span>
-            <%= role_status_badge(role) %>
-          </div>
-          <% utilization = role.budget_utilization %>
-          <div class="budget-bar <%= budget_bar_class(utilization) %>">
-            <div class="budget-bar__fill" style="--budget-fill: <%= utilization %>%"></div>
-          </div>
-          <div class="dashboard-budget-card__amounts">
-            <span><%= format_cents_as_dollars(role.monthly_spend_cents) %> spent</span>
-            <span class="dashboard-budget-card__limit">of <%= format_cents_as_dollars(role.budget_cents) %></span>
-          </div>
-          <div class="dashboard-budget-card__utilization">
-            <%= utilization %>% used
-          </div>
-        </div>
-      <% end %>
-    </div>
-  <% else %>
-    <p class="dashboard-empty">No roles have budgets configured.</p>
-  <% end %>
-</section>

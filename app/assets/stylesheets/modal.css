@@ -3,6 +3,10 @@
    ============================================================ */
 @layer components {
   .modal {
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    z-index: 100;
     border: none;
     border-radius: var(--radius-lg);
     padding: 0;

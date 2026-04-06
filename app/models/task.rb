@@ -49,6 +49,9 @@ class Task < ApplicationRecord
   after_commit :recalculate_goal_completion, on: [ :create, :update, :destroy ]
   after_commit :recalculate_parent_task_completion, on: [ :create, :update, :destroy ]
 
+  after_create_commit :audit_created
+  before_destroy :audit_destroyed
+
   def cost_in_dollars
     return nil unless cost_cents
     cost_cents / 100.0
@@ -242,4 +245,16 @@ class Task < ApplicationRecord
 
     RecalculateTaskCompletionJob.perform_later(affected_id)
   end
+
+  def audit_created
+    actor = audit_actor
+    return unless actor
+
+    record_audit_event!(actor: actor, action: "created", metadata: { title: title, priority: priority })
+
+    if assignee.present?
+      record_audit_event!(actor: actor, action: "assigned", metadata: { assignee_id: assignee_id, assignee_name: assignee.title })
+    end
+  end
+
 end

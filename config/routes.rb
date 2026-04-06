@@ -109,6 +109,10 @@ Rails.application.routes.draw do
     end
   end
 
+  # Documentation (public)
+  get "docs", to: "docs#index", as: :docs
+  get "docs/*path", to: "docs#show", as: :docs_page
+
   # Health check - used by load balancers and uptime monitors
   get "up" => "rails/health#show", as: :rails_health_check
 

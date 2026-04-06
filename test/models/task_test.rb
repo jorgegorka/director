@@ -278,13 +278,22 @@ class TaskTest < ActiveSupport::TestCase
     end
   end
 
-  test "destroying task destroys its audit_events" do
+  test "destroying task destroys its audit_events and records destroy event on project" do
     @task.record_audit_event!(actor: @user, action: "test")
-    event_count = @task.audit_events.count
-    assert event_count > 0
-    assert_difference "AuditEvent.count", -event_count do
-      @task.destroy
-    end
+    task_event_count = @task.audit_events.count
+    assert task_event_count > 0
+
+    subtask_count = @task.subtasks.count
+    @task.destroy
+
+    # Task's own audit events should be gone
+    assert_equal 0, AuditEvent.where(auditable: @task).count
+
+    # Destroy events recorded on the project for the task and its subtasks
+    destroy_events = AuditEvent.where(action: "destroyed", auditable: @project).order(:id).last(subtask_count + 1)
+    task_destroy = destroy_events.find { |e| e.metadata["destroyed_id"] == @task.id && e.metadata["destroyed_type"] == "Task" }
+    assert task_destroy, "Expected a destroy audit event for the task"
+    assert_equal @task.title, task_destroy.metadata["title"]
   end
 
   test "destroying project destroys its tasks" do

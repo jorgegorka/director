@@ -23,20 +23,6 @@ class TasksController < ApplicationController
     @task = Current.project.tasks.new(task_params)
 
     if @task.save
-      @task.record_audit_event!(
-        actor: Current.user,
-        action: "created",
-        metadata: { title: @task.title, priority: @task.priority }
-      )
-
-      if @task.assignee.present?
-        @task.record_audit_event!(
-          actor: Current.user,
-          action: "assigned",
-          metadata: { assignee_id: @task.assignee_id, assignee_name: @task.assignee.title }
-        )
-      end
-
       redirect_to @task, notice: "Task '#{@task.title}' has been created."
     else
       render :new, status: :unprocessable_entity
@@ -51,20 +37,12 @@ class TasksController < ApplicationController
     old_assignee_id = @task.assignee_id
 
     if @task.update(task_params)
-      if old_status != @task.status
-        @task.record_audit_event!(
-          actor: Current.user,
-          action: "status_changed",
-          metadata: { from: old_status, to: @task.status }
-        )
+      if @task.status != old_status
+        @task.record_audit_event!(actor: Current.user, action: "status_changed", metadata: { from: old_status, to: @task.status })
       end
 
-      if old_assignee_id != @task.assignee_id && @task.assignee_id.present?
-        @task.record_audit_event!(
-          actor: Current.user,
-          action: "assigned",
-          metadata: { assignee_id: @task.assignee_id, assignee_name: @task.assignee.title }
-        )
+      if @task.assignee_id != old_assignee_id && @task.assignee_id.present?
+        @task.record_audit_event!(actor: Current.user, action: "assigned", metadata: { assignee_id: @task.assignee_id, assignee_name: @task.assignee.title })
       end
 
       redirect_to @task, notice: "Task '#{@task.title}' has been updated."

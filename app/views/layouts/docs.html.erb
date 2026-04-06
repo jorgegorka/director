@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "Director Docs" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="view-transition" content="same-origin" />
+    <%= turbo_refreshes_with method: :morph, scroll: :preserve %>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body>
+    <div class="docs-layout">
+      <header class="docs-topbar">
+        <span class="docs-topbar__brand">
+          <%= link_to "Director", root_path %>
+        </span>
+        <nav class="docs-topbar__nav">
+          <%= link_to "Documentation", docs_path, class: "docs-topbar__link docs-topbar__link--active" %>
+        </nav>
+        <div class="docs-topbar__actions">
+          <% if authenticated? %>
+            <%= link_to "Dashboard", dashboard_path, class: "btn btn--ghost btn--sm" %>
+          <% else %>
+            <%= link_to "Log in", new_session_path, class: "btn btn--ghost btn--sm" %>
+            <%= link_to "Sign up", new_registration_path, class: "btn btn--primary btn--sm" %>
+          <% end %>
+        </div>
+      </header>
+
+      <aside class="docs-sidebar">
+        <%= render "docs/sidebar" %>
+      </aside>
+
+      <main class="docs-content">
+        <%= yield %>
+      </main>
+
+      <aside class="docs-toc">
+        <%= yield :toc %>
+      </aside>
+    </div>
+  </body>
+</html>

@@ -20,7 +20,7 @@ end
 # its own scope (e.g. :sub_agent_review_task) via the MCP config env block.
 scope = (ENV["DIRECTOR_TOOL_SCOPE"].presence || "orchestrator").to_sym
 
-$stderr.puts "Director MCP server started for role: #{role.title} (#{role.company.name}) in #{scope} scope"
+$stderr.puts "Director MCP server started for role: #{role.title} (#{role.project.name}) in #{scope} scope"
 
 server = DirectorServer.new(role, tool_scope: scope)
 server.run

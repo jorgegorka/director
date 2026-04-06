@@ -48,6 +48,8 @@ class Role < ApplicationRecord
   after_save :assign_default_skills, if: :first_agent_configuration?
   after_commit :sync_heartbeat_schedule, if: :heartbeat_config_changed?
   after_commit :broadcast_dashboard_update, if: :saved_change_to_status?
+  after_create_commit :audit_created
+  before_destroy :audit_destroyed
 
   def self.default_skill_keys_for(role_title)
     base = default_skills_config.fetch("_base", [])
@@ -166,7 +168,7 @@ class Role < ApplicationRecord
 
     pick_session(role_runs.where(task_id: task.id)) ||
       (task.goal_id.present? &&
-        pick_session(role_runs.where(task_id: Task.where(goal_id: task.goal_id).where.not(id: task.id).select(:id)))) ||
+        pick_session(role_runs.where(task_id: project.tasks.where(goal_id: task.goal_id).where.not(id: task.id).select(:id)))) ||
       nil
   end
 
@@ -316,4 +318,12 @@ class Role < ApplicationRecord
       children.update_all(parent_id: parent_id)
     end
   end
+
+  def audit_created
+    actor = audit_actor
+    return unless actor
+
+    record_audit_event!(actor: actor, action: "created", metadata: { title: title, category: role_category&.name })
+  end
+
 end

@@ -56,6 +56,8 @@ module Roles
     end
 
     def dispatch_execution(event)
+      inherit_adapter_from_ancestor! if role.adapter_type.blank?
+
       if role.adapter_type.blank?
         event.mark_failed!(error_message: "Role has no adapter configured")
         return
@@ -63,9 +65,18 @@ module Roles
 
       # Defense in depth: short-circuit any trigger targeting a done task.
       if context[:task_id].present?
-        task = Task.find_by(id: context[:task_id])
+        task = role.project.tasks.find_by(id: context[:task_id])
         if task&.terminal?
           event.mark_delivered!(response: { status: "skipped_terminal_task", task_status: task.status })
+          return
+        end
+      end
+
+      # Defense in depth: short-circuit any trigger targeting a finalized goal.
+      if context[:goal_id].present?
+        goal = role.project.goals.find_by(id: context[:goal_id])
+        if goal&.finalized?
+          event.mark_delivered!(response: { status: "skipped_finalized_goal", goal_completion: goal.completion_percentage })
           return
         end
       end
@@ -107,6 +118,13 @@ module Roles
     def attach_goal_to_active_run(active_run)
       return if active_run.goal_id.present?
       active_run.update_column(:goal_id, context[:goal_id])
+    end
+
+    def inherit_adapter_from_ancestor!
+      source = role.ancestors.find { |r| r.adapter_type.present? }
+      return unless source
+
+      role.update!(adapter_type: source.adapter_type, adapter_config: source.adapter_config)
     end
 
     def update_role_heartbeat_timestamp

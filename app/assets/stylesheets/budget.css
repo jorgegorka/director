@@ -648,6 +648,11 @@
     border: 1px solid var(--badge-teal-border);
   }
 
+  .audit-badge--danger {
+    background: var(--badge-red-bg);
+    color: var(--badge-red-fg);
+  }
+
   .audit-badge--default {
     background: var(--color-neutral-100);
     color: var(--text-subtle);

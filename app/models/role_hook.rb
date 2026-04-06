@@ -26,7 +26,7 @@ class RoleHook < ApplicationRecord
     return @target_role if defined?(@target_role)
     @target_role = if trigger_agent?
       target_id = action_config&.dig("target_role_id") || action_config&.dig("target_agent_id")
-      target_id && Role.find_by(id: target_id)
+      target_id && role.project.roles.find_by(id: target_id)
     end
   end
 

@@ -5,8 +5,10 @@ module AuditLogsHelper
                   "audit-badge--governance"
     when "created", "assigned"
                   "audit-badge--info"
-    when "status_changed"
+    when "status_changed", "updated"
                   "audit-badge--change"
+    when "destroyed"
+                  "audit-badge--danger"
     else
                   "audit-badge--default"
     end
@@ -23,8 +25,15 @@ module AuditLogsHelper
       link_to_if(event.auditable, event.auditable&.title || "Deleted task", event.auditable)
     when "Role"
       link_to_if(event.auditable, event.auditable&.title || "Deleted role", event.auditable)
+    when "Goal"
+      link_to_if(event.auditable, event.auditable&.title || "Deleted goal", event.auditable)
     when "Project"
-      event.auditable&.name || "Project"
+      label = event.auditable&.name || "Project"
+      if event.action == "destroyed" && event.metadata["destroyed_type"].present?
+        "#{event.metadata['destroyed_type']}: #{event.metadata['title'] || event.metadata['destroyed_id']}"
+      else
+        label
+      end
     else
       "#{event.auditable_type} ##{event.auditable_id}"
     end

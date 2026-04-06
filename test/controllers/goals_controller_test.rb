@@ -148,13 +148,13 @@ class GoalsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "create with turbo_stream and no role returns empty stream" do
+  test "create with turbo_stream and no role falls back to html redirect" do
     assert_difference("Goal.count", 1) do
       post goals_url,
         params: { goal: { title: "No-role goal" } },
-        headers: { "Accept" => "text/vnd.turbo-stream.html" }
+        headers: { "Accept" => "text/vnd.turbo-stream.html, text/html" }
     end
-    assert_response :success
+    assert_redirected_to goal_path(Goal.last)
   end
 
   # --- Role assignment ---
