@@ -268,5 +268,4 @@ class Task < ApplicationRecord
       record_audit_event!(actor: actor, action: "assigned", metadata: { assignee_id: assignee_id, assignee_name: assignee.title })
     end
   end
-
 end

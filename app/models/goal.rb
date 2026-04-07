@@ -77,5 +77,4 @@ class Goal < ApplicationRecord
     changes = tracked.transform_values { |v| { from: v[0], to: v[1] } }
     record_audit_event!(actor: actor, action: "updated", metadata: changes)
   end
-
 end

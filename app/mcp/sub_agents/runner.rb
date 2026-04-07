@@ -22,11 +22,13 @@ module SubAgents
       invocation = nil
       started_at = nil
 
-      invocation = SubAgentInvocation.start!(
-        role_run: sub_agent.parent_role_run,
-        sub_agent_name: sub_agent.class.sub_agent_name,
-        input_summary: sub_agent.build_input_summary
-      )
+      if sub_agent.parent_role_run
+        invocation = SubAgentInvocation.start!(
+          role_run: sub_agent.parent_role_run,
+          sub_agent_name: sub_agent.class.sub_agent_name,
+          input_summary: sub_agent.build_input_summary
+        )
+      end
 
       started_at = monotonic_now
       temp_files = []
@@ -41,7 +43,7 @@ module SubAgents
       summary = extract_summary(lines) || result[:error_message] || "(no summary)"
 
       if status.success? && result[:exit_code].to_i.zero?
-        invocation.finish!(
+        invocation&.finish!(
           result_summary: summary,
           cost_cents: cost,
           duration_ms: duration_ms,
@@ -56,7 +58,7 @@ module SubAgents
         }
       else
         error = result[:error_message].presence || "claude CLI exited #{status.exitstatus}"
-        invocation.fail!(
+        invocation&.fail!(
           error_message: error,
           cost_cents: cost,
           duration_ms: duration_ms,

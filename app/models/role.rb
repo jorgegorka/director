@@ -325,5 +325,4 @@ class Role < ApplicationRecord
 
     record_audit_event!(actor: actor, action: "created", metadata: { title: title, category: role_category&.name })
   end
-
 end

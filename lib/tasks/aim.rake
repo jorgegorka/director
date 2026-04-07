@@ -3,6 +3,8 @@ load File.expand_path("../../test/aim/seed.rake", __dir__)
 namespace :aim do
   desc "Seed known data for AIM diagnostic scenarios"
   task seed: :environment do
+    return unless Rails.env.development? || Rails.env.test?
+
     AIMSeed.new.run
   end
 
