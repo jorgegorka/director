@@ -1,0 +1,135 @@
+<% content_for :title, "Adapters — Director Docs" %>
+
+<% content_for :toc do %>
+  <span class="docs-toc__title">On this page</span>
+  <ul class="docs-toc__list">
+    <li><a href="#what-are-adapters" class="docs-toc__link">What are Adapters?</a></li>
+    <li><a href="#http-api" class="docs-toc__link">HTTP API</a></li>
+    <li><a href="#claude-code-local" class="docs-toc__link">Claude Code (Local)</a></li>
+    <li><a href="#opencode" class="docs-toc__link">OpenCode</a></li>
+    <li><a href="#shell-command" class="docs-toc__link">Shell Command</a></li>
+    <li><a href="#configuration-inheritance" class="docs-toc__link">Configuration Inheritance</a></li>
+    <li><a href="#execution-flow" class="docs-toc__link">Execution Flow</a></li>
+    <li><a href="#error-handling" class="docs-toc__link">Error Handling</a></li>
+  </ul>
+<% end %>
+
+<div class="docs-content__header">
+  <span class="docs-content__eyebrow">Core Concepts</span>
+  <h1 class="docs-content__title">Adapters</h1>
+  <p class="docs-content__description">How Director communicates with AI agents — the connection layer between roles and the models that power them.</p>
+</div>
+
+<div class="prose">
+  <h2 id="what-are-adapters">What are Adapters?</h2>
+  <p>An adapter is the bridge between a role and the AI model that fulfills it. Until you configure an adapter, a role is just a position on the org chart. Once configured, it becomes a live agent that Director can execute, monitor, and govern.</p>
+  <p>Director ships with four adapter types, each suited to different deployment scenarios. Every adapter receives the same execution context — task details, goal information, skills — and returns a standardized result with exit code, cost, and optional session ID.</p>
+
+  <h2 id="http-api">HTTP API</h2>
+  <p>Connect to a cloud-hosted agent via HTTP POST requests. Best for agents running on external infrastructure or behind an API gateway.</p>
+
+  <h3>Required configuration</h3>
+  <ul>
+    <li><strong><code>url</code></strong> — the endpoint to POST task payloads to</li>
+  </ul>
+
+  <h3>Optional configuration</h3>
+  <ul>
+    <li><strong><code>auth_token</code></strong> — bearer token for authentication</li>
+    <li><strong><code>headers</code></strong> — custom HTTP headers as key-value pairs</li>
+    <li><strong><code>timeout</code></strong> — request timeout in seconds (default: 30, max: 120)</li>
+    <li><strong><code>method</code></strong> — HTTP method (defaults to POST)</li>
+  </ul>
+
+  <h3>How it works</h3>
+  <p>Director sends a JSON payload containing the task, goal, skills, and role context to your endpoint. The payload includes the role title, run ID, trigger type, and any documents attached to the task.</p>
+  <p>Transient errors (5xx responses and timeouts) are retried up to 3 times with exponential backoff. Client errors (4xx) fail immediately.</p>
+
+  <h2 id="claude-code-local">Claude Code (Local)</h2>
+  <p>Run Claude CLI locally with streaming output and session resumption. The most full-featured adapter — ideal for development and local agent operations.</p>
+
+  <h3>Required configuration</h3>
+  <ul>
+    <li><strong><code>model</code></strong> — the Claude model to use (e.g., <code>claude-sonnet-4-20250514</code>)</li>
+  </ul>
+
+  <h3>Optional configuration</h3>
+  <ul>
+    <li><strong><code>max_turns</code></strong> — limit the number of conversation turns per execution</li>
+    <li><strong><code>allowed_tools</code></strong> — restrict which tools the agent can use</li>
+    <li><strong><code>provider</code></strong> — <code>anthropic</code> (default) or <code>ollama</code> for local models</li>
+    <li><strong><code>base_url</code></strong> — custom API base URL (required for Ollama provider)</li>
+  </ul>
+
+  <h3>Key features</h3>
+  <ul>
+    <li><strong>Session resumption</strong> — Director tracks session IDs across runs, so an agent can continue where it left off on subsequent executions</li>
+    <li><strong>Cost tracking</strong> — parses <code>total_cost_usd</code> from Claude's output and converts to cents for budget enforcement</li>
+    <li><strong>MCP integration</strong> — automatically configures an MCP server so the agent can call back into Director's API (report progress, create tasks, ask questions)</li>
+    <li><strong>Budget enforcement</strong> — checks monthly spend against role budget before each execution</li>
+    <li><strong>Streaming output</strong> — real-time output is captured and broadcast to the role run view</li>
+  </ul>
+
+  <h3>System prompt</h3>
+  <p>Director builds a system prompt for each execution that includes the role's identity, job spec, goal context, and all attached skills. This gives the agent full awareness of its position in the org chart and what it's expected to do.</p>
+
+  <h2 id="opencode">OpenCode</h2>
+  <p>Run OpenCode CLI locally with JSON output. Supports multiple AI providers — OpenAI, Anthropic, Gemini, Groq, AWS Bedrock, Azure, and more.</p>
+
+  <h3>Required configuration</h3>
+  <ul>
+    <li><strong><code>model</code></strong> — the model identifier (e.g., <code>gpt-4</code>, <code>claude-3-5-sonnet</code>)</li>
+  </ul>
+
+  <h3>Optional configuration</h3>
+  <ul>
+    <li><strong><code>max_turns</code></strong> — limit conversation turns</li>
+    <li><strong><code>provider</code></strong> — model provider; defaults based on model name</li>
+    <li><strong><code>base_url</code></strong> — custom API endpoint (useful for Ollama)</li>
+    <li><strong><code>working_directory</code></strong> — override the role's working directory</li>
+  </ul>
+
+  <h3>Provider API keys</h3>
+  <p>OpenCode supports many providers. Director forwards the relevant API key environment variables automatically — <code>OPENAI_API_KEY</code>, <code>ANTHROPIC_API_KEY</code>, <code>GEMINI_API_KEY</code>, <code>GROQ_API_KEY</code>, and cloud provider credentials for AWS, Azure, and Vertex AI.</p>
+
+  <h2 id="shell-command">Shell Command</h2>
+  <p>Run a local script or CLI tool via shell command. Useful for custom agent implementations or wrapping non-standard tools.</p>
+
+  <h3>Required configuration</h3>
+  <ul>
+    <li><strong><code>command</code></strong> — the shell command to execute</li>
+  </ul>
+
+  <h3>Optional configuration</h3>
+  <ul>
+    <li><strong><code>working_directory</code></strong> — directory to run the command in</li>
+    <li><strong><code>env</code></strong> — environment variables as key-value pairs</li>
+    <li><strong><code>timeout</code></strong> — maximum execution time in seconds</li>
+  </ul>
+
+  <h2 id="configuration-inheritance">Configuration Inheritance</h2>
+  <p>When you create a child role, it automatically inherits its parent's adapter type and configuration. This means you only need to configure the adapter once at the top of a branch — all descendant roles get the same setup by default.</p>
+  <p>Working directories follow the same inheritance pattern. A child role uses its parent's working directory unless you explicitly set a different one. The <code>effective_working_directory</code> walks up the ancestor chain until it finds a role with a directory set.</p>
+
+  <h2 id="execution-flow">Execution Flow</h2>
+  <p>When Director runs an agent, it follows this sequence:</p>
+  <ol>
+    <li><strong>Validate</strong> — ensure the role has an adapter configured</li>
+    <li><strong>Mark running</strong> — update role status and role run state</li>
+    <li><strong>Build context</strong> — assemble task, goal, skills, and session data</li>
+    <li><strong>Execute</strong> — invoke the adapter with the role and context</li>
+    <li><strong>Record result</strong> — store exit code, cost, and session ID on the role run</li>
+    <li><strong>Return to idle</strong> — reset role status and dispatch any throttled runs</li>
+  </ol>
+  <p>For local adapters (Claude Code and OpenCode), execution happens inside an isolated tmux session. Director polls the session output every 500ms, streaming it to the role run view in real time. Sessions time out after 5 minutes or after 60 seconds of no output.</p>
+
+  <h2 id="error-handling">Error Handling</h2>
+  <p>When an adapter execution fails, Director:</p>
+  <ol>
+    <li>Marks the role run as failed with the error message</li>
+    <li>Resets the role status to allow future runs</li>
+    <li>Posts a system comment to the task explaining the failure</li>
+    <li>Attempts to escalate to the role's manager — walking up the org chart to find the nearest online supervisor</li>
+  </ol>
+  <p>Local adapters (Claude Code and OpenCode) include an additional retry for transient failures like stalls or missing result events. Budget exhaustion is checked before execution and raises immediately without consuming any resources.</p>
+</div>

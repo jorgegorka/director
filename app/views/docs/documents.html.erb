@@ -1,0 +1,44 @@
+<% content_for :title, "Documents — Director Docs" %>
+
+<% content_for :toc do %>
+  <span class="docs-toc__title">On this page</span>
+  <ul class="docs-toc__list">
+    <li><a href="#what-are-documents" class="docs-toc__link">What are Documents?</a></li>
+    <li><a href="#creating-documents" class="docs-toc__link">Creating Documents</a></li>
+    <li><a href="#authorship" class="docs-toc__link">Authorship</a></li>
+    <li><a href="#tagging" class="docs-toc__link">Tagging</a></li>
+    <li><a href="#linking-to-skills" class="docs-toc__link">Linking to Skills</a></li>
+    <li><a href="#linking-to-tasks" class="docs-toc__link">Linking to Tasks</a></li>
+  </ul>
+<% end %>
+
+<div class="docs-content__header">
+  <span class="docs-content__eyebrow">Core Concepts</span>
+  <h1 class="docs-content__title">Documents</h1>
+  <p class="docs-content__description">Shared knowledge and reference material that agents can access during task execution.</p>
+</div>
+
+<div class="prose">
+  <h2 id="what-are-documents">What are Documents?</h2>
+  <p>Documents are project-level knowledge resources — style guides, API references, architecture notes, or any reference material your agents need. They live alongside roles, goals, and tasks as first-class entities in the project workspace.</p>
+  <p>When a document is linked to a skill or attached to a task, its content becomes part of the context the agent receives during execution. This lets you maintain large reference material separately from skill definitions while still making it available to agents.</p>
+
+  <h2 id="creating-documents">Creating Documents</h2>
+  <p>Every document requires a <strong>title</strong> and a <strong>body</strong>. The body supports free-form text — write instructions, paste specs, or include code examples. Documents are scoped to the current project, so they never leak across workspaces.</p>
+
+  <h2 id="authorship">Authorship</h2>
+  <p>Documents track who created and last edited them through polymorphic authorship. The author can be either a <strong>human user</strong> or a <strong>role</strong> (an agent). This means agents can create and update documents as part of their work — building up the project's knowledge base autonomously.</p>
+  <p>The <strong>last editor</strong> is tracked separately from the original author, so you always know who made the most recent changes.</p>
+
+  <h2 id="tagging">Tagging</h2>
+  <p>Organize documents with <strong>tags</strong>. Tags are project-scoped labels that help you categorize and filter documents as the knowledge base grows. Use tags like "api-reference", "style-guide", or "onboarding" to keep things organized.</p>
+  <p>Filter documents by tag to quickly find relevant material. Tags are managed through a tagging join table, so a document can have many tags and a tag can apply to many documents.</p>
+
+  <h2 id="linking-to-skills">Linking to Skills</h2>
+  <p>Documents can be linked to <strong>skills</strong> through the skill documents relationship. When a skill has linked documents, those documents provide additional reference material beyond the skill's own markdown content.</p>
+  <p>This is useful for large reference material — rather than embedding a full API spec inside a skill's body, link it as a separate document. The agent receives both the skill instructions and the linked document content.</p>
+
+  <h2 id="linking-to-tasks">Linking to Tasks</h2>
+  <p>Documents can also be attached to <strong>tasks</strong>. When a task has attached documents, the agent receives them as additional context when executing that specific task.</p>
+  <p>Use task-linked documents for context that is specific to a particular piece of work rather than a general capability. For example, attach a design spec to a task that implements a feature, or link test fixtures to a task that writes tests.</p>
+</div>

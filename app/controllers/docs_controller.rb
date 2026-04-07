@@ -6,6 +6,7 @@ class DocsController < ApplicationController
   end
 
   def show
-    render :index
+    page = params[:path].tr("-", "_")
+    render page
   end
 end

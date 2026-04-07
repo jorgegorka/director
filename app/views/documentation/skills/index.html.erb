@@ -1,0 +1,52 @@
+<% content_for :title, "Skills — Director Docs" %>
+
+<% content_for :toc do %>
+  <span class="docs-toc__title">On this page</span>
+  <ul class="docs-toc__list">
+    <li><a href="#what-are-skills" class="docs-toc__link">What are Skills?</a></li>
+    <li><a href="#creating-skills" class="docs-toc__link">Creating Skills</a></li>
+    <li><a href="#keys-and-categories" class="docs-toc__link">Keys & Categories</a></li>
+    <li><a href="#built-in-vs-custom" class="docs-toc__link">Built-in vs. Custom</a></li>
+    <li><a href="#assigning-to-roles" class="docs-toc__link">Assigning to Roles</a></li>
+    <li><a href="#linking-documents" class="docs-toc__link">Linking Documents</a></li>
+  </ul>
+<% end %>
+
+<div class="docs-content__header">
+  <span class="docs-content__eyebrow">Core Concepts</span>
+  <h1 class="docs-content__title">Skills</h1>
+  <p class="docs-content__description">Reusable capabilities that define what agents can do — shared across roles within a project.</p>
+</div>
+
+<div class="prose">
+  <h2 id="what-are-skills">What are Skills?</h2>
+  <p>Skills are project-level capability definitions that tell agents what they can do and how to do it. Each skill contains a <strong>name</strong>, a unique <strong>key</strong>, and a <strong>markdown body</strong> with the full instructions or reference material.</p>
+  <p>Skills are shared resources — they live at the project level and can be assigned to multiple roles. Define a capability once and reuse it across your entire agent team.</p>
+
+  <h2 id="creating-skills">Creating Skills</h2>
+  <p>Every skill requires three fields:</p>
+  <ul>
+    <li><strong>Key</strong> — a unique identifier within the project (e.g., <code>code-review</code>, <code>write-tests</code>). Used for programmatic reference and remains stable even if you rename the skill.</li>
+    <li><strong>Name</strong> — a human-readable display name</li>
+    <li><strong>Markdown</strong> — the full content of the skill: instructions, examples, templates, or reference material that the agent receives as context</li>
+  </ul>
+  <p>You can also set an optional <strong>description</strong> (a short summary) and a <strong>category</strong> for organizing skills into groups.</p>
+
+  <h2 id="keys-and-categories">Keys &amp; Categories</h2>
+  <p>The <strong>key</strong> must be unique within the project. It serves as a stable identifier — even if you rename the skill later, references by key remain valid. Choose descriptive, kebab-case keys like <code>code-review</code> or <code>deploy-staging</code>.</p>
+  <p><strong>Categories</strong> let you group related skills together — for example, "Engineering", "QA", or "Documentation". This makes it easier to browse and manage skills as your project grows.</p>
+
+  <h2 id="built-in-vs-custom">Built-in vs. Custom</h2>
+  <p>Director ships with <strong>built-in skills</strong> that cover common agent capabilities. These provide a baseline so agents can be productive immediately out of the box. Built-in skills cannot be deleted.</p>
+  <p><strong>Custom skills</strong> are ones you create for your specific project needs. They work identically to built-in skills but are tailored to your domain, codebase, or workflows.</p>
+  <p>When a role is first configured with an adapter, Director automatically assigns a set of default skills based on the role's context. You can then customize the skill set for each role as needed.</p>
+
+  <h2 id="assigning-to-roles">Assigning to Roles</h2>
+  <p>Skills are connected to roles through a join relationship. A role can have many skills, and a skill can be assigned to many roles — add or remove skills from any role at any time.</p>
+  <p>When an agent executes a task, it receives the markdown content of its assigned skills as context. This means the skill body is the primary way you instruct agents on <em>how</em> to perform specific types of work.</p>
+  <p>Both the skill and the role must belong to the same project. Each skill can only be assigned to a given role once.</p>
+
+  <h2 id="linking-documents">Linking Documents</h2>
+  <p>Skills can have <strong>documents</strong> attached to them. This lets you associate reference files, style guides, API specs, or any supporting material with a skill.</p>
+  <p>Linked documents give agents additional context beyond the skill's markdown content — useful for large reference material that you want to manage separately rather than inlining into the skill body.</p>
+</div>

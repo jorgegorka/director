@@ -111,6 +111,14 @@ Rails.application.routes.draw do
 
   # Documentation (public)
   get "docs", to: "docs#index", as: :docs
+  namespace :documentation, path: "docs" do
+    resources :projects, only: [ :index ]
+    resources :roles, only: [ :index ]
+    resources :adapters, only: [ :index ]
+    resources :goals, only: [ :index ]
+    resources :tasks, only: [ :index ]
+    resources :skills, only: [ :index ]
+  end
   get "docs/*path", to: "docs#show", as: :docs_page
 
   # Health check - used by load balancers and uptime monitors

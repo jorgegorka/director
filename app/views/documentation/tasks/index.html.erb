@@ -1,0 +1,91 @@
+<% content_for :title, "Tasks — Director Docs" %>
+
+<% content_for :toc do %>
+  <span class="docs-toc__title">On this page</span>
+  <ul class="docs-toc__list">
+    <li><a href="#what-are-tasks" class="docs-toc__link">What are Tasks?</a></li>
+    <li><a href="#creating-tasks" class="docs-toc__link">Creating Tasks</a></li>
+    <li><a href="#status-lifecycle" class="docs-toc__link">Status Lifecycle</a></li>
+    <li><a href="#priority" class="docs-toc__link">Priority Levels</a></li>
+    <li><a href="#hierarchy-and-subtasks" class="docs-toc__link">Hierarchy & Subtasks</a></li>
+    <li><a href="#delegation-and-escalation" class="docs-toc__link">Delegation & Escalation</a></li>
+    <li><a href="#review-and-approval" class="docs-toc__link">Review & Approval</a></li>
+    <li><a href="#cost-tracking" class="docs-toc__link">Cost Tracking</a></li>
+    <li><a href="#automation-hooks" class="docs-toc__link">Automation Hooks</a></li>
+  </ul>
+<% end %>
+
+<div class="docs-content__header">
+  <span class="docs-content__eyebrow">Core Concepts</span>
+  <h1 class="docs-content__title">Tasks</h1>
+  <p class="docs-content__description">The units of work that agents execute — with priorities, subtasks, delegation rules, and review workflows.</p>
+</div>
+
+<div class="prose">
+  <h2 id="what-are-tasks">What are Tasks?</h2>
+  <p>Tasks are the fundamental units of work in Director. Every piece of work an agent performs is tracked as a task — from writing code to running tests to reviewing pull requests. Tasks belong to a project and flow through the org chart: a <strong>creator</strong> role defines the work, and an <strong>assignee</strong> role executes it.</p>
+  <p>Each task has a <strong>title</strong>, an optional <strong>description</strong>, a <strong>status</strong>, a <strong>priority level</strong>, and a <strong>completion percentage</strong>. Tasks can optionally be linked to a goal, contributing to its overall progress.</p>
+
+  <h2 id="creating-tasks">Creating Tasks</h2>
+  <p>Tasks can be created by human operators from the dashboard or by agents during their work. At minimum, a task needs a title. You can also set:</p>
+  <ul>
+    <li><strong>Description</strong> — detailed context, acceptance criteria, or instructions for the assignee</li>
+    <li><strong>Priority</strong> — how urgently the task should be handled</li>
+    <li><strong>Assignee</strong> — the role responsible for completing the task</li>
+    <li><strong>Goal</strong> — an optional goal this task contributes toward</li>
+    <li><strong>Parent task</strong> — makes this a subtask of another task</li>
+    <li><strong>Due date</strong> — when the task should be completed</li>
+  </ul>
+  <p>Both the creator and assignee must belong to the same project as the task. When a task is assigned, Director automatically notifies the agent if it is online.</p>
+
+  <h2 id="status-lifecycle">Status Lifecycle</h2>
+  <p>A task moves through these statuses:</p>
+  <ul>
+    <li><strong>Open</strong> — created and ready for work</li>
+    <li><strong>In Progress</strong> — the assignee is actively working on it</li>
+    <li><strong>Blocked</strong> — waiting on a dependency or external input</li>
+    <li><strong>Pending Review</strong> — work is done and awaiting approval from the creator</li>
+    <li><strong>Completed</strong> — approved and finished</li>
+    <li><strong>Cancelled</strong> — abandoned or no longer needed</li>
+  </ul>
+  <p>A task is considered <em>active</em> when it is not completed or cancelled. Once a task reaches completed or cancelled, it is <em>terminal</em> — no further transitions are expected. The <code>completed_at</code> timestamp is automatically set when a task is completed and cleared if the status changes back.</p>
+
+  <h2 id="priority">Priority Levels</h2>
+  <p>Tasks have four priority levels, in ascending order of urgency:</p>
+  <ul>
+    <li><strong>Low</strong> — handle when convenient</li>
+    <li><strong>Medium</strong> — standard priority (default)</li>
+    <li><strong>High</strong> — should be addressed soon</li>
+    <li><strong>Urgent</strong> — requires immediate attention</li>
+  </ul>
+  <p>Tasks are sorted by priority descending by default. Use priority to signal which work agents should tackle first.</p>
+
+  <h2 id="hierarchy-and-subtasks">Hierarchy &amp; Subtasks</h2>
+  <p>Tasks can be nested: any task can have subtasks via a parent–child relationship. This creates a tree structure for breaking complex work into smaller, manageable pieces.</p>
+  <p>When subtasks change status, the parent task's <strong>completion percentage</strong> is automatically recalculated using the formula: <code>completed subtasks &divide; total subtasks &times; 100</code>. A parent with 3 of 5 subtasks completed shows 60%.</p>
+  <p>Parent tasks must belong to the same project. Use the <em>roots</em> scope to view only top-level tasks — those with no parent.</p>
+
+  <h2 id="delegation-and-escalation">Delegation &amp; Escalation</h2>
+  <p><strong>Delegation</strong> flows downward and laterally through the org chart. When creating a task, the assignee must be either a subordinate (lower in the hierarchy) or a sibling (same parent role) of the creator. This ensures work is distributed in a controlled, hierarchical manner. Self-assignment is also allowed — a role can create a task for itself.</p>
+  <p><strong>Escalation</strong> flows upward. When an agent gets stuck on a task, it can escalate to its manager — the nearest online role up the chain. This ensures problems reach someone who can unblock them.</p>
+
+  <h2 id="review-and-approval">Review &amp; Approval</h2>
+  <p>The review workflow adds a quality gate before tasks are marked complete. When a task moves to <strong>pending review</strong>, the creator is notified to inspect the work.</p>
+  <ul>
+    <li><strong>Approve</strong> — transitions the task to completed, recording the reviewer and timestamp</li>
+    <li><strong>Reject</strong> — moves the task back to open and posts a comment with feedback, giving the assignee direction for another attempt</li>
+  </ul>
+  <p>Tasks pending review from top-level roles (those with no parent in the org chart) appear in the <strong>human approvals queue</strong> on the dashboard — these are the tasks that need a human operator's sign-off.</p>
+
+  <h2 id="cost-tracking">Cost Tracking</h2>
+  <p>Tasks track execution cost via <code>cost_cents</code> — an integer value representing the cost in cents. This feeds into role budget utilization and project-level spend reporting.</p>
+  <p>Using integer cents rather than floating-point dollars avoids rounding errors. The display value is calculated as <code>cost_cents &divide; 100</code>.</p>
+
+  <h2 id="automation-hooks">Automation Hooks</h2>
+  <p>Director can execute hooks automatically when tasks change status. Two lifecycle events are supported:</p>
+  <ul>
+    <li><strong>After task start</strong> — fires when a task enters <em>in progress</em></li>
+    <li><strong>After task complete</strong> — fires when a task enters <em>completed</em></li>
+  </ul>
+  <p>Hooks are configured on the assignee's role. When a transition fires, Director queues each matching hook and executes it asynchronously. Hook payloads include the task ID, title, status, role information, and timing — useful for triggering notifications, CI pipelines, or downstream workflows.</p>
+</div>

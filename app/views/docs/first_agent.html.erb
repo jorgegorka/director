@@ -1,0 +1,75 @@
+<% content_for :title, "Your First Agent — Director Docs" %>
+
+<% content_for :toc do %>
+  <span class="docs-toc__title">On this page</span>
+  <ul class="docs-toc__list">
+    <li><a href="#overview" class="docs-toc__link">Overview</a></li>
+    <li><a href="#define-the-role" class="docs-toc__link">Define the Role</a></li>
+    <li><a href="#write-a-job-spec" class="docs-toc__link">Write a Job Spec</a></li>
+    <li><a href="#assign-skills" class="docs-toc__link">Assign Skills</a></li>
+    <li><a href="#connect-an-adapter" class="docs-toc__link">Connect an Adapter</a></li>
+    <li><a href="#set-a-working-directory" class="docs-toc__link">Set a Working Directory</a></li>
+    <li><a href="#give-it-work" class="docs-toc__link">Give It Work</a></li>
+    <li><a href="#review-the-results" class="docs-toc__link">Review the Results</a></li>
+  </ul>
+<% end %>
+
+<div class="docs-content__header">
+  <span class="docs-content__eyebrow">Guides</span>
+  <h1 class="docs-content__title">Your First Agent</h1>
+  <p class="docs-content__description">A step-by-step walkthrough of creating a role, configuring it as a live agent, and running your first task.</p>
+</div>
+
+<div class="prose">
+  <h2 id="overview">Overview</h2>
+  <p>In Director, an "agent" is a <strong>role</strong> with an <strong>adapter</strong> configured. The role defines <em>who</em> the agent is (title, job spec, skills), and the adapter defines <em>how</em> it executes (which AI model, what connection method). This guide walks you through setting both up.</p>
+
+  <h2 id="define-the-role">Define the Role</h2>
+  <p>Navigate to <strong>Roles</strong> and create a new role. Choose a <strong>role category</strong> — categories are department templates (Engineering, Research, Operations, etc.) that provide a starting context for the role.</p>
+  <p>Give the role a descriptive <strong>title</strong> like "Backend Engineer" or "Documentation Writer". The title is unique within the project and becomes part of the agent's identity in the system prompt.</p>
+
+  <h2 id="write-a-job-spec">Write a Job Spec</h2>
+  <p>The <strong>job spec</strong> is the most important field for shaping agent behavior. It is included in the system prompt the agent receives on every execution. Write it as if you're briefing a new team member:</p>
+  <ul>
+    <li>What is this role responsible for?</li>
+    <li>What standards should it follow?</li>
+    <li>What should it avoid doing?</li>
+    <li>How should it communicate results?</li>
+  </ul>
+  <p>Be specific. Vague job specs produce vague agent behavior. A good job spec reads like a role description in a real engineering organization.</p>
+
+  <h2 id="assign-skills">Assign Skills</h2>
+  <p>Skills define <em>what</em> the agent can do. Browse the project's skill library and assign the relevant ones to your role. Each skill's markdown content is injected into the agent's context, giving it detailed instructions for specific capabilities.</p>
+  <p>Start with a focused set — 2 to 5 skills is typical for a single-purpose agent. You can always add more later as you refine the role's responsibilities.</p>
+
+  <h2 id="connect-an-adapter">Connect an Adapter</h2>
+  <p>Go to the role's adapter settings and choose a type. For a first agent, <strong>Claude Code</strong> is the simplest path:</p>
+  <ol>
+    <li>Set <strong>adapter type</strong> to Claude Code</li>
+    <li>Set the <strong>model</strong> (e.g., <code>claude-sonnet-4-20250514</code>)</li>
+    <li>Optionally set <strong>max turns</strong> to limit how long the agent works per execution</li>
+  </ol>
+  <p>Director automatically configures an MCP server for the agent, giving it the ability to call back into Director's API — reporting progress, creating subtasks, or asking questions through task messages.</p>
+
+  <h2 id="set-a-working-directory">Set a Working Directory</h2>
+  <p>Local adapters (Claude Code and OpenCode) need a <strong>working directory</strong> — the filesystem path where the agent operates. Set this to the root of the codebase or project the agent will work on.</p>
+  <p>If this role is a child of another role, it inherits the parent's working directory by default. You only need to set it explicitly if this role should work in a different location.</p>
+
+  <h2 id="give-it-work">Give It Work</h2>
+  <p>Your agent is ready. There are two ways to trigger it:</p>
+  <ul>
+    <li><strong>Assign a task</strong> — create a task and assign it to this role. If the role is online, Director dispatches it immediately.</li>
+    <li><strong>Assign a goal</strong> — assign a goal to the role. Director wakes the agent and gives it the goal context along with any associated tasks.</li>
+  </ul>
+  <p>The agent receives a system prompt built from its role identity, job spec, goal context, and all assigned skills. It then executes the task using its configured adapter.</p>
+
+  <h2 id="review-the-results">Review the Results</h2>
+  <p>After execution, check the <strong>role run</strong> on the role's detail page. You'll see:</p>
+  <ul>
+    <li><strong>Output</strong> — the agent's streaming output, captured in real time</li>
+    <li><strong>Exit code</strong> — whether the execution succeeded (0) or failed</li>
+    <li><strong>Cost</strong> — how much the execution cost in API usage</li>
+    <li><strong>Duration</strong> — how long the agent ran</li>
+  </ul>
+  <p>If the task was created by a top-level role (no parent), it appears in the <strong>human approvals queue</strong> on the dashboard. Review the work and either approve or reject it with feedback.</p>
+</div>

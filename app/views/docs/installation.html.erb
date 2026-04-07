@@ -1,0 +1,63 @@
+<% content_for :title, "Installation — Director Docs" %>
+
+<% content_for :toc do %>
+  <span class="docs-toc__title">On this page</span>
+  <ul class="docs-toc__list">
+    <li><a href="#requirements" class="docs-toc__link">Requirements</a></li>
+    <li><a href="#clone-and-setup" class="docs-toc__link">Clone & Setup</a></li>
+    <li><a href="#start-the-server" class="docs-toc__link">Start the Server</a></li>
+    <li><a href="#environment-variables" class="docs-toc__link">Environment Variables</a></li>
+    <li><a href="#production-deployment" class="docs-toc__link">Production Deployment</a></li>
+  </ul>
+<% end %>
+
+<div class="docs-content__header">
+  <span class="docs-content__eyebrow">Get Started</span>
+  <h1 class="docs-content__title">Installation</h1>
+  <p class="docs-content__description">Get Director running locally or deploy it to production with Docker and Kamal.</p>
+</div>
+
+<div class="prose">
+  <h2 id="requirements">Requirements</h2>
+  <ul>
+    <li><strong>Ruby 3.3+</strong></li>
+    <li><strong>SQLite 3.35+</strong> — Director uses SQLite for everything: primary database, Solid Queue, Solid Cache, and Solid Cable</li>
+    <li><strong>tmux</strong> — required for local adapters (Claude Code and OpenCode) which run agent sessions in isolated tmux panes</li>
+  </ul>
+  <p>No PostgreSQL, Redis, or other external services required. Director is designed to run self-contained on a single machine.</p>
+
+  <h2 id="clone-and-setup">Clone &amp; Setup</h2>
+  <p>Clone the repository and run the setup script:</p>
+  <pre><code>git clone &lt;repository-url&gt;
+cd director
+bin/setup</code></pre>
+  <p>The setup script installs dependencies, prepares the database, and creates the necessary SQLite databases for Queue, Cache, and Cable.</p>
+
+  <h2 id="start-the-server">Start the Server</h2>
+  <p>Start the development server with all background processes:</p>
+  <pre><code>bin/dev</code></pre>
+  <p>This launches the Rails server, Solid Queue worker, and CSS build watcher via Foreman. Visit <code>http://localhost:3000</code> to access Director.</p>
+  <p>Create an account, then create your first project to get started.</p>
+
+  <h2 id="environment-variables">Environment Variables</h2>
+  <p>For local agent adapters, you'll need API keys for the AI providers you plan to use:</p>
+  <ul>
+    <li><strong><code>ANTHROPIC_API_KEY</code></strong> — required for Claude Code adapter</li>
+    <li><strong><code>OPENAI_API_KEY</code></strong> — for OpenCode with OpenAI models</li>
+    <li><strong><code>GEMINI_API_KEY</code></strong> — for OpenCode with Gemini models</li>
+    <li><strong><code>GROQ_API_KEY</code></strong> — for OpenCode with Groq models</li>
+  </ul>
+  <p>Set these in your shell environment or in a <code>.env</code> file. Director forwards the relevant keys to agent processes automatically.</p>
+
+  <h2 id="production-deployment">Production Deployment</h2>
+  <p>Director ships with a <strong>Dockerfile</strong> and <strong>Kamal</strong> configuration for production deployment. Kamal handles container building, deployment, and zero-downtime restarts.</p>
+  <p>Key production considerations:</p>
+  <ul>
+    <li><strong>Secret key base</strong> — set <code>SECRET_KEY_BASE</code> for session encryption</li>
+    <li><strong>SQLite volumes</strong> — ensure persistent storage for your database files across container restarts</li>
+    <li><strong>tmux availability</strong> — if using local adapters in production, ensure tmux is installed in the container</li>
+  </ul>
+  <p>Run the full CI suite before deploying:</p>
+  <pre><code>bin/ci</code></pre>
+  <p>This runs RuboCop, Brakeman security analysis, bundler-audit, importmap audit, and the full test suite.</p>
+</div>
