@@ -1,8 +1,8 @@
 /*
  * Director — AI Agent Orchestration Platform
  *
- * Design foundation inspired by ditiswatt.nl:
- * warm cream canvas + deep navy text + electric blue accents
+ * Dark-first command center aesthetic:
+ * deep space navy canvas + warm off-white text + violet brand + electric cyan accents
  * OKLCH color system throughout for perceptual uniformity
  */
 
@@ -15,71 +15,79 @@
    DESIGN TOKENS (CSS custom properties)
    ============================================================ */
 :root {
-  /* ---- Palette: Warm Neutrals (golden undertone, hue ~85-90) ---- */
-  --color-neutral-0:   oklch(99.5% 0.01 85);   /* surface — warm near-white */
-  --color-neutral-50:  oklch(97.5% 0.02 90);    /* body bg — warm cream canvas */
-  --color-neutral-100: oklch(94% 0.015 85);      /* elevated surface */
-  --color-neutral-200: oklch(88% 0.02 85);       /* borders — warm gray */
-  --color-neutral-300: oklch(80% 0.02 85);       /* stronger warm gray */
-  --color-neutral-500: oklch(55% 0.02 265);      /* muted text — indigo shift */
-  --color-neutral-700: oklch(35% 0.06 265);      /* subtle text — indigo-tinted */
-  --color-neutral-900: oklch(18% 0.12 265);      /* primary text — deep navy */
+  /* ---- Palette: Dark Neutrals (navy-tinted, hue 265) ---- */
+  --color-neutral-0:   oklch(14% 0.03 265);   /* surface — navy-black panel */
+  --color-neutral-50:  oklch(10% 0.04 265);   /* body bg — deep space navy */
+  --color-neutral-100: oklch(18% 0.03 265);    /* elevated surface */
+  --color-neutral-200: oklch(24% 0.04 265);    /* borders — subtle dividers */
+  --color-neutral-300: oklch(32% 0.04 265);    /* stronger border */
+  --color-neutral-500: oklch(58% 0.03 265);    /* muted text */
+  --color-neutral-700: oklch(74% 0.04 265);    /* subtle text */
+  --color-neutral-900: oklch(92% 0.01 85);     /* primary text — warm off-white */
 
-  /* ---- Palette: Brand (electric blue/indigo, hue 265) ---- */
-  --color-brand-50:    oklch(96% 0.04 265);      /* brand tint background */
-  --color-brand-400:   oklch(60% 0.24 265);      /* lighter brand accent */
-  --color-brand-500:   oklch(50% 0.27 265);      /* primary — electric blue */
-  --color-brand-600:   oklch(42% 0.25 265);      /* hover — deeper blue */
+  /* ---- Palette: Brand (vivid violet, hue 280) ---- */
+  --color-brand-50:    oklch(20% 0.07 280);    /* brand tint background */
+  --color-brand-400:   oklch(72% 0.20 280);    /* lighter brand accent */
+  --color-brand-500:   oklch(65% 0.25 280);    /* primary — vivid violet */
+  --color-brand-600:   oklch(58% 0.22 280);    /* hover — deeper violet */
 
-  /* ---- Palette: Accent (cyan-teal for AI elements, hue 185) ---- */
-  --color-accent-50:   oklch(96% 0.04 185);      /* teal tint background */
-  --color-accent-500:  oklch(72% 0.15 185);      /* AI-active, processing */
-  --color-accent-600:  oklch(62% 0.15 185);      /* darker teal */
+  /* ---- Palette: Accent (electric cyan for AI elements, hue 185) ---- */
+  --color-accent-50:   oklch(18% 0.06 185);    /* cyan tint background */
+  --color-accent-400:  oklch(78% 0.16 185);    /* lighter accent for glows */
+  --color-accent-500:  oklch(72% 0.18 185);    /* AI-active, processing */
+  --color-accent-600:  oklch(62% 0.16 185);    /* darker cyan */
 
   /* ---- Status colors ---- */
-  --color-success-bg:  oklch(96% 0.05 145);
-  --color-success-fg:  oklch(38% 0.12 145);
-  --color-error-bg:    oklch(96% 0.05 25);
-  --color-error-fg:    oklch(40% 0.15 25);
-  --color-warning-bg:  oklch(96% 0.06 85);
-  --color-warning-fg:  oklch(45% 0.14 85);
+  --color-success-bg:  oklch(18% 0.05 145);
+  --color-success-fg:  oklch(72% 0.14 145);
+  --color-error-bg:    oklch(18% 0.05 25);
+  --color-error-fg:    oklch(72% 0.15 25);
+  --color-warning-bg:  oklch(18% 0.06 70);
+  --color-warning-fg:  oklch(78% 0.16 70);
 
   /* ---- Badge palette (semantic color triads: bg / fg / border) ---- */
-  --badge-blue-bg:      oklch(93% 0.06 265);
-  --badge-blue-fg:      oklch(35% 0.18 265);
-  --badge-blue-border:  oklch(85% 0.08 265);
+  --badge-blue-bg:      oklch(18% 0.06 265);
+  --badge-blue-fg:      oklch(75% 0.15 265);
+  --badge-blue-border:  oklch(28% 0.08 265);
 
-  --badge-teal-bg:      oklch(93% 0.06 185);
-  --badge-teal-fg:      oklch(32% 0.10 185);
-  --badge-teal-border:  oklch(85% 0.08 185);
+  --badge-teal-bg:      oklch(18% 0.06 185);
+  --badge-teal-fg:      oklch(75% 0.14 185);
+  --badge-teal-border:  oklch(28% 0.08 185);
 
-  --badge-red-bg:       oklch(93% 0.06 25);
-  --badge-red-fg:       oklch(35% 0.14 25);
-  --badge-red-border:   oklch(85% 0.08 25);
+  --badge-red-bg:       oklch(18% 0.06 25);
+  --badge-red-fg:       oklch(75% 0.14 25);
+  --badge-red-border:   oklch(28% 0.08 25);
 
-  --badge-amber-bg:     oklch(90% 0.08 85);
-  --badge-amber-fg:     oklch(35% 0.12 85);
-  --badge-amber-border: oklch(82% 0.08 85);
+  --badge-amber-bg:     oklch(18% 0.08 70);
+  --badge-amber-fg:     oklch(78% 0.14 70);
+  --badge-amber-border: oklch(28% 0.08 70);
 
-  --badge-green-bg:     oklch(93% 0.08 145);
-  --badge-green-fg:     oklch(30% 0.12 145);
-  --badge-green-border: oklch(82% 0.08 145);
+  --badge-green-bg:     oklch(18% 0.08 145);
+  --badge-green-fg:     oklch(72% 0.14 145);
+  --badge-green-border: oklch(28% 0.08 145);
 
   /* ---- Semantic colors ---- */
   --bg-body:       var(--color-neutral-50);
   --bg-surface:    var(--color-neutral-0);
   --border:        var(--color-neutral-200);
-  --border-subtle: oklch(92% 0.015 85);
+  --border-subtle: oklch(20% 0.03 265);
   --text-base:     var(--color-neutral-900);
   --text-muted:    var(--color-neutral-500);
   --text-subtle:   var(--color-neutral-700);
 
   /* ---- Effects ---- */
-  --glow-brand:  oklch(50% 0.27 265 / 0.15);
-  --glow-accent: oklch(72% 0.15 185 / 0.12);
+  --glow-brand:    oklch(65% 0.25 280 / 0.22);
+  --glow-accent:   oklch(72% 0.18 185 / 0.18);
+  --glow-active:   oklch(72% 0.18 185 / 0.25);
+  --glow-warning:  oklch(78% 0.16 70 / 0.15);
+
+  /* ---- Glassmorphism ---- */
+  --glass-bg:      oklch(14% 0.03 265 / 0.6);
+  --glass-border:  oklch(92% 0.01 85 / 0.08);
+  --glass-blur:    12px;
 
   /* ---- Typography ---- */
-  --font-sans: "Inter Tight", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
   --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", monospace;
   --font-size-xs:   0.75rem;
   --font-size-sm:   0.875rem;
@@ -90,8 +98,9 @@
   --font-size-3xl:  1.875rem;
   --line-height-base:  1.5;
   --line-height-tight: 1.2;
-  --letter-spacing-tight: -0.025em;
-  --letter-spacing-wide:  0.05em;
+  --letter-spacing-tight:  -0.025em;
+  --letter-spacing-tighter: -0.04em;
+  --letter-spacing-wide:   0.05em;
 
   /* ---- Spacing ---- */
   --space-1: 0.25rem;
@@ -111,68 +120,104 @@
   --radius-xl: 1rem;
 
   /* ---- Shadows ---- */
-  --shadow-sm: 0 1px 2px oklch(0% 0 0 / 0.05);
-  --shadow-md: 0 4px 6px oklch(0% 0 0 / 0.07), 0 1px 3px oklch(0% 0 0 / 0.06);
+  --shadow-sm: 0 1px 2px oklch(0% 0 0 / 0.2);
+  --shadow-md: 0 4px 6px oklch(0% 0 0 / 0.3), 0 1px 3px oklch(0% 0 0 / 0.2);
+  --shadow-lg: 0 8px 24px oklch(0% 0 0 / 0.4), 0 2px 8px oklch(0% 0 0 / 0.3);
+  --shadow-glow: 0 0 24px -6px var(--glow-active);
 
   /* ---- Transitions ---- */
   --transition-fast: 0.1s ease;
   --transition-base: 0.15s ease;
   --transition-slow: 0.3s ease;
+  --transition-glow: 0.4s ease;
+  --pulse-duration: 2s;
 
   /* ---- Layout ---- */
   --content-max-width: 80rem;
   --auth-form-width:   28rem;
   --header-height:     3.5rem;
   --sidebar-width:         15rem;
-  --sidebar-bg:            var(--color-neutral-0);
-  --sidebar-border:        var(--color-neutral-200);
-  --sidebar-active-bg:     oklch(94% 0.04 265);
+  --sidebar-bg:            oklch(12% 0.04 265);
+  --sidebar-border:        oklch(20% 0.04 265);
+  --sidebar-active-bg:     oklch(20% 0.08 280);
   --sidebar-active-border: var(--color-brand-500);
 }
 
-@media (prefers-color-scheme: dark) {
+/* ---- Light mode (alternate) ---- */
+@media (prefers-color-scheme: light) {
   :root {
-    /* ---- Warm Neutrals: navy-tinted darks (hue 265) ---- */
-    --color-neutral-0:   oklch(16% 0.03 265);   /* surface — navy-black */
-    --color-neutral-50:  oklch(13% 0.04 265);    /* body bg — deepest navy */
-    --color-neutral-100: oklch(20% 0.03 265);    /* elevated surface */
-    --color-neutral-200: oklch(28% 0.04 265);    /* borders */
-    --color-neutral-300: oklch(36% 0.04 265);    /* stronger border */
-    --color-neutral-500: oklch(58% 0.03 265);    /* muted text */
-    --color-neutral-700: oklch(75% 0.04 265);    /* subtle text */
-    --color-neutral-900: oklch(94% 0.01 85);     /* primary — warm off-white */
+    /* ---- Warm Neutrals: cream canvas (hue 85-90) ---- */
+    --color-neutral-0:   oklch(99.5% 0.01 85);   /* surface — warm near-white */
+    --color-neutral-50:  oklch(97.5% 0.02 90);    /* body bg — warm cream */
+    --color-neutral-100: oklch(94% 0.015 85);      /* elevated surface */
+    --color-neutral-200: oklch(88% 0.02 85);       /* borders */
+    --color-neutral-300: oklch(80% 0.02 85);       /* stronger border */
+    --color-neutral-500: oklch(55% 0.02 265);      /* muted text */
+    --color-neutral-700: oklch(35% 0.06 265);      /* subtle text */
+    --color-neutral-900: oklch(18% 0.12 265);      /* primary text */
 
-    /* ---- Brand: boosted lightness for dark bg ---- */
-    --color-brand-50:    oklch(22% 0.06 265);
-    --color-brand-400:   oklch(75% 0.20 265);
-    --color-brand-500:   oklch(68% 0.24 265);    /* brighter electric blue */
-    --color-brand-600:   oklch(60% 0.22 265);
+    /* ---- Brand: deeper for light bg ---- */
+    --color-brand-50:    oklch(96% 0.04 280);
+    --color-brand-400:   oklch(60% 0.24 280);
+    --color-brand-500:   oklch(50% 0.27 280);
+    --color-brand-600:   oklch(42% 0.25 280);
 
     /* ---- Accent ---- */
-    --color-accent-50:   oklch(22% 0.05 185);
-    --color-accent-500:  oklch(75% 0.14 185);
-    --color-accent-600:  oklch(65% 0.14 185);
+    --color-accent-50:   oklch(96% 0.04 185);
+    --color-accent-400:  oklch(65% 0.15 185);
+    --color-accent-500:  oklch(55% 0.15 185);
+    --color-accent-600:  oklch(45% 0.15 185);
 
     /* ---- Status ---- */
-    --color-success-bg:  oklch(22% 0.05 145);
-    --color-success-fg:  oklch(75% 0.14 145);
-    --color-error-bg:    oklch(22% 0.05 25);
-    --color-error-fg:    oklch(75% 0.15 25);
-    --color-warning-bg:  oklch(22% 0.05 85);
-    --color-warning-fg:  oklch(75% 0.14 85);
+    --color-success-bg:  oklch(96% 0.05 145);
+    --color-success-fg:  oklch(38% 0.12 145);
+    --color-error-bg:    oklch(96% 0.05 25);
+    --color-error-fg:    oklch(40% 0.15 25);
+    --color-warning-bg:  oklch(96% 0.06 70);
+    --color-warning-fg:  oklch(45% 0.14 70);
+
+    /* ---- Badge palette ---- */
+    --badge-blue-bg:      oklch(93% 0.06 265);
+    --badge-blue-fg:      oklch(35% 0.18 265);
+    --badge-blue-border:  oklch(85% 0.08 265);
+
+    --badge-teal-bg:      oklch(93% 0.06 185);
+    --badge-teal-fg:      oklch(32% 0.10 185);
+    --badge-teal-border:  oklch(85% 0.08 185);
+
+    --badge-red-bg:       oklch(93% 0.06 25);
+    --badge-red-fg:       oklch(35% 0.14 25);
+    --badge-red-border:   oklch(85% 0.08 25);
+
+    --badge-amber-bg:     oklch(90% 0.08 70);
+    --badge-amber-fg:     oklch(35% 0.12 70);
+    --badge-amber-border: oklch(82% 0.08 70);
+
+    --badge-green-bg:     oklch(93% 0.08 145);
+    --badge-green-fg:     oklch(30% 0.12 145);
+    --badge-green-border: oklch(82% 0.08 145);
 
     /* ---- Semantic overrides ---- */
-    --border-subtle: oklch(24% 0.03 265);
+    --border-subtle: oklch(92% 0.015 85);
 
-    /* ---- Effects: more visible on dark ---- */
-    --glow-brand:  oklch(68% 0.24 265 / 0.20);
-    --glow-accent: oklch(75% 0.14 185 / 0.15);
+    /* ---- Effects: softer on light ---- */
+    --glow-brand:  oklch(50% 0.27 280 / 0.15);
+    --glow-accent: oklch(55% 0.15 185 / 0.12);
+    --glow-active: oklch(55% 0.15 185 / 0.15);
 
-    /* ---- Shadows: deeper ---- */
-    --shadow-sm: 0 1px 2px oklch(0% 0 0 / 0.2);
-    --shadow-md: 0 4px 6px oklch(0% 0 0 / 0.3), 0 1px 3px oklch(0% 0 0 / 0.2);
+    /* ---- Glassmorphism: lighter ---- */
+    --glass-bg:      oklch(99.5% 0.01 85 / 0.7);
+    --glass-border:  oklch(18% 0.12 265 / 0.08);
+
+    /* ---- Shadows: lighter ---- */
+    --shadow-sm: 0 1px 2px oklch(0% 0 0 / 0.05);
+    --shadow-md: 0 4px 6px oklch(0% 0 0 / 0.07), 0 1px 3px oklch(0% 0 0 / 0.06);
+    --shadow-lg: 0 8px 24px oklch(0% 0 0 / 0.1), 0 2px 8px oklch(0% 0 0 / 0.06);
 
     /* ---- Sidebar ---- */
-    --sidebar-active-bg:     oklch(24% 0.06 265);
+    --sidebar-bg:            var(--color-neutral-0);
+    --sidebar-border:        var(--color-neutral-200);
+    --sidebar-active-bg:     oklch(94% 0.04 280);
+    --sidebar-active-border: var(--color-brand-500);
   }
 }

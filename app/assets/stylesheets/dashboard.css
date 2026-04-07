@@ -27,8 +27,8 @@
     grid-template-columns: 1fr auto;
     align-items: center;
     padding: var(--space-4);
-    background: var(--bg-surface);
-    border: 1px solid var(--border);
+    border: 1px solid var(--glass-border);
+    border-inline-start: 3px solid var(--color-brand-500);
     border-radius: var(--radius-md);
     margin-block-end: var(--space-6);
   }
@@ -92,8 +92,9 @@
   }
 
   .dashboard-tab--active {
-    color: var(--color-brand-500);
+    color: var(--color-brand-400);
     border-block-end-color: var(--color-brand-500);
+    text-shadow: 0 0 12px var(--glow-brand);
   }
 
   .dashboard-tab__badge {
@@ -203,18 +204,23 @@
 
   /* Stat card */
   .stat-card {
-    background: var(--bg-surface);
-    border: 1px solid var(--border);
+    border: 1px solid var(--glass-border);
+    border-block-start: 2px solid var(--color-brand-500);
     border-radius: var(--radius-md);
     padding: var(--space-4) var(--space-5);
     display: flex;
     align-items: baseline;
     gap: var(--space-3);
-    transition: box-shadow var(--transition-fast);
+    transition: box-shadow var(--transition-slow), transform var(--transition-slow);
   }
 
+  .stat-card:nth-child(2) { border-block-start-color: var(--color-accent-500); }
+  .stat-card:nth-child(3) { border-block-start-color: var(--color-success-fg); }
+  .stat-card:nth-child(4) { border-block-start-color: var(--color-warning-fg); }
+
   .stat-card:hover {
-    box-shadow: 0 2px 8px -2px oklch(from var(--text-base) l c h / 0.06);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
   }
 
   .stat-card__value {
@@ -338,16 +344,28 @@
   }
 
   .dashboard-running-card {
-    background: var(--bg-surface);
-    border: 1px solid var(--border);
-    border-inline-start: 3px solid oklch(65% 0.15 175);
+    border: 1px solid var(--glass-border);
+    border-inline-start: 3px solid var(--color-accent-500);
     border-radius: var(--radius-md);
     padding: var(--space-4) var(--space-5);
-    transition: box-shadow var(--transition-fast);
+    transition: box-shadow var(--transition-slow);
+    animation: running-pulse var(--pulse-duration) ease-in-out infinite;
+    box-shadow: 0 0 16px -6px var(--glow-active);
   }
 
   .dashboard-running-card:hover {
-    box-shadow: 0 2px 8px -2px oklch(from var(--text-base) l c h / 0.06);
+    box-shadow: 0 0 24px -4px var(--glow-active);
+  }
+
+  @keyframes running-pulse {
+    0%, 100% {
+      border-inline-start-color: var(--color-accent-500);
+      box-shadow: 0 0 16px -6px var(--glow-active);
+    }
+    50% {
+      border-inline-start-color: oklch(from var(--color-accent-500) l c h / 0.4);
+      box-shadow: 0 0 8px -6px var(--glow-active);
+    }
   }
 
   .dashboard-running-card__header {
@@ -380,7 +398,8 @@
   .dashboard-running-card__duration {
     font-weight: 600;
     font-variant-numeric: tabular-nums;
-    color: oklch(65% 0.15 175);
+    color: var(--color-accent-500);
+    text-shadow: 0 0 8px var(--glow-accent);
     white-space: nowrap;
     flex-shrink: 0;
   }
@@ -402,7 +421,9 @@
   }
 
   .kanban__column {
-    background: var(--color-neutral-100);
+    background: oklch(from var(--color-neutral-100) l c h / 0.5);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius-md);
     padding: var(--space-3);
     min-inline-size: 200px;
@@ -941,8 +962,8 @@
   }
 
   .skill-category-badge--leadership {
-    background: oklch(93% 0.06 300);
-    color: oklch(35% 0.15 300);
+    background: oklch(20% 0.06 300);
+    color: oklch(75% 0.15 300);
   }
 
   .skill-category-badge--technical {
@@ -951,8 +972,8 @@
   }
 
   .skill-category-badge--creative {
-    background: oklch(93% 0.06 75);
-    color: oklch(38% 0.1 75);
+    background: oklch(20% 0.06 75);
+    color: oklch(75% 0.1 75);
   }
 
   .skill-category-badge--operations {
@@ -961,8 +982,8 @@
   }
 
   .skill-category-badge--research {
-    background: oklch(93% 0.06 210);
-    color: oklch(35% 0.15 210);
+    background: oklch(20% 0.06 210);
+    color: oklch(75% 0.15 210);
   }
 
   /* --- Form hint --- */

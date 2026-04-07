@@ -71,15 +71,15 @@
   }
 
   .budget-display__alert--warning {
-    background: oklch(95% 0.06 85);
-    color: oklch(40% 0.12 55);
-    border: 1px solid oklch(85% 0.08 55);
+    background: var(--color-warning-bg);
+    color: var(--color-warning-fg);
+    border: 1px solid oklch(from var(--color-warning-fg) l c h / 0.2);
   }
 
   .budget-display__alert--exhausted {
-    background: oklch(95% 0.04 25);
-    color: oklch(40% 0.15 25);
-    border: 1px solid oklch(85% 0.08 25);
+    background: var(--color-error-bg);
+    color: var(--color-error-fg);
+    border: 1px solid oklch(from var(--color-error-fg) l c h / 0.2);
   }
 
   /* Notification dropdown */
@@ -587,11 +587,11 @@
   }
 
   .audit-row--governance {
-    background: oklch(95% 0.04 85);
+    background: var(--color-neutral-100);
   }
 
   .audit-row--governance:hover {
-    background: oklch(93% 0.05 85) !important;
+    background: var(--color-neutral-200) !important;
   }
 
   .audit-row__time {

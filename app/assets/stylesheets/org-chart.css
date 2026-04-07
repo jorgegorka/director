@@ -78,8 +78,7 @@
     gap: var(--space-1);
     block-size: 100%;
     padding: var(--space-3);
-    background-color: var(--bg-surface);
-    border: 1px solid var(--border);
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-sm);
     overflow: hidden;
@@ -172,10 +171,9 @@
     max-inline-size: 100%;
   }
 
-  @media (prefers-color-scheme: dark) {
-    .org-chart-line {
-      stroke: var(--color-neutral-500);
-    }
+  /* Dark-first: brighter lines are the default */
+  .org-chart-line {
+    stroke: var(--color-neutral-500);
   }
 }
 

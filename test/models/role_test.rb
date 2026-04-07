@@ -524,6 +524,79 @@ class RoleTest < ActiveSupport::TestCase
     end
   end
 
+  # --- Role status lifecycle broadcast tests ---
+
+  test "all role status transitions trigger broadcasts without error" do
+    status_transitions = [
+      { from: :idle, to: :running },
+      { from: :running, to: :idle },
+      { from: :idle, to: :paused },
+      { from: :paused, to: :idle },
+      { from: :idle, to: :error },
+      { from: :error, to: :idle },
+      { from: :idle, to: :pending_approval },
+      { from: :pending_approval, to: :idle }
+    ]
+
+    status_transitions.each do |transition|
+      role = roles(:developer)
+      role.update_column(:status, Role.statuses[transition[:from]])
+
+      assert_nothing_raised do
+        role.update!(status: transition[:to])
+      end
+
+      assert_equal transition[:to].to_s, role.status,
+        "Role should transition from #{transition[:from]} to #{transition[:to]}"
+    end
+  end
+
+  test "role run completion transitions role to idle and broadcasts without error" do
+    role = roles(:cto)
+    role.update!(status: :running)
+
+    run = RoleRun.create!(
+      role: role, project: @project, status: :running,
+      started_at: 1.minute.ago
+    )
+
+    assert_nothing_raised { run.mark_completed! }
+
+    assert run.completed?
+    assert role.reload.idle?
+  end
+
+  test "role run failure transitions role to idle and broadcasts without error" do
+    role = roles(:cto)
+    role.update!(status: :running)
+
+    run = RoleRun.create!(
+      role: role, project: @project, status: :running,
+      started_at: 1.minute.ago
+    )
+
+    assert_nothing_raised { run.fail_and_release!(error_message: "Test failure") }
+
+    assert run.failed?
+    assert role.reload.idle?
+  end
+
+  test "role run cancellation transitions role to idle and broadcasts without error" do
+    role = roles(:cto)
+    role.update!(status: :running)
+
+    run = RoleRun.create!(
+      role: role, project: @project, status: :running,
+      started_at: 1.minute.ago
+    )
+
+    assert_nothing_raised { run.cancel! }
+
+    assert run.cancelled?
+    assert role.reload.idle?
+  end
+
+
 
   # --- Goals association ---
 

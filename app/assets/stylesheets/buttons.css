@@ -57,11 +57,25 @@
   .btn--ghost {
     background-color: transparent;
     color: var(--text-subtle);
-    border-color: var(--border);
+    border-color: var(--color-neutral-300);
   }
 
   .btn--ghost:hover {
-    background-color: var(--color-neutral-100);
+    background-color: oklch(from var(--text-base) l c h / 0.05);
+    border-color: var(--color-neutral-500);
+    text-decoration: none;
+  }
+
+  .btn--danger {
+    background-color: var(--color-error-fg);
+    color: oklch(100% 0 0);
+    border-color: var(--color-error-fg);
+    box-shadow: 0 0 12px -3px oklch(from var(--color-error-fg) l c h / 0.3);
+  }
+
+  .btn--danger:hover {
+    box-shadow: 0 0 20px -3px oklch(from var(--color-error-fg) l c h / 0.4);
+    transform: translateY(-1px);
     text-decoration: none;
   }
 

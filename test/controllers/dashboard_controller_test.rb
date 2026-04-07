@@ -19,10 +19,10 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     assert_select ".stat-card", minimum: 4
   end
 
-  test "should show budget summary for agents with budgets" do
+  test "should show overview stats for agents" do
     get dashboard_url
     assert_response :success
-    assert_select ".dashboard-budget-card", minimum: 1
+    assert_select ".stat-card", minimum: 4
   end
 
   test "should require authentication" do
@@ -134,5 +134,69 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     get dashboard_url
     assert_response :success
     assert_select "a[href='#{audit_logs_path}']"
+  end
+
+  # --- Role status lifecycle broadcast tests ---
+
+  test "role status change triggers dashboard broadcasts without error" do
+    role = roles(:cto)
+    role.update!(status: :running)
+
+    # Should not raise any errors when broadcasting
+    assert_nothing_raised do
+      role.update!(status: :idle)
+    end
+  end
+
+  test "running agents section updates when role status changes" do
+    role = roles(:developer)
+
+    # Initially idle - no running agents
+    get dashboard_url
+    assert_response :success
+    assert_select "#dashboard-running-agents .dashboard-empty"
+
+    # Change to running - should show running agent
+    role.update!(status: :running)
+    get dashboard_url
+    assert_response :success
+    assert_select ".dashboard-running-card", minimum: 1
+
+    # Back to idle - should show empty state again
+    role.update!(status: :idle)
+    get dashboard_url
+    assert_response :success
+    assert_select "#dashboard-running-agents .dashboard-empty"
+  end
+
+  test "overview stats update when role status changes" do
+    # Get initial counts
+    get dashboard_url
+    assert_response :success
+
+    initial_online_count = projects(:acme).roles.online.count
+    initial_running_count = projects(:acme).roles.where(status: :running).count
+
+    # Change a role to running
+    role = roles(:developer)
+    role.update!(status: :running)
+
+    # Verify counts changed correctly
+    new_online_count = projects(:acme).roles.online.count
+    new_running_count = projects(:acme).roles.where(status: :running).count
+
+    assert_equal initial_online_count, new_online_count # online = idle + running, should be same
+    assert_equal initial_running_count + 1, new_running_count
+  end
+
+  test "dashboard has proper turbo stream target ids for broadcasts" do
+    get dashboard_url
+    assert_response :success
+
+    # Verify key broadcast target elements exist
+    assert_select "#dashboard-overview-stats"
+    assert_select "#dashboard-running-agents"
+    assert_select "#approvals-badge"
+    assert_select "turbo-cable-stream-source[channel='Turbo::StreamsChannel']"
   end
 end

@@ -76,8 +76,8 @@
   }
 
   .role-run-detail__error-banner {
-    background: oklch(95% 0.03 25);
-    border: 1px solid oklch(70% 0.15 25);
+    background: var(--color-error-bg);
+    border: 1px solid oklch(from var(--color-error-fg) l c h / 0.3);
     border-radius: var(--radius-lg);
     padding: var(--space-4) var(--space-5);
     color: var(--color-error-fg);
@@ -152,10 +152,12 @@
     border-block-end: 1px solid var(--border);
   }
 
-  @media (prefers-color-scheme: dark) {
+  /* Dark-first: error banner dark values are now the default via tokens */
+
+  @media (prefers-color-scheme: light) {
     .role-run-detail__error-banner {
-      background: oklch(20% 0.05 25);
-      border-color: oklch(35% 0.12 25);
+      background: oklch(96% 0.05 25);
+      border-color: oklch(85% 0.08 25);
     }
   }
 

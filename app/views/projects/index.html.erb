@@ -9,7 +9,7 @@
   <% if @projects.any? %>
     <div class="projects-list__grid">
       <% @projects.each do |project| %>
-        <div class="project-card <%= 'project-card--active' if project == current_project %>">
+        <div class="project-card glass <%= 'project-card--active' if project == current_project %>">
           <h2 class="project-card__name"><%= project.name %></h2>
           <p class="project-card__role">
             <%= project.memberships.find_by(user: Current.user)&.role&.capitalize %>

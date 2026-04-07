@@ -7,8 +7,9 @@
     font-size: var(--font-size-base);
     line-height: var(--line-height-base);
     color: var(--text-base);
+    color-scheme: dark light;
     background-color: var(--bg-body);
-    background-image: radial-gradient(oklch(from var(--text-base) l c h / 0.03) 1px, transparent 1px);
+    background-image: radial-gradient(oklch(from var(--text-base) l c h / 0.015) 1px, transparent 1px);
     background-size: 20px 20px;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
@@ -21,7 +22,11 @@
     color: var(--text-base);
   }
 
-  h1 { font-size: var(--font-size-3xl); }
+  h1 {
+    font-size: var(--font-size-3xl);
+    font-weight: 800;
+    letter-spacing: var(--letter-spacing-tighter);
+  }
   h2 { font-size: var(--font-size-2xl); }
   h3 { font-size: var(--font-size-xl); }
 

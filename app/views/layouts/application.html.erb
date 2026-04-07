@@ -8,6 +8,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="author" content="Mario & Jorge Alvarez" />
     <meta name="view-transition" content="same-origin" />
+    <meta name="color-scheme" content="dark light">
     <%= turbo_refreshes_with method: :morph, scroll: :preserve %>
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
@@ -23,7 +24,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
     <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>

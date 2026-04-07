@@ -1,19 +1,19 @@
 <div class="dashboard-stats" id="dashboard-overview-stats">
-  <div class="stat-card">
+  <div class="stat-card glass">
     <div class="stat-card__value"><%= total_roles %></div>
     <div class="stat-card__label">Total Roles</div>
     <%= link_to "View all", roles_path, class: "stat-card__link" %>
   </div>
-  <div class="stat-card">
+  <div class="stat-card glass">
     <div class="stat-card__value"><%= tasks_active %></div>
     <div class="stat-card__label">Active Tasks</div>
     <%= link_to "View all", tasks_path, class: "stat-card__link" %>
   </div>
-  <div class="stat-card">
+  <div class="stat-card glass">
     <div class="stat-card__value"><%= tasks_completed %></div>
     <div class="stat-card__label">Tasks Completed</div>
   </div>
-  <div class="stat-card">
+  <div class="stat-card glass">
     <div class="stat-card__value"><%= roles_online %> of <%= total_roles %></div>
     <div class="stat-card__label">Roles Online</div>
   </div>

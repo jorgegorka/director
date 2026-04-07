@@ -15,16 +15,17 @@
     letter-spacing: 0.04em;
   }
 
+  /* Dark-first values */
   .badge--owner {
-    background-color: oklch(96% 0.06 285);
-    color: oklch(35% 0.18 285);
-    border: 1px solid oklch(85% 0.1 285);
+    background-color: oklch(20% 0.06 285);
+    color: oklch(80% 0.15 285);
+    border: 1px solid oklch(35% 0.12 285);
   }
 
   .badge--admin {
-    background-color: var(--color-brand-50);
-    color: var(--color-brand-600);
-    border: 1px solid oklch(from var(--color-brand-400) l c h / 0.5);
+    background-color: oklch(18% 0.06 280);
+    color: var(--color-brand-400);
+    border: 1px solid oklch(30% 0.12 280);
   }
 
   .badge--member {
@@ -39,29 +40,29 @@
     border: 1px solid oklch(from var(--color-warning-fg) l c h / 0.2);
   }
 
-  @media (prefers-color-scheme: dark) {
+  @media (prefers-color-scheme: light) {
     .badge--owner {
-      background-color: oklch(20% 0.06 285);
-      color: oklch(80% 0.15 285);
-      border-color: oklch(35% 0.12 285);
+      background-color: oklch(96% 0.06 285);
+      color: oklch(35% 0.18 285);
+      border-color: oklch(85% 0.1 285);
     }
 
     .badge--admin {
-      background-color: oklch(18% 0.06 265);
-      color: var(--color-brand-400);
-      border-color: oklch(30% 0.12 265);
+      background-color: var(--color-brand-50);
+      color: var(--color-brand-600);
+      border-color: oklch(from var(--color-brand-400) l c h / 0.5);
     }
 
     .badge--member {
       background-color: var(--color-neutral-100);
-      color: var(--color-neutral-300);
+      color: var(--color-neutral-700);
       border-color: var(--color-neutral-200);
     }
 
     .badge--pending {
-      background-color: oklch(18% 0.05 85);
-      color: oklch(75% 0.12 85);
-      border-color: oklch(30% 0.08 85);
+      background-color: oklch(96% 0.06 70);
+      color: oklch(45% 0.14 70);
+      border-color: oklch(85% 0.08 70);
     }
   }
 }

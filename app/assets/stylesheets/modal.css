@@ -7,10 +7,11 @@
     inset: 0;
     margin: auto;
     z-index: 100;
-    border: none;
     border-radius: var(--radius-lg);
     padding: 0;
-    background: var(--bg-surface);
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
     box-shadow: var(--shadow-lg);
     max-block-size: min(90vh, 40rem);
     overflow: visible;
@@ -18,8 +19,8 @@
   }
 
   .modal::backdrop {
-    background: oklch(0.15 0 0 / 0.5);
-    backdrop-filter: blur(2px);
+    background: oklch(0% 0 0 / 0.6);
+    backdrop-filter: blur(4px);
   }
 
   /* Sizes */

@@ -35,6 +35,7 @@ class RoleRun < ApplicationRecord
       claude_session_id: claude_session_id || self.claude_session_id,
       completed_at: Time.current
     )
+    release_role_and_dispatch!
   end
 
   def mark_failed!(error_message:, exit_code: nil)
@@ -47,8 +48,7 @@ class RoleRun < ApplicationRecord
   def fail_and_release!(error_message:, exit_code: 1)
     return if terminal?
     mark_failed!(error_message: error_message, exit_code: exit_code)
-    role.update!(status: :idle) if role.running?
-    role.project.dispatch_next_throttled_run!
+    release_role_and_dispatch!
   end
 
   def mark_cancelled!
@@ -62,8 +62,7 @@ class RoleRun < ApplicationRecord
     kill_adapter_session!
     mark_cancelled!
     task&.post_system_comment(author: role, body: "My session was cancelled before completing work.")
-    role.update!(status: :idle) if role.running?
-    role.project.dispatch_next_throttled_run!
+    release_role_and_dispatch!
   end
 
   # Terminates the adapter's execution session (tmux pane for claude_local,
@@ -122,6 +121,11 @@ class RoleRun < ApplicationRecord
   end
 
   private
+
+  def release_role_and_dispatch!
+    role.update!(status: :idle) if role.running?
+    role.project.dispatch_next_throttled_run!
+  end
 
   def terminal_status_reached?
     saved_change_to_status? && terminal?

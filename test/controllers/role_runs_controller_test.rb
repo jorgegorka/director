@@ -127,4 +127,68 @@ class RoleRunsControllerTest < ActionDispatch::IntegrationTest
     post cancel_role_role_run_url(other_role, run)
     assert_redirected_to root_url
   end
+
+  # --- Role status lifecycle controller tests ---
+
+  test "completed run shows status and role returns to idle" do
+    run = @role.role_runs.create!(
+      project: @project,
+      status: :completed,
+      trigger_type: "task_assigned",
+      started_at: 1.hour.ago,
+      completed_at: 30.minutes.ago,
+      exit_code: 0
+    )
+    @role.update!(status: :idle) # Simulate the status transition
+
+    get role_role_run_url(@role, run)
+    assert_response :success
+    assert_select ".role-run-detail"
+    assert @role.reload.idle?
+  end
+
+  test "role status broadcasts trigger without errors during completion" do
+    @role.update!(status: :running)
+    run = @role.role_runs.create!(
+      project: @project,
+      status: :running,
+      trigger_type: "task_assigned",
+      started_at: Time.current
+    )
+
+    # Simulate role run completion - should not raise broadcast errors
+    assert_nothing_raised do
+      run.mark_completed!(exit_code: 0)
+    end
+
+    assert run.completed?
+    assert @role.reload.idle?
+  end
+
+  test "concurrent run completion handles broadcasts correctly" do
+    @role.update!(status: :running)
+
+    # Create multiple runs
+    run1 = @role.role_runs.create!(
+      project: @project,
+      status: :running,
+      trigger_type: "task_assigned",
+      started_at: 1.minute.ago
+    )
+    run2 = @role.role_runs.create!(
+      project: @project,
+      status: :queued,
+      trigger_type: "task_assigned",
+      started_at: 30.seconds.ago
+    )
+
+    # Complete first run - should broadcast properly
+    assert_nothing_raised do
+      run1.mark_completed!(exit_code: 0)
+    end
+
+    assert run1.completed?
+    assert run2.reload.queued?
+    assert @role.reload.idle?
+  end
 end

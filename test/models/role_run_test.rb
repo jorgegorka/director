@@ -223,6 +223,110 @@ class RoleRunTest < ActiveSupport::TestCase
     assert_equal "sess_existing", run.claude_session_id
   end
 
+  test "mark_completed! returns role to idle and processes dispatch queue" do
+    role = roles(:cto)
+    role.update!(status: :running)
+    run = role.role_runs.create!(
+      project: projects(:acme),
+      status: :running,
+      started_at: Time.current
+    )
+
+    # Mock the dispatch method to verify it's called
+    dispatched = false
+    run.role.project.define_singleton_method(:dispatch_next_throttled_run!) { dispatched = true }
+
+    run.mark_completed!(exit_code: 0)
+
+    assert run.completed?
+    assert_not_nil run.completed_at
+    assert role.reload.idle?
+    assert dispatched, "Expected dispatch_next_throttled_run! to be called"
+  end
+
+  # --- Role status lifecycle edge cases ---
+
+  test "mark_completed! does not change role status if role is not running" do
+    role = roles(:cto)
+    role.update!(status: :paused)
+    run = RoleRun.create!(
+      role: role, project: @project, status: :running,
+      started_at: 1.minute.ago
+    )
+
+    run.mark_completed!
+
+    assert run.completed?
+    assert role.reload.paused? # Status should remain unchanged
+  end
+
+  test "mark_completed! handles role in different statuses correctly" do
+    test_cases = [
+      { initial_status: :idle, expected_status: :idle },
+      { initial_status: :paused, expected_status: :paused },
+      { initial_status: :error, expected_status: :error },
+      { initial_status: :pending_approval, expected_status: :pending_approval }
+    ]
+
+    test_cases.each do |test_case|
+      role = roles(:developer)
+      role.update!(status: test_case[:initial_status])
+      run = RoleRun.create!(
+        role: role, project: @project, status: :running,
+        started_at: 1.minute.ago
+      )
+
+      run.mark_completed!
+
+      assert run.completed?, "Run should be completed for #{test_case[:initial_status]} role"
+      assert_equal test_case[:expected_status].to_s, role.reload.status,
+        "Role status should remain #{test_case[:expected_status]} when run completes"
+    end
+  end
+
+  test "mark_completed! handles concurrent role runs correctly" do
+    role = roles(:cto)
+    role.update!(status: :running)
+
+    # Create multiple runs for the same role
+    run1 = RoleRun.create!(
+      role: role, project: @project, status: :running,
+      started_at: 2.minutes.ago
+    )
+    run2 = RoleRun.create!(
+      role: role, project: @project, status: :queued,
+      started_at: 1.minute.ago
+    )
+
+    # Complete the first run
+    run1.mark_completed!
+
+    assert run1.completed?
+    assert run2.reload.queued? # Other run unchanged
+    assert role.reload.idle? # Role transitioned to idle despite other runs
+  end
+
+  test "all lifecycle methods transition running role to idle" do
+    # Test mark_completed!
+    role = roles(:cto)
+    role.update!(status: :running)
+    run = RoleRun.create!(role: role, project: @project, status: :running, started_at: 1.minute.ago)
+    run.mark_completed!
+    assert role.reload.idle?, "mark_completed! should transition running role to idle"
+
+    # Test fail_and_release!
+    role.update!(status: :running)
+    run = RoleRun.create!(role: role, project: @project, status: :running, started_at: 1.minute.ago)
+    run.fail_and_release!(error_message: "Test error")
+    assert role.reload.idle?, "fail_and_release! should transition running role to idle"
+
+    # Test cancel!
+    role.update!(status: :running)
+    run = RoleRun.create!(role: role, project: @project, status: :running, started_at: 1.minute.ago)
+    run.cancel!
+    assert role.reload.idle?, "cancel! should transition running role to idle"
+  end
+
   # --- mark_failed! ---
 
   test "mark_failed! transitions to failed" do

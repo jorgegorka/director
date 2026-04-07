@@ -4,7 +4,7 @@
 @layer utilities {
   .surface-glow {
     box-shadow:
-      0 0 0 1px var(--border),
+      0 0 0 1px var(--glass-border),
       0 2px 8px -2px var(--glow-brand);
     transition: box-shadow var(--transition-base);
   }
@@ -16,7 +16,7 @@
   }
 
   .text-gradient {
-    background: linear-gradient(135deg, var(--color-brand-500), var(--color-accent-500));
+    background: linear-gradient(135deg, var(--color-brand-400), var(--color-accent-500));
     background-clip: text;
     -webkit-background-clip: text;
     color: transparent;
@@ -25,5 +25,47 @@
   .font-mono {
     font-family: var(--font-mono);
   }
-}
 
+  /* Glassmorphism utility (border left to components — layer precedence) */
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+  }
+
+  /* Ambient glow utilities */
+  .glow-active {
+    box-shadow: 0 0 20px -6px var(--glow-active);
+  }
+
+  .glow-brand {
+    box-shadow: 0 0 20px -6px var(--glow-brand);
+  }
+
+  /* Pulse animation — reuses @keyframes pulse from agent-runs.css */
+  .pulse {
+    animation: pulse var(--pulse-duration) ease-in-out infinite;
+  }
+
+  /* Breathing glow for borders */
+  .glow-breathe {
+    animation: glow-breathe 3s ease-in-out infinite;
+  }
+
+  @keyframes glow-breathe {
+    0%, 100% { box-shadow: 0 0 16px -4px var(--glow-active); }
+    50%      { box-shadow: 0 0 24px -2px var(--glow-active); }
+  }
+
+  /* Screen reader only */
+  .for-screen-reader {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+}

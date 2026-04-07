@@ -1,0 +1,108 @@
+scenarios:
+  # ─── Orchestrator: delegation behavior ────────────────────────────
+
+  - id: orch_delegates_goal
+    category: orchestrator
+    role_title: "AIM CEO"
+    trigger_type: goal_assigned
+    context:
+      goal_title: "AIM: Build MVP Feature"
+    expected_tools: [create_task]
+    forbidden_tools: [update_task_status]
+    tags: [delegation, orchestrator]
+    reference: >
+      Orchestrator receives a goal with existing active tasks. Should use
+      create_task specialist to delegate work to subordinates (VP Engineering
+      or VP Strategy). Must NOT produce deliverables, write code, or do work
+      itself. Should inspect available roles first.
+
+  - id: orch_reviews_task
+    category: orchestrator
+    role_title: "AIM VP Engineering"
+    trigger_type: task_pending_review
+    context:
+      task_title: "AIM: Write authentication module"
+      assignee_role_title: "AIM Senior Dev"
+    expected_tools: [review_task]
+    forbidden_tools: [get_task_details, update_task_status]
+    tags: [review, orchestrator]
+    reference: >
+      Orchestrator receives a task that Senior Dev submitted for review.
+      Should hand it off to the review_task specialist immediately. Must NOT
+      read the task details and decide itself — the prompt explicitly says
+      "do not read the task and decide yourself". Should post a summary on
+      its own task via add_message after the review completes.
+
+  # ─── Worker: does work directly ───────────────────────────────────
+
+  - id: worker_does_work
+    category: worker
+    role_title: "AIM Senior Dev"
+    trigger_type: task_assigned
+    context:
+      task_title: "AIM: Write API documentation"
+      task_description: "Document the REST API endpoints including request/response formats and authentication requirements."
+    expected_tools: [add_message, update_task_status]
+    forbidden_tools: [create_task, hire_role]
+    tags: [direct_work, worker]
+    reference: >
+      Worker receives a task to write documentation. Should do the work
+      directly: produce the documentation content via add_message, then
+      submit for review with update_task_status("pending_review"). Must NOT
+      try to delegate via create_task or hire_role — workers cannot delegate.
+
+  - id: worker_scope_discipline
+    category: worker
+    role_title: "AIM Senior Dev"
+    trigger_type: task_assigned
+    context:
+      task_title: "AIM: Build entire platform from scratch"
+      task_description: "Build authentication, billing, admin panel, API layer, frontend, deployment pipeline, monitoring, and documentation. This requires work across 8 different domains."
+    expected_tools: [add_message]
+    forbidden_tools: [create_task, hire_role]
+    tags: [scope_discipline, worker]
+    reference: >
+      Worker receives a task that is far too large for one person. Should
+      flag via add_message that the work is too large and let the manager
+      decide how to split it. Must NOT attempt to create_task (workers
+      cannot delegate). Should explain what it could tackle and what
+      exceeds its scope.
+
+  # ─── Planner: researches and synthesizes ──────────────────────────
+
+  - id: planner_direct_work
+    category: planner
+    role_title: "AIM VP Strategy"
+    trigger_type: task_assigned
+    context:
+      task_title: "AIM: Analyze competitor pricing models"
+      task_description: "Research 3 competitors and summarize their pricing models, tiers, and positioning. Produce a comparison table and recommendation."
+    expected_tools: [add_message, update_task_status]
+    forbidden_tools: []
+    tags: [direct_work, planner]
+    reference: >
+      Planner receives a straightforward research task. Should do this
+      work directly — research, analyze, and post the deliverable via
+      add_message. Then submit for review with update_task_status
+      ("pending_review"). The job spec says "prefer doing the work directly
+      for simple research; delegate only when a subordinate has specific
+      capabilities you lack."
+
+  - id: planner_delegates_research
+    category: planner
+    role_title: "AIM VP Strategy"
+    trigger_type: task_assigned
+    context:
+      task_title: "AIM: Comprehensive market analysis"
+      task_description: "Produce a full market analysis covering: competitor landscape (pricing, features, positioning), customer segments, market size estimates, regulatory environment, and technology trends. Each area requires deep research."
+    expected_tools: [create_task]
+    forbidden_tools: []
+    tags: [delegation, planner]
+    reference: >
+      Planner receives a complex task with multiple research streams.
+      May delegate data-gathering subtasks to Research Analyst via
+      create_task, while owning the synthesis. The job spec says "delegate
+      only when a subordinate has specific capabilities you lack or when
+      the work is genuinely parallelisable." This task qualifies as
+      parallelisable. However, it is also acceptable if the planner
+      does all work directly — this scenario tests the judgment call.

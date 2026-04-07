@@ -40,8 +40,9 @@
 
   /* --- Agent card --- */
   .agent-card {
-    background-color: var(--bg-surface);
-    border: 1px solid var(--border);
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius-lg);
     padding: var(--space-4) var(--space-5);
     box-shadow: var(--shadow-sm);
@@ -49,12 +50,14 @@
     flex-direction: column;
     gap: var(--space-3);
     transition:
-      border-color var(--transition-fast),
-      box-shadow var(--transition-fast);
+      border-color var(--transition-slow),
+      box-shadow var(--transition-slow),
+      transform var(--transition-slow);
 
     &:hover {
       border-color: var(--color-neutral-300);
       box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
     }
   }
 
@@ -159,8 +162,15 @@
 
   .status-badge--running {
     background-color: var(--color-accent-50);
-    color: var(--color-accent-600);
+    color: var(--color-accent-500);
     border: 1px solid oklch(from var(--color-accent-500) l c h / 0.3);
+    animation: status-pulse var(--pulse-duration) ease-in-out infinite;
+    box-shadow: 0 0 8px -2px var(--glow-accent);
+  }
+
+  @keyframes status-pulse {
+    0%, 100% { box-shadow: 0 0 8px -2px var(--glow-accent); }
+    50%      { box-shadow: 0 0 4px -2px var(--glow-accent); }
   }
 
   .status-badge--paused {

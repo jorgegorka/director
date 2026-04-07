@@ -1,0 +1,36 @@
+key: bug_triage
+name: Bug Triage
+description: Move from a vague symptom to a verified fix by combining structured reporting with root-cause investigation and regression testing
+category: technical
+markdown: |
+  # Bug Triage
+
+  ## Purpose
+  Move from "something is broken" to a verified fix with regression coverage. A good triage combines two disciplines: documenting the bug clearly enough that anyone can reproduce it, and investigating the root cause methodically before touching code.
+
+  ## When to use
+  - A task reports that something is broken, failing, or misbehaving
+  - You have encountered unexpected behavior during QA or testing
+  - A test is red and you do not yet know why
+  - A bug has been reported and needs to be diagnosed and resolved
+
+  ## Approach
+  1. **Reproduce reliably.** Trigger the bug at least twice in a controlled environment. If you cannot reproduce it, finding the repro is your first job — do not skip ahead to fixing
+  2. **Document the symptom.** Write a title from the user's perspective ("Login button unresponsive on mobile when keyboard is visible", not "bug in auth"). Record environment, exact reproduction steps, expected behavior, actual behavior, and evidence (error messages, screenshots, console errors, log snippets). One bug per report
+  3. **Gather evidence.** Read error messages and stack traces completely — they often contain the answer. Collect logs, inputs that trigger the failure, and prior context via `get_task_details`. Do not skim
+  4. **Form a single hypothesis** about the root cause based on the evidence. State it clearly: "I think X is the root cause because Y." Do not change code yet — investigation is cheaper than rework
+  5. **Isolate the failure.** Trace data flow backward from the symptom to find where things diverge. Compare against working examples in the same codebase. Binary-search the code or add targeted logging to narrow it down
+  6. **Test the hypothesis** with the smallest possible change — one variable at a time. If it does not confirm, form a new hypothesis. Do not stack fixes on top of each other
+  7. **Apply the minimal fix** that addresses the root cause. Avoid broad changes that mask the underlying issue. Add a regression test that captures the bug — the same bug should never recur undetected
+  8. **Verify end to end.** Confirm the symptom is gone, existing tests still pass, and the regression test is green. Then look for sibling bugs nearby — bugs cluster around the same assumption. File follow-ups via `create_task` for any siblings found
+
+  ## Guidelines
+  - No fixes without root-cause investigation first. Symptom fixes are not real fixes
+  - Never ship an unreproduced "fix" — reproduce first, fix second, verify third
+  - One bug per report, one fix at a time. Combining issues makes tracking harder and makes it impossible to isolate what worked
+  - Resist the urge to edit code during investigation. Gather evidence, then act
+  - If three or more fix attempts fail, stop and question the architecture. Repeated failures in different places signal a design problem, not a series of small bugs. Escalate before attempting more fixes
+  - Every bug fixed gets a regression test. No exceptions
+
+  ## Deliverable
+  A bug resolution record posted via `add_message` on the task, containing: title, severity, environment, reproduction steps, root cause analysis, the fix (with diff or file paths), the regression test added, and any sibling issues filed as follow-up tasks via `create_task`.

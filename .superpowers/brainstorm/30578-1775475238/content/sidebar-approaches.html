@@ -1,0 +1,84 @@
+<h2>Sidebar Style</h2>
+<p class="subtitle">Which sidebar style fits the Director app better?</p>
+
+<div class="cards">
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="display:flex;height:320px;font-family:system-ui;font-size:13px;">
+        <!-- Sidebar -->
+        <div style="width:200px;background:oklch(22% 0.08 265);color:oklch(85% 0.02 90);padding:16px 0;display:flex;flex-direction:column;gap:2px;">
+          <div style="padding:12px 20px;font-weight:700;font-size:15px;color:oklch(95% 0.01 90);margin-bottom:8px;">Director</div>
+          <div style="padding:10px 20px;background:oklch(30% 0.08 265);border-left:3px solid oklch(70% 0.2 265);font-weight:600;color:white;">Dashboard</div>
+          <div style="padding:7px 20px 7px 40px;font-size:12px;color:oklch(70% 0.02 90);">Overview</div>
+          <div style="padding:7px 20px 7px 40px;font-size:12px;color:oklch(70% 0.02 90);">Tasks</div>
+          <div style="padding:7px 20px 7px 40px;font-size:12px;color:oklch(70% 0.02 90);">Activity</div>
+          <div style="padding:10px 20px;color:oklch(75% 0.02 90);">Roles</div>
+          <div style="padding:10px 20px;color:oklch(75% 0.02 90);">Tasks</div>
+          <div style="padding:10px 20px;color:oklch(75% 0.02 90);">Skills</div>
+          <div style="padding:10px 20px;color:oklch(75% 0.02 90);">Documents</div>
+          <div style="padding:10px 20px;color:oklch(75% 0.02 90);">Audit Log</div>
+        </div>
+        <!-- Main area -->
+        <div style="flex:1;display:flex;flex-direction:column;">
+          <div style="height:48px;background:oklch(99% 0.01 85);border-bottom:1px solid oklch(90% 0.02 85);display:flex;align-items:center;justify-content:flex-end;padding:0 16px;gap:12px;">
+            <span style="font-size:18px;">&#128276;</span>
+            <span style="background:oklch(35% 0.15 25);color:white;padding:5px 12px;border-radius:6px;font-size:12px;">Emergency Stop</span>
+            <span style="background:oklch(95% 0.01 85);border:1px solid oklch(88% 0.02 85);padding:5px 12px;border-radius:6px;font-size:12px;">Director AI &#9662;</span>
+          </div>
+          <div style="flex:1;background:oklch(97% 0.02 90);padding:20px;">
+            <div style="background:oklch(99% 0.01 85);border-radius:8px;padding:16px;border:1px solid oklch(90% 0.02 85);">
+              <div style="font-weight:600;margin-bottom:8px;">Content Area</div>
+              <div style="height:8px;background:oklch(93% 0.02 85);border-radius:4px;margin-bottom:6px;width:80%;"></div>
+              <div style="height:8px;background:oklch(93% 0.02 85);border-radius:4px;margin-bottom:6px;width:60%;"></div>
+              <div style="height:8px;background:oklch(93% 0.02 85);border-radius:4px;width:70%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A. Dark Sidebar</h3>
+      <p>Dark navy sidebar contrasts with light content area. Strong visual separation. Common in admin/dashboard apps.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="display:flex;height:320px;font-family:system-ui;font-size:13px;">
+        <!-- Sidebar -->
+        <div style="width:200px;background:oklch(99% 0.01 85);border-right:1px solid oklch(88% 0.02 85);color:oklch(30% 0.05 265);padding:16px 0;display:flex;flex-direction:column;gap:2px;">
+          <div style="padding:12px 20px;font-weight:700;font-size:15px;color:oklch(18% 0.12 265);margin-bottom:8px;">Director</div>
+          <div style="padding:10px 20px;background:oklch(94% 0.04 265);border-left:3px solid oklch(50% 0.27 265);font-weight:600;color:oklch(40% 0.2 265);">Dashboard</div>
+          <div style="padding:7px 20px 7px 40px;font-size:12px;color:oklch(45% 0.05 265);">Overview</div>
+          <div style="padding:7px 20px 7px 40px;font-size:12px;color:oklch(45% 0.05 265);">Tasks</div>
+          <div style="padding:7px 20px 7px 40px;font-size:12px;color:oklch(45% 0.05 265);">Activity</div>
+          <div style="padding:10px 20px;color:oklch(35% 0.05 265);">Roles</div>
+          <div style="padding:10px 20px;color:oklch(35% 0.05 265);">Tasks</div>
+          <div style="padding:10px 20px;color:oklch(35% 0.05 265);">Skills</div>
+          <div style="padding:10px 20px;color:oklch(35% 0.05 265);">Documents</div>
+          <div style="padding:10px 20px;color:oklch(35% 0.05 265);">Audit Log</div>
+        </div>
+        <!-- Main area -->
+        <div style="flex:1;display:flex;flex-direction:column;">
+          <div style="height:48px;background:oklch(99% 0.01 85);border-bottom:1px solid oklch(90% 0.02 85);display:flex;align-items:center;justify-content:flex-end;padding:0 16px;gap:12px;">
+            <span style="font-size:18px;">&#128276;</span>
+            <span style="background:oklch(35% 0.15 25);color:white;padding:5px 12px;border-radius:6px;font-size:12px;">Emergency Stop</span>
+            <span style="background:oklch(95% 0.01 85);border:1px solid oklch(88% 0.02 85);padding:5px 12px;border-radius:6px;font-size:12px;">Director AI &#9662;</span>
+          </div>
+          <div style="flex:1;background:oklch(97% 0.02 90);padding:20px;">
+            <div style="background:oklch(99% 0.01 85);border-radius:8px;padding:16px;border:1px solid oklch(90% 0.02 85);">
+              <div style="font-weight:600;margin-bottom:8px;">Content Area</div>
+              <div style="height:8px;background:oklch(93% 0.02 85);border-radius:4px;margin-bottom:6px;width:80%;"></div>
+              <div style="height:8px;background:oklch(93% 0.02 85);border-radius:4px;margin-bottom:6px;width:60%;"></div>
+              <div style="height:8px;background:oklch(93% 0.02 85);border-radius:4px;width:70%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B. Light Sidebar</h3>
+      <p>Light sidebar matching the app's warm cream aesthetic. Subtle border separation. Cohesive with existing design language.</p>
+    </div>
+  </div>
+</div>

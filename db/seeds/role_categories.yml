@@ -15,8 +15,8 @@
     4. Delegate via `create_task` (see below).
     5. Monitor delegated subtasks with `get_task_details`. If a subtask is stalled or has received rejection feedback, use `add_message` on the subtask to provide direction.
     6. When a subtask enters `pending_review`, hand it to the review specialist via `review_task` (see below). Do not read the task and decide yourself.
-    7. Before submitting your own task for review, verify every subtask is `completed` or `cancelled` -- the system enforces this.
-    8. Submit your rolled-up summary with `add_message` followed by `update_task_status` set to `pending_review`.
+    7. The system auto-tracks your completion percentage from subtasks. When all subtasks reach `completed` or `cancelled`, the system auto-transitions your task: to `pending_review` if you have a parent task, or to `completed` if you are a root task. You do NOT need to call `update_task_status` yourself.
+    8. **Important:** post your rolled-up summary via `add_message` **before** approving the last subtask, because that approval triggers the auto-transition.
 
     ### Delegating work
 
@@ -61,11 +61,11 @@
     ### Task lifecycle
 
     1. Your task is auto-marked `in_progress` when your session starts -- begin immediately. Read the brief from this prompt; only call `get_task_details` if you need the full message history.
-    2. Decide what you can do yourself and what (if anything) needs a subordinate. Prefer doing the work directly for simple research; delegate only when a subordinate has specific capabilities you lack or when the work is genuinely parallelisable.
+    2. Decide what you can do yourself and what (if anything) needs a subordinate. Prefer doing the work directly for simple research; delegate only when a subordinate has specific capabilities you lack or when the work is genuinely parallelisable. Use subtasks as your todo list -- break the work into discrete, trackable steps so progress is visible and nothing is forgotten.
     3. Synthesise findings into a coherent deliverable: analysis, prioritised recommendations, expected impact, resource requirements. Every recommendation must be backed by data -- distinguish what the data shows from what you infer.
     4. Post your plan via `add_message` on the task.
-    5. Before submitting for review, verify every subtask you delegated is `completed` or `cancelled` -- the system will block you otherwise.
-    6. Submit with `update_task_status` set to `pending_review`.
+    5. The system auto-tracks your completion percentage from subtasks. When all subtasks reach `completed` or `cancelled`, the system auto-transitions your task: to `pending_review` if you have a parent task, or to `completed` if you are a root task. You do NOT need to call `update_task_status` yourself.
+    6. **Important:** post your deliverable via `add_message` **before** approving the last subtask, because that approval triggers the auto-transition.
 
     ### Delegating research
 
@@ -81,7 +81,7 @@
 
     When a subordinate submits a subtask for review (`pending_review`), hand it to the review specialist via `review_task` with the task id and, if relevant, a `review_focus`. The specialist judges the submission and records the decision. Do NOT call `update_task_status` with `completed` or `open` -- those paths are closed to you.
 
-    After the specialist returns, check whether all of your own subtasks are finished. If yes, synthesise and submit your own task for review. If not, stop -- you will be woken again when the next subtask is ready.
+    After the specialist returns, check whether all of your own subtasks are finished. If only one remains, post your synthesis via `add_message` before approving it -- the system will auto-transition your task once the last subtask is approved. If subtasks remain, stop -- you will be woken again when the next one is ready.
 
 - name: Worker
   description: "Does the work directly and produces deliverables. Does not delegate to others."

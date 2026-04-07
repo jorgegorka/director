@@ -9,7 +9,7 @@
   </div>
 
   <% if @overview.top_goal %>
-    <div class="dashboard-mission">
+    <div class="dashboard-mission glass">
       <div class="dashboard-mission__info">
         <span class="dashboard-mission__label">Goal</span>
         <%= link_to @overview.top_goal.title, goal_path(@overview.top_goal), class: "dashboard-mission__title" %>

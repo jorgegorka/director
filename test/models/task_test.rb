@@ -426,6 +426,68 @@ class TaskTest < ActiveSupport::TestCase
     assert_equal 100, parent.completion_percentage
   end
 
+  # --- Auto-transition on subtask completion ---
+
+  test "auto-transitions in_progress task to pending_review when all subtasks completed and has parent" do
+    grandparent = Task.create!(title: "GP", project: @project, creator: @ceo, status: :in_progress)
+    parent = Task.create!(title: "Parent", project: @project, creator: @ceo, parent_task: grandparent, assignee: @cto, status: :in_progress)
+    Task.create!(title: "Sub 1", project: @project, creator: @cto, parent_task: parent, status: :completed)
+    Task.create!(title: "Sub 2", project: @project, creator: @cto, parent_task: parent, status: :completed)
+
+    parent.recalculate_completion!
+
+    assert_equal 100, parent.completion_percentage
+    assert_equal "pending_review", parent.reload.status
+  end
+
+  test "auto-transitions in_progress root task to completed when all subtasks completed" do
+    parent = Task.create!(title: "Root", project: @project, creator: @ceo, assignee: @cto, status: :in_progress)
+    Task.create!(title: "Sub 1", project: @project, creator: @cto, parent_task: parent, status: :completed)
+
+    parent.recalculate_completion!
+
+    assert_equal 100, parent.completion_percentage
+    assert_equal "completed", parent.reload.status
+    assert_not_nil parent.completed_at
+  end
+
+  test "does not auto-transition when not all subtasks completed" do
+    parent = Task.create!(title: "Partial", project: @project, creator: @ceo, assignee: @cto, status: :in_progress)
+    Task.create!(title: "Done", project: @project, creator: @cto, parent_task: parent, status: :completed)
+    Task.create!(title: "Open", project: @project, creator: @cto, parent_task: parent, status: :open)
+
+    parent.recalculate_completion!
+
+    assert_equal 50, parent.completion_percentage
+    assert_equal "in_progress", parent.reload.status
+  end
+
+  test "does not auto-transition task already in pending_review" do
+    parent = Task.create!(title: "Already PR", project: @project, creator: @ceo, assignee: @cto, parent_task: @task, status: :pending_review)
+    Task.create!(title: "Sub", project: @project, creator: @cto, parent_task: parent, status: :completed)
+
+    parent.recalculate_completion!
+
+    assert_equal "pending_review", parent.reload.status
+  end
+
+  test "does not auto-transition task already completed" do
+    parent = Task.create!(title: "Already done", project: @project, creator: @ceo, assignee: @cto, status: :completed)
+    Task.create!(title: "Sub", project: @project, creator: @cto, parent_task: parent, status: :completed)
+
+    parent.recalculate_completion!
+
+    assert_equal "completed", parent.reload.status
+  end
+
+  test "does not auto-transition task with no subtasks" do
+    task = Task.create!(title: "No subs", project: @project, creator: @ceo, assignee: @cto, status: :in_progress)
+
+    task.recalculate_completion!
+
+    assert_equal "in_progress", task.reload.status
+  end
+
   test "completing subtask enqueues RecalculateTaskCompletionJob for parent" do
     parent = Task.create!(title: "Parent", project: @project, creator: @ceo, status: :open)
     sub = Task.create!(title: "Sub", project: @project, creator: @ceo, parent_task: parent, status: :open)

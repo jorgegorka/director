@@ -13,18 +13,18 @@
   }
 
   .heartbeat-badge--scheduled {
-    background: oklch(92% 0.04 250);
-    color: oklch(35% 0.1 250);
+    background: oklch(20% 0.06 250);
+    color: oklch(75% 0.12 250);
   }
 
   .heartbeat-badge--task_assigned {
-    background: oklch(92% 0.04 150);
-    color: oklch(35% 0.1 150);
+    background: oklch(20% 0.06 150);
+    color: oklch(75% 0.12 150);
   }
 
   .heartbeat-badge--mention {
-    background: oklch(92% 0.04 300);
-    color: oklch(35% 0.1 300);
+    background: oklch(20% 0.06 300);
+    color: oklch(75% 0.12 300);
   }
 
   .heartbeat-status {

@@ -233,7 +233,7 @@ roles:
     skill_keys:
       - implementation
       - code_review
-      - debugging
+      - bug_triage
       - problem_solving
       - documentation
 

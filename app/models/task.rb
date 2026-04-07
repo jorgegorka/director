@@ -99,9 +99,21 @@ class Task < ApplicationRecord
     )
     pct = total > 0 ? ((done.to_f / total) * 100).round : 0
     update_column(:completion_percentage, pct) unless completion_percentage == pct
+
+    auto_transition_on_subtasks_completed! if pct == 100 && total > 0
   end
 
   private
+
+  def auto_transition_on_subtasks_completed!
+    return unless in_progress? || open?
+
+    if parent_task_id.present?
+      update!(status: :pending_review)
+    else
+      update!(status: :completed)
+    end
+  end
 
   def broadcast_kanban_update
     return unless project_id

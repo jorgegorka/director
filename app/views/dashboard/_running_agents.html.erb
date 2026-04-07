@@ -7,7 +7,7 @@
     <div class="dashboard-running-grid">
       <% running_roles.each do |role| %>
         <% active_run = role.role_runs.select { |rr| rr.running? || rr.queued? }.max_by(&:created_at) %>
-        <div class="dashboard-running-card">
+        <div class="dashboard-running-card glass">
           <div class="dashboard-running-card__header">
             <span class="dashboard-running-card__name">
               <%= link_to role.title, role_path(role) %>

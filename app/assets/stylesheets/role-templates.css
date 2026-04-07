@@ -195,18 +195,18 @@
   }
 
   .role-category-badge--orchestrator {
-    background: oklch(93% 0.06 300);
-    color: oklch(35% 0.15 300);
+    background: oklch(20% 0.06 300);
+    color: oklch(75% 0.15 300);
   }
 
   .role-category-badge--planner {
-    background: oklch(93% 0.06 185);
-    color: oklch(35% 0.15 185);
+    background: oklch(20% 0.06 185);
+    color: oklch(75% 0.15 185);
   }
 
   .role-category-badge--worker {
-    background: oklch(93% 0.06 75);
-    color: oklch(38% 0.1 75);
+    background: oklch(20% 0.06 75);
+    color: oklch(75% 0.1 75);
   }
 
   /* --- Role categories page --- */
