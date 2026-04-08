@@ -6,7 +6,8 @@ AI orchestration platform for building and managing anything from simple project
 
 Managing multiple AI workers gets messy fast. They run in different tabs, lose context between sessions, burn through money with no oversight, and nobody knows what any of them are actually doing. Director fixes this by letting you define roles in a company org chart and hire AI into them — with task assignments, budgets, and human oversight — so you can let them work autonomously while staying in control.
 
-<img width="1218" height="905" alt="AI Company orchestrator" src="https://github.com/user-attachments/assets/de87fb27-990b-4ba2-a9bc-6848e5a9005b" />
+<img width="969" height="661" alt="Direct a team of AI Agents" src="https://github.com/user-attachments/assets/ccdceb18-22cb-4fd8-b589-48e49b69dbe4" />
+
 
 ## How it works
 
@@ -119,6 +120,9 @@ Every time a role executes a piece of work, Director creates a **run record** th
 For roles using the Claude Local adapter, you can **watch the output live** as it streams in real time — you see exactly what the role is thinking and doing. If a run is taking too long or going in the wrong direction, you can **cancel it** directly from the interface, which kills the underlying process immediately.
 
 Runs are processed through a dedicated job queue, and roles can resume sessions across multiple runs for continuity.
+
+<img width="1235" height="808" alt="Director - AI Orchestrator" src="https://github.com/user-attachments/assets/6b21b084-a64d-4b20-991e-80587216292c" />
+
 
 ### Dashboard
 
