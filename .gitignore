@@ -47,6 +47,7 @@
 yarn-debug.log*
 .yarn-integrity
 test/aim/results
+test/examples
 
 REVISION
 

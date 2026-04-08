@@ -46,19 +46,24 @@ class AIMSeed
     def clean_previous_aim_data
       puts "#{TAG} Cleaning previous AIM data..."
 
-      # Messages must go before tasks (foreign key)
-      aim_task_ids = @project.tasks.where("description LIKE ?", "%#{TAG}%").pluck(:id)
-      Message.where(task_id: aim_task_ids).delete_all if aim_task_ids.any?
+      aim_role_ids = @project.roles.where("description LIKE ?", "%#{TAG}%").pluck(:id)
 
-      # Tasks before goals (foreign key on goal_id)
-      @project.tasks.where("description LIKE ?", "%#{TAG}%").delete_all
-      @project.goals.where("description LIKE ?", "%#{TAG}%").delete_all
+      if aim_role_ids.any?
+        # Destroy all tasks that reference AIM roles (seeded + agent-created)
+        all_aim_tasks = @project.tasks.where(
+          "assignee_id IN (:ids) OR creator_id IN (:ids)", ids: aim_role_ids
+        )
+        all_aim_tasks.each(&:destroy)
 
-      # Roles — destroy children first (hierarchy constraint)
-      aim_roles = @project.roles.where("description LIKE ?", "%#{TAG}%")
-      # Sort by depth: leaves first
-      sorted = aim_roles.sort_by { |r| -r.ancestors.size }
-      sorted.each(&:destroy)
+        # Destroy AIM goals
+        @project.goals.where("description LIKE ?", "%#{TAG}%").each(&:destroy)
+
+        # Roles — destroy children first (hierarchy constraint).
+        # Role#destroy handles remaining dependents (role_runs, role_skills, etc.)
+        aim_roles = @project.roles.where(id: aim_role_ids)
+        sorted = aim_roles.sort_by { |r| -r.ancestors.size }
+        sorted.each(&:destroy)
+      end
 
       puts "#{TAG}   Cleaned."
     end

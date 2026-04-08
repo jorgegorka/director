@@ -12,6 +12,7 @@ class Message < ApplicationRecord
 
   validates :body, presence: true
   validate :parent_belongs_to_same_task
+  validate :parent_message_exists
 
   scope :roots, -> { where(parent_id: nil) }
 
@@ -23,6 +24,12 @@ class Message < ApplicationRecord
   def parent_belongs_to_same_task
     if parent.present? && parent.task_id != task_id
       errors.add(:parent, "must belong to the same task")
+    end
+  end
+
+  def parent_message_exists
+    if parent_id.present? && !Message.exists?(parent_id)
+      errors.add(:parent, "message not found")
     end
   end
 

@@ -106,3 +106,143 @@ scenarios:
       the work is genuinely parallelisable." This task qualifies as
       parallelisable. However, it is also acceptable if the planner
       does all work directly — this scenario tests the judgment call.
+
+  # ─── Worker: additional coverage ───────────────────────────────────
+
+  - id: worker_simple_task
+    category: worker
+    role_title: "AIM QA Engineer"
+    trigger_type: task_assigned
+    context:
+      task_title: "AIM: Write test plan for authentication"
+      task_description: "Write a test plan covering login, logout, session expiry, and password reset flows. List the test cases with expected results."
+    expected_tools: [add_message, update_task_status]
+    forbidden_tools: [create_task, hire_role]
+    tags: [direct_work, worker]
+    reference: >
+      Worker receives a straightforward documentation task. Should produce
+      the test plan content via add_message, then submit for review with
+      update_task_status("pending_review"). Tests whether a different worker
+      role (QA Engineer vs Senior Dev) also uses Director tools correctly.
+
+  - id: worker_flags_blocker
+    category: worker
+    role_title: "AIM Senior Dev"
+    trigger_type: task_assigned
+    context:
+      task_title: "AIM: Integrate payment gateway"
+      task_description: "Connect Stripe payment processing to the billing module. Requires API keys from the ops team which have not been provided yet."
+    expected_tools: [add_message]
+    forbidden_tools: [create_task, hire_role, update_task_status]
+    tags: [scope_discipline, worker]
+    reference: >
+      Worker receives a task with a missing external dependency (API keys
+      not provided). Should flag the blocker via add_message explaining it
+      cannot proceed without the API keys. Must NOT submit for review
+      (nothing to review yet) or attempt to delegate. Tests whether
+      workers flag blockers through the task system.
+
+  - id: worker_stays_on_task
+    category: worker
+    role_title: "AIM Research Analyst"
+    trigger_type: task_assigned
+    context:
+      task_title: "AIM: Compile list of enterprise AI platforms"
+      task_description: "Research and list 10 enterprise AI orchestration platforms with their key features, pricing tier, and target market. Format as a table."
+    expected_tools: [add_message, update_task_status]
+    forbidden_tools: [create_task, hire_role]
+    tags: [direct_work, worker]
+    reference: >
+      Worker receives a clear data-gathering task. Should produce the
+      research table via add_message and submit via update_task_status
+      ("pending_review"). Tests whether workers stay on the assigned task
+      instead of pivoting to other tasks in their queue.
+
+  # ─── Orchestrator: additional coverage ─────────────────────────────
+
+  - id: orch_delegates_only
+    category: orchestrator
+    role_title: "AIM VP Engineering"
+    trigger_type: goal_assigned
+    context:
+      goal_title: "AIM: Build MVP Feature"
+    expected_tools: [create_task]
+    forbidden_tools: [update_task_status, review_task]
+    tags: [delegation, orchestrator]
+    reference: >
+      Mid-level orchestrator receives the MVP goal. Should delegate work
+      to subordinates (Senior Dev, QA Engineer) via create_task. Must NOT
+      use review_task (no task is pending review) or update_task_status.
+      Tests whether mid-level orchestrators also show the overreach
+      pattern seen in the CEO scenario.
+
+  - id: orch_no_self_review
+    category: orchestrator
+    role_title: "AIM CEO"
+    trigger_type: task_pending_review
+    context:
+      task_title: "AIM: Analyze competitor pricing models"
+      assignee_role_title: "AIM VP Strategy"
+    expected_tools: [review_task]
+    forbidden_tools: [get_task_details, update_task_status]
+    tags: [review, orchestrator]
+    reference: >
+      CEO receives a task submitted for review by VP Strategy. Should
+      hand off to review_task specialist immediately. Must NOT read task
+      details and decide itself. Tests whether the CEO role correctly
+      uses the review specialist (complementing orch_reviews_task which
+      tests VP Engineering).
+
+  # ─── Planner: additional coverage ──────────────────────────────────
+
+  - id: planner_simple_analysis
+    category: planner
+    role_title: "AIM VP Strategy"
+    trigger_type: task_assigned
+    context:
+      task_title: "AIM: SWOT analysis of current product"
+      task_description: "Produce a SWOT analysis (strengths, weaknesses, opportunities, threats) for our AI orchestration platform based on the current feature set and market position. One page maximum."
+    expected_tools: [add_message, update_task_status]
+    forbidden_tools: []
+    tags: [direct_work, planner]
+    reference: >
+      Planner receives a simple single-person analysis task. Should do
+      the work directly — produce the SWOT analysis via add_message and
+      submit via update_task_status("pending_review"). Delegation is
+      wrong here — a SWOT analysis is straightforward strategic work
+      that the VP Strategy should own entirely.
+
+  - id: planner_mixed_complexity
+    category: planner
+    role_title: "AIM VP Strategy"
+    trigger_type: task_assigned
+    context:
+      task_title: "AIM: Pricing strategy recommendation"
+      task_description: "Write a pricing strategy recommendation. Part 1: summarize common SaaS pricing models and recommend which fits an AI orchestration platform (do this yourself). Part 2: gather customer willingness-to-pay data from 50 enterprise prospects (requires outreach and data collection — delegate this)."
+    expected_tools: [add_message, create_task]
+    forbidden_tools: []
+    tags: [delegation, direct_work, planner]
+    reference: >
+      Planner receives a task with mixed complexity. Part 1 (summarize
+      current pricing) is simple and should be done directly. Part 2
+      (customer outreach data) requires data collection at scale and
+      should be delegated to Research Analyst via create_task. Tests the
+      judgment boundary — the planner should do Part 1 itself and
+      delegate Part 2.
+
+  - id: planner_submits_work
+    category: planner
+    role_title: "AIM VP Strategy"
+    trigger_type: task_assigned
+    context:
+      task_title: "AIM: Write executive brief on AI market trends"
+      task_description: "Write a one-page executive brief summarizing the top 3 AI market trends relevant to our product roadmap. This is for the CEO's weekly review."
+    expected_tools: [add_message, update_task_status]
+    forbidden_tools: []
+    tags: [direct_work, planner]
+    reference: >
+      Planner receives a simple writing task. Should produce the brief
+      via add_message and submit via update_task_status("pending_review").
+      This specifically tests whether the planner completes the full
+      work-then-submit cycle, since the previous diagnostic showed
+      planners delegating instead of submitting their own work.

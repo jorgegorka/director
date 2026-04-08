@@ -4,6 +4,7 @@ ceo:
   job_spec: "Oversee all company operations and strategy"
   project: acme
   role_category: orchestrator
+  api_token: "test_token_ceo_role_abc00"
 
 cto:
   title: CTO

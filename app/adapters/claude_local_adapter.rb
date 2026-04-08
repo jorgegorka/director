@@ -235,6 +235,7 @@ class ClaudeLocalAdapter < BaseAdapter
       - Do NOT call update_task_status("in_progress") — tasks are auto-marked in_progress when your session starts
       - Prefer batching independent tool calls in parallel
       - When any tool response includes `goal_completed: { id, ... }`, call `summarize_goal` with that id before continuing. The user relies on this summary for feedback on finished goals.
+      - **All your work happens through Director MCP tools.** Do NOT use Glob, Read, Grep, Bash, Write, Edit, Skill, ToolSearch, TodoWrite, or any non-MCP tool. These are invisible to the task system and waste your limited turns. Post ALL output via `add_message`.
     PROMPT
   end
 
@@ -297,6 +298,7 @@ class ClaudeLocalAdapter < BaseAdapter
       end
 
       prompt += "\n\nThe task is already marked in_progress. The details above are complete — start working immediately."
+      prompt += "\n\n**When finished:** post deliverables via `add_message`, then call `update_task_status(\"pending_review\")`. Your work is invisible until you submit."
       prompt.strip
     elsif context[:goal_id].present?
       prompt = "You have been assigned Goal: **#{context[:goal_title]}**"
