@@ -13,21 +13,28 @@
       </h1>
 
       <p class="home-hero__lede">
-        Director is a visual canvas for composing AI workflows and staffing
-        entire projects of agents. Assign roles, set budgets, govern the work
-        — from a weekend side project to a two-hundred-agent operation.
+        Director is a self-hostable platform for composing AI agent teams,
+        orchestrating their work, and governing every dollar and decision.
+        From a weekend side project to a two-hundred-agent operation.
       </p>
 
       <div class="home-hero__ctas">
         <%= link_to "Start directing", new_registration_path, class: "btn btn--primary" %>
-        <%= link_to "Log in", new_session_path, class: "btn btn--ghost" %>
+        <%= link_to "https://github.com/jorgegorka/director",
+              class: "btn btn--ghost",
+              target: "_blank", rel: "noopener" do %>
+          <svg class="home-hero__gh-icon" viewBox="0 0 24 24" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+            <path fill="currentColor" d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.69-3.88-1.37-3.88-1.37-.53-1.34-1.3-1.7-1.3-1.7-1.05-.72.08-.7.08-.7 1.17.08 1.79 1.2 1.79 1.2 1.04 1.78 2.73 1.27 3.39.97.11-.76.41-1.27.75-1.56-2.56-.29-5.25-1.28-5.25-5.69 0-1.26.45-2.29 1.19-3.1-.12-.3-.52-1.47.11-3.06 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.79 0c2.21-1.49 3.18-1.18 3.18-1.18.63 1.59.23 2.76.11 3.06.74.81 1.19 1.84 1.19 3.1 0 4.42-2.7 5.39-5.27 5.68.42.36.8 1.07.8 2.17v3.22c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5Z"/>
+          </svg>
+          <span>View on GitHub</span>
+        <% end %>
       </div>
 
       <p class="home-hero__meta">
         <span>Rails 8</span>
         <span>Hotwire</span>
         <span>SQLite</span>
-        <span>Open canvas</span>
+        <span>Open Source</span>
       </p>
     </section>
 
@@ -36,28 +43,45 @@
       <%= render "orchestration_diagram" %>
     </section>
 
-    <%# ---- Intro (editorial two-column) --------------------- %>
-    <section class="home-intro home-reveal">
-      <blockquote class="home-intro__quote">
-        From a weekend workflow to a
-        <em>two-hundred-agent project</em> —
-        one canvas.
-      </blockquote>
-
-      <div class="home-intro__body">
-        <p>
-          Most AI tooling forces a choice: a single clever prompt, or a
-          labyrinth of scripts. <strong>Director treats every workflow as an
-          project</strong> — with roles, responsibilities, budgets, and
-          approval gates — no matter its size.
-        </p>
-        <p>
-          Start with one agent answering a single question. Add a research
-          partner. Give them a reviewer. Before long you're running a team
-          with a chain of command, a ledger, and a paper trail. Same product.
-          Same canvas. Any scale.
-        </p>
+    <%# ---- The Problem -------------------------------------- %>
+    <section class="home-problem home-reveal">
+      <div class="home-problem__header">
+        <span class="home-problem__eyebrow">The Problem</span>
+        <h2 class="home-problem__headline">
+          AI agents are powerful.
+          <em>Ungoverned, they're expensive chaos.</em>
+        </h2>
       </div>
+
+      <div class="home-problem__grid">
+        <article class="home-problem__card">
+          <span class="home-problem__stat">96%</span>
+          <p class="home-problem__point">
+            of enterprises report AI costs exceeding projections.
+            A single misconfigured loop can burn $10K+ overnight.
+          </p>
+        </article>
+
+        <article class="home-problem__card">
+          <span class="home-problem__stat">80-90%</span>
+          <p class="home-problem__point">
+            of AI agent projects fail in production — not from bad models,
+            but from missing governance.
+          </p>
+        </article>
+
+        <article class="home-problem__card">
+          <span class="home-problem__stat home-problem__stat--text">Abstraction hell</span>
+          <p class="home-problem__point">
+            Orchestration frameworks promise simplicity but deliver
+            hidden prompts, opaque graphs, and impossible debugging.
+          </p>
+        </article>
+      </div>
+
+      <p class="home-problem__kicker">
+        The failures stem from governance gaps, not model performance.
+      </p>
     </section>
 
     <%# ---- Capabilities triptych ---------------------------- %>
@@ -69,6 +93,12 @@
           Shape roles, hierarchies, and responsibilities on a visual canvas.
           No YAML, no graph DSL — just the project you want to run.
         </p>
+        <ul class="home-capability__features">
+          <li>Visual org chart with parent-child hierarchies</li>
+          <li>3 role archetypes: Orchestrator, Planner, Worker</li>
+          <li>8 department templates for instant team setup</li>
+          <li>41 built-in skills across 6 categories</li>
+        </ul>
         <span class="home-capability__example">
           e.g. a VP of Research with two analysts and a fact-checker.
         </span>
@@ -82,6 +112,12 @@
           routes context between agents so each knows exactly what to do
           next — and why.
         </p>
+        <ul class="home-capability__features">
+          <li>Kanban task board with full lifecycle tracking</li>
+          <li>Goal-task linking with automatic progress rollup</li>
+          <li>@mention auto-wake and question/answer flows</li>
+          <li>Subtasks, delegation, and escalation paths</li>
+        </ul>
         <span class="home-capability__example">
           e.g. research → brief → draft → review → publish.
         </span>
@@ -94,10 +130,106 @@
           Budgets, approval gates, emergency stops, full audit logs. The
           guard-rails of a real project, not a scratchpad experiment.
         </p>
+        <ul class="home-capability__features">
+          <li>Per-role monthly budgets with hard enforcement</li>
+          <li>5 configurable approval gate types</li>
+          <li>Emergency stop — freeze all agents instantly</li>
+          <li>Immutable audit trail + config rollback</li>
+        </ul>
         <span class="home-capability__example">
           e.g. halt any role burning over its monthly token budget.
         </span>
       </article>
+    </section>
+
+    <%# ---- Quality feedback loop ---------------------------- %>
+    <section class="home-loop home-reveal">
+      <div class="home-loop__text">
+        <span class="home-loop__eyebrow">Quality Feedback Loop</span>
+        <h2 class="home-loop__headline">
+          Ship work that passes,
+          <em>not work that's merely done.</em>
+        </h2>
+        <p class="home-loop__lede">
+          Every completed task is automatically evaluated against its parent
+          goal. Failures reopen the task — up to three retries — before
+          escalating to a human reviewer. No silent failures. No unchecked
+          output.
+        </p>
+      </div>
+
+      <div class="home-loop__cycle" aria-label="Feedback loop cycle">
+        <ol class="home-loop__steps">
+          <li class="home-loop__step">
+            <span class="home-loop__step-num">1</span>
+            <span class="home-loop__step-label">Task completes</span>
+          </li>
+          <li class="home-loop__step">
+            <span class="home-loop__step-num">2</span>
+            <span class="home-loop__step-label">Goal auto-evaluates</span>
+          </li>
+          <li class="home-loop__step home-loop__step--pass">
+            <span class="home-loop__step-num">&#10003;</span>
+            <span class="home-loop__step-label">Pass — ship it</span>
+          </li>
+          <li class="home-loop__step home-loop__step--fail">
+            <span class="home-loop__step-num">&#10007;</span>
+            <span class="home-loop__step-label">Fail — retry (up to 3x)</span>
+          </li>
+          <li class="home-loop__step home-loop__step--escalate">
+            <span class="home-loop__step-num">!</span>
+            <span class="home-loop__step-label">Exhausted — human review</span>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <%# ---- Addressing the market ----------------------------- %>
+    <section class="home-market home-reveal">
+      <div class="home-market__header">
+        <span class="home-market__eyebrow">Addressing the Market</span>
+        <h2 class="home-market__headline">
+          Governance isn't overhead —
+          <em>it's what separates projects that ship from projects that burn.</em>
+        </h2>
+      </div>
+
+      <div class="home-market__table-wrap">
+        <table class="home-market__table">
+          <thead>
+            <tr>
+              <th class="home-market__th">What the market fears</th>
+              <th class="home-market__th home-market__th--answer">What Director does</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="home-market__row">
+              <td class="home-market__fear">Cost explosion ($10K+ burns)</td>
+              <td class="home-market__answer">Per-role budgets with hard enforcement. Runs blocked when over budget.</td>
+            </tr>
+            <tr class="home-market__row">
+              <td class="home-market__fear">Black box agents</td>
+              <td class="home-market__answer">Full immutable audit trail. Config versioning. Real-time streaming of agent output.</td>
+            </tr>
+            <tr class="home-market__row">
+              <td class="home-market__fear">No human oversight</td>
+              <td class="home-market__answer">5 approval gate types. Emergency stop. Human review after retry exhaustion.</td>
+            </tr>
+            <tr class="home-market__row">
+              <td class="home-market__fear">Framework abstraction hell</td>
+              <td class="home-market__answer">It's a Rails app. Read the source. No DSL, no graph language, no hidden magic.</td>
+            </tr>
+            <tr class="home-market__row">
+              <td class="home-market__fear">Multi-agent chaos</td>
+              <td class="home-market__answer">Structured hierarchies with clear roles, not emergent swarms. Three defined archetypes.</td>
+            </tr>
+            <tr class="home-market__row">
+              <td class="home-market__fear">Vendor lock-in</td>
+              <td class="home-market__answer">Open source. Self-hostable. SQLite. Model-agnostic adapters.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </section>
 
     <%# ---- Scale band --------------------------------------- %>
@@ -105,34 +237,73 @@
       <h2 class="home-scale__heading">One product · any scale</h2>
       <ol class="home-scale__list">
         <li class="home-scale__item">
-          <span class="home-scale__tier">Tier I</span>
-          <span class="home-scale__label">One agent</span>
-          <span class="home-scale__note">a side project you left running</span>
+          <span class="home-scale__tier">Solo</span>
+          <span class="home-scale__label">One agent, one task</span>
+          <span class="home-scale__note">a weekend automation</span>
+          <span class="home-scale__detail">Single role, single adapter, zero config overhead</span>
         </li>
         <li class="home-scale__item">
-          <span class="home-scale__tier">Tier II</span>
-          <span class="home-scale__label">A team of ten</span>
-          <span class="home-scale__note">a workflow with roles and reviewers</span>
+          <span class="home-scale__tier">Team</span>
+          <span class="home-scale__label">5-10 agents</span>
+          <span class="home-scale__note">roles, reviews, and feedback loops</span>
+          <span class="home-scale__detail">Hierarchies, delegation, goal tracking</span>
         </li>
         <li class="home-scale__item">
-          <span class="home-scale__tier">Tier III</span>
+          <span class="home-scale__tier">Enterprise</span>
           <span class="home-scale__label">An entire project</span>
           <span class="home-scale__note">departments, budgets, chain of command</span>
+          <span class="home-scale__detail">Full governance, approval gates, audit trails</span>
         </li>
       </ol>
+    </section>
+
+    <%# ---- Tech stack --------------------------------------- %>
+    <section class="home-stack home-reveal">
+      <div class="home-stack__header">
+        <span class="home-stack__eyebrow">Tech Stack</span>
+        <h2 class="home-stack__headline">
+          Not another framework.
+          <em>A product.</em>
+        </h2>
+        <p class="home-stack__lede">
+          Built on boring, battle-tested technology. No novel runtime,
+          no custom graph language, no hidden middleware. Just a Rails app
+          you can read, deploy, and trust.
+        </p>
+      </div>
+
+      <div class="home-stack__grid">
+        <article class="home-stack__card">
+          <h3 class="home-stack__card-title">Rails 8</h3>
+          <p class="home-stack__card-body">Battle-tested. Well-understood. Twenty years of production wisdom.</p>
+        </article>
+        <article class="home-stack__card">
+          <h3 class="home-stack__card-title">Hotwire</h3>
+          <p class="home-stack__card-body">Real-time updates without JavaScript complexity. Turbo Streams everywhere.</p>
+        </article>
+        <article class="home-stack__card">
+          <h3 class="home-stack__card-title">SQLite</h3>
+          <p class="home-stack__card-body">Zero external services. Your data in a single file you can back up and inspect.</p>
+        </article>
+        <article class="home-stack__card">
+          <h3 class="home-stack__card-title">Kamal + Docker</h3>
+          <p class="home-stack__card-body">Deploy anywhere. Your server, your cloud, your rules.</p>
+        </article>
+      </div>
     </section>
 
     <%# ---- Open source -------------------------------------- %>
     <section class="home-source home-reveal">
       <div class="home-source__body">
-        <span class="home-source__eyebrow">◆ Open Source</span>
+        <span class="home-source__eyebrow">&#9670; Open Source</span>
         <h2 class="home-source__headline">
           Every line, <em>in the open.</em>
         </h2>
         <p class="home-source__lede">
           Director is built in public. Read the source, fork it, run your own
           instance, or send a pull request. No closed-source black box — just
-          a Rails app you can audit end to end.
+          a Rails app you can audit end to end. Model-agnostic adapters mean
+          you're never locked into a single AI provider.
         </p>
         <div class="home-source__actions">
           <%= link_to "https://github.com/jorgegorka/director",
@@ -165,13 +336,15 @@
         Ready when <em>you are.</em>
       </h2>
       <div class="home-cta__actions">
-        <%= link_to "Create your project", new_registration_path, class: "btn btn--primary" %>
-        <%= link_to "or log in to an existing one", new_session_path %>
+        <%= link_to "Start directing", new_registration_path, class: "btn btn--primary" %>
+        <%= link_to "View on GitHub", "https://github.com/jorgegorka/director",
+              target: "_blank", rel: "noopener" %>
+        <%= link_to "or log in", new_session_path %>
       </div>
     </section>
 
     <footer class="home-footer">
-      © <%= Date.current.year %> Director — Orchestration for AI projects
+      &copy; <%= Date.current.year %> Director — Orchestration for AI projects
     </footer>
 
   </div>
