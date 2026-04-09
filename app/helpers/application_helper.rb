@@ -12,4 +12,11 @@ module ApplicationHelper
     else "System"
     end
   end
+
+  # Safe route generation for contexts where routing might not be fully established
+  def safe_roles_path
+    roles_path if Current.project && defined?(roles_path)
+  rescue StandardError
+    nil
+  end
 end

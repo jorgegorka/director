@@ -16,7 +16,9 @@
           <%= link_to "Tasks", dashboard_tasks_path, class: "sidebar__link" %>
           <%= link_to "Activity", dashboard_activities_path, class: "sidebar__link" %>
           <%= link_to "Approvals", dashboard_approvals_path, class: "sidebar__link" %>
-          <%= link_to "Org Chart", roles_path, class: "sidebar__link" %>
+          <% if safe_roles_path %>
+            <%= link_to "Org Chart", safe_roles_path, class: "sidebar__link" %>
+          <% end %>
           <%= link_to "Goals", goals_path, class: "sidebar__link" %>
         </div>
       </div>
@@ -32,7 +34,9 @@
       </button>
       <div class="sidebar__submenu">
         <div class="sidebar__submenu-inner">
-          <%= link_to "All Roles", roles_path, class: "sidebar__link" %>
+          <% if safe_roles_path %>
+            <%= link_to "All Roles", safe_roles_path, class: "sidebar__link" %>
+          <% end %>
           <%= link_to "Categories", role_categories_path, class: "sidebar__link" %>
           <%= link_to "Role Templates", role_templates_path, class: "sidebar__link" %>
         </div>

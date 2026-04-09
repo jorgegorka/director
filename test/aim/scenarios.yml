@@ -63,10 +63,11 @@ scenarios:
     tags: [scope_discipline, worker]
     reference: >
       Worker receives a task that is far too large for one person. Should
-      flag via add_message that the work is too large and let the manager
-      decide how to split it. Must NOT attempt to create_task (workers
-      cannot delegate). Should explain what it could tackle and what
-      exceeds its scope.
+      flag via add_message that the work is too large, explain what it
+      could tackle and what exceeds its scope, then STOP. Must NOT
+      attempt to create_task (workers cannot delegate). Must NOT produce
+      a partial solution or decomposition plan — the manager decides
+      how to split the work.
 
   # ─── Planner: researches and synthesizes ──────────────────────────
 
@@ -138,9 +139,10 @@ scenarios:
     reference: >
       Worker receives a task with a missing external dependency (API keys
       not provided). Should flag the blocker via add_message explaining it
-      cannot proceed without the API keys. Must NOT submit for review
-      (nothing to review yet) or attempt to delegate. Tests whether
-      workers flag blockers through the task system.
+      cannot proceed without the API keys, then STOP. Must NOT produce
+      speculative work, implementation plans, or workarounds. Must NOT
+      submit for review (nothing to review yet) or attempt to delegate.
+      Tests whether workers flag blockers and stop.
 
   - id: worker_stays_on_task
     category: worker
@@ -181,7 +183,7 @@ scenarios:
     role_title: "AIM CEO"
     trigger_type: task_pending_review
     context:
-      task_title: "AIM: Analyze competitor pricing models"
+      task_title: "AIM: Q2 strategic market assessment"
       assignee_role_title: "AIM VP Strategy"
     expected_tools: [review_task]
     forbidden_tools: [get_task_details, update_task_status]

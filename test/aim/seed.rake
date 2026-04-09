@@ -134,8 +134,7 @@ class AIMSeed
         message_type: :comment
       )
 
-      # Task 2: open — for worker "do work" scenarios
-      # Creator is vp_eng, assignee is senior_dev (subordinate — valid)
+      # Task 2: in_progress — for worker_does_work scenario
       Task.create!(
         project: @project,
         title: "AIM: Write API documentation",
@@ -143,12 +142,11 @@ class AIMSeed
         creator: @vp_eng,
         assignee: @senior_dev,
         goal: goal,
-        status: :open,
+        status: :in_progress,
         priority: :medium
       )
 
-      # Task 3: open — for planner scenarios
-      # Creator is ceo, assignee is vp_strategy (subordinate of ceo — valid)
+      # Task 3: in_progress — for planner_direct_work scenario
       Task.create!(
         project: @project,
         title: "AIM: Analyze competitor pricing models",
@@ -156,8 +154,122 @@ class AIMSeed
         creator: @ceo,
         assignee: @vp_strategy,
         goal: goal,
-        status: :open,
+        status: :in_progress,
         priority: :medium
+      )
+
+      # Task 4: in_progress — for worker_scope_discipline scenario
+      Task.create!(
+        project: @project,
+        title: "AIM: Build entire platform from scratch",
+        description: "#{TAG} Build authentication, billing, admin panel, API layer, frontend, deployment pipeline, monitoring, and documentation. This requires work across 8 different domains.",
+        creator: @vp_eng,
+        assignee: @senior_dev,
+        goal: goal,
+        status: :in_progress,
+        priority: :medium
+      )
+
+      # Task 5: in_progress — for worker_simple_task scenario
+      Task.create!(
+        project: @project,
+        title: "AIM: Write test plan for authentication",
+        description: "#{TAG} Write a test plan covering login, logout, session expiry, and password reset flows. List the test cases with expected results.",
+        creator: @vp_eng,
+        assignee: @qa_engineer,
+        goal: goal,
+        status: :in_progress,
+        priority: :medium
+      )
+
+      # Task 6: in_progress — for worker_flags_blocker scenario
+      Task.create!(
+        project: @project,
+        title: "AIM: Integrate payment gateway",
+        description: "#{TAG} Connect Stripe payment processing to the billing module. Requires API keys from the ops team which have not been provided yet.",
+        creator: @vp_eng,
+        assignee: @senior_dev,
+        goal: goal,
+        status: :in_progress,
+        priority: :medium
+      )
+
+      # Task 7: in_progress — for worker_stays_on_task scenario
+      Task.create!(
+        project: @project,
+        title: "AIM: Compile list of enterprise AI platforms",
+        description: "#{TAG} Research and list 10 enterprise AI orchestration platforms with their key features, pricing tier, and target market. Format as a table.",
+        creator: @vp_strategy,
+        assignee: @research_analyst,
+        goal: goal,
+        status: :in_progress,
+        priority: :medium
+      )
+
+      # Task 8: in_progress — for planner_delegates_research scenario
+      Task.create!(
+        project: @project,
+        title: "AIM: Comprehensive market analysis",
+        description: "#{TAG} Produce a full market analysis covering: competitor landscape (pricing, features, positioning), customer segments, market size estimates, regulatory environment, and technology trends. Each area requires deep research.",
+        creator: @ceo,
+        assignee: @vp_strategy,
+        goal: goal,
+        status: :in_progress,
+        priority: :medium
+      )
+
+      # Task 9: in_progress — for planner_simple_analysis scenario
+      Task.create!(
+        project: @project,
+        title: "AIM: SWOT analysis of current product",
+        description: "#{TAG} Produce a SWOT analysis (strengths, weaknesses, opportunities, threats) for our AI orchestration platform based on the current feature set and market position. One page maximum.",
+        creator: @ceo,
+        assignee: @vp_strategy,
+        goal: goal,
+        status: :in_progress,
+        priority: :medium
+      )
+
+      # Task 10: in_progress — for planner_mixed_complexity scenario
+      Task.create!(
+        project: @project,
+        title: "AIM: Pricing strategy recommendation",
+        description: "#{TAG} Write a pricing strategy recommendation. Part 1: summarize common SaaS pricing models and recommend which fits an AI orchestration platform (do this yourself). Part 2: gather customer willingness-to-pay data from 50 enterprise prospects (requires outreach and data collection — delegate this).",
+        creator: @ceo,
+        assignee: @vp_strategy,
+        goal: goal,
+        status: :in_progress,
+        priority: :medium
+      )
+
+      # Task 11: in_progress — for planner_submits_work scenario
+      Task.create!(
+        project: @project,
+        title: "AIM: Write executive brief on AI market trends",
+        description: "#{TAG} Write a one-page executive brief summarizing the top 3 AI market trends relevant to our product roadmap. This is for the CEO's weekly review.",
+        creator: @ceo,
+        assignee: @vp_strategy,
+        goal: goal,
+        status: :in_progress,
+        priority: :medium
+      )
+
+      # Task 12: pending_review — for orch_no_self_review scenario
+      task_strategy_review = Task.create!(
+        project: @project,
+        title: "AIM: Q2 strategic market assessment",
+        description: "#{TAG} Produce a strategic assessment of the AI orchestration market for Q2, covering competitive positioning, market trends, and recommended actions.",
+        creator: @ceo,
+        assignee: @vp_strategy,
+        goal: goal,
+        status: :pending_review,
+        priority: :medium
+      )
+      Message.create!(
+        task: task_strategy_review,
+        author: @vp_strategy,
+        body: "Completed the Q2 strategic market assessment. Key findings: agent orchestration demand is accelerating, governance features are a differentiator, and our pricing should follow a hybrid model. Full analysis with recommendations attached above.",
+        message_type: :comment
       )
 
       puts "#{TAG}   Goals and tasks seeded."
@@ -201,7 +313,7 @@ class AIMSeed
       warnings << "Expected 1 goal, found #{aim_goals}" unless aim_goals == 1
 
       aim_tasks = @project.tasks.where("description LIKE ?", "%#{TAG}%").count
-      warnings << "Expected 3 tasks, found #{aim_tasks}" unless aim_tasks == 3
+      warnings << "Expected 12 tasks, found #{aim_tasks}" unless aim_tasks == 12
 
       if warnings.any?
         warnings.each { |w| puts "#{TAG}   WARNING: #{w}" }
