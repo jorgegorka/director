@@ -25,9 +25,10 @@ class Goal < ApplicationRecord
   end
 
   def recalculate_completion!
+    completed_status = Task.statuses[:completed]
     counts = tasks.pick(
       Arel.sql("COUNT(*)"),
-      Arel.sql("COUNT(CASE WHEN status = #{Task.statuses[:completed]} THEN 1 END)")
+      Arel.sql("COUNT(CASE WHEN status = #{completed_status} THEN 1 END)")
     )
     total, completed = counts
     percentage = total > 0 ? ((completed.to_f / total) * 100).round : 0

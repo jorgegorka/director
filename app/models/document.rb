@@ -25,6 +25,6 @@ class Document < ApplicationRecord
     where(author: author)
   }
   scope :search_by_title, ->(query) {
-    where("title LIKE ?", "%#{query}%")
+    where("title LIKE ?", "%#{sanitize_sql_like(query)}%")
   }
 end

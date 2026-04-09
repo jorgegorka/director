@@ -1,0 +1,18 @@
+{
+  "ignored_warnings": [
+    {
+      "fingerprint": "5723f6a82f21dc72d1c521cd2c2917b5316720b88e2dfd2f140e62a669016a89",
+      "code": "Arel.sql(\"COUNT(CASE WHEN status = #{Task.statuses[:completed]} THEN 1 END)\")",
+      "file": "app/models/goal.rb",
+      "note": "Safe: Task.statuses[:completed] is a hardcoded enum integer, not user input"
+    },
+    {
+      "fingerprint": "862f2b928156943785ec5f2c64e76c5282cc15621f48be5a8793618fa1acbc33",
+      "code": "Arel.sql(\"COUNT(CASE WHEN status = #{Task.statuses[:completed]} THEN 1 END)\")",
+      "file": "app/models/tasks/completion_tracking.rb",
+      "note": "Safe: Task.statuses[:completed] is a hardcoded enum integer, not user input"
+    }
+  ],
+  "updated": "2026-04-09",
+  "brakeman_version": "8.0.4"
+}

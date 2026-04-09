@@ -32,7 +32,7 @@ class Role < ApplicationRecord
   scope :online, -> { where(status: [ :idle, :running ]) }
   scope :by_category, ->(category) { where(role_category: category) }
 
-  validates :working_directory, format: { with: /\A\//, message: "must be an absolute path" }, allow_blank: true
+  validates :working_directory, format: { with: /\A\/[^\x00]*\z/, message: "must be an absolute path" }, allow_blank: true
 
   before_validation :inherit_parent_working_directory, on: :create
   before_validation :inherit_parent_adapter, on: :create

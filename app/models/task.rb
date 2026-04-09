@@ -3,6 +3,11 @@ class Task < ApplicationRecord
   include Auditable
   include Triggerable
   include Hookable
+  include Tasks::ProjectScoping
+  include Tasks::Broadcasting
+  include Tasks::CompletionTracking
+  include Tasks::Reviewing
+  include Tasks::Assignment
 
   belongs_to :creator, class_name: "Role", optional: true
   belongs_to :assignee, class_name: "Role", optional: true
@@ -25,11 +30,6 @@ class Task < ApplicationRecord
   validates :title, presence: true
   validates :cost_cents, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, allow_nil: true
   validates :completion_percentage, numericality: { only_integer: true, in: 0..100 }
-  validate :assignee_belongs_to_same_project
-  validate :creator_belongs_to_same_project
-  validate :parent_task_belongs_to_same_project
-  validate :goal_belongs_to_same_project
-  validate :assignee_within_delegation_scope
 
   scope :active, -> { where.not(status: [ :completed, :cancelled ]) }
   scope :completed, -> { where(status: :completed) }
@@ -38,16 +38,8 @@ class Task < ApplicationRecord
   scope :pending_human_review, -> { where(status: :pending_review).where(creator_id: Role.roots.select(:id)) }
 
   before_save :set_completed_at
-  after_commit :trigger_assignment_wake, on: [ :create, :update ], if: :agent_just_assigned?
-  after_commit :trigger_pending_review_wake, on: :update, if: :just_entered_pending_review?
-  after_commit :broadcast_kanban_update, on: [ :create, :update ]
-  after_commit :broadcast_kanban_remove, on: :destroy
-  after_commit :broadcast_approvals_badge, on: [ :create, :update ], if: :pending_review_changed?
   after_commit :enqueue_hooks_for_transition, on: [ :create, :update ]
   after_commit :enqueue_validation_feedback, on: [ :create, :update ]
-  after_commit :enqueue_goal_evaluation, on: [ :create, :update ]
-  after_commit :recalculate_goal_completion, on: [ :create, :update, :destroy ]
-  after_commit :recalculate_parent_task_completion, on: [ :create, :update, :destroy ]
 
   after_create_commit :audit_created
   before_destroy :audit_destroyed
@@ -61,27 +53,6 @@ class Task < ApplicationRecord
     completed? || cancelled?
   end
 
-  # Canonical write paths for review decisions. Used by the review_task
-  # sub-agent so the MCP tool surface stays narrow while the domain model
-  # owns the transition rules.
-  class ReviewError < StandardError; end
-
-  def approve_by!(reviewer)
-    raise ReviewError, "Only the creator can approve a task" unless creator_id == reviewer.id
-    raise ReviewError, "Task is not pending review" unless pending_review?
-    update!(status: :completed, reviewed_by: reviewer, reviewed_at: Time.current)
-  end
-
-  def reject_by!(reviewer, feedback:)
-    raise ReviewError, "Only the creator can reject a task" unless creator_id == reviewer.id
-    raise ReviewError, "Task is not pending review" unless pending_review?
-    raise ReviewError, "Feedback is required when rejecting a task" if feedback.blank?
-    transaction do
-      update!(status: :open)
-      messages.create!(author: reviewer, body: feedback, message_type: :comment)
-    end
-  end
-
   # Post a comment from an automated source (role agent, watchdog, etc).
   # Swallows validation failures so notification bugs never prevent the
   # caller from completing its primary side effect.
@@ -92,68 +63,7 @@ class Task < ApplicationRecord
     nil
   end
 
-  def recalculate_completion!
-    total, done = subtasks.pick(
-      Arel.sql("COUNT(*)"),
-      Arel.sql("COUNT(CASE WHEN status = #{Task.statuses[:completed]} THEN 1 END)")
-    )
-    pct = total > 0 ? ((done.to_f / total) * 100).round : 0
-    update_column(:completion_percentage, pct) unless completion_percentage == pct
-
-    auto_transition_on_subtasks_completed! if pct == 100 && total > 0
-  end
-
   private
-
-  def auto_transition_on_subtasks_completed!
-    return unless in_progress? || open?
-
-    if parent_task_id.present?
-      update!(status: :pending_review)
-    else
-      update!(status: :completed)
-    end
-  end
-
-  def broadcast_kanban_update
-    return unless project_id
-    Turbo::StreamsChannel.broadcast_remove_to(
-      "dashboard_project_#{project_id}",
-      target: "kanban-task-#{id}"
-    )
-    Turbo::StreamsChannel.broadcast_append_to(
-      "dashboard_project_#{project_id}",
-      target: "kanban-column-body-#{status}",
-      partial: "dashboard/kanban_card",
-      locals: { task: self }
-    )
-  end
-
-  def broadcast_kanban_remove
-    return unless project_id
-    Turbo::StreamsChannel.broadcast_remove_to(
-      "dashboard_project_#{project_id}",
-      target: "kanban-task-#{id}"
-    )
-  end
-
-  def assignee_belongs_to_same_project
-    if assignee.present? && assignee.project_id != project_id
-      errors.add(:assignee, "must belong to the same project")
-    end
-  end
-
-  def parent_task_belongs_to_same_project
-    if parent_task.present? && parent_task.project_id != project_id
-      errors.add(:parent_task, "must belong to the same project")
-    end
-  end
-
-  def goal_belongs_to_same_project
-    if goal.present? && goal.project_id != project_id
-      errors.add(:goal, "must belong to the same project")
-    end
-  end
 
   def set_completed_at
     if status_changed? && completed?
@@ -161,101 +71,6 @@ class Task < ApplicationRecord
     elsif status_changed? && !completed?
       self.completed_at = nil
     end
-  end
-
-  def agent_just_assigned?
-    return assignee_id.present? if previously_new_record?
-
-    saved_change_to_assignee_id? && assignee_id.present?
-  end
-
-  def trigger_assignment_wake
-    return unless assignee
-
-    trigger_role_wake(
-      role: assignee,
-      trigger_type: :task_assigned,
-      trigger_source: "Task##{id}",
-      context: { task_id: id, task_title: title }
-    )
-  end
-
-  def enqueue_goal_evaluation
-    return unless saved_change_to_status?
-    return unless completed?
-    return unless goal_id.present?
-    return if creator&.agent_configured?
-
-    EvaluateGoalAlignmentJob.perform_later(id)
-  end
-
-  def creator_belongs_to_same_project
-    if creator.present? && creator.project_id != project_id
-      errors.add(:creator, "must belong to the same project")
-    end
-  end
-
-  def assignee_within_delegation_scope
-    return unless creator.present? && assignee.present?
-    return if creator_id == assignee_id
-    return unless new_record? || creator_id_changed? || assignee_id_changed?
-
-    is_subordinate = creator.descendant_ids.include?(assignee_id)
-    is_sibling = creator.parent_id.present? && assignee.parent_id == creator.parent_id
-
-    unless is_subordinate || is_sibling
-      errors.add(:assignee, "must be a subordinate or sibling of the creator role")
-    end
-  end
-
-  def just_entered_pending_review?
-    saved_change_to_status? && pending_review?
-  end
-
-  def pending_review_changed?
-    saved_change_to_status? && (pending_review? || status_before_last_save == "pending_review")
-  end
-
-  def broadcast_approvals_badge
-    return unless project_id
-
-    count = project.approvals_pending_count
-
-    Turbo::StreamsChannel.broadcast_replace_to(
-      "dashboard_project_#{project_id}",
-      target: "approvals-badge",
-      partial: "dashboard/approvals_badge",
-      locals: { count: count }
-    )
-  end
-
-  def trigger_pending_review_wake
-    return unless creator
-
-    trigger_role_wake(
-      role: creator,
-      trigger_type: :task_pending_review,
-      trigger_source: "Task##{id}",
-      context: { task_id: id, task_title: title, assignee_role_title: assignee&.title }
-    )
-  end
-
-  def recalculate_goal_completion
-    return unless saved_change_to_status? || saved_change_to_goal_id? || previously_new_record? || destroyed?
-
-    affected_goal_id = goal_id || goal_id_before_last_save
-    return unless affected_goal_id
-
-    RecalculateGoalCompletionJob.perform_later(affected_goal_id)
-  end
-
-  def recalculate_parent_task_completion
-    return unless saved_change_to_status? || saved_change_to_parent_task_id? || previously_new_record? || destroyed?
-
-    affected_id = parent_task_id || parent_task_id_before_last_save
-    return unless affected_id
-
-    RecalculateTaskCompletionJob.perform_later(affected_id)
   end
 
   def audit_created

@@ -58,11 +58,17 @@ class RoleHooksController < ApplicationController
     (@role.role_hooks.maximum(:position) || -1) + 1
   end
 
+  ACTION_CONFIG_KEYS = {
+    "trigger_agent" => %i[target_role_id target_agent_id prompt],
+    "webhook" => %i[url headers timeout]
+  }.freeze
+
   def role_hook_params
     permitted = params.require(:role_hook).permit(:name, :lifecycle_event, :action_type, :enabled, :position)
 
     if params[:role_hook][:action_config].is_a?(ActionController::Parameters)
-      permitted[:action_config] = params[:role_hook][:action_config].permit!.to_h
+      allowed = ACTION_CONFIG_KEYS.fetch(permitted[:action_type], [])
+      permitted[:action_config] = params[:role_hook][:action_config].permit(*allowed).to_h
     end
 
     permitted

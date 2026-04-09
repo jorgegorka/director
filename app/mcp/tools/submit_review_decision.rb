@@ -41,7 +41,7 @@ module Tools
       else
         raise ArgumentError, "decision must be 'approve' or 'reject'"
       end
-    rescue Task::ReviewError => e
+    rescue Tasks::Reviewing::ReviewError => e
       raise ArgumentError, e.message
     end
 
