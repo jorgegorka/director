@@ -82,6 +82,12 @@ class Project < ApplicationRecord
       tasks.pending_human_review.count
   end
 
+  def cascade_adapter_config!(adapter_type:, adapter_config: {}, working_directory: nil)
+    attrs = { adapter_type: adapter_type, adapter_config: adapter_config }
+    attrs[:working_directory] = working_directory if working_directory.present?
+    roles.update_all(attrs)
+  end
+
   def admin_recipients
     memberships
       .where(role: [ :owner, :admin ])

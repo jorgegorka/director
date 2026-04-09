@@ -22,7 +22,7 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
     follow_redirect!
     assert_redirected_to dashboard_url
     follow_redirect!
-    assert_redirected_to new_project_url
+    assert_redirected_to new_onboarding_project_url
   end
 
   test "should not create user with invalid email" do
@@ -76,6 +76,6 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
     # After redirect to root, new user is bounced through dashboard to project creation
     follow_redirect!
     follow_redirect!
-    assert_redirected_to new_project_url
+    assert_redirected_to new_onboarding_project_url
   end
 end

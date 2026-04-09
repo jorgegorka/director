@@ -80,6 +80,6 @@ class Dashboards::TasksControllerTest < ActionDispatch::IntegrationTest
     )
     sign_in_as(user_without_project)
     get dashboard_tasks_url
-    assert_redirected_to new_project_url
+    assert_redirected_to new_onboarding_project_url
   end
 end

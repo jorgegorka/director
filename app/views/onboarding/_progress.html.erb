@@ -1,0 +1,19 @@
+<nav class="onboarding-progress" aria-label="Onboarding steps">
+  <ol class="onboarding-progress__steps">
+    <% wizard_steps.each_with_index do |step, index| %>
+      <% step_number = index + 1 %>
+      <% state = if step_number < current_step_number
+                   "completed"
+                 elsif step_number == current_step_number
+                   "current"
+                 else
+                   "upcoming"
+                 end %>
+      <li class="onboarding-progress__step onboarding-progress__step--<%= state %>"
+          aria-current="<%= "step" if state == "current" %>">
+        <span class="onboarding-progress__number"><%= step_number %></span>
+        <span class="onboarding-progress__label"><%= step.capitalize %></span>
+      </li>
+    <% end %>
+  </ol>
+</nav>

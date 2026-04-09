@@ -61,7 +61,7 @@ class AuditLogsControllerTest < ActionDispatch::IntegrationTest
     )
     sign_in_as(user_without_project)
     get audit_logs_url
-    assert_redirected_to new_project_url
+    assert_redirected_to new_onboarding_project_url
   end
 
   test "should show filter form" do

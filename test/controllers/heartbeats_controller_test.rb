@@ -76,7 +76,7 @@ class HeartbeatsControllerTest < ActionDispatch::IntegrationTest
     )
     sign_in_as(user_without_project)
     get role_heartbeats_url(@cto)
-    assert_redirected_to new_project_url
+    assert_redirected_to new_onboarding_project_url
   end
 
   # --- Pagination ---

@@ -49,6 +49,6 @@ class ProjectsController < ApplicationController
   private
 
   def project_params
-    params.require(:project).permit(:name, :max_concurrent_agents)
+    params.require(:project).permit(:name, :description, :max_concurrent_agents)
   end
 end

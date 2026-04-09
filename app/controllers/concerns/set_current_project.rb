@@ -32,8 +32,6 @@ module SetCurrentProject
   end
 
   def require_project!
-    unless Current.project
-      redirect_to new_project_path, alert: "Please create a project to get started."
-    end
+    redirect_to new_onboarding_project_path unless Current.project
   end
 end

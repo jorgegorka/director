@@ -1173,6 +1173,25 @@
     text-transform: uppercase;
   }
 
+  .home-footer p {
+    margin: 0;
+  }
+
+  .home-footer p + p {
+    margin-block-start: var(--space-2);
+  }
+
+  .home-footer a {
+    color: var(--text-muted);
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    transition: text-decoration-color 0.2s;
+  }
+
+  .home-footer a:hover {
+    text-decoration-color: currentColor;
+  }
+
   /* ---- Scroll-driven reveals (modern browsers) ------------ */
   @supports (animation-timeline: view()) {
     .home-reveal {

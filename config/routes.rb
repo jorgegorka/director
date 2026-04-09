@@ -9,6 +9,14 @@ Rails.application.routes.draw do
   # Account settings
   resource :settings, only: [ :show, :update ]
 
+  # Onboarding (first-time user wizard)
+  namespace :onboarding do
+    resource :project,    only: [ :new, :create ]
+    resource :template,   only: [ :new, :create ]
+    resource :adapter,    only: [ :new, :create ]
+    resource :completion, only: [ :new, :create ]
+  end
+
   # Projects
   resources :projects, only: [ :index, :new, :create, :edit, :update ] do
     resource :switch, only: [ :create ], module: :projects, controller: "switches"

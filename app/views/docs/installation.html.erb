@@ -4,8 +4,9 @@
   <span class="docs-toc__title">On this page</span>
   <ul class="docs-toc__list">
     <li><a href="#requirements" class="docs-toc__link">Requirements</a></li>
-    <li><a href="#clone-and-setup" class="docs-toc__link">Clone & Setup</a></li>
-    <li><a href="#start-the-server" class="docs-toc__link">Start the Server</a></li>
+    <li><a href="#install-from-source" class="docs-toc__link">Install from Source</a></li>
+    <li><a href="#install-with-docker" class="docs-toc__link">Install with Docker</a></li>
+    <li><a href="#install-with-once" class="docs-toc__link">Install with ONCE</a></li>
     <li><a href="#environment-variables" class="docs-toc__link">Environment Variables</a></li>
     <li><a href="#production-deployment" class="docs-toc__link">Production Deployment</a></li>
   </ul>
@@ -14,7 +15,7 @@
 <div class="docs-content__header">
   <span class="docs-content__eyebrow">Get Started</span>
   <h1 class="docs-content__title">Installation</h1>
-  <p class="docs-content__description">Get Director running locally or deploy it to production with Docker and Kamal.</p>
+  <p class="docs-content__description">Get Director running locally or deploy it to production. Choose the installation method that suits you best.</p>
 </div>
 
 <div class="prose">
@@ -26,18 +27,33 @@
   </ul>
   <p>No PostgreSQL, Redis, or other external services required. Director is designed to run self-contained on a single machine.</p>
 
-  <h2 id="clone-and-setup">Clone &amp; Setup</h2>
+  <h2 id="install-from-source">Install from Source</h2>
   <p>Clone the repository and run the setup script:</p>
-  <pre><code>git clone &lt;repository-url&gt;
+  <pre><code>git clone https://github.com/jorgegorka/director.git
 cd director
 bin/setup</code></pre>
   <p>The setup script installs dependencies, prepares the database, and creates the necessary SQLite databases for Queue, Cache, and Cable.</p>
-
-  <h2 id="start-the-server">Start the Server</h2>
   <p>Start the development server with all background processes:</p>
   <pre><code>bin/dev</code></pre>
   <p>This launches the Rails server, Solid Queue worker, and CSS build watcher via Foreman. Visit <code>http://localhost:3000</code> to access Director.</p>
   <p>Create an account, then create your first project to get started.</p>
+
+  <h2 id="install-with-docker">Install with Docker</h2>
+  <p>Director is available as a Docker image. Pull the latest version from the GitHub Container Registry:</p>
+  <pre><code>docker pull ghcr.io/jorgegorka/director:latest</code></pre>
+  <p>Run the container:</p>
+  <pre><code>docker run -d \
+  --name director \
+  -p 3000:3000 \
+  -v director_storage:/rails/storage \
+  -e SECRET_KEY_BASE=your-secret-key \
+  ghcr.io/jorgegorka/director:latest</code></pre>
+  <p>The <code>-v</code> flag ensures your SQLite databases persist across container restarts. Visit <code>http://localhost:3000</code> once the container is running.</p>
+
+  <h2 id="install-with-once">Install with ONCE</h2>
+  <p><a href="https://github.com/basecamp/once" target="_blank" rel="noopener">ONCE</a> is Basecamp's tool for installing and managing self-hosted Rails applications. If you already have ONCE set up, you can use it to install and manage Director.</p>
+  <p>ONCE handles provisioning, updates, and backups — making it the easiest way to run Director in production on your own server.</p>
+  <p>Visit the <a href="https://github.com/basecamp/once" target="_blank" rel="noopener">ONCE repository</a> for setup instructions.</p>
 
   <h2 id="environment-variables">Environment Variables</h2>
   <p>For local agent adapters, you'll need API keys for the AI providers you plan to use:</p>

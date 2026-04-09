@@ -216,6 +216,6 @@ class RoleHooksControllerTest < ActionDispatch::IntegrationTest
     )
     sign_in_as(user_without_project)
     get role_role_hooks_url(@role)
-    assert_redirected_to new_project_url
+    assert_redirected_to new_onboarding_project_url
   end
 end

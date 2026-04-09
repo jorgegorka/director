@@ -225,7 +225,7 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
     user_without_project = User.create!(email_address: "lonely@example.com", password: "password", password_confirmation: "password")
     sign_in_as(user_without_project)
     get roles_url
-    assert_redirected_to new_project_url
+    assert_redirected_to new_onboarding_project_url
   end
 
   # --- Heartbeat Schedule ---

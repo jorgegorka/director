@@ -291,6 +291,6 @@ class SkillsControllerTest < ActionDispatch::IntegrationTest
     )
     sign_in_as(user_without_project)
     get skills_url
-    assert_redirected_to new_project_url
+    assert_redirected_to new_onboarding_project_url
   end
 end

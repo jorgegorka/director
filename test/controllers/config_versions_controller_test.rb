@@ -100,6 +100,6 @@ class ConfigVersionsControllerTest < ActionDispatch::IntegrationTest
     )
     sign_in_as(user_without_project)
     get config_versions_url(type: "Role", record_id: roles(:cto).id)
-    assert_redirected_to new_project_url
+    assert_redirected_to new_onboarding_project_url
   end
 end
