@@ -279,7 +279,7 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
     end
 
     # Can be either 400 (bad request) or 422 (unprocessable entity)
-    assert_includes [400, 422], response.status
+    assert_includes [ 400, 422 ], response.status
     json = response.parsed_body
     assert json["error"].present?
   end
@@ -355,7 +355,7 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
          headers: api_headers(assignee_role).merge("CONTENT_TYPE" => "application/json")
 
     # Should handle gracefully, not crash
-    assert_includes [400, 422], response.status
+    assert_includes [ 400, 422 ], response.status
   end
 
   # ==========================================================================
@@ -406,7 +406,7 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
     assert json["error"].is_a?(String)
 
     # Should only have error field
-    assert_equal ["error"], json.keys
+    assert_equal [ "error" ], json.keys
   end
 
   # ==========================================================================

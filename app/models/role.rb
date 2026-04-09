@@ -5,6 +5,9 @@ class Role < ApplicationRecord
   include Auditable
   include ConfigVersioned
   include Roles::Hiring
+  include Roles::AgentConfiguration
+  include Roles::Budgeting
+  include Roles::Broadcasting
 
   belongs_to :role_category
 
@@ -20,65 +23,23 @@ class Role < ApplicationRecord
   has_many :role_hooks, dependent: :destroy
   has_many :role_runs, dependent: :destroy
 
-  enum :adapter_type, { http: 0, process: 1, claude_local: 2, opencode: 3 }
   enum :status, { idle: 0, running: 1, paused: 2, error: 3, terminated: 4, pending_approval: 5 }
 
   validates :title, presence: true,
                     uniqueness: { scope: :project_id, message: "already exists in this project" }
-  validates :adapter_type, presence: true, if: :agent_configured?
-  validates :adapter_config, presence: true, if: :agent_configured?
   validates :heartbeat_interval, numericality: { only_integer: true, greater_than: 0 }, allow_nil: true
-  validates :budget_cents, numericality: { only_integer: true, greater_than: 0 }, allow_nil: true
-  validate :validate_adapter_config_schema, if: :agent_configured?
-
   scope :active, -> { where.not(status: [ :terminated ]) }
   scope :online, -> { where(status: [ :idle, :running ]) }
-  scope :with_budget, -> { where.not(budget_cents: nil) }
-  scope :agent_configured, -> { where.not(adapter_type: nil) }
   scope :by_category, ->(category) { where(role_category: category) }
-
-  attr_writer :preloaded_monthly_spend_cents
 
   validates :working_directory, format: { with: /\A\//, message: "must be an absolute path" }, allow_blank: true
 
   before_validation :inherit_parent_working_directory, on: :create
   before_validation :inherit_parent_adapter, on: :create
-  before_save :ensure_api_token, if: :agent_configured?
   before_destroy :reparent_children
-  after_save :assign_default_skills, if: :first_agent_configuration?
   after_commit :sync_heartbeat_schedule, if: :heartbeat_config_changed?
-  after_commit :broadcast_dashboard_update, if: :saved_change_to_status?
   after_create_commit :audit_created
   before_destroy :audit_destroyed
-
-  def self.default_skill_keys_for(role_title)
-    base = default_skills_config.fetch("_base", [])
-    role_specific = default_skills_config.fetch(role_title.to_s.downcase.strip, [])
-    (base + role_specific).uniq
-  end
-
-  def self.default_skills_config
-    @default_skills_config ||= YAML.load_file(Rails.root.join("config/default_skills.yml"))
-  end
-
-  def self.generate_unique_api_token
-    loop do
-      token = SecureRandom.base58(24)
-      break token unless exists?(api_token: token)
-    end
-  end
-
-  def regenerate_api_token!
-    update!(api_token: self.class.generate_unique_api_token)
-  end
-
-  def adapter_class
-    AdapterRegistry.for(adapter_type)
-  end
-
-  def agent_configured?
-    adapter_type.present?
-  end
 
   def subordinate_roles
     children.active
@@ -103,60 +64,6 @@ class Role < ApplicationRecord
 
   def heartbeat_scheduled?
     heartbeat_enabled? && heartbeat_interval.present?
-  end
-
-  def budget_configured?
-    budget_cents.present? && budget_cents > 0
-  end
-
-  def current_budget_period_start
-    return nil unless budget_configured?
-    (budget_period_start || Date.current.beginning_of_month)
-  end
-
-  def current_budget_period_end
-    return nil unless budget_configured?
-    current_budget_period_start.end_of_month
-  end
-
-  def reload(*)
-    @monthly_spend_cents = nil
-    remove_instance_variable(:@preloaded_monthly_spend_cents) if defined?(@preloaded_monthly_spend_cents)
-    super
-  end
-
-  def monthly_spend_cents
-    return 0 unless budget_configured?
-    return @preloaded_monthly_spend_cents if defined?(@preloaded_monthly_spend_cents)
-
-    @monthly_spend_cents ||= begin
-      period_start = current_budget_period_start
-      period_end = current_budget_period_end
-
-      assigned_tasks
-        .where.not(cost_cents: nil)
-        .where(created_at: period_start.beginning_of_day..period_end.end_of_day)
-        .sum(:cost_cents)
-    end
-  end
-
-  def budget_remaining_cents
-    return nil unless budget_configured?
-    [ budget_cents - monthly_spend_cents, 0 ].max
-  end
-
-  def budget_utilization
-    return 0.0 unless budget_configured?
-    return 0.0 if budget_cents.zero?
-    [ (monthly_spend_cents.to_f / budget_cents * 100), 100.0 ].min.round(1)
-  end
-
-  def budget_exhausted?
-    budget_configured? && monthly_spend_cents >= budget_cents
-  end
-
-  def budget_alert_threshold?
-    budget_configured? && budget_utilization >= 80.0
   end
 
   def latest_session_id
@@ -206,109 +113,12 @@ class Role < ApplicationRecord
     self.adapter_config = parent.adapter_config if adapter_config.blank? && parent.adapter_config.present?
   end
 
-  def broadcast_dashboard_update
-    broadcast_overview_stats
-    broadcast_role_status
-    broadcast_running_agents
-    broadcast_approvals_badge
-    broadcast_org_chart_node
-  end
-
-  def broadcast_org_chart_node
-    Turbo::StreamsChannel.broadcast_replace_to(
-      "org_chart_project_#{project_id}",
-      target: "org-chart-node-#{id}",
-      partial: "roles/org_chart_node",
-      locals: { role: self }
-    )
-  end
-
-  def broadcast_role_status
-    Turbo::StreamsChannel.broadcast_replace_to(
-      "role_#{id}",
-      target: "role-status-badge-#{id}",
-      partial: "roles/status_badge",
-      locals: { role: self }
-    )
-  end
-
-  def broadcast_overview_stats
-    roles = project.roles.active
-    Turbo::StreamsChannel.broadcast_replace_to(
-      "dashboard_project_#{project_id}",
-      target: "dashboard-overview-stats",
-      partial: "dashboard/overview_stats",
-      locals: {
-        total_roles: roles.count,
-        roles_online: roles.online.count,
-        tasks_active: project.tasks.active.count,
-        tasks_completed: project.tasks.completed.count
-      }
-    )
-  end
-
-  def broadcast_running_agents
-    running_roles = project.roles.where(status: :running).includes(role_runs: :task)
-    Turbo::StreamsChannel.broadcast_replace_to(
-      "dashboard_project_#{project_id}",
-      target: "dashboard-running-agents",
-      partial: "dashboard/running_agents",
-      locals: { running_roles: running_roles }
-    )
-  end
-
-  def broadcast_approvals_badge
-    count = project.approvals_pending_count
-
-    Turbo::StreamsChannel.broadcast_replace_to(
-      "dashboard_project_#{project_id}",
-      target: "approvals-badge",
-      partial: "dashboard/approvals_badge",
-      locals: { count: count }
-    )
-  end
-
-  def ensure_api_token
-    self.api_token ||= self.class.generate_unique_api_token
-  end
-
   def heartbeat_config_changed?
     saved_change_to_heartbeat_interval? || saved_change_to_heartbeat_enabled?
   end
 
   def sync_heartbeat_schedule
     Heartbeats::ScheduleManager.sync(self)
-  end
-
-  def validate_adapter_config_schema
-    return if adapter_config.blank?
-    required_keys = AdapterRegistry.required_config_keys(adapter_type)
-    missing = required_keys - adapter_config.keys.map(&:to_s)
-    if missing.any?
-      errors.add(:adapter_config, "missing required keys: #{missing.join(', ')}")
-    end
-  end
-
-  def first_agent_configuration?
-    saved_change_to_adapter_type? && adapter_type.present? && adapter_type_before_last_save.nil?
-  end
-
-  def assign_default_skills
-    assign_skills_by_keys(self.class.default_skill_keys_for(title))
-  end
-
-  def assign_skills_by_keys(keys)
-    return if keys.empty?
-
-    existing_keys = skills.where(key: keys).pluck(:key)
-    missing_keys = keys - existing_keys
-    return if missing_keys.empty?
-
-    project.skills.where(key: missing_keys).find_each do |skill|
-      role_skills.find_or_create_by!(skill: skill)
-    end
-
-    skills.reset
   end
 
   def reparent_children

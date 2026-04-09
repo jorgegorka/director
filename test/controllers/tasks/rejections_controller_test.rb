@@ -371,6 +371,6 @@ class Tasks::RejectionsControllerTest < ActionDispatch::IntegrationTest
     assert_includes json["error"], "not pending review"
 
     # Should only have error field
-    assert_equal ["error"], json.keys
+    assert_equal [ "error" ], json.keys
   end
 end

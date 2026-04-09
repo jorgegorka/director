@@ -6,7 +6,7 @@ class MessagesController < ApplicationController
     @message = @task.messages.new(message_params)
     @message.author = current_actor
   rescue ArgumentError => e
-    return respond_error(@task, e.message)
+    respond_error(@task, e.message)
   else
     if @message.save
       respond_to do |format|

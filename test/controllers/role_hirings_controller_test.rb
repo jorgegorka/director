@@ -133,7 +133,7 @@ class RoleHiringsControllerTest < ActionDispatch::IntegrationTest
     @cmo.update!(status: :pending_approval, pause_reason: "Awaiting approval to hire Marketing Planner")
 
     assert_difference "Role.count", 1 do
-      post approve_role_url(@cmo)
+      post role_approval_url(@cmo)
     end
 
     assert_redirected_to role_path(@cmo)
@@ -159,7 +159,7 @@ class RoleHiringsControllerTest < ActionDispatch::IntegrationTest
     @cmo.update!(status: :pending_approval, pause_reason: "Awaiting approval to hire Marketing Planner")
 
     assert_no_difference "Role.count" do
-      post reject_role_url(@cmo), params: { reason: "Not needed now" }
+      delete role_approval_url(@cmo), params: { reason: "Not needed now" }
     end
 
     assert_redirected_to role_path(@cmo)

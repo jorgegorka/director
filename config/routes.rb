@@ -36,13 +36,15 @@ Rails.application.routes.draw do
         post :cancel
       end
     end
+
+    scope module: :roles do
+      resource :activity,    only: [ :create ]
+      resource :pause,       only: [ :create, :destroy ]
+      resource :termination, only: [ :create ]
+      resource :approval,    only: [ :create, :destroy ]
+    end
+
     member do
-      post :run
-      post :pause
-      post :resume
-      post :terminate
-      post :approve
-      post :reject
       post :hire, to: "role_hirings#create"
     end
   end

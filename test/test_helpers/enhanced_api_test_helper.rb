@@ -135,7 +135,7 @@ module EnhancedApiTestHelper
     end
 
     request_options = { headers: headers, as: :json }
-    request_options[:params] = params if [:post, :patch, :put].include?(method)
+    request_options[:params] = params if [ :post, :patch, :put ].include?(method)
 
     send(method, path, **request_options)
   end

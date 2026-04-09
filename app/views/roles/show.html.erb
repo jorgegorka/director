@@ -13,9 +13,9 @@
         <p class="approval-banner__reason"><%= @role.pause_reason %></p>
       </div>
       <div class="approval-banner__actions">
-        <%= button_to "Approve", approve_role_path(@role), class: "btn btn--primary btn--sm",
+        <%= button_to "Approve", role_approval_path(@role), class: "btn btn--primary btn--sm",
               data: { turbo_confirm: "Approve #{@role.title} to continue?" } %>
-        <%= button_to "Reject", reject_role_path(@role), class: "btn btn--danger btn--sm",
+        <%= button_to "Reject", role_approval_path(@role), method: :delete, class: "btn btn--danger btn--sm",
               data: { turbo_confirm: "Reject #{@role.title}'s pending action?" } %>
       </div>
     </div>
@@ -44,23 +44,23 @@
     <div class="role-detail__actions">
       <%= link_to "Edit", edit_role_path(@role), class: "btn btn--ghost btn--sm" %>
       <% if @role.pending_approval? %>
-        <%= button_to "Approve", approve_role_path(@role), class: "btn btn--primary btn--sm",
+        <%= button_to "Approve", role_approval_path(@role), class: "btn btn--primary btn--sm",
               data: { turbo_confirm: "Approve #{@role.title} to continue?" } %>
-        <%= button_to "Reject", reject_role_path(@role), class: "btn btn--danger btn--sm",
+        <%= button_to "Reject", role_approval_path(@role), method: :delete, class: "btn btn--danger btn--sm",
               data: { turbo_confirm: "Reject #{@role.title}'s pending action?" } %>
       <% end %>
       <% unless @role.terminated? %>
         <% if @role.idle? || @role.error? %>
-          <%= button_to "Run", run_role_path(@role), class: "btn btn--success btn--sm" %>
+          <%= button_to "Run", role_activity_path(@role), class: "btn btn--success btn--sm" %>
         <% elsif @role.running? %>
-          <%= button_to "Pause", pause_role_path(@role), class: "btn btn--warning btn--sm",
+          <%= button_to "Pause", role_pause_path(@role), class: "btn btn--warning btn--sm",
                 data: { turbo_confirm: "Pause #{@role.title}? It will stop processing tasks." } %>
         <% elsif @role.paused? %>
-          <%= button_to "Resume", resume_role_path(@role), class: "btn btn--success btn--sm" %>
+          <%= button_to "Resume", role_pause_path(@role), method: :delete, class: "btn btn--success btn--sm" %>
         <% elsif @role.pending_approval? %>
-          <%= button_to "Resume", resume_role_path(@role), class: "btn btn--success btn--sm" %>
+          <%= button_to "Resume", role_pause_path(@role), method: :delete, class: "btn btn--success btn--sm" %>
         <% end %>
-        <%= button_to "Terminate", terminate_role_path(@role), method: :post, class: "btn btn--danger btn--sm",
+        <%= button_to "Terminate", role_termination_path(@role), class: "btn btn--danger btn--sm",
               data: { turbo_confirm: "Terminate #{@role.title}? This cannot be easily undone." } %>
       <% end %>
       <%= button_to "Delete", @role, method: :delete, class: "btn btn--ghost btn--sm role-detail__delete",
