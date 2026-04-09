@@ -1,25 +1,23 @@
 # Director
 
-AI orchestration platform for building and managing anything from simple projects to AI companies.
+Open-source orchestration platform for AI agents. Define roles, assign work, enforce budgets, and keep humans in the loop — at any scale.
 
-**Run your AI company like a real company.**
-
-Managing multiple AI workers gets messy fast. They run in different tabs, lose context between sessions, burn through money with no oversight, and nobody knows what any of them are actually doing. Director fixes this by letting you define roles in a company org chart and hire AI into them — with task assignments, budgets, and human oversight — so you can let them work autonomously while staying in control.
+Managing multiple AI agents gets messy fast. They run in different tabs, lose context between sessions, burn through money with no oversight, and nobody knows what any of them are actually doing. Director fixes this by giving you a structured orchestration layer — define roles in an org chart, assign AI agents to them through pluggable adapters (HTTP, CLI, Claude, OpenCode), and let them work autonomously within budgets, approval gates, and human oversight. It works for a solo developer automating a side project, a team running a single department, or a full organization with dozens of specialized agents.
 
 <img width="969" height="661" alt="Direct a team of AI Agents" src="https://github.com/user-attachments/assets/ccdceb18-22cb-4fd8-b589-48e49b69dbe4" />
 
 
 ## How it works
 
-### Companies and teams
+### Projects and teams
 
-Everything starts with a company. You create one, give it a name, and you become its owner. From there you can invite other people to join as members or admins. Each person can belong to multiple companies, and each company is completely isolated — its roles, tasks, budgets, and data are separate from the rest.
+Everything starts with a project. You create one, give it a name, and you become its owner. From there you can invite other people to join as members or admins. Each person can belong to multiple projects, and each project is completely isolated — its roles, tasks, budgets, and data are separate from the rest.
 
-If something goes wrong across the board, an admin can hit the **emergency stop** to freeze every active role in the company at once.
+If something goes wrong across the board, an admin can hit the **emergency stop** to freeze every active role in the project at once.
 
 ### Roles and org chart
 
-Inside each company you define roles — CEO, lead engineer, content writer, support representative, whatever fits your operation. Roles are arranged in a hierarchy, just like a real org chart, with parent-child relationships that determine who reports to whom. Each role has a job specification describing what it's responsible for.
+Inside each project you define roles — CEO, lead engineer, content writer, support representative, whatever fits your operation. Roles are arranged in a hierarchy, just like a real org chart, with parent-child relationships that determine who reports to whom. Each role has a job specification describing what it's responsible for.
 
 Every role belongs to one of three **categories** that determine how it behaves:
 
@@ -48,9 +46,9 @@ Roles can also **hire subordinate roles** from their department template. If `au
 
 ### Role templates
 
-Director ships with **5 department templates** — Engineering, Finance, HR, Marketing, and Operations. Each template defines a complete team: a hierarchy of roles with titles, descriptions, job specs, and pre-assigned skills.
+Director ships with **8 department templates** — Engineering, Finance, Legal, Marketing, People, Product, Sales, and Customer Success. Each template defines a complete team: a hierarchy of roles with titles, descriptions, job specs, and pre-assigned skills.
 
-You can browse templates and **apply** one to your company. The applicator creates all the roles in the template that don't already exist, wires up the parent-child hierarchy, and assigns skills automatically. This gives you a fully staffed department in one click.
+You can browse templates and **apply** one to your project. The applicator creates all the roles in the template that don't already exist, wires up the parent-child hierarchy, and assigns skills automatically. This gives you a fully staffed department in one click.
 
 ### Tasks
 
@@ -64,19 +62,19 @@ Every task tracks its cost, so you always know how much a piece of work actually
 
 ### Goals
 
-Goals are the primary way you direct your AI company. You create goals describing what you want done, assign them to roles, and tasks linked to each goal drive the work forward. This means you set the direction at a high level and let the org chart figure out how to get there.
+Goals are the primary way you direct your project. You create goals describing what you want done, assign them to roles, and tasks linked to each goal drive the work forward. This means you set the direction at a high level and let the org chart figure out how to get there.
 
 Progress rolls up automatically: as tasks linked to a goal are completed, the goal's progress updates to reflect it.
 
-When a task linked to a goal is completed, Director automatically **evaluates** whether the work advances the goal. An AI evaluator reviews the goal hierarchy, the task description, and the work output, then gives a **pass** or **fail** with feedback. If the evaluation fails, the task is reopened and the role is woken up with the feedback to try again. Each task gets up to **3 attempts** — if all are exhausted, the task is **blocked** for human review. This creates an automatic quality feedback loop tied directly to company objectives.
+When a task linked to a goal is completed, Director automatically **evaluates** whether the work advances the goal. An AI evaluator reviews the goal hierarchy, the task description, and the work output, then gives a **pass** or **fail** with feedback. If the evaluation fails, the task is reopened and the role is woken up with the feedback to try again. Each task gets up to **3 attempts** — if all are exhausted, the task is **blocked** for human review. This creates an automatic quality feedback loop tied directly to project objectives.
 
 ### Skills
 
 Skills define what a role is capable of. Director comes with **41 built-in skills** organized across 6 categories (technical, leadership, management, operations, research, creative), and you can create your own custom skills on top of that.
 
-Each skill has a name, description, category, and detailed documentation written in markdown. You can attach reference documents to skills for additional context. Skills are managed at the company level and then assigned to individual roles — you pick which skills each role should have through a simple checkbox interface.
+Each skill has a name, description, category, and detailed documentation written in markdown. You can attach reference documents to skills for additional context. Skills are managed at the project level and then assigned to individual roles — you pick which skills each role should have through a simple checkbox interface.
 
-When a new company is created, it's automatically seeded with the full set of built-in skills. Built-in skills are protected and can't be deleted.
+When a new project is created, it's automatically seeded with the full set of built-in skills. Built-in skills are protected and can't be deleted.
 
 ### Documents
 
@@ -132,7 +130,7 @@ The dashboard is your command center. At a glance you can see:
 - Active and completed task counts
 - Budget utilization across all roles with per-role spending breakdowns
 - A Kanban view of all tasks grouped by status
-- A real-time activity timeline showing what's happening across the company
+- A real-time activity timeline showing what's happening across the project
 - Goal progress across all objectives
 - An **approvals queue** that consolidates everything waiting for human action — gate-blocked roles, pending hires, and tasks pending review — in one place
 
@@ -146,7 +144,7 @@ On top of that, every change to a role's configuration is captured as a **config
 
 ### Notifications
 
-Director notifies you when things need your attention — when you're mentioned in a task message, when a task is assigned to you, or when a role action requires your approval. Notifications are scoped to the company you're working in and can be marked as read.
+Director notifies you when things need your attention — when you're mentioned in a task message, when a task is assigned to you, or when a role action requires your approval. Notifications are scoped to the project you're working in and can be marked as read.
 
 ### MCP tools
 
@@ -158,9 +156,9 @@ Communication with roles uses JSON-RPC 2.0 over stdin/stdout, so any process tha
 
 ## Who is Director for?
 
-- **Solo AI builders** juggling multiple AI workers across different tools. You want one place to manage them all without tab chaos and runaway costs.
-- **Small teams** experimenting with AI-powered workflows. You need guardrails and visibility before trusting AI with real work.
-- **Developers** who need self-hostable orchestration infrastructure they can customize, instead of building it from scratch.
+- **Anyone orchestrating multiple AI agents** — whether it's a full AI-powered organization, a single department, or a weekend project. You need structure, budgets, and oversight instead of tab chaos.
+- **Teams adding AI to existing workflows** — you want guardrails and visibility before trusting agents with real work, plus approval gates to keep humans in the loop.
+- **Developers who want self-hostable infrastructure** — you need orchestration you can customize and own, not a SaaS dependency. Director is open source, runs on SQLite, and deploys anywhere.
 
 ## Tech stack
 
