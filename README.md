@@ -168,9 +168,27 @@ Communication with roles uses JSON-RPC 2.0 over stdin/stdout, so any process tha
 - Custom CSS (no Tailwind, no Bootstrap)
 - Docker-ready for deployment
 
-## Getting started
+## Install
 
-**You need:** Ruby 3.4. No Node.js or external database required.
+Run Director on your own machine with one command. You need Docker — on Linux the installer will install it for you; on macOS install [Docker Desktop](https://www.docker.com/products/docker-desktop) first.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/jorgegorka/director/master/scripts/install.sh | sh
+```
+
+Then visit [http://localhost:3000](http://localhost:3000). Data persists in the `director_storage` Docker volume across restarts.
+
+Manage the container with the usual Docker commands:
+
+```bash
+docker logs -f director
+docker stop director
+docker start director
+```
+
+## Develop
+
+Contributing to Director? Clone the repo and run it natively. You need Ruby 3.4. No Node.js or external database required.
 
 ```bash
 git clone https://github.com/jorgegorka/director.git

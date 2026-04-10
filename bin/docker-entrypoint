@@ -1,5 +1,19 @@
 #!/bin/bash -e
 
+# Standalone self-install mode: the public image ships config/credentials.yml.enc
+# encrypted with upstream's master key, which is useless to a local installation.
+# Strip it so Rails.application.credentials.dig returns nil cleanly instead of
+# raising, and persist a SECRET_KEY_BASE on the mounted volume so web sessions
+# survive restarts.
+if [ "${DIRECTOR_STANDALONE:-}" = "1" ] && [ -z "${RAILS_MASTER_KEY:-}" ]; then
+  rm -f /rails/config/credentials.yml.enc
+  SECRET_FILE=/rails/storage/.secret_key_base
+  if [ ! -f "$SECRET_FILE" ]; then
+    ./bin/rails secret > "$SECRET_FILE"
+  fi
+  export SECRET_KEY_BASE="$(cat "$SECRET_FILE")"
+fi
+
 # If running the rails server then create or migrate existing database
 if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
   ./bin/rails db:prepare

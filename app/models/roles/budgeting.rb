@@ -20,6 +20,20 @@ module Roles
       budget_cents.present? && budget_cents > 0
     end
 
+    def budget_dollars
+      budget_cents ? budget_cents / 100.0 : nil
+    end
+
+    def budget_dollars=(value)
+      if value.blank?
+        self.budget_cents = nil
+        self.budget_period_start = nil
+      else
+        self.budget_cents = (value.to_f * 100).round
+        self.budget_period_start = Date.current.beginning_of_month
+      end
+    end
+
     def current_budget_period_start
       return nil unless budget_configured?
       (budget_period_start || Date.current.beginning_of_month)

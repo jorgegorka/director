@@ -11,6 +11,7 @@ module Roles
       validates :adapter_config, presence: true, if: :agent_configured?
       validate :validate_adapter_config_schema, if: :agent_configured?
 
+      before_validation :filter_adapter_config, if: :adapter_config_changed?
       before_save :ensure_api_token, if: :agent_configured?
       after_save :assign_default_skills, if: :first_agent_configuration?
     end
@@ -50,6 +51,12 @@ module Roles
 
     def ensure_api_token
       self.api_token ||= self.class.generate_unique_api_token
+    end
+
+    def filter_adapter_config
+      return if adapter_config.blank? || adapter_type.blank?
+      allowed = AdapterRegistry.all_config_keys(adapter_type).map(&:to_s)
+      self.adapter_config = adapter_config.stringify_keys.slice(*allowed)
     end
 
     def validate_adapter_config_schema

@@ -4,7 +4,7 @@ class Invitation < ApplicationRecord
   belongs_to :project
   belongs_to :inviter, class_name: "User"
 
-  enum :role, { member: 0, admin: 1 }
+  enum :role, { member: 0, admin: 1 }, validate: true
   enum :status, { pending: 0, accepted: 1, expired: 2 }
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }

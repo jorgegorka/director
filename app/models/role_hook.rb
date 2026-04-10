@@ -8,6 +8,11 @@ class RoleHook < ApplicationRecord
   AFTER_TASK_COMPLETE = "after_task_complete".freeze
   LIFECYCLE_EVENTS = [ AFTER_TASK_START, AFTER_TASK_COMPLETE ].freeze
 
+  ACTION_CONFIG_KEYS = {
+    "trigger_agent" => %w[target_role_id target_agent_id prompt],
+    "webhook" => %w[url headers timeout]
+  }.freeze
+
   belongs_to :role
   has_many :hook_executions, dependent: :destroy
 
@@ -18,6 +23,8 @@ class RoleHook < ApplicationRecord
   validates :action_type, presence: true
   validates :position, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validate :validate_action_config_schema
+
+  before_validation :filter_action_config, if: :action_config_changed?
 
   scope :for_event, ->(event) { where(lifecycle_event: event) }
   scope :ordered, -> { order(:position, :created_at) }
@@ -35,6 +42,12 @@ class RoleHook < ApplicationRecord
   end
 
   private
+
+  def filter_action_config
+    return if action_config.blank? || action_type.blank?
+    allowed = ACTION_CONFIG_KEYS.fetch(action_type, [])
+    self.action_config = action_config.stringify_keys.slice(*allowed)
+  end
 
   def validate_action_config_schema
     return if action_config.blank?

@@ -24,9 +24,6 @@ class SettingsController < ApplicationController
   end
 
   def settings_params
-    permitted = params.require(:user).permit(:email_address, :password, :password_confirmation)
-    permitted.delete(:password) if permitted[:password].blank?
-    permitted.delete(:password_confirmation) if permitted[:password].blank?
-    permitted
+    params.require(:user).permit(:email_address, :password, :password_confirmation)
   end
 end

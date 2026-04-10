@@ -26,11 +26,7 @@ class InvitationsController < ApplicationController
   private
 
   def invitation_params
-    permitted = params.require(:invitation).permit(:email_address)
-    # Role is handled separately to avoid mass assignment of arbitrary role values
-    role_value = params.dig(:invitation, :role).to_s
-    permitted[:role] = role_value.in?(Invitation.roles.keys) ? role_value : "member"
-    permitted
+    params.require(:invitation).permit(:email_address, :role)
   end
 
   def authorize_inviter!
