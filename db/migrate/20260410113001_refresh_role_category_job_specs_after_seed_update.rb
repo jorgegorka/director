@@ -1,9 +1,8 @@
 class RefreshRoleCategoryJobSpecsAfterSeedUpdate < ActiveRecord::Migration[8.1]
-  # The earlier 20260410112607 refresh ran before db/seeds/role_categories.yml
-  # was updated to remove goal language, so it was a no-op. This migration
-  # runs after the seed rewrite and forces the updated job_spec onto every
-  # project's Orchestrator/Planner/Worker category whose stored spec still
-  # mentions goals (the legacy markers).
+  # Rewrite RoleCategory job_spec rows that still reference the removed
+  # Goal concepts (summarize_goal, goal_completed, list_my_goals, goal_id),
+  # sourcing canonical text from the updated seeds. Rows without any legacy
+  # marker are left alone so user customizations are preserved.
 
   LEGACY_MARKERS = [
     "summarize_goal",

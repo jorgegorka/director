@@ -28,4 +28,4 @@ markdown: |
   - The most dangerous risks are usually the ones nobody wants to write down. Write them down
 
   ## Deliverable
-  A risk register posted via `add_message` (and if it changes scope or acceptance criteria) containing: risk description, category, likelihood, impact, score, mitigation, owner, and review trigger — plus a short executive note on the top 3 risks.
+  A risk register posted via `add_message` containing: risk description, category, likelihood, impact, score, mitigation, owner, and review trigger — plus a short executive note on the top 3 risks.

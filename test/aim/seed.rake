@@ -102,17 +102,16 @@ class AIMSeed
       puts "#{TAG}   Roles seeded."
     end
 
-    # ─── Goals & Tasks ───────────────────────────────────────────────
+    # ─── Missions & Tasks ─────────────────────────────────────────────
 
     def seed_goals_and_tasks
-      puts "#{TAG} Seeding goals and tasks..."
+      puts "#{TAG} Seeding missions and tasks..."
 
-      goal = Goal.create!(
+      mission = Task.create!(
         project: @project,
         title: "AIM: Build MVP Feature",
         description: "#{TAG} Build the minimum viable product feature set including auth, API, and tests.",
-        role: @ceo,
-        completion_percentage: 0
+        creator: @ceo
       )
 
       # Task 1: pending_review — for orchestrator review scenarios
@@ -123,7 +122,7 @@ class AIMSeed
         description: "#{TAG} Implement user authentication with session management and password hashing.",
         creator: @vp_eng,
         assignee: @senior_dev,
-        goal: goal,
+        parent_task: mission,
         status: :pending_review,
         priority: :high
       )
@@ -141,7 +140,7 @@ class AIMSeed
         description: "#{TAG} Document the REST API endpoints including request/response formats and authentication.",
         creator: @vp_eng,
         assignee: @senior_dev,
-        goal: goal,
+        parent_task: mission,
         status: :in_progress,
         priority: :medium
       )
@@ -153,7 +152,7 @@ class AIMSeed
         description: "#{TAG} Research 3 competitors and summarize their pricing models, tiers, and positioning.",
         creator: @ceo,
         assignee: @vp_strategy,
-        goal: goal,
+        parent_task: mission,
         status: :in_progress,
         priority: :medium
       )
@@ -165,7 +164,7 @@ class AIMSeed
         description: "#{TAG} Build authentication, billing, admin panel, API layer, frontend, deployment pipeline, monitoring, and documentation. This requires work across 8 different domains.",
         creator: @vp_eng,
         assignee: @senior_dev,
-        goal: goal,
+        parent_task: mission,
         status: :in_progress,
         priority: :medium
       )
@@ -177,7 +176,7 @@ class AIMSeed
         description: "#{TAG} Write a test plan covering login, logout, session expiry, and password reset flows. List the test cases with expected results.",
         creator: @vp_eng,
         assignee: @qa_engineer,
-        goal: goal,
+        parent_task: mission,
         status: :in_progress,
         priority: :medium
       )
@@ -189,7 +188,7 @@ class AIMSeed
         description: "#{TAG} Connect Stripe payment processing to the billing module. Requires API keys from the ops team which have not been provided yet.",
         creator: @vp_eng,
         assignee: @senior_dev,
-        goal: goal,
+        parent_task: mission,
         status: :in_progress,
         priority: :medium
       )
@@ -201,7 +200,7 @@ class AIMSeed
         description: "#{TAG} Research and list 10 enterprise AI orchestration platforms with their key features, pricing tier, and target market. Format as a table.",
         creator: @vp_strategy,
         assignee: @research_analyst,
-        goal: goal,
+        parent_task: mission,
         status: :in_progress,
         priority: :medium
       )
@@ -213,7 +212,7 @@ class AIMSeed
         description: "#{TAG} Produce a full market analysis covering: competitor landscape (pricing, features, positioning), customer segments, market size estimates, regulatory environment, and technology trends. Each area requires deep research.",
         creator: @ceo,
         assignee: @vp_strategy,
-        goal: goal,
+        parent_task: mission,
         status: :in_progress,
         priority: :medium
       )
@@ -225,7 +224,7 @@ class AIMSeed
         description: "#{TAG} Produce a SWOT analysis (strengths, weaknesses, opportunities, threats) for our AI orchestration platform based on the current feature set and market position. One page maximum.",
         creator: @ceo,
         assignee: @vp_strategy,
-        goal: goal,
+        parent_task: mission,
         status: :in_progress,
         priority: :medium
       )
@@ -237,7 +236,7 @@ class AIMSeed
         description: "#{TAG} Write a pricing strategy recommendation. Part 1: summarize common SaaS pricing models and recommend which fits an AI orchestration platform (do this yourself). Part 2: gather customer willingness-to-pay data from 50 enterprise prospects (requires outreach and data collection — delegate this).",
         creator: @ceo,
         assignee: @vp_strategy,
-        goal: goal,
+        parent_task: mission,
         status: :in_progress,
         priority: :medium
       )
@@ -249,7 +248,7 @@ class AIMSeed
         description: "#{TAG} Write a one-page executive brief summarizing the top 3 AI market trends relevant to our product roadmap. This is for the CEO's weekly review.",
         creator: @ceo,
         assignee: @vp_strategy,
-        goal: goal,
+        parent_task: mission,
         status: :in_progress,
         priority: :medium
       )
@@ -261,7 +260,7 @@ class AIMSeed
         description: "#{TAG} Produce a strategic assessment of the AI orchestration market for Q2, covering competitive positioning, market trends, and recommended actions.",
         creator: @ceo,
         assignee: @vp_strategy,
-        goal: goal,
+        parent_task: mission,
         status: :pending_review,
         priority: :medium
       )
@@ -272,7 +271,7 @@ class AIMSeed
         message_type: :comment
       )
 
-      puts "#{TAG}   Goals and tasks seeded."
+      puts "#{TAG}   Missions and tasks seeded."
     end
 
     # ─── Helpers ──────────────────────────────────────────────────────

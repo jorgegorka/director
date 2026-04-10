@@ -53,14 +53,12 @@ module Tools
     # achieved. We count direct subtasks at the root rather than reading
     # root.status because the parent auto-completion runs after this hook.
     def root_task_just_completed_hint(task)
-      root = task.root_ancestor
-      return nil if root.id == task.id
+      return nil if task.root?
 
+      root = task.root_ancestor
       total = root.subtasks.count
       return nil if total.zero?
-
-      completed = root.subtasks.completed.count
-      return nil unless total == completed
+      return nil unless root.subtasks.completed.count == total
 
       { id: root.id, title: root.title }
     end

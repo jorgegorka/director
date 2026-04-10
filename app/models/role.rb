@@ -74,11 +74,10 @@ class Role < ApplicationRecord
 
     own_session = pick_session(role_runs.where(task_id: task.id))
     return own_session if own_session
+    return nil if task.root?
 
     root = task.root_ancestor
-    return nil if root.id == task.id
-
-    sibling_ids = project.tasks.where(id: collect_descendant_ids(root)).where.not(id: task.id).select(:id)
+    sibling_ids = root.descendant_ids + [ root.id ] - [ task.id ]
     pick_session(role_runs.where(task_id: sibling_ids))
   end
 
@@ -104,18 +103,6 @@ class Role < ApplicationRecord
     scope.where.not(claude_session_id: nil)
          .order(created_at: :desc)
          .pick(:claude_session_id)
-  end
-
-  def collect_descendant_ids(task)
-    ids = [ task.id ]
-    frontier = [ task.id ]
-    until frontier.empty?
-      children = project.tasks.where(parent_task_id: frontier).pluck(:id)
-      break if children.empty?
-      ids.concat(children)
-      frontier = children
-    end
-    ids
   end
 
   def inherit_parent_working_directory

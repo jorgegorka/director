@@ -14,8 +14,8 @@
     </div>
 
     <% percentage = @root_task.completion_percentage %>
-    <% subtasks = @root_task.subtasks.by_priority %>
-    <% completed_count = subtasks.count { |t| t.status == "completed" } %>
+    <% subtasks = @root_task.subtasks.by_priority.includes(:parent_task, :assignee, :creator) %>
+    <% completed_count = @root_task.subtasks.completed.count %>
     <div class="goal-detail__progress-card">
       <div class="goal-detail__progress-info">
         <span class="goal-detail__progress-label">Progress</span>

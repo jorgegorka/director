@@ -14,7 +14,7 @@ markdown: |
   - A material change in scope, schedule, or risk needs to be communicated upward
 
   ## Approach
-  1. Read your current tasks and goals via `list_my_tasks` and `list_my_tasks`, plus any reportee status messages via `get_task_details`
+  1. Read your current tasks via `list_my_tasks`, plus any reportee status messages via `get_task_details`
   2. Assess overall health using a simple RAG rating (Red / Amber / Green) for scope, schedule, and risk
   3. Summarize accomplishments since the last report. Quantify where possible
   4. Identify risks, issues, and explicitly name any decisions you need from your manager

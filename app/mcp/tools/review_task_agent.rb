@@ -23,13 +23,12 @@ module Tools
     def auto_summarize_completed_root_task(task_id)
       task = project.tasks.find_by(id: task_id)
       return unless task
+      return if task.root?
 
       root = task.root_ancestor
-      return if root.id == task.id
-
       total = root.subtasks.count
       return if total.zero?
-      return unless total == root.subtasks.completed.count
+      return unless root.subtasks.completed.count == total
       return if root.summary.present?
 
       SubAgents::SummarizeTask.new(

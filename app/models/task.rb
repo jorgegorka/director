@@ -62,6 +62,16 @@ class Task < ApplicationRecord
     parent_task_id.nil?
   end
 
+  def descendant_ids
+    ids = []
+    frontier = [ id ]
+    until frontier.empty?
+      frontier = self.class.where(parent_task_id: frontier).pluck(:id)
+      ids.concat(frontier)
+    end
+    ids
+  end
+
   # Post a comment from an automated source (role agent, watchdog, etc).
   # Swallows validation failures so notification bugs never prevent the
   # caller from completing its primary side effect.
