@@ -1,12 +1,20 @@
 <div id="org-chart-node-<%= role.id %>"
-     class="org-chart-node-card glass org-chart-node-card--<%= role.status %>"
+     class="org-chart-node-card org-chart-node-card--<%= role.status %>"
      data-role-id="<%= role.id %>">
-  <div class="org-chart-node-card__header">
-    <span class="org-chart-node-card__dot org-chart-node-card__dot--<%= role.status %>"></span>
-    <%= link_to role.title, role_path(role), class: "org-chart-node-card__title", data: { turbo_frame: "_top" } %>
+  <div class="org-chart-node-card__meta">
+    <div class="org-chart-node-card__heading">
+      <%= link_to role.title, role_path(role),
+            class: "org-chart-node-card__title",
+            data: { turbo_frame: "_top" } %>
+      <span class="org-chart-node-card__dot" aria-label="<%= role.status.humanize %>"></span>
+    </div>
+    <div class="org-chart-node-card__tags">
+      <% if role.role_category %>
+        <span class="org-chart-node-card__category"><%= role.role_category.name.upcase %></span>
+      <% end %>
+      <span class="org-chart-node-card__status"><%= status_label_for(role) %></span>
+    </div>
   </div>
-
-  <span class="org-chart-node-card__status"><%= role.status.humanize %></span>
 
   <div class="org-chart-node-card__actions">
     <% unless role.terminated? %>
@@ -24,13 +32,4 @@
     <% end %>
     <button type="button" class="btn btn--ghost btn--xs" data-action="click->org-chart#openGoalModal" data-role-id="<%= role.id %>">+ Goal</button>
   </div>
-
-  <% top_goals = role.goals.first(3) %>
-  <% if top_goals.any? %>
-    <div class="org-chart-node-card__goals">
-      <% top_goals.each do |goal| %>
-        <span class="org-chart-node-card__goal-tag"><%= goal.title.truncate(20) %></span>
-      <% end %>
-    </div>
-  <% end %>
 </div>

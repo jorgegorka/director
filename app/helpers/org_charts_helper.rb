@@ -3,6 +3,17 @@ module OrgChartsHelper
     root_roles.map { |role| role_node_data(role, roles_by_parent_id) }
   end
 
+  def status_label_for(role)
+    case role.status
+    when "idle"             then "IDLE"
+    when "running"          then "WORKING"
+    when "paused"           then "PAUSED"
+    when "error"            then "ERROR"
+    when "terminated"       then "OFFLINE"
+    when "pending_approval" then "AWAITING APPROVAL"
+    end
+  end
+
   private
 
   def role_node_data(role, roles_by_parent_id)
