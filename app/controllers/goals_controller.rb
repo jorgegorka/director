@@ -1,27 +1,34 @@
+# Facade over root tasks (tasks with parent_task_id: nil). Kept as a
+# separate controller + URL so the "Goals" nav label and /goals URL remain
+# stable for users. Under the hood these are Task records.
 class GoalsController < ApplicationController
   before_action :require_project!
-  before_action :set_goal, only: [ :show, :edit, :update, :destroy ]
+  before_action :set_root_task, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    @goals = Current.project.goals.ordered
+    @root_tasks = Current.project.tasks.roots.by_priority
   end
 
   def show
-    @detail = Goal::Detail.new(@goal)
+    @detail = Task::Detail.new(@root_task)
   end
 
   def new
-    @goal = Current.project.goals.new
+    @root_task = Current.project.tasks.new
   end
 
   def create
-    @goal = Current.project.goals.new(goal_params)
+    @root_task = Current.project.tasks.new(root_task_params)
+    @root_task.creator ||= default_creator
 
-    if @goal.save
-      respond_to do |format|
-        format.turbo_stream if @goal.role_id
-        format.html { redirect_to @goal, notice: "Goal '#{@goal.title}' has been created." }
-      end
+    if @root_task.creator.nil?
+      @root_task.errors.add(:base, "Create a top-level role before creating a goal.")
+      render :new, status: :unprocessable_entity
+      return
+    end
+
+    if @root_task.save
+      redirect_to goal_path(@root_task), notice: "Goal '#{@root_task.title}' has been created."
     else
       render :new, status: :unprocessable_entity
     end
@@ -31,26 +38,30 @@ class GoalsController < ApplicationController
   end
 
   def update
-    if @goal.update(goal_params)
-      redirect_to @goal, notice: "Goal '#{@goal.title}' has been updated."
+    if @root_task.update(root_task_params)
+      redirect_to goal_path(@root_task), notice: "Goal '#{@root_task.title}' has been updated."
     else
       render :edit, status: :unprocessable_entity
     end
   end
 
   def destroy
-    title = @goal.title
-    @goal.destroy
+    title = @root_task.title
+    @root_task.destroy
     redirect_to goals_path, notice: "Goal '#{title}' has been deleted."
   end
 
   private
 
-  def set_goal
-    @goal = Current.project.goals.find(params[:id])
+  def set_root_task
+    @root_task = Current.project.tasks.roots.find(params[:id])
   end
 
-  def goal_params
-    params.require(:goal).permit(:title, :description, :position, :role_id)
+  def root_task_params
+    params.require(:root_task).permit(:title, :description, :assignee_id, :priority)
+  end
+
+  def default_creator
+    Current.project.roles.where(parent_id: nil).active.order(:created_at).first
   end
 end

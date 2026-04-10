@@ -62,21 +62,20 @@ class ExecuteRoleJob < ApplicationJob
       docs = task.documents.load.map { |d| { id: d.id, title: d.title, body: d.body } }
       ctx[:task_documents] = docs if docs.any?
 
-      goal = task.goal
-    end
+      root = task.root_ancestor
+      if root.id != task.id
+        ctx[:root_task_id] = root.id
+        ctx[:root_task_title] = root.title
+        ctx[:root_task_description] = root.description
+      end
 
-    goal ||= role_run.goal
-
-    if goal
-      ctx[:goal_id] = goal.id
-      ctx[:goal_title] = goal.title
-      ctx[:goal_description] = goal.description
-
-      active_tasks = goal.tasks.active.order(priority: :desc, created_at: :desc)
-      if active_tasks.any?
-        ctx[:goal_active_tasks] = active_tasks.map { |t|
-          { id: t.id, title: t.title, status: t.status, assignee_id: t.assignee_id }
-        }
+      if task.root?
+        active_subtasks = task.subtasks.active.order(priority: :desc, created_at: :desc)
+        if active_subtasks.any?
+          ctx[:active_subtasks] = active_subtasks.map { |t|
+            { id: t.id, title: t.title, status: t.status, assignee_id: t.assignee_id }
+          }
+        end
       end
     end
 

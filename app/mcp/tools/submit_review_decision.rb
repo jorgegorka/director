@@ -31,8 +31,8 @@ module Tools
       when "approve"
         task.approve_by!(role)
         response = { id: task.id, decision: "approved", status: task.status }
-        if (goal_hint = goal_just_completed_hint(task))
-          response[:goal_completed] = goal_hint
+        if (root_hint = root_task_just_completed_hint(task))
+          response[:root_task_completed] = root_hint
         end
         response
       when "reject"
@@ -48,21 +48,21 @@ module Tools
     private
 
     # Emitted as a hint in the approval response when this approval was the
-    # final piece needed to bring a goal to 100% completion. The orchestrator
-    # reads this and calls `summarize_goal` to record what was achieved. We
-    # compute counts directly because Goal#completion_percentage is updated
-    # asynchronously by RecalculateGoalCompletionJob.
-    def goal_just_completed_hint(task)
-      goal = task.goal
-      return nil unless goal
+    # final piece needed to bring a root task to 100% completion. The
+    # orchestrator reads this and calls `summarize_task` to record what was
+    # achieved. We count direct subtasks at the root rather than reading
+    # root.status because the parent auto-completion runs after this hook.
+    def root_task_just_completed_hint(task)
+      root = task.root_ancestor
+      return nil if root.id == task.id
 
-      total = goal.tasks.count
+      total = root.subtasks.count
       return nil if total.zero?
 
-      completed = goal.tasks.completed.count
+      completed = root.subtasks.completed.count
       return nil unless total == completed
 
-      { id: goal.id, title: goal.title }
+      { id: root.id, title: root.title }
     end
   end
 end

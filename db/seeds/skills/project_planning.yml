@@ -14,7 +14,7 @@ markdown: |
   - A manager has asked you for a timeline they can trust
 
   ## Approach
-  1. Read the goal carefully via `get_goal_details`. Write down, in one sentence, what "done" looks like
+  1. Read the goal carefully via `get_task_details`. Write down, in one sentence, what "done" looks like
   2. List every deliverable implied by the goal. For each, identify the tasks required to produce it
   3. Identify dependencies: which tasks cannot start before others complete? Mark the critical path — the longest chain of dependent tasks
   4. Name an owner (role) for every task. If no role fits, flag it as a hiring need

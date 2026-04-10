@@ -13,7 +13,6 @@ class RoleRun < ApplicationRecord
 
   belongs_to :role
   belongs_to :task, optional: true
-  belongs_to :goal, optional: true
 
   has_many :sub_agent_invocations, dependent: :destroy
 

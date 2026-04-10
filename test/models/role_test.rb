@@ -598,27 +598,11 @@ class RoleTest < ActiveSupport::TestCase
 
 
 
-  # --- Goals association ---
+  # --- Task evaluations association ---
 
-  test "role can have many goals" do
+  test "role has many task_evaluations" do
     role = roles(:cto)
-    assert_includes role.goals, goals(:acme_objective_one)
-  end
-
-  test "role with no goals is still valid" do
-    role = roles(:developer)
-    assert_empty role.goals
-    assert role.valid?
-  end
-
-  test "destroying role nullifies goal role_id" do
-    role = roles(:cto)
-    goal = goals(:acme_objective_one)
-    assert_equal role, goal.role
-
-    role.destroy
-    goal.reload
-    assert_nil goal.role_id
+    assert_respond_to role, :task_evaluations
   end
 
   # --- Working directory inheritance ---

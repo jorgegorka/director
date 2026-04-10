@@ -42,8 +42,8 @@ class Dashboard::Overview
     @_total_spend_cents
   end
 
-  def top_goal
-    @top_goal ||= project.goals.ordered.first
+  def top_root_task
+    @top_root_task ||= project.tasks.roots.active.by_priority.first
   end
 
   def show_budget?

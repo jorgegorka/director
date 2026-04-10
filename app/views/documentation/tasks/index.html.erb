@@ -24,7 +24,7 @@
 <div class="prose">
   <h2 id="what-are-tasks">What are Tasks?</h2>
   <p>Tasks are the fundamental units of work in Director. Every piece of work an agent performs is tracked as a task — from writing code to running tests to reviewing pull requests. Tasks belong to a project and flow through the org chart: a <strong>creator</strong> role defines the work, and an <strong>assignee</strong> role executes it.</p>
-  <p>Each task has a <strong>title</strong>, an optional <strong>description</strong>, a <strong>status</strong>, a <strong>priority level</strong>, and a <strong>completion percentage</strong>. Tasks can optionally be linked to a goal, contributing to its overall progress.</p>
+  <p>Each task has a <strong>title</strong>, an optional <strong>description</strong>, a <strong>status</strong>, a <strong>priority level</strong>, and a <strong>completion percentage</strong>. Root tasks (tasks with no parent) are shown under the Goals section and act as missions that subtasks contribute toward.</p>
 
   <h2 id="creating-tasks">Creating Tasks</h2>
   <p>Tasks can be created by human operators from the dashboard or by agents during their work. At minimum, a task needs a title. You can also set:</p>
@@ -32,7 +32,6 @@
     <li><strong>Description</strong> — detailed context, acceptance criteria, or instructions for the assignee</li>
     <li><strong>Priority</strong> — how urgently the task should be handled</li>
     <li><strong>Assignee</strong> — the role responsible for completing the task</li>
-    <li><strong>Goal</strong> — an optional goal this task contributes toward</li>
     <li><strong>Parent task</strong> — makes this a subtask of another task</li>
     <li><strong>Due date</strong> — when the task should be completed</li>
   </ul>

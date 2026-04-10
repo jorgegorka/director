@@ -8,7 +8,7 @@ class SubAgents::CreateTaskTest < ActiveSupport::TestCase
       role: @role,
       arguments: {
         "intent" => "We need OAuth support for Google logins",
-        "goal_id" => goals(:acme_objective_one).id
+        "parent_task_id" => tasks(:design_homepage).id
       },
       parent_role_run: @role_run
     )
@@ -18,7 +18,6 @@ class SubAgents::CreateTaskTest < ActiveSupport::TestCase
     defn = SubAgents::CreateTask.tool_definition
     assert_equal "create_task", defn[:name]
     assert_includes defn[:inputSchema][:required], "intent"
-    assert defn[:inputSchema][:properties].key?(:goal_id)
     assert defn[:inputSchema][:properties].key?(:parent_task_id)
   end
 
@@ -38,7 +37,7 @@ class SubAgents::CreateTaskTest < ActiveSupport::TestCase
   test "user_message serializes intent and optional context fields" do
     message = @sub_agent.user_message
     assert_includes message, "OAuth support"
-    assert_includes message, "Goal id: #{goals(:acme_objective_one).id}"
+    assert_includes message, "Parent task id: #{tasks(:design_homepage).id}"
   end
 
   test "build_input_summary is short and searchable" do

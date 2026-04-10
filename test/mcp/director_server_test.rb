@@ -25,22 +25,19 @@ class DirectorServerTest < ActiveSupport::TestCase
     assert_includes tool_names, "create_task"
     assert_includes tool_names, "review_task"
     assert_includes tool_names, "hire_role"
-    assert_includes tool_names, "summarize_goal"
+    assert_includes tool_names, "summarize_task"
 
     # Mechanical direct tools.
     assert_includes tool_names, "update_task_status"
     assert_includes tool_names, "list_my_tasks"
-    assert_includes tool_names, "list_my_goals"
     assert_includes tool_names, "list_available_roles"
     assert_includes tool_names, "list_hirable_roles"
     assert_includes tool_names, "add_message"
     assert_includes tool_names, "get_task_details"
-    assert_includes tool_names, "get_goal_details"
-    assert_includes tool_names, "update_goal"
     assert_includes tool_names, "search_documents"
     assert_includes tool_names, "get_document"
 
-    assert_equal 15, tools.size
+    assert_equal 12, tools.size
   end
 
   test "sub-agent wrapper tools resolve the parent role_run and expose a valid MCP definition" do
@@ -58,7 +55,7 @@ class DirectorServerTest < ActiveSupport::TestCase
     names = scoped.send(:handle, { "id" => 7, "method" => "tools/list" })
       .dig(:result, :tools).map { |t| t[:name] }
 
-    assert_equal %w[get_goal_details list_available_roles create_task].sort, names.sort
+    assert_equal %w[get_task_details list_available_roles create_task].sort, names.sort
 
     # Inside the scope, `create_task` is the direct mutation tool (requires
     # title), not the sub-agent wrapper -- that's what prevents recursion.
@@ -83,12 +80,12 @@ class DirectorServerTest < ActiveSupport::TestCase
     assert_equal %w[list_hirable_roles hire_role].sort, names.sort
   end
 
-  test "sub_agent_summarize_goal scope exposes only get_goal_details and the direct update_goal_summary" do
-    scoped = DirectorServer.new(@role, tool_scope: :sub_agent_summarize_goal)
+  test "sub_agent_summarize_task scope exposes only get_task_details and the direct update_task_summary" do
+    scoped = DirectorServer.new(@role, tool_scope: :sub_agent_summarize_task)
     names = scoped.send(:handle, { "id" => 11, "method" => "tools/list" })
       .dig(:result, :tools).map { |t| t[:name] }
 
-    assert_equal %w[get_goal_details update_goal_summary].sort, names.sort
+    assert_equal %w[get_task_details update_task_summary].sort, names.sort
   end
 
   test "unknown tool scope raises on server construction" do

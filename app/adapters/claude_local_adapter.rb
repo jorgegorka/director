@@ -176,8 +176,8 @@ class ClaudeLocalAdapter < BaseAdapter
     parts << role.job_spec if role.job_spec.present?
     parts << role.role_category.job_spec if role.role_category&.job_spec.present?
 
-    if context[:goal_title].present?
-      parts << build_goal_prompt(context)
+    if context[:root_task_title].present?
+      parts << build_root_task_prompt(context)
     end
 
     if context[:skills].present?
@@ -217,11 +217,10 @@ class ClaudeLocalAdapter < BaseAdapter
       - **create_task** — give an intent, the specialist writes the task and picks an assignee
       - **review_task** — hand off a pending-review task, the specialist judges and approves/rejects
       - **hire_role** — give an intent, the specialist picks a template and budget
-      - **summarize_goal** — call when a tool response includes a `goal_completed` hint; the specialist writes the achievement summary shown to the user
+      - **summarize_task** — call when a tool response includes a `root_task_completed` hint; the specialist writes the achievement summary shown to the user
 
       Direct tools (you use these yourself):
       - **list_my_tasks** / **get_task_details** — inspect your work
-      - **list_my_goals** / **get_goal_details** / **update_goal** — inspect and update goals
       - **list_available_roles** / **list_hirable_roles** — see who is on your team
       - **update_task_status** — mark your own assigned tasks in_progress or pending_review
       - **add_message** — comment on a task
@@ -234,21 +233,20 @@ class ClaudeLocalAdapter < BaseAdapter
       - Do NOT call get_task_details if the task details are already in this prompt — start working immediately
       - Do NOT call update_task_status("in_progress") — tasks are auto-marked in_progress when your session starts
       - Prefer batching independent tool calls in parallel
-      - When any tool response includes `goal_completed: { id, ... }`, call `summarize_goal` with that id before continuing. The user relies on this summary for feedback on finished goals.
+      - When any tool response includes `root_task_completed: { id, ... }`, call `summarize_task` with that id before continuing. The user relies on this summary for feedback on finished work.
       - **All your work happens through Director MCP tools.** Do NOT use Glob, Read, Grep, Bash, Write, Edit, Skill, ToolSearch, TodoWrite, or any non-MCP tool. These are invisible to the task system and waste your limited turns. Post ALL output via `add_message`.
     PROMPT
   end
 
-  private_class_method def self.build_goal_prompt(context)
-    prompt = "## Current Goal\n\n**#{context[:goal_title]}**"
-    prompt += "\n\n#{context[:goal_description]}" if context[:goal_description].present?
+  private_class_method def self.build_root_task_prompt(context)
+    prompt = "## Mission Context\n\n**#{context[:root_task_title]}**"
+    prompt += "\n\n#{context[:root_task_description]}" if context[:root_task_description].present?
     prompt += <<~FOCUS
 
       ## Focus Rules
 
-      Everything you do in this session must directly advance the goal above.
-      - Do NOT create new goals — break work into tasks instead.
-      - Do NOT start work outside this goal's scope.
+      Everything you do in this session must directly advance the mission above.
+      - Do NOT start work outside this mission's scope.
       - If you spot a related opportunity or risk, use `add_message` to flag it — do not act on it.
     FOCUS
     prompt.strip
@@ -297,23 +295,17 @@ class ClaudeLocalAdapter < BaseAdapter
         }.join("\n\n")
       end
 
+      if context[:active_subtasks].present?
+        subtask_list = context[:active_subtasks].map { |t| "- Task ##{t[:id]}: #{t[:title]} (#{t[:status]})" }.join("\n")
+        prompt += "\n\n## Active Subtasks\n\n#{subtask_list}"
+        prompt += "\n\nThis root task already has work in progress. Focus on completing the existing subtasks above — do NOT create new subtasks unless all current ones are completed or blocked and more work is clearly needed."
+      end
+
       prompt += "\n\nThe task is already marked in_progress. The details above are complete — start working immediately."
       prompt += "\n\n**When finished:** post deliverables via `add_message`, then call `update_task_status(\"pending_review\")`. Your work is invisible until you submit."
       prompt.strip
-    elsif context[:goal_id].present?
-      prompt = "You have been assigned Goal: **#{context[:goal_title]}**"
-      prompt += "\n\n#{context[:goal_description]}" if context[:goal_description].present?
-
-      if context[:goal_active_tasks].present?
-        task_list = context[:goal_active_tasks].map { |t| "- Task ##{t[:id]}: #{t[:title]} (#{t[:status]})" }.join("\n")
-        prompt += "\n\n## Active Tasks\n\n#{task_list}"
-        prompt += "\n\nThis goal already has work in progress. Focus on completing the existing tasks above — do NOT create new tasks unless all current ones are completed or blocked and more work is clearly needed."
-      else
-        prompt += "\n\nThis is a new goal with no tasks yet. Decide the first piece of work and hand it to the create_task specialist -- do not write the task description yourself."
-      end
-      prompt.strip
     else
-      "Check your assigned goals with list_my_goals and tasks with list_my_tasks, then execute the highest-priority work."
+      "Check your assigned tasks with list_my_tasks, then execute the highest-priority work."
     end
   end
 end

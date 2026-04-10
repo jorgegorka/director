@@ -72,25 +72,14 @@ module Roles
         end
       end
 
-      # Defense in depth: short-circuit any trigger targeting a finalized goal.
-      if context[:goal_id].present?
-        goal = role.project.goals.find_by(id: context[:goal_id])
-        if goal&.finalized?
-          event.mark_delivered!(response: { status: "skipped_finalized_goal", goal_completion: goal.completion_percentage })
-          return
-        end
-      end
-
       run_attrs = {
         task_id: context[:task_id],
-        goal_id: context[:goal_id],
         project_id: role.project_id,
         trigger_type: trigger_type
       }
 
       active_run = role.role_runs.active.first
       if active_run
-        attach_goal_to_active_run(active_run) if context[:goal_id].present?
         role.role_runs.create!(**run_attrs, status: :throttled) if context[:task_id].present?
         return
       end
@@ -113,11 +102,6 @@ module Roles
         project_id: role.project_id,
         triggered_at: Time.current.iso8601
       }.merge(context)
-    end
-
-    def attach_goal_to_active_run(active_run)
-      return if active_run.goal_id.present?
-      active_run.update_column(:goal_id, context[:goal_id])
     end
 
     def inherit_adapter_from_ancestor!

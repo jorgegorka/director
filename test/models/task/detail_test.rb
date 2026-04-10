@@ -77,24 +77,24 @@ class Task::DetailTest < ActiveSupport::TestCase
     assert_same @detail.document_links, @detail.document_links
   end
 
-  # --- goal_evaluations ---
+  # --- task_evaluations ---
 
-  test "goal_evaluations returns evaluations ordered by attempt number" do
+  test "task_evaluations returns evaluations ordered by attempt number" do
     detail = Task::Detail.new(tasks(:eval_ready_task))
-    evals = detail.goal_evaluations
+    evals = detail.task_evaluations
     assert evals.any?
     assert_equal evals.sort_by(&:attempt_number), evals.to_a
   end
 
-  test "goal_evaluations eager loads goal" do
+  test "task_evaluations eager loads root_task" do
     detail = Task::Detail.new(tasks(:eval_ready_task))
-    detail.goal_evaluations.each do |eval|
-      assert eval.association(:goal).loaded?
+    detail.task_evaluations.each do |eval|
+      assert eval.association(:root_task).loaded?
     end
   end
 
-  test "goal_evaluations is memoized" do
-    assert_same @detail.goal_evaluations, @detail.goal_evaluations
+  test "task_evaluations is memoized" do
+    assert_same @detail.task_evaluations, @detail.task_evaluations
   end
 
   # --- boolean helpers ---

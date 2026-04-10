@@ -68,8 +68,11 @@ class Dashboard::OverviewTest < ActiveSupport::TestCase
     assert_not overview.show_budget?
   end
 
-  test "top_goal returns first ordered goal" do
-    assert_equal goals(:acme_mission), @overview.top_goal
+  test "top_root_task returns a root task from the project" do
+    top = @overview.top_root_task
+    assert_not_nil top
+    assert_nil top.parent_task_id
+    assert_equal @overview.project.id, top.project_id
   end
 
   test "scoped to project only" do

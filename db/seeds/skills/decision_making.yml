@@ -28,4 +28,4 @@ markdown: |
   - Record dissenting considerations; they are the first thing to revisit if the decision turns out wrong
 
   ## Deliverable
-  A decision record posted via `add_message` (and, where the decision changes goal scope, reflected via `update_goal`) containing: the question, the options, the criteria and weights, the chosen option with rationale, the key assumption, and the review trigger.
+  A decision record posted via `add_message` () containing: the question, the options, the criteria and weights, the chosen option with rationale, the key assumption, and the review trigger.

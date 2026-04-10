@@ -1,4 +1,4 @@
-class EvaluateGoalAlignmentJob < ApplicationJob
+class EvaluateTaskAlignmentJob < ApplicationJob
   queue_as :default
 
   retry_on StandardError, wait: :polynomially_longer, attempts: 3
@@ -8,6 +8,6 @@ class EvaluateGoalAlignmentJob < ApplicationJob
     task = Task.find_by(id: task_id)
     return unless task
 
-    Goals::Evaluation.call(task)
+    Tasks::Evaluation.call(task)
   end
 end

@@ -13,8 +13,7 @@ class Role < ApplicationRecord
 
   has_many :role_skills, dependent: :destroy, inverse_of: :role
   has_many :skills, through: :role_skills
-  has_many :goal_evaluations, dependent: :destroy
-  has_many :goals, dependent: :nullify
+  has_many :task_evaluations, dependent: :destroy
   has_many :created_tasks, class_name: "Task", foreign_key: :creator_id, inverse_of: :creator, dependent: :nullify
   has_many :assigned_tasks, class_name: "Task", foreign_key: :assignee_id, inverse_of: :assignee, dependent: :nullify
   has_many :reviewed_tasks, class_name: "Task", foreign_key: :reviewed_by_id, inverse_of: :reviewed_by, dependent: :nullify
@@ -73,10 +72,14 @@ class Role < ApplicationRecord
   def latest_session_id_for(task)
     return latest_session_id if task.nil?
 
-    pick_session(role_runs.where(task_id: task.id)) ||
-      (task.goal_id.present? &&
-        pick_session(role_runs.where(task_id: project.tasks.where(goal_id: task.goal_id).where.not(id: task.id).select(:id)))) ||
-      nil
+    own_session = pick_session(role_runs.where(task_id: task.id))
+    return own_session if own_session
+
+    root = task.root_ancestor
+    return nil if root.id == task.id
+
+    sibling_ids = project.tasks.where(id: collect_descendant_ids(root)).where.not(id: task.id).select(:id)
+    pick_session(role_runs.where(task_id: sibling_ids))
   end
 
   def gate_enabled?(action_type)
@@ -101,6 +104,18 @@ class Role < ApplicationRecord
     scope.where.not(claude_session_id: nil)
          .order(created_at: :desc)
          .pick(:claude_session_id)
+  end
+
+  def collect_descendant_ids(task)
+    ids = [ task.id ]
+    frontier = [ task.id ]
+    until frontier.empty?
+      children = project.tasks.where(parent_task_id: frontier).pluck(:id)
+      break if children.empty?
+      ids.concat(children)
+      frontier = children
+    end
+    ids
   end
 
   def inherit_parent_working_directory

@@ -1,4 +1,0 @@
-<% if @goal.role_id %>
-  <% role = @goal.role.tap { |r| r.goals.load } %>
-  <%= turbo_stream.replace "org-chart-node-#{role.id}", partial: "roles/org_chart_node", locals: { role: role } %>
-<% end %>

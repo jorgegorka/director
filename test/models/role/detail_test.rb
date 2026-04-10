@@ -54,17 +54,18 @@ class Role::DetailTest < ActiveSupport::TestCase
     assert_same @detail.role_skills_by_skill_id, @detail.role_skills_by_skill_id
   end
 
-  test "role_goals returns goals for the role" do
-    goals = @detail.role_goals
-    assert goals.all? { |g| g.role_id == @role.id }
+  test "assigned_root_tasks returns root tasks assigned to the role" do
+    root_tasks = @detail.assigned_root_tasks
+    assert root_tasks.all? { |t| t.assignee_id == @role.id }
+    assert root_tasks.all? { |t| t.parent_task_id.nil? }
   end
 
-  test "role_goals is memoized" do
-    assert_same @detail.role_goals, @detail.role_goals
+  test "assigned_root_tasks is memoized" do
+    assert_same @detail.assigned_root_tasks, @detail.assigned_root_tasks
   end
 
-  test "eval_total returns count of goal evaluations" do
-    expected = @role.goal_evaluations.count
+  test "eval_total returns count of task evaluations" do
+    expected = @role.task_evaluations.count
     assert_equal expected, @detail.eval_total
   end
 
@@ -74,7 +75,7 @@ class Role::DetailTest < ActiveSupport::TestCase
   end
 
   test "eval_pass_count returns count of passed evaluations" do
-    expected = @role.goal_evaluations.passed.count
+    expected = @role.task_evaluations.passed.count
     assert_equal expected, @detail.eval_pass_count
   end
 
@@ -83,13 +84,13 @@ class Role::DetailTest < ActiveSupport::TestCase
     assert_equal first_call, @detail.eval_pass_count
   end
 
-  test "recent_evaluations returns evaluations with task and goal eager loaded" do
+  test "recent_evaluations returns evaluations with task and root_task eager loaded" do
     evaluations = @detail.recent_evaluations
     assert evaluations.size <= 5
     assert evaluations.all? { |e| e.role_id == @role.id }
     evaluations.each do |evaluation|
       assert evaluation.association(:task).loaded?
-      assert evaluation.association(:goal).loaded?
+      assert evaluation.association(:root_task).loaded?
     end
   end
 

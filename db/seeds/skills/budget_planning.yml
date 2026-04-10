@@ -15,7 +15,7 @@ markdown: |
 
   ## Approach
   1. Read prior-period actuals and identify variances between plan and reality via `search_documents` if finance docs exist. Understand the causes
-  2. Read the current strategic goals (`list_my_goals`, `get_goal_details`) and translate them into resource requirements
+  2. Read the current strategic goals (`list_my_tasks` with the root tasks you are assigned) and translate them into resource requirements
   3. Apply zero-based thinking per category: what is the minimum required to achieve the goal versus what is nice to have?
   4. Consolidate into a master budget and model the P&L impact. Does it meet the target financial outcome?
   5. Identify the explicit trade-offs being made: what is being cut or deferred, and why

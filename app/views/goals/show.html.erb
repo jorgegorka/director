@@ -1,19 +1,21 @@
-<% content_for(:title, @goal.title) %>
+<% content_for(:title, @root_task.title) %>
 
 <section class="goal-detail">
   <div class="goal-detail__header">
     <div class="goal-detail__header-top">
       <div>
-        <h1 class="goal-detail__title"><%= @goal.title %></h1>
+        <h1 class="goal-detail__title"><%= @root_task.title %></h1>
       </div>
       <div class="goal-detail__actions">
-        <%= link_to "Edit", edit_goal_path(@goal), class: "btn btn--ghost btn--sm" %>
-        <%= button_to "Delete", @goal, method: :delete, class: "btn btn--ghost btn--sm goal-detail__delete",
-              data: { turbo_confirm: "Delete '#{@goal.title}'?" } %>
+        <%= link_to "Edit", edit_goal_path(@root_task), class: "btn btn--ghost btn--sm" %>
+        <%= button_to "Delete", goal_path(@root_task), method: :delete, class: "btn btn--ghost btn--sm goal-detail__delete",
+              data: { turbo_confirm: "Delete '#{@root_task.title}'?" } %>
       </div>
     </div>
 
-    <% percentage = @goal.completion_percentage %>
+    <% percentage = @root_task.completion_percentage %>
+    <% subtasks = @root_task.subtasks.by_priority %>
+    <% completed_count = subtasks.count { |t| t.status == "completed" } %>
     <div class="goal-detail__progress-card">
       <div class="goal-detail__progress-info">
         <span class="goal-detail__progress-label">Progress</span>
@@ -21,41 +23,38 @@
       </div>
       <%= render "shared/progress_bar", percentage: percentage, large: true %>
       <div class="goal-detail__progress-stats">
-        <span><%= percentage %>% complete &middot; <%= @detail.tasks.count { |t| t.status == "completed" } %> of <%= @detail.tasks.size %> tasks done</span>
-        <% if @detail.any_evaluations? %>
-          <span class="goal-detail__eval-stats">&middot; <%= @detail.eval_pass_count %>/<%= @detail.eval_total %> evaluations passed (<%= @detail.eval_pass_rate %>%)</span>
-        <% end %>
+        <span><%= percentage %>% complete &middot; <%= completed_count %> of <%= subtasks.size %> tasks done</span>
       </div>
     </div>
-    <% if @goal.role.present? %>
+    <% if @root_task.assignee.present? %>
       <div class="goal-detail__role">
-        <span>Assigned to: <%= link_to @goal.role.title, role_path(@goal.role) %></span>
+        <span>Assigned to: <%= link_to @root_task.assignee.title, role_path(@root_task.assignee) %></span>
       </div>
     <% end %>
   </div>
 
   <div class="goal-detail__body">
-    <% if @goal.summary.present? %>
+    <% if @root_task.summary.present? %>
       <div class="goal-detail__summary">
         <h2 class="goal-detail__summary-title">Outcome</h2>
-        <%= markdown(@goal.summary) %>
+        <%= markdown(@root_task.summary) %>
       </div>
     <% end %>
 
-    <% if @goal.description.present? %>
+    <% if @root_task.description.present? %>
       <div class="goal-detail__description">
-        <%= markdown(@goal.description) %>
+        <%= markdown(@root_task.description) %>
       </div>
     <% end %>
 
     <div class="goal-detail__section">
       <div class="goal-detail__section-header">
-        <h2>Tasks <span class="goal-detail__count"><%= @detail.tasks.size %></span></h2>
-        <%= link_to "+ Create task", new_task_path(goal_id: @goal.id), class: "btn btn--primary btn--sm" %>
+        <h2>Tasks <span class="goal-detail__count"><%= subtasks.size %></span></h2>
+        <%= link_to "+ Create task", new_task_path(parent_task_id: @root_task.id), class: "btn btn--primary btn--sm" %>
       </div>
-      <% if @detail.any_tasks? %>
+      <% if subtasks.any? %>
         <div class="task-list">
-          <% @detail.tasks.each do |task| %>
+          <% subtasks.each do |task| %>
             <%= render partial: "tasks/task", locals: { task: task } %>
           <% end %>
         </div>

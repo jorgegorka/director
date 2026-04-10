@@ -2,17 +2,17 @@ module Tools
   # Orchestrator-facing `review_task` tool. Delegates to the ReviewTask
   # sub-agent, which reads the submission and decides approve/reject.
   #
-  # When approval causes a goal to reach 100% completion, automatically
-  # chains the SummarizeGoal sub-agent so the user gets an outcome summary
-  # without the orchestrator needing to remember to call summarize_goal.
+  # When approval causes a root task to reach 100% completion, automatically
+  # chains the SummarizeTask sub-agent so the user gets an outcome summary
+  # without the orchestrator needing to remember to call summarize_task.
   class ReviewTaskAgent < SubAgentTool
     self.sub_agent_class = SubAgents::ReviewTask
 
     def call(arguments)
       result = super
       if result.is_a?(Hash) && result[:status] == "ok"
-        if (summarized_goal_id = auto_summarize_completed_goal(arguments["task_id"]))
-          result[:goal_summarized] = summarized_goal_id
+        if (summarized_id = auto_summarize_completed_root_task(arguments["task_id"]))
+          result[:root_task_summarized] = summarized_id
         end
       end
       result
@@ -20,23 +20,25 @@ module Tools
 
     private
 
-    def auto_summarize_completed_goal(task_id)
+    def auto_summarize_completed_root_task(task_id)
       task = project.tasks.find_by(id: task_id)
-      return unless task&.goal
+      return unless task
 
-      goal = task.goal
-      total = goal.tasks.count
+      root = task.root_ancestor
+      return if root.id == task.id
+
+      total = root.subtasks.count
       return if total.zero?
-      return unless total == goal.tasks.completed.count
-      return if goal.summary.present?
+      return unless total == root.subtasks.completed.count
+      return if root.summary.present?
 
-      SubAgents::SummarizeGoal.new(
+      SubAgents::SummarizeTask.new(
         role: role,
-        arguments: { "goal_id" => goal.id },
+        arguments: { "task_id" => root.id },
         parent_role_run: resolve_parent_role_run
       ).call
 
-      goal.id
+      root.id
     end
   end
 end

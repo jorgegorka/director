@@ -13,13 +13,12 @@ class Task < ApplicationRecord
   belongs_to :assignee, class_name: "Role", optional: true
   belongs_to :reviewed_by, class_name: "Role", optional: true
   belongs_to :parent_task, class_name: "Task", optional: true
-  belongs_to :goal, optional: true
 
   has_many :subtasks, class_name: "Task", foreign_key: :parent_task_id, inverse_of: :parent_task, dependent: :destroy
   has_many :messages, dependent: :destroy
   has_many :hook_executions, dependent: :destroy
   has_many :role_runs, dependent: :nullify
-  has_many :goal_evaluations, dependent: :destroy
+  has_many :task_evaluations, dependent: :destroy
 
   has_many :task_documents, dependent: :destroy, inverse_of: :task
   has_many :documents, through: :task_documents
@@ -35,7 +34,7 @@ class Task < ApplicationRecord
   scope :completed, -> { where(status: :completed) }
   scope :by_priority, -> { order(priority: :desc, created_at: :desc) }
   scope :roots, -> { where(parent_task_id: nil) }
-  scope :pending_human_review, -> { where(status: :pending_review).where(creator_id: Role.roots.select(:id)) }
+  scope :pending_human_review, -> { where(status: :pending_review).where.not(parent_task_id: nil).where(creator_id: Role.roots.select(:id)) }
 
   before_save :set_completed_at
   after_commit :enqueue_hooks_for_transition, on: [ :create, :update ]
@@ -51,6 +50,16 @@ class Task < ApplicationRecord
 
   def terminal?
     completed? || cancelled?
+  end
+
+  def root_ancestor
+    node = self
+    node = node.parent_task while node.parent_task_id
+    node
+  end
+
+  def root?
+    parent_task_id.nil?
   end
 
   # Post a comment from an automated source (role agent, watchdog, etc).

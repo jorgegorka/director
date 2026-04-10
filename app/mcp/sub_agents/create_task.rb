@@ -23,13 +23,9 @@ module SubAgents
               type: "string",
               description: "Plain-language description of what needs to happen. Don't worry about formatting -- the specialist will write the final task. Include any constraints, deadlines, or context the specialist should know."
             },
-            goal_id: {
-              type: "integer",
-              description: "ID of the goal this task advances (optional but strongly recommended)."
-            },
             parent_task_id: {
               type: "integer",
-              description: "ID of the parent task when creating a subtask (optional)."
+              description: "ID of the parent task when creating a subtask. Provide the id of the root task (mission) this work advances so the specialist can read its context and avoid duplicating existing subtasks."
             },
             suggested_assignee_role_id: {
               type: "integer",
@@ -48,7 +44,7 @@ module SubAgents
         Your single job: convert a brief intent into ONE well-scoped task and create it. Do not do the work itself, do not split into multiple tasks, do not start a dialogue.
 
         Process:
-        1. If a goal_id was provided, call get_goal_details to understand the goal's context and existing tasks. Do NOT create work that duplicates or overlaps with existing tasks on the goal.
+        1. If a parent_task_id was provided, call get_task_details on it to understand the parent context and existing subtasks. Do NOT create work that duplicates or overlaps with existing subtasks.
         2. Call list_available_roles to see who can be assigned work. Pick the single best assignee based on the intent:
            - Prefer subordinates over siblings.
            - Prefer roles whose description matches the work.
@@ -57,7 +53,7 @@ module SubAgents
            - A clear, imperative title (under 80 characters).
            - A description that includes WHAT to do, WHY it matters, and any constraints the intent mentioned. Do not restate the intent verbatim -- rewrite it as an actionable brief for the assignee.
            - The chosen assignee_role_id.
-           - The goal_id and parent_task_id if they were provided.
+           - The parent_task_id if one was provided.
            - A priority (default: medium; use high only if the intent explicitly says urgent/important).
         4. After create_task returns, respond with a single sentence confirming the task id and assignee. Then stop.
 
@@ -67,14 +63,13 @@ module SubAgents
 
     def user_message
       parts = [ "Intent: #{arguments['intent']}" ]
-      parts << "Goal id: #{arguments['goal_id']}" if arguments["goal_id"].present?
       parts << "Parent task id: #{arguments['parent_task_id']}" if arguments["parent_task_id"].present?
       parts << "Suggested assignee role id: #{arguments['suggested_assignee_role_id']}" if arguments["suggested_assignee_role_id"].present?
       parts.join("\n")
     end
 
     def build_input_summary
-      "intent=#{arguments['intent'].to_s.truncate(120)} goal_id=#{arguments['goal_id']}"
+      "intent=#{arguments['intent'].to_s.truncate(120)} parent=#{arguments['parent_task_id']}"
     end
   end
 end

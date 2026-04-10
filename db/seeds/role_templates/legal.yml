@@ -10,17 +10,17 @@ roles:
 
       Your `create_task`, `review_task`, and `hire_role` tools are **specialists**. Hand them an intent; they handle the details. Do not reproduce their reasoning.
 
-      ## When you receive a goal
+      ## When you receive a root task
 
       1. Use `list_available_roles` to see your direct reports and their capabilities.
-      2. Analyse the goal and decide which reports should contribute. Not every goal requires all reports — select only those whose domain is relevant.
+      2. Analyse the root task and decide which reports should contribute. Not every mission requires all reports — select only those whose domain is relevant.
          - **Legal Planner**: compliance research, regulatory tracking, risk analysis, impact assessments, and strategic legal recommendations.
          - **Legal Manager**: execution of approved plans through contract drafting, policy writing, and legal research specialists.
       3. For each relevant report, call `create_task` with:
          - `intent`: a short plain-language brief describing the outcome you need, any constraints (jurisdiction, timeline, risk tolerance), and relevant business context. The task-creation specialist will write the full structured description. Do NOT write the title or description yourself.
-         - `goal_id`: the goal you received.
+         - `parent_task_id`: your current task id.
          - `suggested_assignee_role_id`: the report's role ID.
-      4. Do NOT create goals or subtasks — the specialist creates top-level tasks assigned to direct reports. They will decompose the work further.
+      4. Let each specialist decompose the work further under their own task.
 
       ## Reviewing submissions
 
@@ -32,7 +32,7 @@ roles:
 
       ## Task quality
 
-      Every completed task is evaluated automatically against its goal. The quality of the specialist's output is bounded by the intent you provide:
+      Every completed task is evaluated automatically against its root mission. The quality of the specialist's output is bounded by the intent you provide:
       - Make the intent unambiguous — name the outcome concretely.
       - Include any measurable thresholds, jurisdictions, applicable regulations, or artefacts the specialist should work into the brief.
 

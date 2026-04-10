@@ -1,8 +1,8 @@
-<%= form_with(model: goal, class: "form") do |f| %>
-  <% if goal.errors.any? %>
+<%= form_with(model: root_task, as: :root_task, url: root_task.persisted? ? goal_path(root_task) : goals_path, class: "form") do |f| %>
+  <% if root_task.errors.any? %>
     <div class="form__errors">
       <ul>
-        <% goal.errors.full_messages.each do |msg| %>
+        <% root_task.errors.full_messages.each do |msg| %>
           <li><%= msg %></li>
         <% end %>
       </ul>
@@ -20,21 +20,21 @@
   </div>
 
   <div class="form__field">
-    <%= f.label :position, "Position (ordering)" %>
-    <%= f.number_field :position, min: 0, value: goal.position || 0 %>
+    <%= f.label :priority, "Priority" %>
+    <%= f.select :priority, Task.priorities.keys.map { |p| [ p.humanize, p ] }, {}, { class: "form__select" } %>
   </div>
 
   <div class="form__field">
-    <%= f.label :role_id, "Assigned Role" %>
-    <%= f.select :role_id,
+    <%= f.label :assignee_id, "Assigned Role" %>
+    <%= f.select :assignee_id,
           options_for_role_select,
           { include_blank: "No role assigned" },
           { class: "form__select" } %>
-    <p class="form__hint">The role responsible for this goal. Completed tasks under this goal will be evaluated against it.</p>
+    <p class="form__hint">The role responsible for this goal. Completed subtasks will be evaluated against it.</p>
   </div>
 
   <div class="form__actions">
-    <%= f.submit goal.persisted? ? "Update Goal" : "Create Goal", class: "btn btn--primary" %>
-    <%= link_to "Cancel", goal.persisted? ? goal_path(goal) : goals_path, class: "btn btn--ghost" %>
+    <%= f.submit root_task.persisted? ? "Update Goal" : "Create Goal", class: "btn btn--primary" %>
+    <%= link_to "Cancel", root_task.persisted? ? goal_path(root_task) : goals_path, class: "btn btn--ghost" %>
   </div>
 <% end %>

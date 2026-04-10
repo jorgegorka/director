@@ -14,7 +14,7 @@ markdown: |
   - You are preparing to hand work off and the receiving agent needs a spec
 
   ## Approach
-  1. Read the goal via `get_goal_details` and any linked documents via `search_documents`. Every requirement must be traceable to a stated intent
+  1. Read the goal via `get_task_details` and any linked documents via `search_documents`. Every requirement must be traceable to a stated intent
   2. Separate functional requirements (what the system must do) from non-functional requirements (performance, security, compliance, availability)
   3. Document each requirement in a consistent format — user stories or structured specs — with acceptance criteria
   4. Where intent is unclear, post a specific question via `add_message` on the goal. Do not invent requirements to fill gaps

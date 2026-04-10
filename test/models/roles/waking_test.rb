@@ -181,64 +181,6 @@ class Roles::WakingTest < ActiveSupport::TestCase
     assert_equal tasks(:fix_login_bug), run.task
   end
 
-  test "creates RoleRun with goal_id for goal_assigned triggers" do
-    goal = goals(:acme_mission)
-    Roles::Waking.call(
-      role: @cto,
-      trigger_type: :goal_assigned,
-      trigger_source: "Goal##{goal.id}",
-      context: { goal_id: goal.id, goal_title: goal.title, goal_description: goal.description }
-    )
-
-    run = RoleRun.last
-    assert run.queued?
-    assert_equal goal, run.goal
-    assert_nil run.task
-    assert_equal "goal_assigned", run.trigger_type
-  end
-
-  # --- Goal context attachment on active run collision ---
-
-  test "attaches goal_id to active run when goal_assigned trigger finds existing run" do
-    # Create an active run without a goal
-    active_run = @cto.role_runs.create!(
-      project: @cto.project, status: :running, trigger_type: "scheduled"
-    )
-    assert_nil active_run.goal_id
-
-    goal = goals(:acme_mission)
-    assert_no_difference -> { RoleRun.count } do
-      Roles::Waking.call(
-        role: @cto,
-        trigger_type: :goal_assigned,
-        trigger_source: "Goal##{goal.id}",
-        context: { goal_id: goal.id, goal_title: goal.title }
-      )
-    end
-
-    active_run.reload
-    assert_equal goal.id, active_run.goal_id
-  end
-
-  test "does not overwrite existing goal_id on active run" do
-    original_goal = goals(:acme_mission)
-    active_run = @cto.role_runs.create!(
-      project: @cto.project, status: :running, trigger_type: "goal_assigned",
-      goal: original_goal
-    )
-
-    other_goal = goals(:acme_objective_one)
-    Roles::Waking.call(
-      role: @cto,
-      trigger_type: :goal_assigned,
-      trigger_source: "Goal##{other_goal.id}",
-      context: { goal_id: other_goal.id, goal_title: other_goal.title }
-    )
-
-    active_run.reload
-    assert_equal original_goal.id, active_run.goal_id
-  end
-
   # --- Task wake on busy role ---
 
   test "creates throttled RoleRun when task assigned to busy role" do
@@ -273,21 +215,6 @@ class Roles::WakingTest < ActiveSupport::TestCase
         role: @cto,
         trigger_type: :scheduled,
         trigger_source: "schedule"
-      )
-    end
-  end
-
-  test "goal-only wake on busy role does not create throttled RoleRun" do
-    @cto.role_runs.create!(
-      project: @cto.project, status: :running, trigger_type: "scheduled"
-    )
-
-    assert_no_difference -> { RoleRun.count } do
-      Roles::Waking.call(
-        role: @cto,
-        trigger_type: :goal_assigned,
-        trigger_source: "Goal#1",
-        context: { goal_id: goals(:acme_mission).id, goal_title: "Mission" }
       )
     end
   end
@@ -363,39 +290,6 @@ class Roles::WakingTest < ActiveSupport::TestCase
     assert_equal "skipped_terminal_task", event.response_payload["status"]
   end
 
-  # --- Finalized goal guard ---
-
-  test "does not create RoleRun when goal is finalized" do
-    goal = goals(:acme_mission)
-    goal.update_column(:completion_percentage, 100)
-
-    assert_no_difference -> { RoleRun.count } do
-      assert_no_enqueued_jobs(only: ExecuteRoleJob) do
-        Roles::Waking.call(
-          role: @cto,
-          trigger_type: :goal_assigned,
-          trigger_source: "Goal##{goal.id}",
-          context: { goal_id: goal.id, goal_title: goal.title }
-        )
-      end
-    end
-  end
-
-  test "marks heartbeat event delivered with skipped_finalized_goal response" do
-    goal = goals(:acme_mission)
-    goal.update_column(:completion_percentage, 100)
-
-    event = Roles::Waking.call(
-      role: @cto,
-      trigger_type: :goal_assigned,
-      trigger_source: "Goal##{goal.id}",
-      context: { goal_id: goal.id, goal_title: goal.title }
-    )
-
-    assert event.persisted?
-    assert event.delivered?
-    assert_equal "skipped_finalized_goal", event.response_payload["status"]
-  end
 
   test "creates queued run when project concurrency limit is zero (unlimited)" do
     project = @developer.project

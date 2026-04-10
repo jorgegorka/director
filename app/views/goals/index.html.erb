@@ -6,13 +6,13 @@
     <%= link_to "New Goal", new_goal_path, class: "btn btn--primary btn--sm" %>
   </div>
 
-  <% if @goals.any? %>
+  <% if @root_tasks.any? %>
     <div class="goal-list">
-      <% @goals.each do |goal| %>
-        <% percentage = goal.completion_percentage %>
+      <% @root_tasks.each do |root_task| %>
+        <% percentage = root_task.completion_percentage %>
         <div class="goal-list__item">
           <div class="goal-list__info">
-            <%= link_to goal.title, goal_path(goal), class: "goal-list__title" %>
+            <%= link_to root_task.title, goal_path(root_task), class: "goal-list__title" %>
             <div class="goal-list__progress-inline">
               <span class="goal-list__percentage"><%= percentage %>%</span>
               <div class="goal-list__bar">

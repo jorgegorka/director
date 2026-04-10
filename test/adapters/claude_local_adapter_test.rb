@@ -525,29 +525,29 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     assert_equal "Something went wrong", result[:error_message]
   end
 
-  test "system prompt includes goal section when goal context present" do
+  test "system prompt includes mission section when root task context present" do
     context = {
-      goal_title: "Improve SEO rankings",
-      goal_description: "Increase organic traffic by 30%"
+      root_task_title: "Improve SEO rankings",
+      root_task_description: "Increase organic traffic by 30%"
     }
 
     prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @role, context)
 
-    assert_includes prompt, "## Current Goal"
+    assert_includes prompt, "## Mission Context"
     assert_includes prompt, "**Improve SEO rankings**"
     assert_includes prompt, "Increase organic traffic by 30%"
   end
 
-  test "system prompt omits goal section when no goal context" do
+  test "system prompt omits mission section when no root task context" do
     prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @role, { skills: [] })
 
-    assert_not_includes prompt, "Current Goal"
+    assert_not_includes prompt, "Mission Context"
   end
 
-  test "section ordering: identity, job_spec, category_spec, goal, skills" do
+  test "section ordering: identity, job_spec, category_spec, mission, skills" do
     @role.job_spec = "You are the CMO."
     context = {
-      goal_title: "Improve SEO",
+      root_task_title: "Improve SEO",
       skills: [
         { key: "seo", name: "SEO", description: "Optimize search", category: "marketing", markdown: "# SEO" }
       ]
@@ -558,13 +558,13 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     identity_pos = prompt.index("Your Identity")
     job_spec_pos = prompt.index("You are the CMO.")
     category_pos = prompt.index(@role.role_category.job_spec)
-    goal_pos = prompt.index("Current Goal")
+    mission_pos = prompt.index("Mission Context")
     skills_pos = prompt.index("Your Skills")
 
     assert identity_pos < job_spec_pos, "Identity should appear before job spec"
     assert job_spec_pos < category_pos, "Job spec should appear before category spec"
-    assert category_pos < goal_pos, "Category spec should appear before goal"
-    assert goal_pos < skills_pos, "Goal should appear before skills"
+    assert category_pos < mission_pos, "Category spec should appear before mission"
+    assert mission_pos < skills_pos, "Mission should appear before skills"
   end
 
   test "identity prompt includes subordinates" do
@@ -580,21 +580,20 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     assert_includes prompt, "Director MCP tools"
     assert_includes prompt, "create_task"
     assert_includes prompt, "hire_role"
-    assert_includes prompt, "get_goal_details"
-    assert_includes prompt, "update_goal"
+    assert_includes prompt, "get_task_details"
+    assert_includes prompt, "summarize_task"
   end
 
-  test "goal prompt includes focus rules" do
+  test "mission prompt includes focus rules" do
     context = {
-      goal_title: "Improve SEO rankings",
-      goal_description: "Increase organic traffic by 30%"
+      root_task_title: "Improve SEO rankings",
+      root_task_description: "Increase organic traffic by 30%"
     }
 
     prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @role, context)
 
     assert_includes prompt, "## Focus Rules"
-    assert_includes prompt, "Do NOT create new goals"
-    assert_includes prompt, "Do NOT start work outside this goal"
+    assert_includes prompt, "Do NOT start work outside this mission"
     assert_includes prompt, "add_message"
   end
 
@@ -676,21 +675,12 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     assert_includes prompt, @task.title
   end
 
-  test "build_user_prompt falls back to goal context with no active tasks" do
-    context = { goal_id: 1, goal_title: "Improve SEO", goal_description: "Increase traffic" }
-    prompt = ClaudeLocalAdapter.send(:build_user_prompt, context)
-
-    assert_includes prompt, "Improve SEO"
-    assert_includes prompt, "new goal with no tasks yet"
-    assert_includes prompt, "create_task specialist"
-  end
-
-  test "build_user_prompt goal with active tasks shows task list and continuation instructions" do
+  test "build_user_prompt root task with active subtasks shows subtask list and continuation instructions" do
     context = {
-      goal_id: 1,
-      goal_title: "Improve SEO",
-      goal_description: "Increase traffic",
-      goal_active_tasks: [
+      task_id: 1,
+      task_title: "Improve SEO",
+      task_description: "Increase traffic",
+      active_subtasks: [
         { id: 10, title: "Audit sitemap", status: "in_progress" },
         { id: 11, title: "Fix meta tags", status: "open" }
       ]
@@ -701,7 +691,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     assert_includes prompt, "Task #10: Audit sitemap (in_progress)"
     assert_includes prompt, "Task #11: Fix meta tags (open)"
     assert_includes prompt, "work in progress"
-    assert_includes prompt, "do NOT create new tasks"
+    assert_includes prompt, "do NOT create new subtasks"
   end
 
   test "build_user_prompt includes task documents when present" do
@@ -749,10 +739,9 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     assert_not_includes prompt, "Related docs: " + '"' + "Review", "Skills without linked docs should not have Related docs line"
   end
 
-  test "build_user_prompt generic fallback when no task or goal" do
+  test "build_user_prompt generic fallback when no task context" do
     prompt = ClaudeLocalAdapter.send(:build_user_prompt, {})
 
-    assert_includes prompt, "list_my_goals"
     assert_includes prompt, "list_my_tasks"
   end
 
@@ -973,38 +962,33 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     assert_not_includes user_prompt, "task_review skill"
   end
 
-  test "goal-only: system prompt includes goal section with focus rules and skills" do
+  test "root task: system prompt includes mission section with focus rules and skills" do
     skills = [
       { key: "code_review", name: "Code Review", description: "Review code changes", category: "technical", markdown: "# Code Review" }
     ]
     context = {
-      goal_id: 1,
-      goal_title: "Increase revenue",
-      goal_description: "Grow MRR by 20%",
+      root_task_id: 1,
+      root_task_title: "Increase revenue",
+      root_task_description: "Grow MRR by 20%",
       skills: skills
     }
 
     system_prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @role, context)
-    user_prompt = ClaudeLocalAdapter.send(:build_user_prompt, context)
 
-    assert_includes system_prompt, "Current Goal"
+    assert_includes system_prompt, "Mission Context"
     assert_includes system_prompt, "**Increase revenue**"
     assert_includes system_prompt, "Focus Rules"
     assert_includes system_prompt, "Your Skills"
-
-    assert_includes user_prompt, "Increase revenue"
-    assert_includes user_prompt, "new goal with no tasks yet"
   end
 
-  test "fallback: no task or goal produces generic user prompt" do
+  test "fallback: no task produces generic user prompt" do
     system_prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @role, {})
     user_prompt = ClaudeLocalAdapter.send(:build_user_prompt, {})
 
     assert_includes system_prompt, "Your Identity"
-    assert_not_includes system_prompt, "Current Goal"
+    assert_not_includes system_prompt, "Mission Context"
     assert_not_includes system_prompt, "Your Skills"
 
-    assert_includes user_prompt, "list_my_goals"
     assert_includes user_prompt, "list_my_tasks"
   end
 

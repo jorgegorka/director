@@ -1,10 +1,10 @@
-class GoalEvaluation < ApplicationRecord
+class TaskEvaluation < ApplicationRecord
   include Tenantable
 
   MAX_ATTEMPTS = 3
 
   belongs_to :task
-  belongs_to :goal
+  belongs_to :root_task, class_name: "Task"
   belongs_to :role
 
   enum :result, { pass: 0, fail: 1 }

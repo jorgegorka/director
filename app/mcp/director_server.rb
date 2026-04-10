@@ -13,23 +13,20 @@ class DirectorServer
       Tools::CreateTaskAgent,
       Tools::ReviewTaskAgent,
       Tools::HireRoleAgent,
-      Tools::SummarizeGoalAgent,
+      Tools::SummarizeTaskAgent,
 
       # Mechanical tools stay direct.
       Tools::UpdateTaskStatus,
       Tools::ListMyTasks,
-      Tools::ListMyGoals,
       Tools::ListAvailableRoles,
       Tools::ListHirableRoles,
       Tools::AddMessage,
       Tools::GetTaskDetails,
-      Tools::GetGoalDetails,
-      Tools::UpdateGoal,
       Tools::SearchDocuments,
       Tools::GetDocument
     ],
     sub_agent_create_task: [
-      Tools::GetGoalDetails,
+      Tools::GetTaskDetails,
       Tools::ListAvailableRoles,
       Tools::CreateTask # the direct mutation, not the sub-agent wrapper
     ],
@@ -41,9 +38,9 @@ class DirectorServer
       Tools::ListHirableRoles,
       Tools::HireRole # the direct mutation, not the sub-agent wrapper
     ],
-    sub_agent_summarize_goal: [
-      Tools::GetGoalDetails,
-      Tools::UpdateGoalSummary # the direct mutation, not the sub-agent wrapper
+    sub_agent_summarize_task: [
+      Tools::GetTaskDetails,
+      Tools::UpdateTaskSummary # the direct mutation, not the sub-agent wrapper
     ]
   }.freeze
 

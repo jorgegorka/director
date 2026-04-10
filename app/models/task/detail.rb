@@ -21,8 +21,8 @@ class Task::Detail
     @document_links ||= task.task_documents.joins(:document).includes(:document).order("documents.title")
   end
 
-  def goal_evaluations
-    @goal_evaluations ||= task.goal_evaluations.order(:attempt_number).includes(:goal)
+  def task_evaluations
+    @task_evaluations ||= task.task_evaluations.order(:attempt_number).includes(:root_task)
   end
 
   def any_messages?
@@ -34,6 +34,6 @@ class Task::Detail
   end
 
   def any_evaluations?
-    goal_evaluations.any?
+    task_evaluations.any?
   end
 end

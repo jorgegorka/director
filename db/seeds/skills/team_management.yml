@@ -14,7 +14,7 @@ markdown: |
   - A blocker has surfaced and work needs to be re-distributed
 
   ## Approach
-  1. Read the goal via `get_goal_details` and break it into discrete tasks with clear deliverables and acceptance criteria
+  1. Read the goal via `get_task_details` and break it into discrete tasks with clear deliverables and acceptance criteria
   2. Review your reportees: their roles, skills, current workload, and past performance on similar tasks
   3. Match each task to the most suitable reportee. Spread work to avoid overloading any single agent
   4. Create each task via `create_task` with explicit expectations: what is the deliverable, what does "done" look like, what context does the reportee need to start
