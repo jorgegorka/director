@@ -26,22 +26,18 @@ module TasksHelper
     scope.order(:title).pluck(:title, :id)
   end
 
-  # Inline SVG icons used in the task form pill buttons. Kept here so the
-  # template stays tidy and can swap out for a sprite system later.
+  TASK_PILL_ICONS = {
+    assignee:    '<svg viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="7" r="3.25"/><path d="M3.5 17a6.5 6.5 0 0113 0z"/></svg>',
+    creator:     '<svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 15l1.4-8 3.6 2.6L10 4l2 5.6L15.6 7 17 15H3zm0 1.5h14V18H3z"/></svg>',
+    priority:    '<svg viewBox="0 0 20 20" fill="currentColor"><rect x="3" y="11" width="3" height="6" rx="0.5"/><rect x="8.5" y="7" width="3" height="10" rx="0.5"/><rect x="14" y="3" width="3" height="14" rx="0.5"/></svg>',
+    parent_task: '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h10M8 10h7M8 16h7"/><path d="M5 4v12"/></svg>',
+    due:         '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="14" height="12" rx="1.5"/><path d="M3 9h14M7 3v4M13 3v4"/></svg>'
+  }.freeze
+  private_constant :TASK_PILL_ICONS
+
   def task_pill_icon(name)
-    svg = case name
-    when :assignee
-      '<svg viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="7" r="3.25"/><path d="M3.5 17a6.5 6.5 0 0113 0z"/></svg>'
-    when :creator
-      '<svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 15l1.4-8 3.6 2.6L10 4l2 5.6L15.6 7 17 15H3zm0 1.5h14V18H3z"/></svg>'
-    when :priority
-      '<svg viewBox="0 0 20 20" fill="currentColor"><rect x="3" y="11" width="3" height="6" rx="0.5"/><rect x="8.5" y="7" width="3" height="10" rx="0.5"/><rect x="14" y="3" width="3" height="14" rx="0.5"/></svg>'
-    when :parent_task
-      '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h10M8 10h7M8 16h7"/><path d="M5 4v12"/></svg>'
-    when :due
-      '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="14" height="12" rx="1.5"/><path d="M3 9h14M7 3v4M13 3v4"/></svg>'
-    end
-    svg&.html_safe
+    svg = TASK_PILL_ICONS.fetch(name) { raise ArgumentError, "unknown task pill icon: #{name.inspect}" }
+    svg.html_safe
   end
 
   def delegation_targets_for(task)

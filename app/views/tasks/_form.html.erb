@@ -1,12 +1,13 @@
 <%#
-  Linear-style task form. Used inside a modal by default (locals[:cancel]
-  falls through to modal#close) and as a standalone page for deep-link
-  routes /tasks/new and /tasks/:id/edit (locals[:cancel] set to a URL).
+  Linear-style task form. Rendered inside a <dialog> via a Turbo Frame lazy
+  load (see tasks/_form_modal.html.erb), and also served standalone at
+  /tasks/new and /tasks/:id/edit. Submits with turbo_frame: "_top" so the
+  create/update redirect escapes the frame cleanly.
 %>
 <% cancel = local_assigns.fetch(:cancel, :modal) %>
-<%= form_with(model: task, class: "task-form") do |f| %>
+<%= form_with(model: task, class: "task-form", data: { turbo_frame: "_top" }) do |f| %>
   <% if task.errors.any? %>
-    <div class="form__errors">
+    <div class="form__errors" role="alert">
       <p><strong><%= pluralize(task.errors.count, "error") %> prohibited this task from being saved:</strong></p>
       <ul>
         <% task.errors.full_messages.each do |msg| %>
@@ -27,37 +28,24 @@
         rows: 3,
         placeholder: "Add a description…" %>
 
+  <%
+    pills = [
+      { attribute: :assignee_id,    icon: :assignee,    placeholder: "Unassigned",   options: options_for_role_select,              searchable: true },
+      { attribute: :creator_id,     icon: :creator,     placeholder: "No owner",     options: options_for_role_select,              searchable: true },
+      { attribute: :priority,       icon: :priority,    placeholder: "No priority",  options: options_for_task_priority },
+      { attribute: :parent_task_id, icon: :parent_task, placeholder: "No parent",    options: options_for_parent_task_select(task), searchable: true }
+    ]
+  %>
   <div class="task-form__pills">
-    <%= render "tasks/pill",
-          form: f,
-          attribute: :assignee_id,
-          icon: task_pill_icon(:assignee),
-          placeholder: "Unassigned",
-          options: options_for_role_select,
-          searchable: true %>
-
-    <%= render "tasks/pill",
-          form: f,
-          attribute: :creator_id,
-          icon: task_pill_icon(:creator),
-          placeholder: "No owner",
-          options: options_for_role_select,
-          searchable: true %>
-
-    <%= render "tasks/pill",
-          form: f,
-          attribute: :priority,
-          icon: task_pill_icon(:priority),
-          placeholder: "No priority",
-          options: options_for_task_priority %>
-
-    <%= render "tasks/pill",
-          form: f,
-          attribute: :parent_task_id,
-          icon: task_pill_icon(:parent_task),
-          placeholder: "No parent",
-          options: options_for_parent_task_select(task),
-          searchable: true %>
+    <% pills.each do |pill| %>
+      <%= render "tasks/pill",
+            form: f,
+            attribute: pill[:attribute],
+            icon: task_pill_icon(pill[:icon]),
+            placeholder: pill[:placeholder],
+            options: pill[:options],
+            searchable: pill.fetch(:searchable, false) %>
+    <% end %>
 
     <%= render "tasks/due_date_pill", form: f %>
   </div>

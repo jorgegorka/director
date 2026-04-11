@@ -1,6 +1,8 @@
 <% content_for(:title, "Edit Task") %>
 
-<section class="form-card glass form-card--wide">
-  <h1>Edit Task</h1>
-  <%= render "form", task: @task, cancel: task_path(@task) %>
-</section>
+<%= turbo_frame_tag "task_form_modal" do %>
+  <section class="form-card glass form-card--wide">
+    <h1>Edit Task</h1>
+    <%= render "form", task: @task, cancel: task_path(@task) %>
+  </section>
+<% end %>

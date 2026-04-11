@@ -16,7 +16,7 @@ class TasksController < ApplicationController
   end
 
   def new
-    @task = Current.project.tasks.new(priority: :medium, parent_task_id: params[:parent_task_id])
+    @task = Current.project.tasks.new(parent_task_id: params[:parent_task_id])
   end
 
   def create

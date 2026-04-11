@@ -116,9 +116,11 @@ export default class extends Controller {
         visible[(idx - 1 + visible.length) % visible.length]?.focus()
         break
       case "Enter":
+        event.preventDefault()
         if (idx >= 0) {
-          event.preventDefault()
           visible[idx].click()
+        } else if (visible.length === 1) {
+          visible[0].click()
         }
         break
     }

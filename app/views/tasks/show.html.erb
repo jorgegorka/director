@@ -1,6 +1,6 @@
 <% content_for(:title, @task.title) %>
 
-<section class="task-detail">
+<section class="task-detail" data-controller="modal">
   <div class="task-detail__header">
     <div>
       <h1><%= @task.title %></h1>
@@ -10,20 +10,18 @@
       </div>
     </div>
     <div class="task-detail__actions">
-      <%= render "tasks/modal",
-            task: @task,
-            title: "Edit task",
-            trigger_label: "Edit",
-            trigger_class: "btn btn--ghost btn--sm" %>
-      <%= render "tasks/modal",
-            task: Current.project.tasks.new(priority: :medium, parent_task_id: @task.id),
-            title: "New subtask",
-            trigger_label: "New Subtask",
-            trigger_class: "btn btn--ghost btn--sm" %>
+      <%= link_to "Edit", edit_task_path(@task),
+            class: "btn btn--ghost btn--sm",
+            data: { turbo_frame: "task_form_modal", action: "click->modal#open" } %>
+      <%= link_to "New Subtask", new_task_path(parent_task_id: @task.id),
+            class: "btn btn--ghost btn--sm",
+            data: { turbo_frame: "task_form_modal", action: "click->modal#open" } %>
       <%= button_to "Delete", @task, method: :delete, class: "btn btn--ghost btn--sm task-detail__delete",
             data: { turbo_confirm: "Delete '#{@task.title}'? This cannot be undone." } %>
     </div>
   </div>
+
+  <%= render "tasks/form_modal", title: "Task" %>
 
   <% if @task.pending_review? %>
     <div class="task-detail__review-banner">

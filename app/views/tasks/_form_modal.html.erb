@@ -1,0 +1,13 @@
+<%#
+  One-per-page modal host for the task form. The dialog starts empty;
+  triggers are plain links with data-turbo-frame="task_form_modal" plus
+  data-action="click->modal#open", so Turbo fetches the form from
+  /tasks/new or /tasks/:id/edit only when the user clicks.
+
+  Must be rendered inside a parent element with data-controller="modal".
+%>
+<%= render "shared/modal", title: local_assigns.fetch(:title, "Task"), size: "lg" do %>
+  <%= turbo_frame_tag "task_form_modal" do %>
+    <p class="task-form__loading">Loading…</p>
+  <% end %>
+<% end %>

@@ -1,13 +1,11 @@
 <% content_for(:title, "Tasks") %>
 
-<section class="tasks-page">
+<section class="tasks-page" data-controller="modal">
   <div class="tasks-page__header">
     <h1>Tasks</h1>
-    <%= render "tasks/modal",
-          task: Current.project.tasks.new(priority: :medium),
-          title: "New task",
-          trigger_label: "New Task",
-          trigger_class: "btn btn--primary btn--sm" %>
+    <%= link_to "New Task", new_task_path,
+          class: "btn btn--primary btn--sm",
+          data: { turbo_frame: "task_form_modal", action: "click->modal#open" } %>
   </div>
 
   <% if @tasks.any? %>
@@ -19,11 +17,11 @@
   <% else %>
     <div class="tasks-page__empty">
       <p>No tasks yet. Create your first task to get started.</p>
-      <%= render "tasks/modal",
-            task: Current.project.tasks.new(priority: :medium),
-            title: "New task",
-            trigger_label: "Create a task",
-            trigger_class: "btn btn--primary" %>
+      <%= link_to "Create a task", new_task_path,
+            class: "btn btn--primary",
+            data: { turbo_frame: "task_form_modal", action: "click->modal#open" } %>
     </div>
   <% end %>
+
+  <%= render "tasks/form_modal", title: "New task" %>
 </section>
