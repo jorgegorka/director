@@ -78,6 +78,43 @@ class GoalsControllerTest < ActionDispatch::IntegrationTest
     assert_equal @ceo, goal.creator
   end
 
+  # Regression: the only top-level role in a project may be terminated
+  # (the state that triggered the "+ Goal" button failure on the org chart).
+  # Creator should default to the assignee's root ancestor regardless of status.
+  test "creates goal assigned to subordinate when top-level role is terminated" do
+    @ceo.update!(status: :terminated)
+    assert_difference("Task.roots.count", 1) do
+      post goals_url, params: {
+        root_task: { title: "Still works", assignee_id: @cto.id }
+      }
+    end
+    goal = Task.roots.order(:created_at).last
+    assert_equal @cto, goal.assignee
+    assert_equal @ceo, goal.creator
+  end
+
+  test "creates unassigned goal when top-level role is terminated" do
+    @ceo.update!(status: :terminated)
+    assert_difference("Task.roots.count", 1) do
+      post goals_url, params: { root_task: { title: "No owner" } }
+    end
+    goal = Task.roots.order(:created_at).last
+    assert_nil goal.assignee
+    assert_equal @ceo, goal.creator
+  end
+
+  test "creates goal assigned to a terminated top-level role itself" do
+    @ceo.update!(status: :terminated)
+    assert_difference("Task.roots.count", 1) do
+      post goals_url, params: {
+        root_task: { title: "Legacy cleanup", assignee_id: @ceo.id }
+      }
+    end
+    goal = Task.roots.order(:created_at).last
+    assert_equal @ceo, goal.assignee
+    assert_equal @ceo, goal.creator
+  end
+
   test "should not create goal with blank title" do
     assert_no_difference("Task.count") do
       post goals_url, params: { root_task: { title: "" } }

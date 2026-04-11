@@ -19,13 +19,7 @@ class GoalsController < ApplicationController
 
   def create
     @root_task = Current.project.tasks.new(root_task_params)
-    @root_task.creator ||= default_creator
-
-    if @root_task.creator.nil?
-      @root_task.errors.add(:base, "Create a top-level role before creating a goal.")
-      render :new, status: :unprocessable_entity
-      return
-    end
+    @root_task.creator ||= default_creator_for(@root_task.assignee)
 
     if @root_task.save
       redirect_to goal_path(@root_task), notice: "Goal '#{@root_task.title}' has been created."
@@ -61,7 +55,10 @@ class GoalsController < ApplicationController
     params.require(:root_task).permit(:title, :description, :assignee_id, :priority)
   end
 
-  def default_creator
-    Current.project.roles.where(parent_id: nil).active.order(:created_at).first
+  # Prefer the assignee's top-level ancestor so delegation-scope checks pass.
+  # Terminated roles stay valid creators — execute_role_job handles them.
+  def default_creator_for(assignee)
+    return assignee.ancestors.last || assignee if assignee
+    Current.project.roles.roots.order(:created_at).first
   end
 end
