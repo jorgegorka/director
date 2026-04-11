@@ -12,10 +12,10 @@ module Tools
           type: "object",
           properties: {
             task_id: { type: "integer", description: "ID of the task to post to" },
-            body: { type: "string", description: "Message content" },
+            message: { type: "string", description: "Message content" },
             message_type: { type: "string", enum: %w[comment question], description: "Type of message (default: comment)" }
           },
-          required: %w[task_id body]
+          required: %w[task_id message]
         }
       }
     end
@@ -29,7 +29,7 @@ module Tools
 
       message = task.messages.create!(
         author: role,
-        body: arguments["body"],
+        body: arguments["message"],
         message_type: arguments["message_type"] || "comment"
       )
 

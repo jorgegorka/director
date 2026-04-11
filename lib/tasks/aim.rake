@@ -1,11 +1,40 @@
 load File.expand_path("../../test/aim/seed.rake", __dir__)
 
+# Runs the given block with the Solid Queue `:execution` queue paused, then
+# discards any ExecuteRoleJob instances that piled up during the pause before
+# resuming. This isolates AIM from the live `bin/dev` Solid Queue worker: the
+# seed and scenarios create tasks whose after_commit callbacks enqueue
+# ExecuteRoleJobs for the assignee; without this, those would cascade into
+# real agent runs that mutate state mid-test.
+#
+# The pause is a row in solid_queue_pauses, so it takes effect across every
+# Rails process — including the nested `bin/director-mcp` instance that
+# actually runs Task.create! inside create_task sub-agents.
+#
+# If the queue was already paused before we started (e.g. manual debugging),
+# we leave it alone on the way out and skip job cleanup.
+def with_execution_queue_paused
+  queue = SolidQueue::Queue.new("execution")
+  already_paused = queue.paused?
+  queue.pause unless already_paused
+
+  yield
+ensure
+  unless already_paused
+    # Drop anything the cascade enqueued during the pause window. Without
+    # this, resume would flush the backlog to the worker and the cascade
+    # would happen anyway, just deferred.
+    SolidQueue::Job.where(queue_name: "execution", finished_at: nil).destroy_all
+    queue.resume
+  end
+end
+
 namespace :aim do
   desc "Seed known data for AIM diagnostic scenarios"
   task seed: :environment do
     return unless Rails.env.development? || Rails.env.test?
 
-    AIMSeed.new.run
+    with_execution_queue_paused { AIMSeed.new.run }
   end
 
   desc "Run AIM scenarios. Usage: rake aim:run SCENARIOS=all or SCENARIOS=id1,id2"
@@ -33,7 +62,7 @@ namespace :aim do
     puts
 
     runner = AIM::Runner.new(scenarios)
-    results = runner.execute
+    results = with_execution_queue_paused { runner.execute }
 
     # Print summary
     passed = results.count { |r| r.status == "success" }

@@ -124,6 +124,7 @@ class DirectorServer
     tool = @tools.find { |t| t.name == tool_name }
     return error_response(id, -32602, "Unknown tool: #{tool_name}") unless tool
 
+    arguments = sanitize_arguments!(tool, arguments)
     result = tool.call(arguments)
 
     {
@@ -154,5 +155,21 @@ class DirectorServer
         isError: true
       }
     }
+  end
+
+  def sanitize_arguments!(tool, arguments)
+    schema = tool.definition[:inputSchema] || {}
+    properties = (schema[:properties] || {}).keys.map(&:to_s)
+    required = (schema[:required] || []).map(&:to_s)
+
+    sanitized = arguments.slice(*properties)
+
+    missing = required - sanitized.keys
+    if missing.any?
+      raise ArgumentError,
+        "Missing required argument(s) for #{tool.name}: #{missing.join(', ')}. Valid arguments: #{properties.join(', ')}."
+    end
+
+    sanitized
   end
 end

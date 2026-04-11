@@ -4,17 +4,17 @@ scenarios:
   - id: orch_delegates_goal
     category: orchestrator
     role_title: "AIM CEO"
-    trigger_type: goal_assigned
+    trigger_type: task_assigned
     context:
-      goal_title: "AIM: Build MVP Feature"
+      task_title: "AIM: Launch onboarding redesign"
     expected_tools: [create_task]
     forbidden_tools: [update_task_status]
     tags: [delegation, orchestrator]
     reference: >
-      Orchestrator receives a goal with existing active tasks. Should use
-      create_task specialist to delegate work to subordinates (VP Engineering
-      or VP Strategy). Must NOT produce deliverables, write code, or do work
-      itself. Should inspect available roles first.
+      Orchestrator receives a newly assigned root mission with no subtasks
+      yet. Should use create_task to delegate work to subordinates (VP
+      Engineering or VP Strategy). Must NOT produce deliverables, write code,
+      or do work itself. Should inspect available roles first.
 
   - id: orch_reviews_task
     category: orchestrator
@@ -165,18 +165,18 @@ scenarios:
   - id: orch_delegates_only
     category: orchestrator
     role_title: "AIM VP Engineering"
-    trigger_type: goal_assigned
+    trigger_type: task_assigned
     context:
-      goal_title: "AIM: Build MVP Feature"
+      task_title: "AIM: Implement payments module"
     expected_tools: [create_task]
     forbidden_tools: [update_task_status, review_task]
     tags: [delegation, orchestrator]
     reference: >
-      Mid-level orchestrator receives the MVP goal. Should delegate work
-      to subordinates (Senior Dev, QA Engineer) via create_task. Must NOT
-      use review_task (no task is pending review) or update_task_status.
-      Tests whether mid-level orchestrators also show the overreach
-      pattern seen in the CEO scenario.
+      Mid-level orchestrator receives a newly assigned root mission with no
+      subtasks. Should delegate to subordinates (Senior Dev, QA Engineer)
+      via create_task. Must NOT use review_task (nothing is pending review)
+      or update_task_status. Tests whether mid-level orchestrators also show
+      correct delegation behavior.
 
   - id: orch_no_self_review
     category: orchestrator

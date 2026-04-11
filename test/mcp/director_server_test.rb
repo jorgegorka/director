@@ -121,4 +121,44 @@ class DirectorServerTest < ActiveSupport::TestCase
     assert result.key?("tasks")
     assert result.key?("count")
   end
+
+  test "handle_tools_call returns loud error when a required argument is missing after sanitization" do
+    task = tasks(:design_homepage)
+
+    response = @server.send(:handle, {
+      "id" => 20,
+      "method" => "tools/call",
+      "params" => {
+        "name" => "add_message",
+        "arguments" => { "task_id" => task.id, "content" => "# deliverable" }
+      }
+    })
+
+    assert response[:result][:isError], "expected sanitization to surface an isError result"
+    error_text = response[:result][:content][0][:text]
+    assert_match(/missing required/i, error_text)
+    assert_includes error_text, "message"
+  end
+
+  test "handle_tools_call silently drops unknown arguments when required keys are present" do
+    task = tasks(:design_homepage)
+
+    assert_difference -> { task.messages.count }, 1 do
+      response = @server.send(:handle, {
+        "id" => 21,
+        "method" => "tools/call",
+        "params" => {
+          "name" => "add_message",
+          "arguments" => {
+            "task_id" => task.id,
+            "message" => "hello from sanitization test",
+            "random_extra" => "should be ignored"
+          }
+        }
+      })
+      refute response[:result][:isError], "unknown keys should be silently dropped, not raised"
+      result = JSON.parse(response[:result][:content][0][:text])
+      assert_equal task.id, result["task_id"]
+    end
+  end
 end

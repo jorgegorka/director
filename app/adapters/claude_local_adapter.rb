@@ -26,6 +26,17 @@ class ClaudeLocalAdapter < BaseAdapter
 
   OLLAMA_DEFAULT_BASE_URL = "http://localhost:11434".freeze
 
+  # Shared flags for every `claude -p` subprocess Director spawns. The
+  # --setting-sources / --disable-slash-commands pair drops the host's
+  # ~/.claude/settings.json so host-enabled plugins can't inject SessionStart
+  # hooks or the Skill tool into a Director agent.
+  CLI_COMMON_FLAGS = [
+    "--output-format stream-json --verbose",
+    "--dangerously-skip-permissions",
+    "--setting-sources project,local",
+    "--disable-slash-commands"
+  ].freeze
+
   # Returns `-e KEY=value` flags for tmux new-session, branching on provider:
   #
   #   - provider "anthropic" (default): forwards hosted API credentials from
@@ -126,8 +137,7 @@ class ClaudeLocalAdapter < BaseAdapter
 
     parts = [ "claude", "-p" ]
     parts << prompt.shellescape
-    parts << "--output-format stream-json --verbose"
-    parts << "--dangerously-skip-permissions"
+    parts.concat(CLI_COMMON_FLAGS)
     parts << "--model #{config['model'].shellescape}" if config["model"].present?
     parts << "--max-turns #{config['max_turns'].to_i}" if config["max_turns"].present?
 

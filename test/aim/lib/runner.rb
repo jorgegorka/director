@@ -49,8 +49,7 @@ module AIM
 
         parts = [ "claude", "-p" ]
         parts << user_prompt.shellescape
-        parts << "--output-format stream-json --verbose"
-        parts << "--dangerously-skip-permissions"
+        parts.concat(ClaudeLocalAdapter::CLI_COMMON_FLAGS)
         parts << "--model #{model.shellescape}"
         parts << "--max-turns #{max_turns}"
         parts << "--system-prompt-file #{sys_file.path.shellescape}"
@@ -109,11 +108,12 @@ module AIM
         project.roles.find_by!(title: scenario[:role_title])
       end
 
+      # Mirrors ExecuteRoleJob#build_context so test prompts match production:
+      # a root task populates active_subtasks, a subtask populates root_task_*.
       def build_context(scenario, role)
         ctx = { trigger_type: scenario[:trigger_type] }
         sc = scenario[:context] || {}
 
-        # Task context
         if sc[:task_title]
           task = resolve_task(role, sc)
           if task
@@ -121,6 +121,20 @@ module AIM
             ctx[:task_title] = task.title
             ctx[:task_description] = task.description
             ctx[:assignee_role_title] = task.assignee&.title
+
+            if task.root?
+              active = task.subtasks.active.order(priority: :desc, created_at: :desc)
+              if active.any?
+                ctx[:active_subtasks] = active.map { |t|
+                  { id: t.id, title: t.title, status: t.status, assignee_id: t.assignee_id }
+                }
+              end
+            else
+              root = task.root_ancestor
+              ctx[:root_task_id] = root.id
+              ctx[:root_task_title] = root.title
+              ctx[:root_task_description] = root.description
+            end
           else
             ctx[:task_id] = sc[:task_id] || 999
             ctx[:task_title] = sc[:task_title]
@@ -129,28 +143,6 @@ module AIM
           end
         end
 
-        # Goal context
-        if sc[:goal_title]
-          goal = role.project.goals.find_by(title: sc[:goal_title])
-          if goal
-            ctx[:goal_id] = goal.id
-            ctx[:goal_title] = goal.title
-            ctx[:goal_description] = goal.description
-
-            active_tasks = goal.tasks.active.order(priority: :desc, created_at: :desc)
-            if active_tasks.any?
-              ctx[:goal_active_tasks] = active_tasks.map { |t|
-                { id: t.id, title: t.title, status: t.status, assignee_id: t.assignee_id }
-              }
-            end
-          else
-            ctx[:goal_id] = sc[:goal_id]
-            ctx[:goal_title] = sc[:goal_title]
-            ctx[:goal_description] = sc[:goal_description]
-          end
-        end
-
-        # Skills
         skills = role.skills.includes(:documents).to_a
         ctx[:skills] = skills.map do |skill|
           hash = {

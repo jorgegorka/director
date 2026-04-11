@@ -114,8 +114,7 @@ module SubAgents
 
         parts = [ "claude", "-p" ]
         parts << sub_agent.user_message.shellescape
-        parts << "--output-format stream-json --verbose"
-        parts << "--dangerously-skip-permissions"
+        parts.concat(ClaudeLocalAdapter::CLI_COMMON_FLAGS)
         parts << "--max-turns #{sub_agent.max_turns.to_i}"
         parts << "--system-prompt-file #{system_prompt_file.path.shellescape}"
         parts << "--mcp-config #{mcp_config_file.path.shellescape}"

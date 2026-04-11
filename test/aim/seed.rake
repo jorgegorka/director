@@ -7,7 +7,7 @@ class AIMSeed
     find_or_create_project
     clean_previous_aim_data
     seed_roles
-    seed_goals_and_tasks
+    seed_missions_and_tasks
     verify
     puts "#{TAG} Done!"
   end
@@ -49,14 +49,13 @@ class AIMSeed
       aim_role_ids = @project.roles.where("description LIKE ?", "%#{TAG}%").pluck(:id)
 
       if aim_role_ids.any?
-        # Destroy all tasks that reference AIM roles (seeded + agent-created)
+        # Destroy all tasks that reference AIM roles (seeded + agent-created).
+        # Root missions and their subtasks are covered here since every AIM
+        # task is created by or assigned to an AIM role.
         all_aim_tasks = @project.tasks.where(
           "assignee_id IN (:ids) OR creator_id IN (:ids)", ids: aim_role_ids
         )
         all_aim_tasks.each(&:destroy)
-
-        # Destroy AIM goals
-        @project.goals.where("description LIKE ?", "%#{TAG}%").each(&:destroy)
 
         # Roles — destroy children first (hierarchy constraint).
         # Role#destroy handles remaining dependents (role_runs, role_skills, etc.)
@@ -104,7 +103,7 @@ class AIMSeed
 
     # ─── Missions & Tasks ─────────────────────────────────────────────
 
-    def seed_goals_and_tasks
+    def seed_missions_and_tasks
       puts "#{TAG} Seeding missions and tasks..."
 
       mission = Task.create!(
@@ -112,6 +111,30 @@ class AIMSeed
         title: "AIM: Build MVP Feature",
         description: "#{TAG} Build the minimum viable product feature set including auth, API, and tests.",
         creator: @ceo
+      )
+
+      # Empty root mission — used by orch_delegates_goal scenario (CEO).
+      # Has no subtasks, so the correct orchestrator behavior is to delegate
+      # via create_task.
+      Task.create!(
+        project: @project,
+        title: "AIM: Launch onboarding redesign",
+        description: "#{TAG} Revamp the user onboarding flow to improve activation rates. No work started yet.",
+        creator: @ceo,
+        assignee: @ceo,
+        status: :in_progress,
+        priority: :high
+      )
+
+      # Empty root mission — used by orch_delegates_only scenario (VP Engineering).
+      Task.create!(
+        project: @project,
+        title: "AIM: Implement payments module",
+        description: "#{TAG} Build the payments integration from the ground up. No subtasks yet.",
+        creator: @ceo,
+        assignee: @vp_eng,
+        status: :in_progress,
+        priority: :high
       )
 
       # Task 1: pending_review — for orchestrator review scenarios
@@ -308,11 +331,11 @@ class AIMSeed
       aim_roles = @project.roles.where("description LIKE ?", "%#{TAG}%").count
       warnings << "Expected 6 roles, found #{aim_roles}" unless aim_roles == 6
 
-      aim_goals = @project.goals.where("description LIKE ?", "%#{TAG}%").count
-      warnings << "Expected 1 goal, found #{aim_goals}" unless aim_goals == 1
-
       aim_tasks = @project.tasks.where("description LIKE ?", "%#{TAG}%").count
-      warnings << "Expected 12 tasks, found #{aim_tasks}" unless aim_tasks == 12
+      warnings << "Expected 15 tasks, found #{aim_tasks}" unless aim_tasks == 15
+
+      aim_missions = @project.tasks.roots.where("description LIKE ?", "%#{TAG}%").count
+      warnings << "Expected 3 missions, found #{aim_missions}" unless aim_missions == 3
 
       if warnings.any?
         warnings.each { |w| puts "#{TAG}   WARNING: #{w}" }
