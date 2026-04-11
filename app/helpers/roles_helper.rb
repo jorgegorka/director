@@ -1,10 +1,11 @@
 module RolesHelper
   def options_for_role_select(exclude: nil, scope: :active)
-    base = Current.project.roles
-    base = base.send(scope) unless scope == :all
-    roles = base.roots.order(:title)
     excluded_ids = exclude ? Set.new([ exclude.id ] + exclude.descendant_ids) : Set.new
-    build_role_options(roles, excluded_ids, 0, scope)
+    # Walk the full tree but filter visibility per role, so an active
+    # subordinate under a terminated root is still reachable in the select.
+    allowed_ids = scope == :all ? nil : Set.new(Current.project.roles.send(scope).ids)
+    roots = Current.project.roles.roots.order(:title)
+    build_role_options(roots, excluded_ids, 0, allowed_ids)
   end
 
   def options_for_parent_select(role)
@@ -50,15 +51,17 @@ module RolesHelper
 
   private
 
-  def build_role_options(roles, excluded_ids, depth, scope)
+  def build_role_options(roles, excluded_ids, depth, allowed_ids)
     options = []
     roles.each do |r|
       next if excluded_ids.include?(r.id)
-      prefix = "\u00A0\u00A0" * depth
-      options << [ "#{prefix}#{r.title}", r.id ]
+      visible = allowed_ids.nil? || allowed_ids.include?(r.id)
+      if visible
+        prefix = "\u00A0\u00A0" * depth
+        options << [ "#{prefix}#{r.title}", r.id ]
+      end
       children = r.children.order(:title)
-      children = children.send(scope) unless scope == :all
-      options.concat(build_role_options(children, excluded_ids, depth + 1, scope))
+      options.concat(build_role_options(children, excluded_ids, visible ? depth + 1 : depth, allowed_ids))
     end
     options
   end
