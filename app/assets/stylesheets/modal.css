@@ -9,9 +9,8 @@
     z-index: 100;
     border-radius: var(--radius-lg);
     padding: 0;
-    background: var(--glass-bg);
-    backdrop-filter: blur(16px);
-    border: 1px solid var(--glass-border);
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
     box-shadow: var(--shadow-lg);
     max-block-size: min(90vh, 40rem);
     overflow: visible;

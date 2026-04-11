@@ -62,11 +62,11 @@ Every task tracks its cost, so you always know how much a piece of work actually
 
 ### Goals
 
-Goals are the primary way you direct your project. You create goals describing what you want done, assign them to roles, and tasks linked to each goal drive the work forward. This means you set the direction at a high level and let the org chart figure out how to get there.
+Goals are how you direct your project at a high level. In Director, a goal is simply a **root task** — a task with no parent — that describes what you want accomplished. Agents break it down into subtasks, and those subtasks drive the work forward. The `/goals` page lists every root task in the project so you can see each mission at a glance.
 
-Progress rolls up automatically: as tasks linked to a goal are completed, the goal's progress updates to reflect it.
+A root task carries the same fields as any other task: title, description, priority, assignee. As its subtasks get completed, the root task's completion percentage rolls up automatically. When every subtask reaches `completed`, the root task auto-completes and Director runs a summarization step that writes a short achievement summary onto the root task.
 
-When a task linked to a goal is completed, Director automatically **evaluates** whether the work advances the goal. An AI evaluator reviews the goal hierarchy, the task description, and the work output, then gives a **pass** or **fail** with feedback. If the evaluation fails, the task is reopened and the role is woken up with the feedback to try again. Each task gets up to **3 attempts** — if all are exhausted, the task is **blocked** for human review. This creates an automatic quality feedback loop tied directly to project objectives.
+When a subtask is approved, Director automatically **evaluates** whether the work advances its root task's intent. An AI evaluator reviews the root task's description, the subtask, and the work output, then gives a **pass** or **fail** with feedback. If the evaluation fails, the subtask is reopened and the role is woken up with the feedback to try again. Each subtask gets up to **3 attempts** — if all are exhausted, the subtask is escalated to the **human review** queue. This creates an automatic quality feedback loop tied directly to each mission.
 
 ### Skills
 
@@ -131,7 +131,7 @@ The dashboard is your command center. At a glance you can see:
 - Budget utilization across all roles with per-role spending breakdowns
 - A Kanban view of all tasks grouped by status
 - A real-time activity timeline showing what's happening across the project
-- Goal progress across all objectives
+- Mission progress across the project's root tasks
 - An **approvals queue** that consolidates everything waiting for human action — gate-blocked roles, pending hires, and tasks pending review — in one place
 
 The dashboard updates in real time — when a role completes a task, starts a run, or triggers a hook, you see it immediately without refreshing the page.
@@ -148,9 +148,9 @@ Director notifies you when things need your attention — when you're mentioned 
 
 ### MCP tools
 
-Director exposes **13 MCP tools** that roles use to interact with the system. These are the hands and eyes of every AI role — the only way they can read tasks, post results, delegate work, or access documents.
+Director exposes **12 MCP tools** to the orchestrator scope that roles use to interact with the system. These are the hands and eyes of every AI role — the only way they can read tasks, post results, delegate work, or access documents.
 
-The tools cover four areas: **task management** (create, update, list, and inspect tasks), **goal tracking** (list, read, and update goals), **role coordination** (list available roles, hire subordinates, post messages), and **document access** (search and read reference material). Each role category's job spec defines which tools to use and in what order, so orchestrators delegate via `create_task`, workers execute and report via `add_message`, and planners do both.
+The tools cover four areas: **task management** (create, update status, list, and inspect tasks — including root tasks as missions), **review and summarization** (review completed subtasks, summarize completed missions), **role coordination** (list available roles, hire subordinates, post messages), and **document access** (search and read reference material). Each role category's job spec defines which tools to use and in what order, so orchestrators delegate via `create_task`, workers execute and report via `add_message`, and planners do both.
 
 Communication with roles uses JSON-RPC 2.0 over stdin/stdout, so any process that speaks that protocol can act as an AI backend.
 

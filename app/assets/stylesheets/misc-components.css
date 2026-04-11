@@ -2,6 +2,47 @@
    MISC COMPONENTS (project-switcher, projects-list, team-page)
    ============================================================ */
 @layer components {
+  /* --- Theme Toggle (topbar) --- */
+  .theme-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: var(--space-1);
+    color: var(--color-neutral-700);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: color var(--transition-fast);
+
+    &:hover {
+      color: var(--color-brand-500);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-brand-500);
+      outline-offset: 2px;
+      border-radius: var(--radius-sm);
+    }
+  }
+
+  .theme-toggle__icon {
+    inline-size: 20px;
+    block-size: 20px;
+  }
+
+  /* Default (dark mode): show sun icon (click to switch to light) */
+  .theme-toggle__icon--moon { display: none; }
+
+  /* Follow system: flip icons when OS is light AND user hasn't overridden */
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme]) .theme-toggle__icon--sun { display: none; }
+    :root:not([data-theme]) .theme-toggle__icon--moon { display: inline-block; }
+  }
+
+  /* Explicit light override */
+  :root[data-theme="light"] .theme-toggle__icon--sun { display: none; }
+  :root[data-theme="light"] .theme-toggle__icon--moon { display: inline-block; }
+
   /* --- Project Switcher (nav dropdown) --- */
   .project-switcher {
     position: relative;

@@ -16,12 +16,12 @@
 <div class="docs-content__header">
   <span class="docs-content__eyebrow">Core Concepts</span>
   <h1 class="docs-content__title">Projects</h1>
-  <p class="docs-content__description">Isolated workspaces where you organize agents, goals, tasks, and resources.</p>
+  <p class="docs-content__description">Isolated workspaces where you organize agents, tasks, and resources.</p>
 </div>
 
 <div class="prose">
   <h2 id="what-are-projects">What are Projects?</h2>
-  <p>A project is the top-level organizational unit in Director. It acts as an isolated workspace that contains everything needed to run an AI agent operation — roles, goals, tasks, skills, and documents. All data is scoped to a project, so nothing leaks between workspaces.</p>
+  <p>A project is the top-level organizational unit in Director. It acts as an isolated workspace that contains everything needed to run an AI agent operation — roles, tasks, skills, and documents. All data is scoped to a project, so nothing leaks between workspaces.</p>
   <p>Think of a project as a self-contained company: it has its own org chart, its own objectives, its own knowledge base, and its own budget controls.</p>
 
   <h2 id="creating-a-project">Creating a Project</h2>
@@ -33,14 +33,14 @@
   <p>You can switch between projects at any time. The currently active project determines what data you see across all screens.</p>
 
   <h2 id="multi-tenancy">Multi-tenancy</h2>
-  <p>Director uses <code>Current.project</code> scoping for multi-tenancy. When you select a project, all queries — roles, tasks, goals, documents — are automatically filtered to that project. This means you never accidentally see or modify another project's data.</p>
+  <p>Director uses <code>Current.project</code> scoping for multi-tenancy. When you select a project, all queries — roles, tasks, documents — are automatically filtered to that project. This means you never accidentally see or modify another project's data.</p>
   <p>Models that belong to a project include the <code>Tenantable</code> concern, which enforces this scoping at the model level.</p>
 
   <h2 id="team-collaboration">Team Collaboration</h2>
   <p>Projects support multiple human users through <strong>memberships</strong>. Each membership has a role level:</p>
   <ul>
     <li><strong>Owner</strong> — full control, including destructive operations</li>
-    <li><strong>Admin</strong> — can manage roles, goals, and settings</li>
+    <li><strong>Admin</strong> — can manage roles, tasks, and settings</li>
   </ul>
   <p>Invite collaborators to your project using the invitation system. Invitees receive a token-based link to accept and join.</p>
 

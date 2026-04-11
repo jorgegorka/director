@@ -8,7 +8,7 @@
     inset-block-start: 0;
     block-size: 100dvh;
     overflow-y: auto;
-    background: linear-gradient(to bottom, var(--sidebar-bg), oklch(8% 0.03 265));
+    background: linear-gradient(to bottom, var(--sidebar-bg), var(--sidebar-bg-end));
     border-inline-end: 1px solid var(--glass-border);
     display: flex;
     flex-direction: column;
@@ -220,48 +220,74 @@
     }
   }
 
-  /* ---- Light mode adjustments ---- */
+  /* ---- Light mode adjustments ----
+     Applied via OS preference (when no manual override) OR explicit
+     [data-theme="light"]. Keep the two blocks in sync. */
   @media (prefers-color-scheme: light) {
-    .sidebar {
-      background: var(--sidebar-bg);
+    :root:not([data-theme]) .sidebar {
       border-inline-end: 1px solid var(--sidebar-border);
     }
 
-    .sidebar__brand {
+    :root:not([data-theme]) .sidebar__brand,
+    :root:not([data-theme]) .sidebar__brand:hover {
       background: none;
       -webkit-background-clip: unset;
       background-clip: unset;
       -webkit-text-fill-color: unset;
+    }
+
+    :root:not([data-theme]) .sidebar__brand { color: var(--color-brand-500); }
+    :root:not([data-theme]) .sidebar__brand:hover { color: var(--color-brand-600); }
+
+    :root:not([data-theme]) .sidebar__toggle--active,
+    :root:not([data-theme]) .sidebar__link--active,
+    :root:not([data-theme]) .sidebar__direct-link--active {
       color: var(--color-brand-500);
     }
 
-    .sidebar__brand:hover {
-      background: none;
-      -webkit-background-clip: unset;
-      background-clip: unset;
-      -webkit-text-fill-color: unset;
-      color: var(--color-brand-600);
-    }
-
-    .sidebar__toggle--active {
-      color: var(--color-brand-500);
+    :root:not([data-theme]) .sidebar__toggle--active,
+    :root:not([data-theme]) .sidebar__direct-link--active {
       box-shadow: none;
     }
 
-    .sidebar__link--active {
-      color: var(--color-brand-500);
-    }
-
-    .sidebar__direct-link--active {
-      color: var(--color-brand-500);
-      box-shadow: none;
-    }
-
-    .sidebar__toggle:hover,
-    .sidebar__link:hover,
-    .sidebar__direct-link:hover,
-    .topbar__hamburger:hover {
+    :root:not([data-theme]) .sidebar__toggle:hover,
+    :root:not([data-theme]) .sidebar__link:hover,
+    :root:not([data-theme]) .sidebar__direct-link:hover,
+    :root:not([data-theme]) .topbar__hamburger:hover {
       background-color: var(--color-neutral-100);
     }
+  }
+
+  :root[data-theme="light"] .sidebar {
+    border-inline-end: 1px solid var(--sidebar-border);
+  }
+
+  :root[data-theme="light"] .sidebar__brand,
+  :root[data-theme="light"] .sidebar__brand:hover {
+    background: none;
+    -webkit-background-clip: unset;
+    background-clip: unset;
+    -webkit-text-fill-color: unset;
+  }
+
+  :root[data-theme="light"] .sidebar__brand { color: var(--color-brand-500); }
+  :root[data-theme="light"] .sidebar__brand:hover { color: var(--color-brand-600); }
+
+  :root[data-theme="light"] .sidebar__toggle--active,
+  :root[data-theme="light"] .sidebar__link--active,
+  :root[data-theme="light"] .sidebar__direct-link--active {
+    color: var(--color-brand-500);
+  }
+
+  :root[data-theme="light"] .sidebar__toggle--active,
+  :root[data-theme="light"] .sidebar__direct-link--active {
+    box-shadow: none;
+  }
+
+  :root[data-theme="light"] .sidebar__toggle:hover,
+  :root[data-theme="light"] .sidebar__link:hover,
+  :root[data-theme="light"] .sidebar__direct-link:hover,
+  :root[data-theme="light"] .topbar__hamburger:hover {
+    background-color: var(--color-neutral-100);
   }
 }

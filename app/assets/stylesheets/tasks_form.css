@@ -9,16 +9,7 @@
     gap: var(--space-4);
   }
 
-  /* Let pill popovers escape the modal body's scroll clip, and give the
-     task-form modal a solid (non-glass) surface so form text is readable
-     in both light and dark themes — the default glass background blends
-     with the backdrop and washes out placeholders. */
-  .modal:has(.task-form) {
-    background: var(--bg-surface);
-    backdrop-filter: none;
-    border-color: var(--border);
-  }
-
+  /* Let pill popovers escape the modal body's scroll clip. */
   .modal__body:has(.task-form) {
     overflow: visible;
   }

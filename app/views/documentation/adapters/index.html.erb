@@ -23,7 +23,7 @@
 <div class="prose">
   <h2 id="what-are-adapters">What are Adapters?</h2>
   <p>An adapter is the bridge between a role and the AI model that fulfills it. Until you configure an adapter, a role is just a position on the org chart. Once configured, it becomes a live agent that Director can execute, monitor, and govern.</p>
-  <p>Director ships with four adapter types, each suited to different deployment scenarios. Every adapter receives the same execution context — task details, goal information, skills — and returns a standardized result with exit code, cost, and optional session ID.</p>
+  <p>Director ships with four adapter types, each suited to different deployment scenarios. Every adapter receives the same execution context — task details, mission context from the root task, skills — and returns a standardized result with exit code, cost, and optional session ID.</p>
 
   <h2 id="http-api">HTTP API</h2>
   <p>Connect to a cloud-hosted agent via HTTP POST requests. Best for agents running on external infrastructure or behind an API gateway.</p>
@@ -42,7 +42,7 @@
   </ul>
 
   <h3>How it works</h3>
-  <p>Director sends a JSON payload containing the task, goal, skills, and role context to your endpoint. The payload includes the role title, run ID, trigger type, and any documents attached to the task.</p>
+  <p>Director sends a JSON payload containing the task, its root task (mission) context, skills, and role context to your endpoint. The payload includes the role title, run ID, trigger type, and any documents attached to the task.</p>
   <p>Transient errors (5xx responses and timeouts) are retried up to 3 times with exponential backoff. Client errors (4xx) fail immediately.</p>
 
   <h2 id="claude-code-local">Claude Code (Local)</h2>
@@ -71,7 +71,7 @@
   </ul>
 
   <h3>System prompt</h3>
-  <p>Director builds a system prompt for each execution that includes the role's identity, job spec, goal context, and all attached skills. This gives the agent full awareness of its position in the org chart and what it's expected to do.</p>
+  <p>Director builds a system prompt for each execution that includes the role's identity, job spec, mission context (the task's root ancestor), and all attached skills. This gives the agent full awareness of its position in the org chart and what it's expected to do.</p>
 
   <h2 id="opencode">OpenCode</h2>
   <p>Run OpenCode CLI locally with JSON output. Supports multiple AI providers — OpenAI, Anthropic, Gemini, Groq, AWS Bedrock, Azure, and more.</p>
@@ -116,7 +116,7 @@
   <ol>
     <li><strong>Validate</strong> — ensure the role has an adapter configured</li>
     <li><strong>Mark running</strong> — update role status and role run state</li>
-    <li><strong>Build context</strong> — assemble task, goal, skills, and session data</li>
+    <li><strong>Build context</strong> — assemble task, root task (mission), skills, and session data</li>
     <li><strong>Execute</strong> — invoke the adapter with the role and context</li>
     <li><strong>Record result</strong> — store exit code, cost, and session ID on the role run</li>
     <li><strong>Return to idle</strong> — reset role status and dispatch any throttled runs</li>

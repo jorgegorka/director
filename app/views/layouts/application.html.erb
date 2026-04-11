@@ -44,6 +44,15 @@
             </svg>
           </button>
           <%= render "notifications/dropdown" %>
+          <button type="button" class="theme-toggle" data-controller="theme" data-action="click->theme#toggle" aria-label="Toggle dark or light mode">
+            <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <circle cx="10" cy="10" r="3.5" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M10 1.5v2M10 16.5v2M1.5 10h2M16.5 10h2M4 4l1.4 1.4M14.6 14.6L16 16M4 16l1.4-1.4M14.6 5.4L16 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M16.5 12.5A7 7 0 017.5 3.5a7 7 0 109 9z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            </svg>
+          </button>
           <%= button_to "Emergency Stop", emergency_stop_project_path(Current.project),
                 method: :post,
                 class: "btn btn--sm emergency-stop-btn",
@@ -51,16 +60,18 @@
           <%= render "layouts/project_switcher" %>
         </header>
 
-        <% if notice %>
-          <div class="flash flash--notice" role="status" data-controller="flash"><%= notice %></div>
-        <% end %>
-        <% if alert %>
-          <div class="flash flash--alert" role="alert" data-controller="flash"><%= alert %></div>
-        <% end %>
+        <div class="app-content">
+          <% if notice %>
+            <div class="flash flash--notice" role="status" data-controller="flash"><%= notice %></div>
+          <% end %>
+          <% if alert %>
+            <div class="flash flash--alert" role="alert" data-controller="flash"><%= alert %></div>
+          <% end %>
 
-        <main class="app-main">
-          <%= yield %>
-        </main>
+          <main class="app-main">
+            <%= yield %>
+          </main>
+        </div>
       </div>
     <% else %>
       <header class="app-topbar" style="justify-content: space-between;">
