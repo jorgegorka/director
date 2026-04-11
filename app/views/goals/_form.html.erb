@@ -26,8 +26,9 @@
 
   <div class="form__field">
     <%= f.label :assignee_id, "Assigned Role" %>
-    <%= f.select :assignee_id,
-          options_for_role_select,
+    <%= f.collection_select :assignee_id,
+          Current.project.roles.active.order(:title),
+          :id, :title,
           { include_blank: "No role assigned" },
           { class: "form__select" } %>
     <p class="form__hint">The role responsible for this goal. Completed subtasks will be evaluated against it.</p>

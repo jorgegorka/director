@@ -384,13 +384,11 @@ export default class extends Controller {
   openGoalModal(e) {
     e.preventDefault()
     const roleId = e.currentTarget.dataset.roleId
-    const modalWrapper = this.goalModalTargets.find(el => el.dataset.roleId === roleId)
-    if (!modalWrapper) return
+    const wrapper = this.goalModalTargets.find(el => el.dataset.roleId === roleId)
+    const dialog = wrapper?.querySelector("dialog")
+    if (!dialog) return
 
-    // Dispatch open on the modal controller
-    const modalController = this.application.getControllerForElementAndIdentifier(modalWrapper, "modal")
-    if (modalController) {
-      modalController.open()
-    }
+    const modalController = this.application.getControllerForElementAndIdentifier(dialog, "modal")
+    modalController?.open()
   }
 }

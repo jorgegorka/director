@@ -1,13 +1,13 @@
 <%#
-  Shared modal partial using native <dialog>.
-  Requires a parent element with data-controller="modal".
+  Self-contained <dialog> modal bound to modal_controller.js (see that
+  controller for open/close semantics and turbo-frame lazy-load behavior).
 
   Arguments:
     title — the modal heading (required)
     size  — "sm" | "md" (default) | "lg"
 %>
 <dialog class="modal modal--<%= local_assigns.fetch(:size, "md") %>"
-        data-modal-target="dialog"
+        data-controller="modal"
         data-action="click->modal#clickOutside turbo:submit-end->modal#submitEnd">
   <div class="modal__container">
     <div class="modal__header">

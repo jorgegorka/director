@@ -12,10 +12,7 @@
 <%
   searchable = local_assigns.fetch(:searchable, false)
   current_value = form.object.public_send(attribute)
-  # Role options arrive hierarchy-indented with \u00A0 (see RolesHelper#build_role_options).
-  # Keep the indentation in the dropdown, strip it for the pill button + search-index label.
-  indexed_options = options.map { |label, value| [ label, label.to_s.delete("\u00A0").strip, value ] }
-  selected_label = indexed_options.find { |_label, _plain, value| value.to_s == current_value.to_s }&.[](1) if current_value.present?
+  selected_label = options.find { |_label, value| value.to_s == current_value.to_s }&.first if current_value.present?
 %>
 <div class="pill-picker"
      data-controller="popover-picker"
@@ -44,14 +41,14 @@
     <% end %>
 
     <div class="popover-picker__list" role="listbox">
-      <% indexed_options.each do |label, plain_label, value| %>
+      <% options.each do |label, value| %>
         <button type="button"
                 class="popover-picker__option"
                 role="option"
                 data-popover-picker-target="option"
                 data-action="click->popover-picker#select"
                 data-popover-picker-value-param="<%= value %>"
-                data-popover-picker-label-param="<%= plain_label %>"><%= label %></button>
+                data-popover-picker-label-param="<%= label %>"><%= label %></button>
       <% end %>
       <div class="popover-picker__empty" hidden data-popover-picker-target="empty">
         No matches

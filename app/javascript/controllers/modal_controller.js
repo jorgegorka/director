@@ -1,44 +1,51 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Generic modal controller using the native <dialog> element.
+// Generic modal controller bound directly to a <dialog> element.
 //
-// Usage:
-//   <div data-controller="modal">
-//     <button data-action="modal#open">Open</button>
-//     <%= render "shared/modal", title: "Create Goal" do %>
-//       ...modal body content...
-//     <% end %>
-//   </div>
+// Two usage modes:
 //
-// The modal can also be opened programmatically by dispatching
-// a "modal:open" event on any element inside the controller scope.
-
+// 1. Lazy-loaded via turbo-frame — the dialog is rendered inside a
+//    turbo_frame_tag and swapped in by Turbo. On connect() we auto-open it,
+//    and on close() we empty the parent frame so the next trigger refetches.
+//
+// 2. Static on the page — the dialog is rendered on initial page load and
+//    opened programmatically by another controller calling open() (see
+//    org_chart_controller#openGoalModal). In this mode the dialog is not
+//    inside a turbo-frame, so close() is a plain dialog.close().
 export default class extends Controller {
-  static targets = ["dialog"]
+  initialize() {
+    this.onDialogClose = () => this.parentFrame?.replaceChildren()
+  }
 
-  open(e) {
-    e?.preventDefault()
-    this.dialogTarget.showModal()
+  connect() {
+    this.element.addEventListener("close", this.onDialogClose)
+    if (this.parentFrame && !this.element.open) {
+      this.element.showModal()
+    }
+  }
+
+  disconnect() {
+    this.element.removeEventListener("close", this.onDialogClose)
+  }
+
+  open() {
+    if (!this.element.open) this.element.showModal()
   }
 
   close(e) {
     e?.preventDefault()
-    this.dialogTarget.close()
+    this.element.close()
   }
 
-  // Close when clicking the backdrop (the ::backdrop pseudo-element
-  // doesn't receive click events, but clicks on the <dialog> itself
-  // outside the inner content area do).
   clickOutside(e) {
-    if (e.target === this.dialogTarget) {
-      this.dialogTarget.close()
-    }
+    if (e.target === this.element) this.element.close()
   }
 
-  // Close on successful Turbo form submission inside the modal
   submitEnd(e) {
-    if (e.detail.success) {
-      this.dialogTarget.close()
-    }
+    if (e.detail.success) this.element.close()
+  }
+
+  get parentFrame() {
+    return this.element.closest("turbo-frame")
   }
 }

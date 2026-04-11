@@ -17,6 +17,10 @@ module TasksHelper
     Task.priorities.keys.map { |p| [ p.humanize, p ] }
   end
 
+  def options_for_role_pill_select
+    Current.project.roles.active.order(:title).pluck(:title, :id)
+  end
+
   def options_for_parent_task_select(task)
     scope = Current.project.tasks
     if task.persisted?

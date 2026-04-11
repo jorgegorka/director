@@ -30,6 +30,7 @@ class Role < ApplicationRecord
   scope :active, -> { where.not(status: [ :terminated ]) }
   scope :online, -> { where(status: [ :idle, :running ]) }
   scope :by_category, ->(category) { where(role_category: category) }
+  scope :excluding_subtree, ->(role) { where.not(id: [ role.id, *role.descendant_ids ]) }
 
   validates :working_directory, format: { with: /\A\/[^\x00]*\z/, message: "must be an absolute path" }, allow_blank: true
 
