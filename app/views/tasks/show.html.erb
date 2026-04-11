@@ -10,7 +10,16 @@
       </div>
     </div>
     <div class="task-detail__actions">
-      <%= link_to "Edit", edit_task_path(@task), class: "btn btn--ghost btn--sm" %>
+      <%= render "tasks/modal",
+            task: @task,
+            title: "Edit task",
+            trigger_label: "Edit",
+            trigger_class: "btn btn--ghost btn--sm" %>
+      <%= render "tasks/modal",
+            task: Current.project.tasks.new(priority: :medium, parent_task_id: @task.id),
+            title: "New subtask",
+            trigger_label: "New Subtask",
+            trigger_class: "btn btn--ghost btn--sm" %>
       <%= button_to "Delete", @task, method: :delete, class: "btn btn--ghost btn--sm task-detail__delete",
             data: { turbo_confirm: "Delete '#{@task.title}'? This cannot be undone." } %>
     </div>

@@ -1,0 +1,67 @@
+<%#
+  Linear-style pill button that opens a popover picker.
+
+  Locals:
+    form       — form builder
+    attribute  — model attribute symbol (e.g. :assignee_id)
+    icon       — inline SVG string (use task_pill_icon helper)
+    placeholder— text shown when no value is selected
+    options    — array of [label, value] tuples
+    searchable — whether to show a search input above options (default: false)
+%>
+<%
+  searchable = local_assigns.fetch(:searchable, false)
+  current_value = form.object.public_send(attribute)
+  selected_label =
+    if current_value.present?
+      match = options.find { |_label, value| value.to_s == current_value.to_s }
+      match&.first.to_s.gsub("\u00A0", "").strip if match
+    end
+%>
+<div class="pill-picker"
+     data-controller="popover-picker"
+     data-popover-picker-placeholder-value="<%= placeholder %>">
+  <button type="button"
+          class="pill-btn <%= "pill-btn--set" if current_value.present? %>"
+          data-popover-picker-target="trigger"
+          data-action="click->popover-picker#toggle">
+    <span class="pill-btn__icon" aria-hidden="true"><%= icon %></span>
+    <span class="pill-btn__label" data-popover-picker-target="label">
+      <%= selected_label.presence || placeholder %>
+    </span>
+  </button>
+
+  <%= form.hidden_field attribute, data: { popover_picker_target: "input" } %>
+
+  <div class="popover-picker" hidden
+       data-popover-picker-target="panel"
+       data-action="keydown->popover-picker#keydown">
+    <% if searchable %>
+      <input type="text"
+             class="popover-picker__search"
+             placeholder="Search…"
+             data-popover-picker-target="search"
+             data-action="input->popover-picker#filter keydown->popover-picker#keydown">
+    <% end %>
+
+    <div class="popover-picker__list" role="listbox">
+      <% options.each do |label, value| %>
+        <button type="button"
+                class="popover-picker__option"
+                role="option"
+                data-popover-picker-target="option"
+                data-action="click->popover-picker#select"
+                data-popover-picker-value-param="<%= value %>"
+                data-popover-picker-label-param="<%= label.to_s.gsub("\u00A0", "").strip %>"><%= label %></button>
+      <% end %>
+      <div class="popover-picker__empty" hidden data-popover-picker-target="empty">
+        No matches
+      </div>
+    </div>
+
+    <button type="button" class="popover-picker__clear"
+            data-action="click->popover-picker#clear">
+      Clear selection
+    </button>
+  </div>
+</div>

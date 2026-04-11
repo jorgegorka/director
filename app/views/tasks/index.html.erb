@@ -3,7 +3,11 @@
 <section class="tasks-page">
   <div class="tasks-page__header">
     <h1>Tasks</h1>
-    <%= link_to "New Task", new_task_path, class: "btn btn--primary btn--sm" %>
+    <%= render "tasks/modal",
+          task: Current.project.tasks.new(priority: :medium),
+          title: "New task",
+          trigger_label: "New Task",
+          trigger_class: "btn btn--primary btn--sm" %>
   </div>
 
   <% if @tasks.any? %>
@@ -15,7 +19,11 @@
   <% else %>
     <div class="tasks-page__empty">
       <p>No tasks yet. Create your first task to get started.</p>
-      <%= link_to "Create a task", new_task_path, class: "btn btn--primary" %>
+      <%= render "tasks/modal",
+            task: Current.project.tasks.new(priority: :medium),
+            title: "New task",
+            trigger_label: "Create a task",
+            trigger_class: "btn btn--primary" %>
     </div>
   <% end %>
 </section>
