@@ -1,4 +1,4 @@
-<%= form_with(model: root_task, as: :root_task, url: root_task.persisted? ? goal_path(root_task) : goals_path, class: "form") do |f| %>
+<%= form_with(model: root_task, scope: :root_task, url: root_task.persisted? ? goal_path(root_task) : goals_path, class: "form") do |f| %>
   <% if root_task.errors.any? %>
     <div class="form__errors">
       <ul>
