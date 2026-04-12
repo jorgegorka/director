@@ -507,4 +507,31 @@ class TaskTest < ActiveSupport::TestCase
       sub.update!(status: :completed)
     end
   end
+
+  # --- Leaf task completion percentage sync ---
+
+  test "leaf task sets completion_percentage to 100 when completed" do
+    task = Task.create!(title: "Leaf", project: @project, creator: @ceo, assignee: @cto, status: :pending_review)
+    task.approve_by!(@ceo)
+
+    assert_equal 100, task.reload.completion_percentage
+  end
+
+  test "leaf task resets completion_percentage to 0 when rejected back to open" do
+    task = Task.create!(title: "Leaf", project: @project, creator: @ceo, assignee: @cto, status: :pending_review)
+    task.approve_by!(@ceo)
+    assert_equal 100, task.reload.completion_percentage
+
+    # Simulate reopening (e.g. status reset)
+    task.update!(status: :open)
+    assert_equal 0, task.reload.completion_percentage
+  end
+
+  test "sync_leaf_completion_percentage does not affect tasks with subtasks" do
+    parent = Task.create!(title: "Parent", project: @project, creator: @ceo, assignee: @cto, status: :in_progress)
+    Task.create!(title: "Sub", project: @project, creator: @cto, parent_task: parent, status: :open)
+
+    parent.update!(status: :completed)
+    assert_equal 0, parent.reload.completion_percentage
+  end
 end

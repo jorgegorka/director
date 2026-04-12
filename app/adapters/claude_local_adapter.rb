@@ -133,7 +133,7 @@ class ClaudeLocalAdapter < BaseAdapter
 
   private_class_method def self.build_claude_command(role, context, temp_files)
     config = role.adapter_config
-    prompt = build_user_prompt(context)
+    prompt = role.build_user_prompt(context)
 
     parts = [ "claude", "-p" ]
     parts << prompt.shellescape
@@ -141,7 +141,7 @@ class ClaudeLocalAdapter < BaseAdapter
     parts << "--model #{config['model'].shellescape}" if config["model"].present?
     parts << "--max-turns #{config['max_turns'].to_i}" if config["max_turns"].present?
 
-    system_prompt = compose_system_prompt(role, context)
+    system_prompt = role.compose_system_prompt(context)
     if system_prompt.present?
       file = Tempfile.new([ "director_sysprompt", ".txt" ])
       file.write(system_prompt)
@@ -177,145 +177,5 @@ class ClaudeLocalAdapter < BaseAdapter
     file.flush
     temp_files << file
     file
-  end
-
-  private_class_method def self.compose_system_prompt(role, context)
-    parts = []
-
-    parts << build_identity_prompt(role)
-    parts << role.job_spec if role.job_spec.present?
-    parts << role.role_category.job_spec if role.role_category&.job_spec.present?
-
-    if context[:root_task_title].present?
-      parts << build_root_task_prompt(context)
-    end
-
-    if context[:skills].present?
-      parts << build_skills_prompt(context[:skills])
-    end
-
-    parts.join("\n\n")
-  end
-
-  private_class_method def self.build_identity_prompt(role)
-    project_name = role.project&.name || "Unknown Project"
-    manager = role.parent
-    children = role.children.active.order(:title)
-
-    manager_line = manager ? manager.title : "None (top-level role)"
-    reports_line = if children.any?
-      children.map(&:title).join(", ")
-    else
-      "None yet — you can hire subordinates using the hire_role tool"
-    end
-
-    <<~PROMPT.strip
-      ## Your Identity
-
-      You are **#{role.title}** at **#{project_name}**.
-      #{role.description.present? ? "\n#{role.description}\n" : ""}
-      ## Your Organization
-
-      Manager: #{manager_line}
-      Direct reports: #{reports_line}
-
-      ## How to Work
-
-      You coordinate work through Director MCP tools. Three of them are **specialists** — when you call them, a focused sub-agent takes over that one decision on your behalf. You do not need to write task descriptions, review criteria, or hiring job specs inline; the specialist does that.
-
-      Specialist tools (delegate reasoning to them):
-      - **create_task** — give an intent, the specialist writes the task and picks an assignee
-      - **review_task** — hand off a pending-review task, the specialist judges and approves/rejects
-      - **hire_role** — give an intent, the specialist picks a template and budget
-      - **summarize_task** — call when a tool response includes a `root_task_completed` hint; the specialist writes the achievement summary shown to the user
-
-      Direct tools (you use these yourself):
-      - **list_my_tasks** / **get_task_details** — inspect your work
-      - **list_available_roles** / **list_hirable_roles** — see who is on your team
-      - **update_task_status** — mark your own assigned tasks in_progress or pending_review
-      - **add_message** — comment on a task
-      - **search_documents** / **get_document** — read from the project document library
-
-      Your job is to decide *what* needs to happen and hand each decision to the right specialist. Do not try to reproduce their reasoning.
-
-      ## Efficiency Rules
-
-      - Do NOT call get_task_details if the task details are already in this prompt — start working immediately
-      - Do NOT call update_task_status("in_progress") — tasks are auto-marked in_progress when your session starts
-      - Prefer batching independent tool calls in parallel
-      - When any tool response includes `root_task_completed: { id, ... }`, call `summarize_task` with that id before continuing. The user relies on this summary for feedback on finished work.
-      - **All your work happens through Director MCP tools.** Do NOT use Glob, Read, Grep, Bash, Write, Edit, Skill, ToolSearch, TodoWrite, or any non-MCP tool. These are invisible to the task system and waste your limited turns. Post ALL output via `add_message`.
-    PROMPT
-  end
-
-  private_class_method def self.build_root_task_prompt(context)
-    prompt = "## Mission Context\n\n**#{context[:root_task_title]}**"
-    prompt += "\n\n#{context[:root_task_description]}" if context[:root_task_description].present?
-    prompt += <<~FOCUS
-
-      ## Focus Rules
-
-      Everything you do in this session must directly advance the mission above.
-      - Do NOT start work outside this mission's scope.
-      - If you spot a related opportunity or risk, use `add_message` to flag it — do not act on it.
-    FOCUS
-    prompt.strip
-  end
-
-  private_class_method def self.build_skills_prompt(skills)
-    catalog = skills.map { |s|
-      line = "- **#{s[:name]}** (#{s[:key]}): #{s[:description]}"
-      if s[:linked_documents].present?
-        doc_names = s[:linked_documents].map { |d| "\"#{d[:title]}\"" }.join(", ")
-        line += "\n  Related docs: #{doc_names}"
-      end
-      line
-    }.join("\n")
-    details = skills.map { |s| "<skill key=\"#{s[:key]}\">\n#{s[:markdown]}\n</skill>" }.join("\n\n")
-
-    <<~PROMPT.strip
-      ## Your Skills
-
-      You have the following skills. Before starting work, identify which skill is most relevant to the current task and follow its instructions.
-
-      #{catalog}
-
-      ### Skill Instructions
-
-      #{details}
-    PROMPT
-  end
-
-  private_class_method def self.build_user_prompt(context)
-    if context[:trigger_type] == "task_pending_review" && context[:task_id].present?
-      prompt = "Task ##{context[:task_id]} is pending your review"
-      prompt += ": #{context[:task_title]}" if context[:task_title].present?
-      prompt += "\n\n#{context[:assignee_role_title]} has submitted this task for review." if context[:assignee_role_title].present?
-      prompt += "\n\nHand this off to the review_task specialist -- do not read the task and decide yourself."
-      prompt.strip
-    elsif context[:task_id].present?
-      prompt = "You have been assigned Task ##{context[:task_id]}"
-      prompt += ": #{context[:task_title]}" if context[:task_title].present?
-      prompt += "\n\n#{context[:task_description]}" if context[:task_description].present?
-
-      if context[:task_documents].present?
-        prompt += "\n\n## Reference Documents\n\n"
-        prompt += context[:task_documents].map { |d|
-          "<document title=\"#{d[:title]}\">\n#{d[:body]}\n</document>"
-        }.join("\n\n")
-      end
-
-      if context[:active_subtasks].present?
-        subtask_list = context[:active_subtasks].map { |t| "- Task ##{t[:id]}: #{t[:title]} (#{t[:status]})" }.join("\n")
-        prompt += "\n\n## Active Subtasks\n\n#{subtask_list}"
-        prompt += "\n\nThis root task already has work in progress. Focus on completing the existing subtasks above — do NOT create new subtasks unless all current ones are completed or blocked and more work is clearly needed."
-      end
-
-      prompt += "\n\nThe task is already marked in_progress. The details above are complete — start working immediately."
-      prompt += "\n\n**When finished:** post deliverables via `add_message`, then call `update_task_status(\"pending_review\")`. Your work is invisible until you submit."
-      prompt.strip
-    else
-      "Check your assigned tasks with list_my_tasks, then execute the highest-priority work."
-    end
   end
 end

@@ -8,6 +8,7 @@ class Role < ApplicationRecord
   include Roles::AgentConfiguration
   include Roles::Budgeting
   include Roles::Broadcasting
+  include Roles::PromptBuilder
 
   belongs_to :role_category
 

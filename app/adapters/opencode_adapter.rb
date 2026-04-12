@@ -52,7 +52,7 @@ class OpencodeAdapter < BaseAdapter
 
   # Hook for TmuxAdapterRunner: returns the opencode CLI invocation string.
   def self.build_agent_command(role, context, temp_files)
-    prompt_file = build_prompt_file(context, temp_files)
+    prompt_file = build_prompt_file(role, context, temp_files)
     mcp_config  = build_mcp_config(role, temp_files)
     build_opencode_command(role, prompt_file, mcp_config)
   end
@@ -90,36 +90,14 @@ class OpencodeAdapter < BaseAdapter
     { exit_code: exit_code, cost_cents: cost_cents, error_message: error_message }
   end
 
-  private_class_method def self.build_prompt_file(context, temp_files)
-    prompt = build_user_prompt(context)
+  private_class_method def self.build_prompt_file(role, context, temp_files)
+    prompt = role.compose_unified_prompt(context)
 
     file = Tempfile.new([ "opencode_prompt", ".txt" ])
     file.write(prompt)
     file.flush
     temp_files << file
     file
-  end
-
-  private_class_method def self.build_user_prompt(context)
-    if context[:trigger_type] == "task_pending_review" && context[:task_id].present?
-      prompt = "Task ##{context[:task_id]} is pending your review"
-      prompt += ": #{context[:task_title]}" if context[:task_title].present?
-      prompt += "\n\n#{context[:assignee_role_title]} has submitted this task for review." if context[:assignee_role_title].present?
-      prompt += "\n\nHand this off to the review_task specialist -- do not read the task and decide yourself."
-      prompt.strip
-    elsif context[:task_id].present?
-      prompt = "You have been assigned Task ##{context[:task_id]}"
-      prompt += ": #{context[:task_title]}" if context[:task_title].present?
-      prompt += "\n\n#{context[:task_description]}" if context[:task_description].present?
-
-      if context[:active_subtasks].present?
-        subtask_list = context[:active_subtasks].map { |t| "- Task ##{t[:id]}: #{t[:title]} (#{t[:status]})" }.join("\n")
-        prompt += "\n\nActive Subtasks:\n\n#{subtask_list}"
-      end
-      prompt.strip
-    else
-      "Check your assigned tasks with list_my_tasks, then execute the highest-priority work."
-    end
   end
 
   private_class_method def self.build_opencode_command(role, prompt_file, mcp_config)
