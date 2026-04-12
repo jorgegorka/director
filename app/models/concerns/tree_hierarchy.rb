@@ -44,6 +44,16 @@ module TreeHierarchy
     ancestors.size
   end
 
+  # Saves self as the new parent of +child+, inheriting child's
+  # current parent. Both operations happen atomically.
+  def insert_above(child)
+    transaction do
+      self.parent = child.parent
+      save!
+      child.update!(parent: self)
+    end
+  end
+
   private
 
   def parent_belongs_to_same_project

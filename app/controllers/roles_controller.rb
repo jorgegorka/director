@@ -17,19 +17,26 @@ class RolesController < ApplicationController
   end
 
   def new
-    @role = Current.project.roles.new
+    @role = Current.project.roles.new(new_role_defaults)
     @role_categories = Current.project.role_categories.order(:name)
+    @reparent_child_id = reparent_child_id
   end
 
   def create
     @role = Current.project.roles.new(role_params)
 
-    if @role.save
-      redirect_to @role, notice: "#{@role.title} has been created."
+    if reparent_child_id.present?
+      child = Current.project.roles.find(reparent_child_id)
+      @role.insert_above(child)
     else
-      @role_categories = Current.project.role_categories.order(:name)
-      render :new, status: :unprocessable_entity
+      @role.save!
     end
+
+    redirect_to @role, notice: "#{@role.title} has been created."
+  rescue ActiveRecord::RecordInvalid
+    @role_categories = Current.project.role_categories.order(:name)
+    @reparent_child_id = reparent_child_id
+    render :new, status: :unprocessable_entity
   end
 
   def edit
@@ -74,6 +81,16 @@ class RolesController < ApplicationController
         gate.update!(enabled: false)
       end
     end
+  end
+
+  def new_role_defaults
+    return {} unless params[:role]
+
+    params.require(:role).permit(:parent_id, :adapter_type, :working_directory, :role_category_id)
+  end
+
+  def reparent_child_id
+    params[:reparent_child_id]
   end
 
   def role_params

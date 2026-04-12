@@ -24,6 +24,10 @@ module OrgChartsHelper
       description: role.description.to_s.truncate(80),
       url: role_path(role),
       status: role.status,
+      parent_id: role.parent_id,
+      adapter_type: role.adapter_type,
+      working_directory: role.working_directory,
+      role_category_id: role.role_category_id,
       children: children.map { |child| role_node_data(child, roles_by_parent_id) }
     }
   end

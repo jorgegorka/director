@@ -1,4 +1,6 @@
 <%= form_with(model: role, class: "form", data: { controller: "adapter-config" }) do |f| %>
+  <%= hidden_field_tag :reparent_child_id, reparent_child_id if local_assigns[:reparent_child_id].present? %>
+
   <% if role.errors.any? %>
     <div class="form__errors" role="alert">
       <% role.errors.full_messages.each do |message| %>
