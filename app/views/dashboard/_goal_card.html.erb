@@ -15,8 +15,10 @@
 
   <div class="goal-card__meta">
     <span class="goal-card__agent">
-      <% if goal.assignee.present? && goal.assignee.online? %>
-        <span class="goal-card__agent-indicator"></span>
+      <% if goal.assignee.present? %>
+        <% if goal.assignee.online? %>
+          <span class="goal-card__agent-indicator"></span>
+        <% end %>
         <%= goal.assignee.title %>
       <% else %>
         <span class="goal-card__agent--unassigned">Unassigned</span>
