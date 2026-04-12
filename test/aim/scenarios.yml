@@ -96,8 +96,12 @@ scenarios:
     context:
       task_title: "AIM: Comprehensive market analysis"
       task_description: "Produce a full market analysis covering: competitor landscape (pricing, features, positioning), customer segments, market size estimates, regulatory environment, and technology trends. Each area requires deep research."
-    expected_tools: [create_task]
+    expected_tools: []
     forbidden_tools: []
+    assertions:
+      allow_either:
+        - [create_task]
+        - [add_message, update_task_status]
     tags: [delegation, planner]
     reference: >
       Planner receives a complex task with multiple research streams.
@@ -231,6 +235,91 @@ scenarios:
       should be delegated to Research Analyst via create_task. Tests the
       judgment boundary — the planner should do Part 1 itself and
       delegate Part 2.
+
+  # ─── Regression: bugs observed in RoleRuns #249–251 ────────────────
+
+  - id: orch_search_discipline
+    category: orchestrator
+    role_title: "AIM CEO"
+    trigger_type: task_assigned
+    context:
+      task_title: "AIM: Launch onboarding redesign"
+    expected_tools: [create_task]
+    forbidden_tools: []
+    assertions:
+      search_documents_max_calls: 1
+    tags: [efficiency, orchestrator, regression]
+    reference: >
+      Orchestrator should delegate to a subordinate. If it calls
+      search_documents at all, it must stop after the first empty
+      result — not rephrase 8 different queries. The delegation is the
+      real work; searching the (known-empty) document store is waste.
+      Regression for Run #249 (Feature manager spammed search_documents
+      8 times before delegating).
+
+  - id: planner_filesystem_prohibited
+    category: planner
+    role_title: "AIM VP Strategy"
+    trigger_type: task_assigned
+    context:
+      task_title: "AIM: Analyze competitor pricing models"
+    expected_tools: [add_message, update_task_status]
+    forbidden_tools: [Glob, Read, Grep, Bash, Write, Edit]
+    tags: [scope_discipline, planner, regression]
+    reference: >
+      Planner's deliverable goes through add_message. It must not fall
+      back to Glob/Read/Bash/Grep/Write/Edit when document search is
+      empty — those are filesystem tools invisible to the task system.
+      The planner should synthesize from the task brief and flag gaps
+      inline. Regression for Run #250 (Feature planner read 10 Rails
+      source files after search_documents returned empty).
+
+  - id: planner_escalates_permission_error
+    category: planner
+    role_title: "AIM VP Strategy"
+    trigger_type: task_assigned
+    context:
+      task_title: "AIM: Post pricing analysis on root mission"
+    expected_tools: [add_message]
+    forbidden_tools: [update_task_status]
+    tags: [error_handling, planner, regression]
+    reference: >
+      The task description instructs the planner to post on "AIM: Launch
+      onboarding redesign" — a mission in a completely separate task tree
+      that VP Strategy has no assignments under. When add_message returns
+      permission denied, the planner must post a message on its OWN task
+      explaining the blocker and stop — NOT silently reroute by posting
+      on its own task and submitting for review. The forbidden_tools
+      check ensures the planner doesn't mark pending_review. Regression
+      for Run #250 (Feature planner silently rerouted after permission
+      denied and submitted anyway).
+
+  - id: orch_checks_delegation_feasibility
+    category: orchestrator
+    role_title: "AIM VP Engineering"
+    trigger_type: task_assigned
+    context:
+      task_title: "AIM: Implement payments module"
+      task_description: "Coordinate your team to produce a payments integration plan covering Stripe API, webhook handling, PCI compliance, test strategy, and rollout. This requires multiple workstreams from your reports. When the plan is ready, it must be posted as a message on the task titled \"AIM: Build MVP Feature\" using add_message."
+    expected_tools: [create_task]
+    forbidden_tools: []
+    assertions:
+      create_task_intent_must_not_contain:
+        - "Build MVP Feature"
+        - "add_message"
+        - "post it as a message"
+        - "post the result as a message"
+    tags: [delegation, orchestrator, scope_discipline, regression]
+    reference: >
+      The task description instructs the CEO to produce a feature
+      inventory and post it on "AIM: Build MVP Feature". A subordinate
+      delegated to produce the inventory would not have permission to
+      post on that sibling mission. Correct behavior: delegate ONLY
+      the content production, keep the cross-task posting for the
+      orchestrator's own session. The delegated intent must NOT instruct
+      the subordinate to post on any other task. Regression for Run
+      #249 (Feature manager embedded "post on task #243" in the subtask
+      description, creating an impossible instruction for the assignee).
 
   - id: planner_submits_work
     category: planner

@@ -169,3 +169,17 @@ The AIM runner (`test/aim/lib/runner.rb#build_context`) must replicate the conte
 ```
 
 Mission scenarios — where an orchestrator should delegate — must point at a root task that has **no active subtasks** (otherwise `build_user_prompt` tells the orchestrator not to create new ones). The AIM seed (`test/aim/seed.rake`) reserves two empty missions specifically for this: `AIM: Launch onboarding redesign` (CEO) and `AIM: Implement payments module` (VP Engineering).
+
+---
+
+## Harness invariant: per-scenario subtask cleanup
+
+Before every scenario, the runner destroys all subtasks of the scenario's target task (`test/aim/lib/runner.rb:36-50`). This prevents state pollution across runs:
+
+- A prior run of an orchestrator scenario may have successfully delegated and left live subtasks on the target task.
+- The next run sees `active_subtasks` populated in the user prompt, which correctly tells the orchestrator "focus on completing existing subtasks — do NOT create new ones".
+- The second scenario then appears to fail ("orchestrator didn't delegate") when in reality the orchestrator was following instructions against a polluted state.
+
+The cleanup resets the target task to a freshly-assigned state: no subtasks, no `active_subtasks` key in the context hash. Scenarios that require active subtasks as input must recreate them inside the scenario body — do not rely on residue from earlier runs.
+
+**When adding scenarios:** if a scenario needs a pre-existing subtask (e.g. to test review flows), seed it explicitly in `test/aim/seed.rake` under a task that is not the target of any delegation scenario — otherwise the cleanup will destroy it on every run. Reserved empty missions for delegation scenarios are listed in the "Context building" section above.

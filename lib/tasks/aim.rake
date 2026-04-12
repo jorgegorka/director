@@ -65,21 +65,29 @@ namespace :aim do
     results = with_execution_queue_paused { runner.execute }
 
     # Print summary
-    passed = results.count { |r| r.status == "success" }
-    failed = results.count { |r| r.status == "error" }
+    run_ok = results.count { |r| r.status == "success" }
+    run_err = results.count { |r| r.status == "error" }
+    passed = results.count { |r| r.verdict == "pass" }
+    failed = results.count { |r| r.verdict == "fail" }
     total_cost = results.sum { |r| r.cost_cents || 0 }
     total_duration = results.sum { |r| r.duration_seconds || 0 }
 
     puts
     puts "=" * 60
-    puts "AIM Results: #{passed} success, #{failed} error (#{results.size} total)"
+    puts "AIM Results: #{passed} PASS / #{failed} FAIL / #{run_err} ERROR (#{results.size} total)"
+    puts "  (runner: #{run_ok} ok, #{run_err} errored)"
     puts "Cost: $#{format('%.4f', total_cost / 100.0)} | Duration: #{total_duration.round(1)}s"
     puts "=" * 60
 
     results.each do |r|
-      status_icon = r.status == "success" ? "PASS" : "FAIL"
+      icon = case r.verdict
+             when "pass" then "PASS"
+             when "fail" then "FAIL"
+             else "ERROR"
+             end
       tools = r.tool_calls.map(&:tool).join(", ")
-      puts "  [#{status_icon}] #{r.scenario_id} — tools: #{tools.presence || 'none'} (#{r.duration_seconds&.round(1)}s)"
+      puts "  [#{icon}] #{r.scenario_id} — tools: #{tools.presence || 'none'} (#{r.duration_seconds&.round(1)}s)"
+      Array(r.assertion_failures).each { |f| puts "         - #{f}" }
       puts "         ERROR: #{r.error}" if r.error
     end
 
@@ -93,6 +101,8 @@ namespace :aim do
       {
         scenario_id: r.scenario_id,
         status: r.status,
+        verdict: r.verdict,
+        assertion_failures: r.assertion_failures,
         role_title: r.role_title,
         category: r.category,
         message: r.message,
