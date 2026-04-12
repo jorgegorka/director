@@ -137,6 +137,7 @@ module AIM
       def build_context(scenario, role)
         ctx = { trigger_type: scenario[:trigger_type] }
         sc = scenario[:context] || {}
+        ctx[:human_feedback] = sc[:human_feedback] if sc[:human_feedback].present?
 
         if sc[:task_title]
           task = resolve_task(role, sc)

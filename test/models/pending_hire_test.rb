@@ -66,4 +66,19 @@ class PendingHireTest < ActiveSupport::TestCase
     @pending_hire.reject!(@user)
     assert_raises(ActiveRecord::RecordInvalid) { @pending_hire.reject!(@user) }
   end
+
+  test "approve! stores optional feedback" do
+    @pending_hire.approve!(@user, feedback: "Looks great, proceed")
+    assert_equal "Looks great, proceed", @pending_hire.feedback
+  end
+
+  test "reject! stores optional feedback" do
+    @pending_hire.reject!(@user, feedback: "Budget too high, trim scope")
+    assert_equal "Budget too high, trim scope", @pending_hire.feedback
+  end
+
+  test "approve! leaves feedback nil when blank" do
+    @pending_hire.approve!(@user, feedback: nil)
+    assert_nil @pending_hire.feedback
+  end
 end

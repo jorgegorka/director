@@ -46,7 +46,7 @@
   <p>Go to the role's adapter settings and choose a type. For a first agent, <strong>Claude Code</strong> is the simplest path:</p>
   <ol>
     <li>Set <strong>adapter type</strong> to Claude Code</li>
-    <li>Set the <strong>model</strong> (e.g., <code>claude-sonnet-4-20250514</code>)</li>
+    <li>Set the <strong>model</strong> (e.g., <code>claude-sonnet-4-6</code>)</li>
     <li>Optionally set <strong>max turns</strong> to limit how long the agent works per execution</li>
   </ol>
   <p>Director automatically configures an MCP server for the agent, giving it the ability to call back into Director's API — reporting progress, creating subtasks, or asking questions through task messages.</p>
@@ -59,9 +59,9 @@
   <p>Your agent is ready. There are two ways to trigger it:</p>
   <ul>
     <li><strong>Assign a task</strong> — create a task and assign it to this role. If the role is online, Director dispatches it immediately.</li>
-    <li><strong>Assign a goal</strong> — assign a goal to the role. Director wakes the agent and gives it the goal context along with any associated tasks.</li>
+    <li><strong>Assign a mission</strong> — create a root task (one with no parent) and assign it to the role. Director wakes the agent and gives it the mission context so it can break the work into subtasks and drive them to completion.</li>
   </ul>
-  <p>The agent receives a system prompt built from its role identity, job spec, goal context, and all assigned skills. It then executes the task using its configured adapter.</p>
+  <p>The agent receives a system prompt built from its role identity, job spec, mission context (the task's root ancestor), and all assigned skills. It then executes the task using its configured adapter.</p>
 
   <h2 id="review-the-results">Review the Results</h2>
   <p>After execution, check the <strong>role run</strong> on the role's detail page. You'll see:</p>

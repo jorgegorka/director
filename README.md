@@ -6,12 +6,23 @@ Managing multiple AI agents gets messy fast. They run in different tabs, lose co
 
 <img width="969" height="661" alt="Direct a team of AI Agents" src="https://github.com/user-attachments/assets/ccdceb18-22cb-4fd8-b589-48e49b69dbe4" />
 
+## Quick install
+
+Run Director on your own machine with **one command**:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/jorgegorka/director/master/scripts/install.sh | sh
+```
+
+The installer pulls the official Docker image and starts Director at [http://localhost:3000](http://localhost:3000), with a persistent volume so your data survives restarts. On Linux it installs Docker for you if it isn't already there; on macOS install [Docker Desktop](https://www.docker.com/products/docker-desktop) first. See [Install](#install) below for details and container management.
 
 ## How it works
 
 ### Projects and teams
 
 Everything starts with a project. You create one, give it a name, and you become its owner. From there you can invite other people to join as members or admins. Each person can belong to multiple projects, and each project is completely isolated — its roles, tasks, budgets, and data are separate from the rest.
+
+First-time users are walked through an **onboarding wizard** that sets up an initial project, picks a department template, and hires a top-level role — so you go from a fresh install to a working org chart in a couple of clicks.
 
 If something goes wrong across the board, an admin can hit the **emergency stop** to freeze every active role in the project at once.
 
@@ -35,8 +46,8 @@ Hiring a role means connecting it to an AI service through one of four adapters:
 
 - **HTTP** — sends tasks to any AI service via web requests. Director posts a JSON payload to a URL you configure and handles the response, including automatic retries with increasing wait times if something fails.
 - **Process** — runs a command-line program on the server. Useful for local scripts or CLI-based AI tools.
-- **Claude Local** — launches a Claude session in a dedicated terminal window, streams the output in real time, and enforces budget limits before each run starts. You can configure a **working directory** so the role operates in the right project context.
-- **OpenCode** — runs the OpenCode CLI locally in a dedicated tmux session, streams its JSON output into the run log, and enforces budget checks before execution. Supports a configurable working directory, model, and `max_turns`.
+- **Claude Local** — launches a Claude session in a dedicated terminal window, streams the output in real time, and enforces budget limits before each run starts. You can configure a **working directory** so the role operates in the right project context, and pick **Anthropic or Ollama** as the provider to run local or hosted models.
+- **OpenCode** — runs the OpenCode CLI locally in a dedicated tmux session, streams its JSON output into the run log, and enforces budget checks before execution. Supports a configurable working directory, model, and `max_turns`, and can target **Anthropic or Ollama** as the provider for fully local operation.
 
 Once hired, roles have a lifecycle you control directly. You can **pause** a role (with a reason), **resume** it, **terminate** it permanently, or **manually wake it up** to start working on demand. If a role tries to do something that requires approval, it enters a **pending approval** state until a human approves or rejects the action.
 
@@ -136,6 +147,8 @@ The dashboard is your command center. At a glance you can see:
 
 The dashboard updates in real time — when a role completes a task, starts a run, or triggers a hook, you see it immediately without refreshing the page.
 
+A persistent **collapsible sidebar** gives you one-click access to every section of the app — dashboard, roles, tasks, goals, documents, skills, approvals, and audit log — and remembers its open/closed state across sessions.
+
 ### Audit trail
 
 Every significant action in Director is recorded in an **immutable audit log** — it can't be edited or deleted. You can filter the log by who performed the action (user or role), what type of action it was, and when it happened.
@@ -148,7 +161,7 @@ Director notifies you when things need your attention — when you're mentioned 
 
 ### MCP tools
 
-Director exposes **12 MCP tools** to the orchestrator scope that roles use to interact with the system. These are the hands and eyes of every AI role — the only way they can read tasks, post results, delegate work, or access documents.
+Director exposes a suite of **MCP tools** to the orchestrator scope that roles use to interact with the system. These are the hands and eyes of every AI role — the only way they can read tasks, post results, delegate work, or access documents.
 
 The tools cover four areas: **task management** (create, update status, list, and inspect tasks — including root tasks as missions), **review and summarization** (review completed subtasks, summarize completed missions), **role coordination** (list available roles, hire subordinates, post messages), and **document access** (search and read reference material). Each role category's job spec defines which tools to use and in what order, so orchestrators delegate via `create_task`, workers execute and report via `add_message`, and planners do both.
 
@@ -170,13 +183,17 @@ Communication with roles uses JSON-RPC 2.0 over stdin/stdout, so any process tha
 
 ## Install
 
-Run Director on your own machine with one command. You need Docker — on Linux the installer will install it for you; on macOS install [Docker Desktop](https://www.docker.com/products/docker-desktop) first.
+The one-command installer (see [Quick install](#quick-install) at the top) is the recommended path. Under the hood it:
+
+- Detects your OS and architecture, installing Docker on Linux if missing (on macOS you install [Docker Desktop](https://www.docker.com/products/docker-desktop) first).
+- Pulls the latest Director image from GHCR (`ghcr.io/jorgegorka/director:latest`).
+- Runs it as a container named `director` on port `3000`, with a persistent `director_storage` volume for your SQLite data.
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/jorgegorka/director/master/scripts/install.sh | sh
 ```
 
-Then visit [http://localhost:3000](http://localhost:3000). Data persists in the `director_storage` Docker volume across restarts.
+Then visit [http://localhost:3000](http://localhost:3000). Data persists in the `director_storage` Docker volume across restarts, and you can override the image, container name, volume, or host port with the `DIRECTOR_IMAGE`, `DIRECTOR_CONTAINER`, `DIRECTOR_VOLUME`, and `DIRECTOR_PORT` environment variables.
 
 Manage the container with the usual Docker commands:
 

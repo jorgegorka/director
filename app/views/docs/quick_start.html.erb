@@ -6,7 +6,7 @@
     <li><a href="#create-a-project" class="docs-toc__link">Create a Project</a></li>
     <li><a href="#set-up-a-role" class="docs-toc__link">Set Up a Role</a></li>
     <li><a href="#configure-an-adapter" class="docs-toc__link">Configure an Adapter</a></li>
-    <li><a href="#create-a-goal" class="docs-toc__link">Create a Goal</a></li>
+    <li><a href="#define-a-mission" class="docs-toc__link">Define a Mission</a></li>
     <li><a href="#assign-a-task" class="docs-toc__link">Assign a Task</a></li>
     <li><a href="#watch-it-run" class="docs-toc__link">Watch It Run</a></li>
   </ul>
@@ -20,8 +20,8 @@
 
 <div class="prose">
   <h2 id="create-a-project">Create a Project</h2>
-  <p>After signing in, click <strong>New Project</strong> from the dashboard. Give your project a name — this is the isolated workspace where all your agents, goals, and tasks will live.</p>
-  <p>Director automatically seeds the project with default role categories and built-in skills so you can start staffing immediately.</p>
+  <p>After signing in for the first time, Director launches an <strong>onboarding wizard</strong> that walks you through creating a project, picking a department template, and hiring a top-level role — the fastest path from a fresh install to a working org chart.</p>
+  <p>You can also skip the wizard and click <strong>New Project</strong> from the dashboard at any time. Give your project a name — this is the isolated workspace where all your agents, missions, and tasks will live. Director automatically seeds the project with default role categories and built-in skills so you can start staffing immediately.</p>
 
   <h2 id="set-up-a-role">Set Up a Role</h2>
   <p>Navigate to <strong>Roles</strong> and create your first role. Pick a role category (e.g., Engineering) and give it a title like "Code Assistant". Write a <strong>job spec</strong> describing what the agent should do — this becomes part of the system prompt the agent receives.</p>
@@ -30,19 +30,19 @@
   <h2 id="configure-an-adapter">Configure an Adapter</h2>
   <p>A role without an adapter is just a position on the org chart. To make it a live agent, configure an adapter:</p>
   <ul>
-    <li><strong>Claude Code</strong> — run Claude CLI locally with streaming output and session resumption. Set the model (e.g., <code>claude-sonnet-4-20250514</code>) and you're ready.</li>
+    <li><strong>Claude Code</strong> — run Claude CLI locally with streaming output and session resumption. Set the model (e.g., <code>claude-sonnet-4-6</code>) and you're ready.</li>
     <li><strong>HTTP API</strong> — point to any cloud-hosted agent endpoint.</li>
     <li><strong>OpenCode</strong> — use OpenCode CLI with any supported provider (OpenAI, Gemini, Groq, etc.).</li>
     <li><strong>Shell Command</strong> — run a custom script or CLI tool.</li>
   </ul>
   <p>For this quick start, Claude Code is the fastest path. Set the model and optionally configure a working directory where the agent will operate.</p>
 
-  <h2 id="create-a-goal">Create a Goal</h2>
-  <p>Go to <strong>Goals</strong> and create one — for example, "Set up project scaffolding". Assign it to your new role. Goals give agents direction and track overall progress as tasks are completed.</p>
-  <p>When you assign a goal to a role that is online, Director automatically wakes the agent to start working on it.</p>
+  <h2 id="define-a-mission">Define a Mission</h2>
+  <p>In Director, a <strong>mission</strong> is simply a <em>root task</em> — a task with no parent that describes what you want accomplished at a high level. Go to <strong>Goals</strong> and create one — for example, "Set up project scaffolding". Assign it to your new role.</p>
+  <p>When you assign a mission to a role that is online, Director automatically wakes the agent to start working on it. As subtasks are completed, the mission's progress rolls up automatically, and Director evaluates each completed subtask against the mission's intent with an AI quality gate.</p>
 
   <h2 id="assign-a-task">Assign a Task</h2>
-  <p>Create a task under your goal — something concrete like "Initialize the repository with a README". Assign it to your role. Tasks are the actual units of work: the agent picks them up, executes them, and reports back.</p>
+  <p>Create a task under your mission — something concrete like "Initialize the repository with a README". Assign it to your role. Tasks are the actual units of work: the agent picks them up, executes them, and reports back.</p>
   <p>Set a priority if needed. Tasks are sorted by priority descending by default, so urgent tasks are handled first.</p>
 
   <h2 id="watch-it-run">Watch It Run</h2>

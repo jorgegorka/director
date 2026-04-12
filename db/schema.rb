@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_12_104002) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_13_002443) do
   create_table "approval_gates", force: :cascade do |t|
     t.string "action_type", null: false
     t.datetime "created_at", null: false
@@ -189,6 +189,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_12_104002) do
   create_table "pending_hires", force: :cascade do |t|
     t.integer "budget_cents", null: false
     t.datetime "created_at", null: false
+    t.text "feedback"
     t.integer "project_id", null: false
     t.datetime "resolved_at"
     t.integer "resolved_by_id"
@@ -246,6 +247,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_12_104002) do
     t.datetime "created_at", null: false
     t.text "error_message"
     t.integer "exit_code"
+    t.text "human_feedback"
     t.datetime "last_activity_at"
     t.text "log_output"
     t.integer "project_id", null: false

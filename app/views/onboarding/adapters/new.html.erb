@@ -70,10 +70,7 @@
           <div class="form__field">
             <%= label_tag "adapter_config_model", "Model" %>
             <%= select_tag "adapter_config[model]",
-                  options_for_select([
-                    [ "Claude Sonnet 4", "claude-sonnet-4-20250514" ],
-                    [ "Claude Opus 4", "claude-opus-4-20250514" ]
-                  ]),
+                  options_for_select(claude_model_options, default_claude_model),
                   id: "adapter_config_model",
                   class: "form__select" %>
           </div>
@@ -114,12 +111,7 @@
           <div class="form__field">
             <%= label_tag "adapter_config_opencode_model", "Model" %>
             <%= select_tag "adapter_config[model]",
-                  options_for_select([
-                    [ "Claude Sonnet 4", "claude-sonnet-4-20250514" ],
-                    [ "Claude Opus 4", "claude-opus-4-20250514" ],
-                    [ "GPT-4o", "gpt-4o" ],
-                    [ "Gemini 2.5 Pro", "gemini-2.5-pro" ]
-                  ]),
+                  options_for_select(opencode_model_options, default_claude_model),
                   id: "adapter_config_opencode_model",
                   class: "form__select" %>
           </div>

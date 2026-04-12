@@ -48,6 +48,7 @@ class ExecuteRoleJob < ApplicationJob
       run_id: role_run.id,
       trigger_type: role_run.trigger_type
     }
+    ctx[:human_feedback] = role_run.human_feedback if role_run.human_feedback.present?
 
     task = role_run.task
     if task

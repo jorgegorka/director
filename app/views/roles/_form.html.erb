@@ -123,10 +123,7 @@
       <div class="form__field">
         <%= label_tag "role_adapter_config_model", "Model" %>
         <%= select_tag "role[adapter_config][model]",
-              options_for_select(
-                [ [ "Claude Sonnet 4", "claude-sonnet-4-20250514" ], [ "Claude Opus 4", "claude-opus-4-20250514" ] ],
-                role.adapter_config&.dig("model")
-              ),
+              options_for_select(claude_model_options, role.adapter_config&.dig("model") || default_claude_model),
               id: "role_adapter_config_model",
               class: "form__select" %>
       </div>
@@ -181,16 +178,7 @@
       <div class="form__field">
         <%= label_tag "role_adapter_config_model", "Model" %>
         <%= select_tag "role[adapter_config][model]",
-              options_for_select([
-                [ "Claude Sonnet 4", "claude-sonnet-4-20250514" ],
-                [ "Claude Opus 4", "claude-opus-4-20250514" ],
-                [ "Claude 3.7 Sonnet", "claude-3-7-sonnet-20250219" ],
-                [ "GPT-4o", "gpt-4o" ],
-                [ "GPT-4.1", "gpt-4.1" ],
-                [ "Gemini 2.5 Pro", "gemini-2.5-pro" ],
-                [ "GLM 4.7", "glm-4.7" ],
-                [ "GLM 5", "glm-5" ]
-              ], role.adapter_config&.dig("model")),
+              options_for_select(opencode_model_options, role.adapter_config&.dig("model") || default_claude_model),
               id: "role_adapter_config_model",
               class: "form__select" %>
       </div>

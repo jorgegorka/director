@@ -16,13 +16,15 @@ module Roles
 
     # Composes the user prompt (task assignment, review trigger, or default).
     def build_user_prompt(context)
-      if context[:trigger_type] == "task_pending_review" && context[:task_id].present?
+      body = if context[:trigger_type] == "task_pending_review" && context[:task_id].present?
         build_review_prompt(context)
       elsif context[:task_id].present?
         build_task_assignment_prompt(context)
       else
         "Check your assigned tasks with list_my_tasks, then execute the highest-priority work."
       end
+
+      [ build_human_feedback_prompt(context), body ].compact_blank.join("\n\n")
     end
 
     # For adapters without system prompt support: merges system + user into one.
@@ -95,6 +97,18 @@ module Roles
         ### Skill Instructions
 
         #{details}
+      PROMPT
+    end
+
+    def build_human_feedback_prompt(context)
+      return nil if context[:human_feedback].blank?
+
+      <<~PROMPT.strip
+        ## Human Feedback
+
+        A human reviewer left this feedback for you. Read it carefully and let it shape the work that follows.
+
+        > #{context[:human_feedback]}
       PROMPT
     end
 

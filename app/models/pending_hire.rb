@@ -12,14 +12,14 @@ class PendingHire < ApplicationRecord
 
   scope :actionable, -> { where(status: :pending) }
 
-  def approve!(user)
+  def approve!(user, feedback: nil)
     assert_pending!
-    update!(status: :approved, resolved_by: user, resolved_at: Time.current)
+    update!(status: :approved, resolved_by: user, resolved_at: Time.current, feedback: feedback.presence)
   end
 
-  def reject!(user)
+  def reject!(user, feedback: nil)
     assert_pending!
-    update!(status: :rejected, resolved_by: user, resolved_at: Time.current)
+    update!(status: :rejected, resolved_by: user, resolved_at: Time.current, feedback: feedback.presence)
   end
 
   private

@@ -12,11 +12,23 @@
         <h3 class="approval-banner__title">Pending Approval</h3>
         <p class="approval-banner__reason"><%= @role.pause_reason %></p>
       </div>
-      <div class="approval-banner__actions">
-        <%= button_to "Approve", role_approval_path(@role), class: "btn btn--primary btn--sm",
-              data: { turbo_confirm: "Approve #{@role.title} to continue?" } %>
-        <%= button_to "Reject", role_approval_path(@role), method: :delete, class: "btn btn--danger btn--sm",
-              data: { turbo_confirm: "Reject #{@role.title}'s pending action?" } %>
+      <div class="approval-banner__actions" data-controller="approval-form">
+        <label class="approval-banner__feedback-label" for="approval_feedback">Optional comment</label>
+        <textarea id="approval_feedback" class="approval-banner__feedback" rows="3"
+                  placeholder="Leave an optional note for the agent — e.g. what to change before trying again."
+                  data-approval-form-target="feedback"></textarea>
+        <div class="approval-banner__buttons">
+          <%= form_with url: role_approval_path(@role), method: :post, data: { "approval-form-target": "approveForm" } do |f| %>
+            <%= hidden_field_tag :feedback, "", data: { "approval-form-target": "approveFeedback" } %>
+            <%= f.button "Approve", type: "button", class: "btn btn--primary btn--sm",
+                  data: { action: "click->approval-form#approve", turbo_confirm: "Approve #{@role.title} to continue?" } %>
+          <% end %>
+          <%= form_with url: role_approval_path(@role), method: :delete, data: { "approval-form-target": "rejectForm" } do |f| %>
+            <%= hidden_field_tag :feedback, "", data: { "approval-form-target": "rejectFeedback" } %>
+            <%= f.button "Reject", type: "button", class: "btn btn--danger btn--sm",
+                  data: { action: "click->approval-form#reject", turbo_confirm: "Reject #{@role.title}'s pending action?" } %>
+          <% end %>
+        </div>
       </div>
     </div>
   <% end %>
@@ -43,12 +55,6 @@
     </div>
     <div class="role-detail__actions">
       <%= link_to "Edit", edit_role_path(@role), class: "btn btn--ghost btn--sm" %>
-      <% if @role.pending_approval? %>
-        <%= button_to "Approve", role_approval_path(@role), class: "btn btn--primary btn--sm",
-              data: { turbo_confirm: "Approve #{@role.title} to continue?" } %>
-        <%= button_to "Reject", role_approval_path(@role), method: :delete, class: "btn btn--danger btn--sm",
-              data: { turbo_confirm: "Reject #{@role.title}'s pending action?" } %>
-      <% end %>
       <% unless @role.terminated? %>
         <% if @role.idle? || @role.error? %>
           <%= button_to "Run", role_activity_path(@role), class: "btn btn--success btn--sm" %>

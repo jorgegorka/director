@@ -16,6 +16,29 @@ module RolesHelper
     end
   end
 
+  DEFAULT_CLAUDE_MODEL = "claude-sonnet-4-6".freeze
+
+  CLAUDE_MODELS = [
+    [ "Claude Opus 4.6", "claude-opus-4-6" ],
+    [ "Claude Sonnet 4.6", "claude-sonnet-4-6" ],
+    [ "Claude Haiku 4.5", "claude-haiku-4-5-20251001" ],
+    [ "Claude Sonnet 4", "claude-sonnet-4-20250514" ],
+    [ "Claude Opus 4", "claude-opus-4-20250514" ]
+  ].freeze
+
+  OPENCODE_MODELS = (CLAUDE_MODELS + [
+    [ "Claude 3.7 Sonnet", "claude-3-7-sonnet-20250219" ],
+    [ "GPT-4o", "gpt-4o" ],
+    [ "GPT-4.1", "gpt-4.1" ],
+    [ "Gemini 2.5 Pro", "gemini-2.5-pro" ],
+    [ "GLM 4.7", "glm-4.7" ],
+    [ "GLM 5", "glm-5" ]
+  ]).freeze
+
+  def claude_model_options = CLAUDE_MODELS
+  def opencode_model_options = OPENCODE_MODELS
+  def default_claude_model = DEFAULT_CLAUDE_MODEL
+
   def gate_description(action_type)
     descriptions = {
       "task_creation" => "Pause before creating new tasks",

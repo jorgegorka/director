@@ -321,6 +321,26 @@ scenarios:
       #249 (Feature manager embedded "post on task #243" in the subtask
       description, creating an impossible instruction for the assignee).
 
+  - id: worker_incorporates_approval_feedback
+    category: worker
+    role_title: "AIM Senior Dev"
+    trigger_type: task_assigned
+    context:
+      task_title: "AIM: Write API documentation"
+      task_description: "Document the REST API endpoints including request/response formats and authentication requirements."
+      human_feedback: "Previous draft was too terse — include a concrete request/response example for every endpoint this time."
+    expected_tools: [add_message, update_task_status]
+    forbidden_tools: [create_task, hire_role]
+    tags: [feedback_incorporation, worker]
+    reference: >
+      Worker resumes after an approval gate where the human left feedback.
+      The feedback appears in the user prompt under "## Human Feedback".
+      The agent should acknowledge the feedback (explicitly reference the
+      request for concrete examples) and produce documentation that
+      includes request/response examples per endpoint. Must still submit
+      via update_task_status("pending_review") at the end. Must NOT
+      delegate — workers cannot delegate.
+
   - id: planner_submits_work
     category: planner
     role_title: "AIM VP Strategy"

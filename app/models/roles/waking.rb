@@ -75,7 +75,8 @@ module Roles
       run_attrs = {
         task_id: context[:task_id],
         project_id: role.project_id,
-        trigger_type: trigger_type
+        trigger_type: trigger_type,
+        human_feedback: context[:human_feedback]
       }
 
       active_run = role.role_runs.active.first

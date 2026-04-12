@@ -3,6 +3,7 @@
 <% content_for :toc do %>
   <span class="docs-toc__title">On this page</span>
   <ul class="docs-toc__list">
+    <li><a href="#one-command-install" class="docs-toc__link">One-Command Install</a></li>
     <li><a href="#requirements" class="docs-toc__link">Requirements</a></li>
     <li><a href="#install-from-source" class="docs-toc__link">Install from Source</a></li>
     <li><a href="#install-with-docker" class="docs-toc__link">Install with Docker</a></li>
@@ -19,6 +20,13 @@
 </div>
 
 <div class="prose">
+  <h2 id="one-command-install">One-Command Install</h2>
+  <p>The fastest way to get Director running on your machine. This is the recommended path for most users — it handles Docker installation on Linux, pulls the latest image, and starts Director with a persistent volume for your data.</p>
+  <pre><code>curl -fsSL https://raw.githubusercontent.com/jorgegorka/director/master/scripts/install.sh | sh</code></pre>
+  <p>On Linux, the installer will install Docker for you if it isn't already present. On macOS, install <a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Docker Desktop</a> first, then run the command above.</p>
+  <p>Once it finishes, visit <code>http://localhost:3000</code>. Your SQLite data persists in the <code>director_storage</code> Docker volume across restarts. You can override defaults with <code>DIRECTOR_IMAGE</code>, <code>DIRECTOR_CONTAINER</code>, <code>DIRECTOR_VOLUME</code>, and <code>DIRECTOR_PORT</code> environment variables.</p>
+  <p>Manage the container with standard Docker commands: <code>docker logs -f director</code>, <code>docker stop director</code>, <code>docker start director</code>.</p>
+
   <h2 id="requirements">Requirements</h2>
   <ul>
     <li><strong>Ruby 3.3+</strong></li>
@@ -58,12 +66,13 @@ bin/setup</code></pre>
   <h2 id="environment-variables">Environment Variables</h2>
   <p>For local agent adapters, you'll need API keys for the AI providers you plan to use:</p>
   <ul>
-    <li><strong><code>ANTHROPIC_API_KEY</code></strong> — required for Claude Code adapter</li>
+    <li><strong><code>ANTHROPIC_API_KEY</code></strong> — required for Claude Code adapter (Anthropic provider)</li>
     <li><strong><code>OPENAI_API_KEY</code></strong> — for OpenCode with OpenAI models</li>
     <li><strong><code>GEMINI_API_KEY</code></strong> — for OpenCode with Gemini models</li>
     <li><strong><code>GROQ_API_KEY</code></strong> — for OpenCode with Groq models</li>
   </ul>
   <p>Set these in your shell environment or in a <code>.env</code> file. Director forwards the relevant keys to agent processes automatically.</p>
+  <p>If you want to run fully offline, both the Claude Code and OpenCode adapters support <strong>Ollama</strong> as a provider. Configure the adapter's <code>provider</code> to <code>ollama</code> and point <code>base_url</code> at your local Ollama server — no API keys required.</p>
 
   <h2 id="production-deployment">Production Deployment</h2>
   <p>Director ships with a <strong>Dockerfile</strong> and <strong>Kamal</strong> configuration for production deployment. Kamal handles container building, deployment, and zero-downtime restarts.</p>
