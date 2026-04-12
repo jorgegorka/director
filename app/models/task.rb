@@ -9,8 +9,8 @@ class Task < ApplicationRecord
   include Tasks::Reviewing
   include Tasks::Assignment
 
-  belongs_to :creator, class_name: "Role", optional: true
-  belongs_to :assignee, class_name: "Role", optional: true
+  belongs_to :creator, class_name: "Role"
+  belongs_to :assignee, class_name: "Role"
   belongs_to :reviewed_by, class_name: "Role", optional: true
   belongs_to :parent_task, class_name: "Task", optional: true
 
@@ -34,8 +34,10 @@ class Task < ApplicationRecord
   scope :completed, -> { where(status: :completed) }
   scope :by_priority, -> { order(priority: :desc, created_at: :desc) }
   scope :roots, -> { where(parent_task_id: nil) }
+  scope :blocked, -> { where(status: :blocked) }
   scope :pending_human_review, -> { where(status: :pending_review).where.not(parent_task_id: nil).where(creator_id: Role.roots.select(:id)) }
 
+  before_validation :default_assignee_to_creator
   before_save :set_completed_at
   after_commit :enqueue_hooks_for_transition, on: [ :create, :update ]
   after_commit :enqueue_validation_feedback, on: [ :create, :update ]
@@ -83,6 +85,11 @@ class Task < ApplicationRecord
   end
 
   private
+
+  def default_assignee_to_creator
+    self.creator ||= project.roles.roots.order(:created_at).first
+    self.assignee ||= creator
+  end
 
   def set_completed_at
     if status_changed? && completed?

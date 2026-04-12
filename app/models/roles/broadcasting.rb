@@ -9,11 +9,10 @@ module Roles
     private
 
     def broadcast_dashboard_update
-      broadcast_overview_stats
       broadcast_role_status
-      broadcast_running_agents
-      broadcast_approvals_badge
       broadcast_org_chart_node
+      broadcast_goal_cards
+      broadcast_attention_section
     end
 
     def broadcast_org_chart_node
@@ -34,40 +33,23 @@ module Roles
       )
     end
 
-    def broadcast_overview_stats
-      roles = project.roles.active
-      Turbo::StreamsChannel.broadcast_replace_to(
-        "dashboard_project_#{project_id}",
-        target: "dashboard-overview-stats",
-        partial: "dashboard/overview_stats",
-        locals: {
-          total_roles: roles.count,
-          roles_online: roles.online.count,
-          tasks_active: project.tasks.active.count,
-          tasks_completed: project.tasks.completed.count
-        }
-      )
+    def broadcast_goal_cards
+      assigned_tasks.roots.includes(:assignee, :subtasks).each do |goal|
+        Turbo::StreamsChannel.broadcast_replace_to(
+          "dashboard_project_#{project_id}",
+          target: "goal_card_task_#{goal.id}",
+          partial: "dashboard/goal_card",
+          locals: { goal: goal }
+        )
+      end
+    rescue ActionView::Template::Error, ActiveRecord::StatementInvalid => e
+      Rails.logger.warn("[Role##{id}] goal cards broadcast failed: #{e.message}")
     end
 
-    def broadcast_running_agents
-      running_roles = project.roles.where(status: :running).includes(role_runs: :task)
-      Turbo::StreamsChannel.broadcast_replace_to(
-        "dashboard_project_#{project_id}",
-        target: "dashboard-running-agents",
-        partial: "dashboard/running_agents",
-        locals: { running_roles: running_roles }
-      )
-    end
-
-    def broadcast_approvals_badge
-      count = project.approvals_pending_count
-
-      Turbo::StreamsChannel.broadcast_replace_to(
-        "dashboard_project_#{project_id}",
-        target: "approvals-badge",
-        partial: "dashboard/approvals_badge",
-        locals: { count: count }
-      )
+    def broadcast_attention_section
+      Dashboard::AttentionItems.new(project).broadcast_to(project_id)
+    rescue ActionView::Template::Error, ActiveRecord::StatementInvalid => e
+      Rails.logger.warn("[Role##{id}] attention section broadcast failed: #{e.message}")
     end
   end
 end

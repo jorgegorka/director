@@ -25,17 +25,17 @@
   </div>
 
   <div class="form__field">
-    <%= f.label :assignee_id, "Assigned Role" %>
-    <%= f.collection_select :assignee_id,
+    <%= f.label :creator_id, "Assigned Role" %>
+    <%= f.collection_select :creator_id,
           Current.project.roles.active.order(:title),
           :id, :title,
-          { include_blank: "No role assigned" },
+          { prompt: "Select a role" },
           { class: "form__select" } %>
     <p class="form__hint">The role responsible for this goal. Completed subtasks will be evaluated against it.</p>
   </div>
 
   <div class="form__actions">
     <%= f.submit root_task.persisted? ? "Update Goal" : "Create Goal", class: "btn btn--primary" %>
-    <%= link_to "Cancel", root_task.persisted? ? goal_path(root_task) : goals_path, class: "btn btn--ghost" %>
+    <button type="button" class="btn btn--ghost" data-action="modal#close">Cancel</button>
   </div>
 <% end %>

@@ -1,5 +1,6 @@
 class TasksController < ApplicationController
   before_action :require_project!
+  before_action :require_roles!, only: [ :new, :create ]
   before_action :set_task, only: [ :show, :edit, :update, :destroy ]
 
   def index

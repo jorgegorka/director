@@ -119,7 +119,7 @@ class OpencodeAdapterTest < ActiveSupport::TestCase
   end
 
   test "build_user_prompt includes task details when task assigned" do
-    prompt = OpencodeAdapter.send(:build_user_prompt, @context)
+    prompt = @role.build_user_prompt(@context)
 
     assert_includes prompt, "Task #42"
     assert_includes prompt, "Fix login bug"
@@ -132,7 +132,7 @@ class OpencodeAdapterTest < ActiveSupport::TestCase
       task_title: "Improve Performance",
       task_description: "Make the app faster"
     }
-    prompt = OpencodeAdapter.send(:build_user_prompt, context)
+    prompt = @role.build_user_prompt(context)
 
     assert_includes prompt, "Improve Performance"
     assert_includes prompt, "Make the app faster"
@@ -147,7 +147,7 @@ class OpencodeAdapterTest < ActiveSupport::TestCase
         { id: 11, title: "Add caching", status: "pending" }
       ]
     }
-    prompt = OpencodeAdapter.send(:build_user_prompt, context)
+    prompt = @role.build_user_prompt(context)
 
     assert_includes prompt, "Task #10: Optimize queries (in_progress)"
     assert_includes prompt, "Task #11: Add caching (pending)"
@@ -160,7 +160,7 @@ class OpencodeAdapterTest < ActiveSupport::TestCase
       task_title: "Fix bug",
       assignee_role_title: "Developer"
     }
-    prompt = OpencodeAdapter.send(:build_user_prompt, context)
+    prompt = @role.build_user_prompt(context)
 
     assert_includes prompt, "pending your review"
     assert_includes prompt, "Developer has submitted"

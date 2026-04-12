@@ -5,6 +5,7 @@ module Tasks
     included do
       after_commit :enqueue_task_alignment_evaluation, on: [ :create, :update ]
       after_commit :recalculate_parent_task_completion, on: [ :create, :update, :destroy ]
+      after_commit :sync_leaf_completion_percentage, on: :update
     end
 
     def recalculate_completion!
@@ -47,6 +48,14 @@ module Tasks
       return unless affected_id
 
       RecalculateTaskCompletionJob.perform_later(affected_id)
+    end
+
+    def sync_leaf_completion_percentage
+      return unless saved_change_to_status?
+      return if subtasks.exists?
+
+      new_pct = completed? ? 100 : 0
+      update_column(:completion_percentage, new_pct) unless completion_percentage == new_pct
     end
   end
 end

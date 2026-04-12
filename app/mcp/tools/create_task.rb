@@ -17,7 +17,7 @@ module Tools
             assignee_role_id: { type: "integer", description: "ID of the role to assign this task to" },
             parent_task_id: { type: "integer", description: "ID of the parent task for subtask creation" }
           },
-          required: [ "title" ]
+          required: [ "title", "assignee_role_id" ]
         }
       }
     end

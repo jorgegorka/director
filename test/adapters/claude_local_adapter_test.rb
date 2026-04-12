@@ -380,7 +380,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
       { key: "debugging", name: "Debugging", description: "Diagnose defects", category: "technical", markdown: "# Debugging\n\n## Instructions\n1. Reproduce the bug" }
     ]
 
-    prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @role, { skills: skills })
+    prompt = @role.compose_system_prompt({ skills: skills })
 
     assert_includes prompt, "Code Review"
     assert_includes prompt, "Debugging"
@@ -392,7 +392,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
   test "system prompt always includes identity section" do
     @role.job_spec = nil
 
-    prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @role, { skills: [] })
+    prompt = @role.compose_system_prompt({ skills: [] })
 
     assert_includes prompt, "Your Identity"
     assert_includes prompt, @role.title
@@ -434,7 +434,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
       { key: "testing", name: "Testing", description: "Write tests", category: "technical", markdown: "# Testing\n\n## Instructions\n1. Write tests" }
     ]
 
-    prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @role, { skills: skills })
+    prompt = @role.compose_system_prompt({ skills: skills })
 
     assert_includes prompt, "You are a helpful assistant."
     assert_includes prompt, "Testing"
@@ -531,7 +531,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
       root_task_description: "Increase organic traffic by 30%"
     }
 
-    prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @role, context)
+    prompt = @role.compose_system_prompt(context)
 
     assert_includes prompt, "## Mission Context"
     assert_includes prompt, "**Improve SEO rankings**"
@@ -539,7 +539,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
   end
 
   test "system prompt omits mission section when no root task context" do
-    prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @role, { skills: [] })
+    prompt = @role.compose_system_prompt({ skills: [] })
 
     assert_not_includes prompt, "Mission Context"
   end
@@ -553,7 +553,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
       ]
     }
 
-    prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @role, context)
+    prompt = @role.compose_system_prompt(context)
 
     identity_pos = prompt.index("Your Identity")
     job_spec_pos = prompt.index("You are the CMO.")
@@ -568,20 +568,17 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
   end
 
   test "identity prompt includes subordinates" do
-    prompt = ClaudeLocalAdapter.send(:compose_system_prompt, roles(:ceo), {})
+    prompt = roles(:ceo).compose_system_prompt({})
 
     assert_includes prompt, "Your Organization"
     assert_includes prompt, "CTO"
   end
 
-  test "identity prompt includes Director MCP tool catalog" do
-    prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @role, {})
+  test "system prompt includes category job_spec with tool references" do
+    prompt = @role.compose_system_prompt({})
 
-    assert_includes prompt, "Director MCP tools"
-    assert_includes prompt, "create_task"
-    assert_includes prompt, "hire_role"
-    assert_includes prompt, "get_task_details"
-    assert_includes prompt, "summarize_task"
+    # Tool references now come from category job_spec, not adapter identity prompt
+    assert_includes prompt, @role.role_category.job_spec
   end
 
   test "mission prompt includes focus rules" do
@@ -590,7 +587,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
       root_task_description: "Increase organic traffic by 30%"
     }
 
-    prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @role, context)
+    prompt = @role.compose_system_prompt(context)
 
     assert_includes prompt, "## Focus Rules"
     assert_includes prompt, "Do NOT start work outside this mission"
@@ -628,14 +625,14 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
   end
 
   test "system prompt includes category job_spec" do
-    prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @role, {})
+    prompt = @role.compose_system_prompt({})
 
     assert_includes prompt, @role.role_category.job_spec
   end
 
   test "system prompt includes role_category job_spec after role job_spec" do
     @role.job_spec = "You are the CTO."
-    prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @role, {})
+    prompt = @role.compose_system_prompt({})
 
     assert_includes prompt, "You are the CTO."
     assert_includes prompt, @role.role_category.job_spec
@@ -649,7 +646,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
     @role.instance_variable_set(:@association_cache, {})
     allow_nil_category = @role.dup
     allow_nil_category.define_singleton_method(:role_category) { nil }
-    prompt = ClaudeLocalAdapter.send(:compose_system_prompt, allow_nil_category, {})
+    prompt = allow_nil_category.compose_system_prompt({})
 
     assert_includes prompt, "Your Identity"
   end
@@ -661,7 +658,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
       task_title: @task.title,
       assignee_role_title: "Marketing Planner"
     }
-    prompt = ClaudeLocalAdapter.send(:build_user_prompt, context)
+    prompt = @role.build_user_prompt(context)
 
     assert_includes prompt, "pending your review"
     assert_includes prompt, "Marketing Planner"
@@ -669,7 +666,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
   end
 
   test "build_user_prompt includes task_id when task context present" do
-    prompt = ClaudeLocalAdapter.send(:build_user_prompt, @context)
+    prompt = @role.build_user_prompt(@context)
 
     assert_includes prompt, "Task ##{@task.id}"
     assert_includes prompt, @task.title
@@ -685,7 +682,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
         { id: 11, title: "Fix meta tags", status: "open" }
       ]
     }
-    prompt = ClaudeLocalAdapter.send(:build_user_prompt, context)
+    prompt = @role.build_user_prompt(context)
 
     assert_includes prompt, "Improve SEO"
     assert_includes prompt, "Task #10: Audit sitemap (in_progress)"
@@ -704,7 +701,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
         { id: 2, title: "Brand Style Guide", body: "Keep it professional." }
       ]
     }
-    prompt = ClaudeLocalAdapter.send(:build_user_prompt, context)
+    prompt = @role.build_user_prompt(context)
 
     assert_includes prompt, "## Reference Documents"
     assert_includes prompt, '<document title="Company Mission">'
@@ -714,7 +711,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
   end
 
   test "build_user_prompt omits reference documents section when no task documents" do
-    prompt = ClaudeLocalAdapter.send(:build_user_prompt, @context)
+    prompt = @role.build_user_prompt(@context)
 
     assert_not_includes prompt, "Reference Documents"
     assert_not_includes prompt, "<document"
@@ -733,14 +730,14 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
       }
     ]
 
-    prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @role, { skills: skills })
+    prompt = @role.compose_system_prompt({ skills: skills })
 
     assert_includes prompt, 'Related docs: "Company Mission", "Brand Guide"'
     assert_not_includes prompt, "Related docs: " + '"' + "Review", "Skills without linked docs should not have Related docs line"
   end
 
   test "build_user_prompt generic fallback when no task context" do
-    prompt = ClaudeLocalAdapter.send(:build_user_prompt, {})
+    prompt = @role.build_user_prompt({})
 
     assert_includes prompt, "list_my_tasks"
   end
@@ -928,8 +925,8 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
       skills: skills
     }
 
-    system_prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @role, context)
-    user_prompt = ClaudeLocalAdapter.send(:build_user_prompt, context)
+    system_prompt = @role.compose_system_prompt(context)
+    user_prompt = @role.build_user_prompt(context)
 
     # System prompt includes all expected sections
     assert_includes system_prompt, "Your Identity"
@@ -952,8 +949,8 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
       assignee_role_title: "Senior Developer"
     }
 
-    system_prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @role, context)
-    user_prompt = ClaudeLocalAdapter.send(:build_user_prompt, context)
+    system_prompt = @role.compose_system_prompt(context)
+    user_prompt = @role.build_user_prompt(context)
 
     assert_includes system_prompt, "Your Identity"
 
@@ -973,7 +970,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
       skills: skills
     }
 
-    system_prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @role, context)
+    system_prompt = @role.compose_system_prompt(context)
 
     assert_includes system_prompt, "Mission Context"
     assert_includes system_prompt, "**Increase revenue**"
@@ -982,8 +979,8 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
   end
 
   test "fallback: no task produces generic user prompt" do
-    system_prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @role, {})
-    user_prompt = ClaudeLocalAdapter.send(:build_user_prompt, {})
+    system_prompt = @role.compose_system_prompt({})
+    user_prompt = @role.build_user_prompt({})
 
     assert_includes system_prompt, "Your Identity"
     assert_not_includes system_prompt, "Mission Context"
@@ -995,7 +992,7 @@ class ClaudeLocalAdapterTest < ActiveSupport::TestCase
   test "missing skills: system prompt omits skills section entirely" do
     context = { skills: [] }
 
-    system_prompt = ClaudeLocalAdapter.send(:compose_system_prompt, @role, context)
+    system_prompt = @role.compose_system_prompt(context)
 
     assert_includes system_prompt, "Your Identity"
     assert_not_includes system_prompt, "Your Skills"

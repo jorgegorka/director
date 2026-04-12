@@ -50,10 +50,8 @@ class Roles::ApprovalsController < ApplicationController
   def respond_to_with_approval_stream(notice)
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: [
-          turbo_stream.remove(dom_id(@role, :approval)),
-          turbo_stream.replace("approvals-badge", partial: "dashboard/approvals_badge", locals: { count: Current.project.approvals_pending_count })
-        ]
+        Dashboard::AttentionItems.new(Current.project).broadcast_to(Current.project.id)
+        render turbo_stream: turbo_stream.remove(dom_id(@role, :approval))
       end
       format.html { redirect_to @role, notice: notice }
     end

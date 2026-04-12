@@ -193,4 +193,47 @@
   .org-chart-node-card__actions > button:last-child {
     margin-inline-start: auto;
   }
+
+  /* --- Add-role buttons (SVG, outside foreignObject) --- */
+  .org-chart-add-btn-group {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition-base);
+  }
+
+  .org-chart-add-btn-group--visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .org-chart-add-btn {
+    cursor: pointer;
+  }
+
+  .org-chart-add-btn circle {
+    fill: var(--bg-surface);
+    stroke: var(--color-brand-400);
+    stroke-width: 1.5;
+    transition:
+      fill var(--transition-fast),
+      stroke var(--transition-fast);
+  }
+
+  .org-chart-add-btn:hover circle {
+    fill: var(--color-brand-50);
+    stroke: var(--color-brand-500);
+  }
+
+  .org-chart-add-btn text {
+    fill: var(--color-brand-400);
+    font-size: 14px;
+    font-weight: 700;
+    dominant-baseline: central;
+    text-anchor: middle;
+    pointer-events: none;
+  }
+
+  .org-chart-add-btn:hover text {
+    fill: var(--color-brand-500);
+  }
 }

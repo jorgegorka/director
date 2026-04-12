@@ -49,8 +49,8 @@ module AIM
           end
         end
 
-        system_prompt = ClaudeLocalAdapter.send(:compose_system_prompt, role, context)
-        user_prompt = ClaudeLocalAdapter.send(:build_user_prompt, context)
+        system_prompt = role.compose_system_prompt(context)
+        user_prompt = role.build_user_prompt(context)
 
         # Write system prompt to tempfile
         sys_file = write_tempfile("aim_sysprompt", ".txt", system_prompt)

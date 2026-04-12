@@ -8,13 +8,14 @@ class Role < ApplicationRecord
   include Roles::AgentConfiguration
   include Roles::Budgeting
   include Roles::Broadcasting
+  include Roles::PromptBuilder
 
   belongs_to :role_category
 
   has_many :role_skills, dependent: :destroy, inverse_of: :role
   has_many :skills, through: :role_skills
   has_many :task_evaluations, dependent: :destroy
-  has_many :created_tasks, class_name: "Task", foreign_key: :creator_id, inverse_of: :creator, dependent: :nullify
+  has_many :created_tasks, class_name: "Task", foreign_key: :creator_id, inverse_of: :creator, dependent: :restrict_with_error
   has_many :assigned_tasks, class_name: "Task", foreign_key: :assignee_id, inverse_of: :assignee, dependent: :nullify
   has_many :reviewed_tasks, class_name: "Task", foreign_key: :reviewed_by_id, inverse_of: :reviewed_by, dependent: :nullify
   has_many :heartbeat_events, dependent: :destroy
@@ -30,7 +31,7 @@ class Role < ApplicationRecord
   scope :active, -> { where.not(status: [ :terminated ]) }
   scope :online, -> { where(status: [ :idle, :running ]) }
   scope :by_category, ->(category) { where(role_category: category) }
-  scope :excluding_subtree, ->(role) { where.not(id: [ role.id, *role.descendant_ids ]) }
+  scope :excluding_subtree, ->(role) { role.new_record? ? all : where.not(id: [ role.id, *role.descendant_ids ]) }
 
   validates :working_directory, format: { with: /\A\/[^\x00]*\z/, message: "must be an absolute path" }, allow_blank: true
 

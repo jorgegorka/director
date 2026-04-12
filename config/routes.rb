@@ -111,13 +111,7 @@ Rails.application.routes.draw do
   end
 
   # Dashboard (project command center — root landing page)
-  resource :dashboard, only: [ :show ], controller: "dashboard" do
-    scope module: :dashboards do
-      resources :tasks, only: [ :index ]
-      resources :activities, only: [ :index ]
-      resources :approvals, only: [ :index ]
-    end
-  end
+  resource :dashboard, only: [ :show ], controller: "dashboard"
 
   # Documentation (public)
   get "docs", to: "docs#index", as: :docs

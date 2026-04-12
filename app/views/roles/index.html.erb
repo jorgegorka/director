@@ -37,7 +37,7 @@
           <div data-org-chart-target="goalModal" data-role-id="<%= role.id %>">
             <%= render "shared/modal", title: "New Goal for #{role.title}" do %>
               <%= form_with(model: Task.new, scope: :root_task, url: goals_path, class: "form") do |f| %>
-                <%= f.hidden_field :assignee_id, value: role.id %>
+                <%= f.hidden_field :creator_id, value: role.id %>
 
                 <div class="form__field">
                   <%= f.label :title, "Title" %>

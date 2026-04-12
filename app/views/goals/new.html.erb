@@ -1,6 +1,5 @@
-<% content_for(:title, "New Goal") %>
-
-<section class="form-page">
-  <h1>New Goal</h1>
-  <%= render "form", root_task: @root_task %>
-</section>
+<%= turbo_frame_tag "goal_form_modal" do %>
+  <%= render "shared/modal", title: "New Goal", size: "lg" do %>
+    <%= render "form", root_task: @root_task %>
+  <% end %>
+<% end %>

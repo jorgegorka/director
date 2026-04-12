@@ -26,10 +26,23 @@ class TaskTest < ActiveSupport::TestCase
     assert_includes task.errors[:title], "can't be blank"
   end
 
-  test "valid without assignee (unassigned task)" do
+  test "invalid without creator when project has no roles" do
+    empty_project = Project.create!(name: "Empty")
+    task = Task.new(title: "Orphan", project: empty_project)
+    assert_not task.valid?
+    assert_includes task.errors[:creator], "must exist"
+  end
+
+  test "destroying role with created tasks is prevented" do
+    assert @ceo.created_tasks.exists?
+    assert_not @ceo.destroy
+    assert_includes @ceo.errors[:base], "Cannot delete record because dependent created tasks exist"
+  end
+
+  test "defaults assignee to creator when not specified" do
     task = Task.new(title: "Unassigned", project: @project, creator: @ceo)
     assert task.valid?
-    assert_nil task.assignee
+    assert_equal @ceo, task.assignee
   end
 
   test "valid without parent_task (top-level task)" do
@@ -307,7 +320,9 @@ class TaskTest < ActiveSupport::TestCase
   test "destroying role nullifies assignee_id" do
     task = tasks(:design_homepage)
     assert_not_nil task.assignee_id
-    roles(:cto).destroy
+    cto = roles(:cto)
+    cto.created_tasks.update_all(creator_id: @ceo.id)
+    cto.destroy
     task.reload
     assert_nil task.assignee_id
   end
@@ -352,10 +367,6 @@ class TaskTest < ActiveSupport::TestCase
   end
 
   # --- Real-time broadcasts ---
-
-  test "task has broadcast_kanban_update private method" do
-    assert @task.respond_to?(:broadcast_kanban_update, true)
-  end
 
   test "task status change does not error" do
     assert_nothing_raised do
@@ -495,5 +506,32 @@ class TaskTest < ActiveSupport::TestCase
     assert_enqueued_with(job: RecalculateTaskCompletionJob, args: [ parent.id ]) do
       sub.update!(status: :completed)
     end
+  end
+
+  # --- Leaf task completion percentage sync ---
+
+  test "leaf task sets completion_percentage to 100 when completed" do
+    task = Task.create!(title: "Leaf", project: @project, creator: @ceo, assignee: @cto, status: :pending_review)
+    task.approve_by!(@ceo)
+
+    assert_equal 100, task.reload.completion_percentage
+  end
+
+  test "leaf task resets completion_percentage to 0 when rejected back to open" do
+    task = Task.create!(title: "Leaf", project: @project, creator: @ceo, assignee: @cto, status: :pending_review)
+    task.approve_by!(@ceo)
+    assert_equal 100, task.reload.completion_percentage
+
+    # Simulate reopening (e.g. status reset)
+    task.update!(status: :open)
+    assert_equal 0, task.reload.completion_percentage
+  end
+
+  test "sync_leaf_completion_percentage does not affect tasks with subtasks" do
+    parent = Task.create!(title: "Parent", project: @project, creator: @ceo, assignee: @cto, status: :in_progress)
+    Task.create!(title: "Sub", project: @project, creator: @cto, parent_task: parent, status: :open)
+
+    parent.update!(status: :completed)
+    assert_equal 0, parent.reload.completion_percentage
   end
 end

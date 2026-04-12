@@ -26,24 +26,28 @@ class TriggerableTaskTest < ActiveSupport::TestCase
     assert_match(/Task#/, event.trigger_source)
   end
 
-  test "creating a task without assignee does not trigger wake event" do
-    assert_no_difference -> { HeartbeatEvent.count } do
+  test "creating a task without explicit assignee defaults to creator and triggers wake" do
+    assert_difference -> { HeartbeatEvent.count }, 1 do
       Task.create!(
         title: "Unassigned task",
         project: @project,
         creator: @cto
       )
     end
-  end
-
-  test "assigning role to existing task triggers wake event" do
-    task = Task.create!(title: "Unassigned", project: @project, creator: @cto)
-    assert_difference -> { HeartbeatEvent.count }, 1 do
-      task.update!(assignee: @cto)
-    end
     event = HeartbeatEvent.last
     assert event.task_assigned?
     assert_equal @cto, event.role
+  end
+
+  test "reassigning task from default assignee triggers wake event" do
+    task = Task.create!(title: "Defaulted", project: @project, creator: @cto)
+    HeartbeatEvent.delete_all
+    assert_difference -> { HeartbeatEvent.count }, 1 do
+      task.update!(assignee: @developer)
+    end
+    event = HeartbeatEvent.last
+    assert event.task_assigned?
+    assert_equal @developer, event.role
     assert_equal "Task##{task.id}", event.trigger_source
   end
 
@@ -66,13 +70,14 @@ class TriggerableTaskTest < ActiveSupport::TestCase
     end
   end
 
-  test "unassigning task (setting assignee to nil) does not trigger wake" do
-    task = Task.create!(title: "Assigned", project: @project, creator: @cto, assignee: @developer)
+  test "clearing assignee defaults back to creator and does not trigger wake if same role" do
+    task = Task.create!(title: "Assigned", project: @project, creator: @cto, assignee: @cto)
     HeartbeatEvent.delete_all
 
     assert_no_difference -> { HeartbeatEvent.count } do
       task.update!(assignee: nil)
     end
+    assert_equal @cto, task.reload.assignee
   end
 
   test "does not trigger wake for terminated role" do

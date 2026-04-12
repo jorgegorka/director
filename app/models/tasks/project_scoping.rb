@@ -17,7 +17,9 @@ module Tasks
     end
 
     def creator_belongs_to_same_project
-      if creator.present? && creator.project_id != project_id
+      return unless creator
+
+      if creator.project_id != project_id
         errors.add(:creator, "must belong to the same project")
       end
     end

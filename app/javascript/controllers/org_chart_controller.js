@@ -6,6 +6,7 @@ const NODE_HEIGHT = 170
 const HORIZONTAL_GAP = 56
 const VERTICAL_GAP = 96
 const PADDING = 48
+const SVG_NS = "http://www.w3.org/2000/svg"
 
 // Zoom limits
 const MIN_ZOOM = 0.3
@@ -56,8 +57,11 @@ export default class extends Controller {
     // Draw connections first (behind nodes)
     layout.connections.forEach(conn => this.drawConnection(svg, conn))
 
-    // Draw nodes on top
-    layout.nodes.forEach(node => this.drawNode(svg, node))
+    // Draw nodes on top, with add-role buttons
+    layout.nodes.forEach(node => {
+      const foreignObject = this.drawNode(svg, node)
+      this.drawAddButtons(svg, node, foreignObject)
+    })
   }
 
   calculateLayout(roots) {
@@ -94,7 +98,11 @@ export default class extends Controller {
         title: node.title,
         description: node.description,
         url: node.url,
-        status: node.status
+        status: node.status,
+        parent_id: node.parent_id,
+        adapter_type: node.adapter_type,
+        working_directory: node.working_directory,
+        role_category_id: node.role_category_id
       })
 
       if (node.children && node.children.length > 0) {
@@ -136,8 +144,7 @@ export default class extends Controller {
   }
 
   drawConnection(svg, conn) {
-    const NS = "http://www.w3.org/2000/svg"
-    const path = document.createElementNS(NS, "path")
+    const path = document.createElementNS(SVG_NS, "path")
     const midY = (conn.y1 + conn.y2) / 2
     path.setAttribute("d", `M ${conn.x1} ${conn.y1} C ${conn.x1} ${midY}, ${conn.x2} ${midY}, ${conn.x2} ${conn.y2}`)
     path.setAttribute("class", "org-chart-line")
@@ -146,9 +153,7 @@ export default class extends Controller {
   }
 
   drawNode(svg, node) {
-    const NS = "http://www.w3.org/2000/svg"
-
-    const foreignObject = document.createElementNS(NS, "foreignObject")
+    const foreignObject = document.createElementNS(SVG_NS, "foreignObject")
     foreignObject.setAttribute("x", node.x)
     foreignObject.setAttribute("y", node.y)
     foreignObject.setAttribute("width", node.width)
@@ -164,6 +169,7 @@ export default class extends Controller {
     }
 
     svg.appendChild(foreignObject)
+    return foreignObject
   }
 
   findNodeTemplate(roleId) {
@@ -204,6 +210,85 @@ export default class extends Controller {
 
     wrapper.appendChild(meta)
     return wrapper
+  }
+
+  // --- Add-role buttons ---
+
+  drawAddButtons(svg, node, foreignObject) {
+    const centerX = node.x + NODE_WIDTH / 2
+    const btnRadius = 12
+
+    const btnGroup = document.createElementNS(SVG_NS, "g")
+    btnGroup.setAttribute("class", "org-chart-add-btn-group")
+
+    // Top button — add parent
+    const topUrl = this.buildNewRoleUrl({
+      "role[parent_id]": node.parent_id || "",
+      "role[adapter_type]": node.adapter_type,
+      "role[working_directory]": node.working_directory,
+      "role[role_category_id]": node.role_category_id,
+      "reparent_child_id": node.id
+    })
+    this.appendButtonLink(btnGroup, topUrl, centerX, node.y - btnRadius / 2, btnRadius)
+
+    // Bottom button — add child
+    const bottomUrl = this.buildNewRoleUrl({
+      "role[parent_id]": node.id,
+      "role[adapter_type]": node.adapter_type,
+      "role[working_directory]": node.working_directory
+    })
+    this.appendButtonLink(btnGroup, bottomUrl, centerX, node.y + NODE_HEIGHT + btnRadius / 2, btnRadius)
+
+    svg.appendChild(btnGroup)
+
+    // Hover show/hide
+    foreignObject.addEventListener("mouseenter", () => {
+      btnGroup.classList.add("org-chart-add-btn-group--visible")
+    })
+    foreignObject.addEventListener("mouseleave", (e) => {
+      if (btnGroup.contains(e.relatedTarget)) return
+      btnGroup.classList.remove("org-chart-add-btn-group--visible")
+    })
+    btnGroup.addEventListener("mouseenter", () => {
+      btnGroup.classList.add("org-chart-add-btn-group--visible")
+    })
+    btnGroup.addEventListener("mouseleave", () => {
+      btnGroup.classList.remove("org-chart-add-btn-group--visible")
+    })
+  }
+
+  appendButtonLink(parent, href, cx, cy, r) {
+    const group = document.createElementNS(SVG_NS, "g")
+    group.setAttribute("class", "org-chart-add-btn")
+
+    const circle = document.createElementNS(SVG_NS, "circle")
+    circle.setAttribute("cx", cx)
+    circle.setAttribute("cy", cy)
+    circle.setAttribute("r", r)
+
+    const text = document.createElementNS(SVG_NS, "text")
+    text.setAttribute("x", cx)
+    text.setAttribute("y", cy)
+    text.textContent = "+"
+
+    group.appendChild(circle)
+    group.appendChild(text)
+    group.addEventListener("click", (e) => {
+      e.preventDefault()
+      e.stopPropagation()
+      window.Turbo.visit(href)
+    })
+    parent.appendChild(group)
+  }
+
+  buildNewRoleUrl(params) {
+    const url = new URL("/roles/new", window.location.origin)
+    for (const [key, value] of Object.entries(params)) {
+      if (value != null && value !== "") {
+        url.searchParams.set(key, value)
+      }
+    }
+    return url.toString()
   }
 
   // --- Pan & Zoom ---
@@ -351,10 +436,10 @@ export default class extends Controller {
   }
 
   isNodeElement(el) {
-    // Check if the clicked element is inside a foreignObject (node card)
     let current = el
     while (current && current !== this.svgTarget) {
       if (current.tagName === "foreignObject" || current.tagName === "foreignobject") return true
+      if (current.classList && current.classList.contains("org-chart-add-btn-group")) return true
       current = current.parentElement || current.parentNode
     }
     return false

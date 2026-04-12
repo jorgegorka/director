@@ -3,9 +3,11 @@
 <section class="tasks-page">
   <div class="tasks-page__header">
     <h1>Tasks</h1>
-    <%= link_to "New Task", new_task_path,
-          class: "btn btn--primary btn--sm",
-          data: { turbo_frame: "task_form_modal" } %>
+    <% if Current.project.roles.exists? %>
+      <%= link_to "New Task", new_task_path,
+            class: "btn btn--primary btn--sm",
+            data: { turbo_frame: "task_form_modal" } %>
+    <% end %>
   </div>
 
   <% if @tasks.any? %>
@@ -16,10 +18,15 @@
     </div>
   <% else %>
     <div class="tasks-page__empty">
-      <p>No tasks yet. Create your first task to get started.</p>
-      <%= link_to "Create a task", new_task_path,
-            class: "btn btn--primary",
-            data: { turbo_frame: "task_form_modal" } %>
+      <% if Current.project.roles.exists? %>
+        <p>No tasks yet. Create your first task to get started.</p>
+        <%= link_to "Create a task", new_task_path,
+              class: "btn btn--primary",
+              data: { turbo_frame: "task_form_modal" } %>
+      <% else %>
+        <p>No tasks yet. Create a role first to get started.</p>
+        <%= link_to "Create role", new_role_path, class: "btn btn--primary" %>
+      <% end %>
     </div>
   <% end %>
 

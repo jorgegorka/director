@@ -125,18 +125,6 @@ class AuditEventTest < ActiveSupport::TestCase
     end
   end
 
-  # --- Real-time broadcasts ---
-
-  test "audit event has broadcast_activity_event private method" do
-    event = AuditEvent.new(
-      auditable: roles(:cto),
-      actor: users(:one),
-      action: "test_action",
-      project: projects(:acme)
-    )
-    assert event.respond_to?(:broadcast_activity_event, true)
-  end
-
   test "creating audit event does not error" do
     assert_nothing_raised do
       AuditEvent.create!(
