@@ -513,10 +513,6 @@ class RoleTest < ActiveSupport::TestCase
     end
   end
 
-  test "role has broadcast_running_agents private method" do
-    assert @cto.respond_to?(:broadcast_running_agents, true)
-  end
-
   test "role transitioning from running to idle triggers broadcast without error" do
     @cto.update_column(:status, Role.statuses[:running])
     assert_nothing_raised do

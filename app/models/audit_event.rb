@@ -7,7 +7,6 @@ class AuditEvent < ApplicationRecord
 
   validates :action, presence: true
 
-  after_create_commit :broadcast_activity_event
   scope :for_action, ->(action_name) { where(action: action_name) }
   scope :for_project, ->(project) { where(project: project) }
   scope :for_actor_type, ->(type) { where(actor_type: type) }
@@ -45,17 +44,5 @@ class AuditEvent < ApplicationRecord
 
   def governance_action?
     GOVERNANCE_ACTIONS.include?(action)
-  end
-
-  private
-
-  def broadcast_activity_event
-    return unless project_id
-    Turbo::StreamsChannel.broadcast_prepend_to(
-      "dashboard_project_#{project_id}",
-      target: "activity-timeline",
-      partial: "dashboard/activity_event",
-      locals: { event: self }
-    )
   end
 end

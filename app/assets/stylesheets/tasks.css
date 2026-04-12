@@ -154,6 +154,12 @@
     border: 1px solid var(--border);
   }
 
+  .status-badge--pending_review {
+    background-color: var(--badge-amber-bg);
+    color: var(--badge-amber-fg);
+    border: 1px solid var(--badge-amber-border);
+  }
+
   /* --- Priority Badges --- */
   .priority-badge {
     display: inline-flex;

@@ -13,9 +13,8 @@
       <div class="sidebar__submenu">
         <div class="sidebar__submenu-inner">
           <%= link_to "Overview", dashboard_path, class: "sidebar__link" %>
-          <%= link_to "Tasks", dashboard_tasks_path, class: "sidebar__link" %>
-          <%= link_to "Activity", dashboard_activities_path, class: "sidebar__link" %>
-          <%= link_to "Approvals", dashboard_approvals_path, class: "sidebar__link" %>
+          <%= link_to "Tasks", tasks_path, class: "sidebar__link" %>
+          <%= link_to "Activity", audit_logs_path, class: "sidebar__link" %>
           <% if safe_roles_path %>
             <%= link_to "Org Chart", safe_roles_path, class: "sidebar__link" %>
           <% end %>

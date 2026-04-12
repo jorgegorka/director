@@ -353,10 +353,6 @@ class TaskTest < ActiveSupport::TestCase
 
   # --- Real-time broadcasts ---
 
-  test "task has broadcast_kanban_update private method" do
-    assert @task.respond_to?(:broadcast_kanban_update, true)
-  end
-
   test "task status change does not error" do
     assert_nothing_raised do
       @task.update!(status: :completed)

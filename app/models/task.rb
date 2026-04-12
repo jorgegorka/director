@@ -34,6 +34,7 @@ class Task < ApplicationRecord
   scope :completed, -> { where(status: :completed) }
   scope :by_priority, -> { order(priority: :desc, created_at: :desc) }
   scope :roots, -> { where(parent_task_id: nil) }
+  scope :blocked, -> { where(status: :blocked) }
   scope :pending_human_review, -> { where(status: :pending_review).where.not(parent_task_id: nil).where(creator_id: Role.roots.select(:id)) }
 
   before_save :set_completed_at

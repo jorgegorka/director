@@ -1,0 +1,54 @@
+<div class="attention-section">
+  <h2 class="attention-section__title">
+    Needs Your Attention
+    <span class="attention-section__count"><%= attention.total_count %></span>
+  </h2>
+
+  <div class="attention-section__items">
+    <% attention.tasks_pending_review.each do |task| %>
+      <div class="attention-item">
+        <span class="status-badge status-badge--pending_review">Review</span>
+        <div class="attention-item__content">
+          <%= link_to task.title, task_path(task), class: "attention-item__title" %>
+          <span class="attention-item__context">
+            <%= "subtask of #{task.parent_task.title}" if task.parent_task %>
+            <%= "· #{task.assignee.title}" if task.assignee %>
+          </span>
+        </div>
+      </div>
+    <% end %>
+
+    <% attention.gate_blocked_roles.each do |role| %>
+      <div class="attention-item">
+        <span class="status-badge status-badge--pending_approval">Gate</span>
+        <div class="attention-item__content">
+          <%= link_to role.title, role_path(role), class: "attention-item__title" %>
+          <span class="attention-item__context"><%= role.pause_reason %></span>
+        </div>
+      </div>
+    <% end %>
+
+    <% attention.pending_hires.each do |hire| %>
+      <div class="attention-item">
+        <span class="status-badge status-badge--open">Hire</span>
+        <div class="attention-item__content">
+          <%= link_to hire.template_role_title, role_path(hire.role), class: "attention-item__title" %>
+          <span class="attention-item__context">requested by <%= hire.role.title %></span>
+        </div>
+      </div>
+    <% end %>
+
+    <% attention.blocked_tasks.each do |task| %>
+      <div class="attention-item">
+        <span class="status-badge status-badge--blocked">Blocked</span>
+        <div class="attention-item__content">
+          <%= link_to task.title, task_path(task), class: "attention-item__title" %>
+          <span class="attention-item__context">
+            <%= "subtask of #{task.parent_task.title}" if task.parent_task %>
+            <%= "· #{task.assignee.title}" if task.assignee %>
+          </span>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -3,39 +3,27 @@
   <%= turbo_stream_from "dashboard_project_#{Current.project.id}" %>
   <div class="dashboard__header">
     <div>
-      <h1><%= @overview.project.name %></h1>
+      <h1><%= @dashboard.name %></h1>
       <p class="dashboard__subtitle">Project command center</p>
     </div>
   </div>
 
-  <% if @overview.top_root_task %>
-    <div class="dashboard-mission glass">
-      <div class="dashboard-mission__info">
-        <span class="dashboard-mission__label">Goal</span>
-        <%= link_to @overview.top_root_task.title, goal_path(@overview.top_root_task), class: "dashboard-mission__title" %>
-      </div>
-      <div class="dashboard-mission__progress">
-        <% percentage = @overview.top_root_task.completion_percentage %>
-        <%= render "shared/progress_bar", percentage: percentage %>
-        <span class="dashboard-mission__pct"><%= percentage %>%</span>
-      </div>
-    </div>
-  <% end %>
-
-  <nav class="dashboard-tabs" role="tablist">
-    <%= link_to "Overview", dashboard_path,
-        class: "dashboard-tab #{"dashboard-tab--active" if @current_tab == :overview}" %>
-    <%= link_to "Tasks", dashboard_tasks_path,
-        class: "dashboard-tab #{"dashboard-tab--active" if @current_tab == :tasks}" %>
-    <%= link_to "Activity", dashboard_activities_path,
-        class: "dashboard-tab #{"dashboard-tab--active" if @current_tab == :activities}" %>
-    <%= link_to dashboard_approvals_path,
-        class: "dashboard-tab #{"dashboard-tab--active" if @current_tab == :approvals}" do %>
-      Approvals
-      <%= render "dashboard/approvals_badge", count: @approvals_count %>
+  <section id="dashboard-attention">
+    <% if @dashboard.attention.any? %>
+      <%= render "dashboard/attention_section", attention: @dashboard.attention %>
     <% end %>
-  </nav>
+  </section>
 
-  <% tab_partials = { overview: "overview", tasks: "tasks", activities: "activity", approvals: "approvals" } %>
-  <%= render "dashboard/#{tab_partials[@current_tab]}_tab" %>
+  <section class="goals-section">
+    <h2 class="goals-section__title">Goals</h2>
+    <% if @dashboard.goals.any? %>
+      <div class="goals-section__list">
+        <% @dashboard.goals.each do |goal| %>
+          <%= render "dashboard/goal_card", goal: goal %>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="dashboard-empty">No goals yet. Create a root task to get started.</p>
+    <% end %>
+  </section>
 </section>

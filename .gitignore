@@ -48,6 +48,7 @@ yarn-debug.log*
 .yarn-integrity
 test/aim/results
 test/examples
+.superpowers/brainstorm/*
 
 REVISION
 
