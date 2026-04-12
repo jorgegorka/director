@@ -28,8 +28,6 @@ class ExecuteRoleJob < ApplicationJob
       cost_cents: result&.dig(:cost_cents),
       claude_session_id: result&.dig(:session_id)
     )
-    role.update!(status: :idle)
-    role.project.dispatch_next_throttled_run!
   # NotImplementedError is a ScriptError (not StandardError) — catch it
   # explicitly so unimplemented adapters fail gracefully.
   rescue StandardError, NotImplementedError => e

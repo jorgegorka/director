@@ -81,10 +81,10 @@ namespace :aim do
 
     results.each do |r|
       icon = case r.verdict
-             when "pass" then "PASS"
-             when "fail" then "FAIL"
-             else "ERROR"
-             end
+      when "pass" then "PASS"
+      when "fail" then "FAIL"
+      else "ERROR"
+      end
       tools = r.tool_calls.map(&:tool).join(", ")
       puts "  [#{icon}] #{r.scenario_id} — tools: #{tools.presence || 'none'} (#{r.duration_seconds&.round(1)}s)"
       Array(r.assertion_failures).each { |f| puts "         - #{f}" }

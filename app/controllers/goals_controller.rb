@@ -64,5 +64,4 @@ class GoalsController < ApplicationController
   def root_task_params
     params.require(:root_task).permit(:title, :description, :creator_id, :priority)
   end
-
 end

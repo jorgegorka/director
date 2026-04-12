@@ -5,6 +5,14 @@
     <div class="goal-detail__header-top">
       <div>
         <h1 class="goal-detail__title"><%= @root_task.title %></h1>
+        <div class="goal-detail__badges">
+          <%= task_status_badge(@root_task) %>
+          <% if @root_task.completed_at.present? %>
+            <span class="goal-detail__completed-at">
+              Completed <%= @root_task.completed_at.strftime("%b %d, %Y at %H:%M") %>
+            </span>
+          <% end %>
+        </div>
       </div>
       <div class="goal-detail__actions">
         <%= link_to "Edit", edit_goal_path(@root_task), class: "btn btn--ghost btn--sm" %>
@@ -46,6 +54,21 @@
         <%= markdown(@root_task.description) %>
       </div>
     <% end %>
+
+    <div class="goal-detail__section">
+      <div class="goal-detail__section-header">
+        <h2>Conversation <span class="goal-detail__count"><%= @root_task.messages.size %></span></h2>
+      </div>
+      <div class="message-thread">
+        <% @detail.messages.each do |message| %>
+          <%= render partial: "messages/thread", locals: { message: message, task: @root_task } %>
+        <% end %>
+        <% if @detail.messages.empty? %>
+          <p class="goal-detail__empty-note">No messages yet.</p>
+        <% end %>
+      </div>
+      <%= render "messages/form", task: @root_task, parent_id: nil %>
+    </div>
 
     <div class="goal-detail__section">
       <div class="goal-detail__section-header">

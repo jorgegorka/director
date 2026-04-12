@@ -25,6 +25,7 @@ class RoleRun < ApplicationRecord
   scope :terminal, -> { where(status: TERMINAL_STATUSES) }
 
   after_commit :broadcast_flush!, if: :terminal_status_reached?
+  after_commit :release_role_and_dispatch!, if: :terminal_status_reached?
 
   def mark_completed!(exit_code: nil, cost_cents: nil, claude_session_id: nil)
     update!(
@@ -34,20 +35,18 @@ class RoleRun < ApplicationRecord
       claude_session_id: claude_session_id || self.claude_session_id,
       completed_at: Time.current
     )
-    release_role_and_dispatch!
   end
 
   def mark_failed!(error_message:, exit_code: nil)
     update!(status: :failed, error_message: error_message, exit_code: exit_code, completed_at: Time.current)
   end
 
-  # Mark this run failed and release the role + dispatch queue. Shared tail
-  # for both in-process failures (ExecuteRoleJob rescue) and the watchdog
-  # reaper. Safe no-op if already terminal.
+  # Mark this run failed. Shared tail for both in-process failures
+  # (ExecuteRoleJob rescue) and the watchdog reaper. Safe no-op if already
+  # terminal. Role release + dispatch happens via the terminal after_commit.
   def fail_and_release!(error_message:, exit_code: 1)
     return if terminal?
     mark_failed!(error_message: error_message, exit_code: exit_code)
-    release_role_and_dispatch!
   end
 
   def mark_cancelled!
@@ -61,7 +60,6 @@ class RoleRun < ApplicationRecord
     kill_adapter_session!
     mark_cancelled!
     task&.post_system_comment(author: role, body: "My session was cancelled before completing work.")
-    release_role_and_dispatch!
   end
 
   # Terminates the adapter's execution session (tmux pane for claude_local,
