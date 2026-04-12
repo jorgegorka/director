@@ -54,7 +54,7 @@ class GoalsControllerTest < ActionDispatch::IntegrationTest
           title: "New top-level goal",
           description: "A mission for the team",
           priority: "high",
-          assignee_id: @cto.id
+          creator_id: @cto.id
         }
       }
     end
@@ -62,19 +62,19 @@ class GoalsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "New top-level goal", goal.title
     assert_equal "high", goal.priority
     assert_nil goal.parent_task_id
-    assert_equal @cto, goal.assignee
-    assert_equal @ceo, goal.creator, "defaults creator to top-level active role"
+    assert_equal @cto, goal.creator
+    assert_equal @cto, goal.assignee, "assignee defaults to creator"
     assert_redirected_to goal_url(goal)
   end
 
-  test "should create goal without assignee" do
+  test "should create goal defaulting assignee to creator when none specified" do
     assert_difference("Task.roots.count", 1) do
       post goals_url, params: {
         root_task: { title: "Unassigned mission" }
       }
     end
     goal = Task.roots.order(:created_at).last
-    assert_nil goal.assignee
+    assert_equal @ceo, goal.assignee
     assert_equal @ceo, goal.creator
   end
 
@@ -85,21 +85,21 @@ class GoalsControllerTest < ActionDispatch::IntegrationTest
     @ceo.update!(status: :terminated)
     assert_difference("Task.roots.count", 1) do
       post goals_url, params: {
-        root_task: { title: "Still works", assignee_id: @cto.id }
+        root_task: { title: "Still works", creator_id: @cto.id }
       }
     end
     goal = Task.roots.order(:created_at).last
+    assert_equal @cto, goal.creator
     assert_equal @cto, goal.assignee
-    assert_equal @ceo, goal.creator
   end
 
-  test "creates unassigned goal when top-level role is terminated" do
+  test "creates goal defaulting assignee to creator when top-level role is terminated" do
     @ceo.update!(status: :terminated)
     assert_difference("Task.roots.count", 1) do
       post goals_url, params: { root_task: { title: "No owner" } }
     end
     goal = Task.roots.order(:created_at).last
-    assert_nil goal.assignee
+    assert_equal @ceo, goal.assignee
     assert_equal @ceo, goal.creator
   end
 
@@ -107,12 +107,28 @@ class GoalsControllerTest < ActionDispatch::IntegrationTest
     @ceo.update!(status: :terminated)
     assert_difference("Task.roots.count", 1) do
       post goals_url, params: {
-        root_task: { title: "Legacy cleanup", assignee_id: @ceo.id }
+        root_task: { title: "Legacy cleanup", creator_id: @ceo.id }
       }
     end
     goal = Task.roots.order(:created_at).last
-    assert_equal @ceo, goal.assignee
     assert_equal @ceo, goal.creator
+    assert_equal @ceo, goal.assignee
+  end
+
+  test "should redirect new when project has no roles" do
+    @project.tasks.destroy_all
+    @project.roles.destroy_all
+    get new_goal_url
+    assert_redirected_to roles_url
+  end
+
+  test "should redirect create when project has no roles" do
+    @project.tasks.destroy_all
+    @project.roles.destroy_all
+    assert_no_difference("Task.count") do
+      post goals_url, params: { root_task: { title: "No roles" } }
+    end
+    assert_redirected_to roles_url
   end
 
   test "should not create goal with blank title" do
@@ -170,7 +186,7 @@ class GoalsControllerTest < ActionDispatch::IntegrationTest
     get roles_url
     assert_response :success
     assert_select "input[name='root_task[title]']"
-    assert_select "input[name='root_task[assignee_id]'][type='hidden']"
+    assert_select "input[name='root_task[creator_id]'][type='hidden']"
   end
 
   # --- Auth ---

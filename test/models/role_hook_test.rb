@@ -192,6 +192,7 @@ class RoleHookTest < ActiveSupport::TestCase
   test "destroying role destroys its role_hooks" do
     hook_count = @cto.role_hooks.count
     assert hook_count > 0
+    @cto.created_tasks.update_all(creator_id: roles(:ceo).id)
     assert_difference "RoleHook.count", -hook_count do
       @cto.destroy
     end

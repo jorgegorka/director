@@ -31,8 +31,6 @@ module Tasks
     end
 
     def trigger_pending_review_wake
-      return unless creator
-
       trigger_role_wake(
         role: creator,
         trigger_type: :task_pending_review,

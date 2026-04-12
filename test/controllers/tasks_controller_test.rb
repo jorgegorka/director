@@ -43,6 +43,22 @@ class TasksControllerTest < ActionDispatch::IntegrationTest
 
   # --- New / Create ---
 
+  test "should redirect new when project has no roles" do
+    @project.tasks.destroy_all
+    @project.roles.destroy_all
+    get new_task_url
+    assert_redirected_to roles_url
+  end
+
+  test "should redirect create when project has no roles" do
+    @project.tasks.destroy_all
+    @project.roles.destroy_all
+    assert_no_difference("Task.count") do
+      post tasks_url, params: { task: { title: "No roles" } }
+    end
+    assert_redirected_to roles_url
+  end
+
   test "should get new task form" do
     get new_task_url
     assert_response :success
@@ -83,8 +99,8 @@ class TasksControllerTest < ActionDispatch::IntegrationTest
     assert_equal @cto, task.assignee
   end
 
-  test "should create audit event on task creation" do
-    assert_difference("AuditEvent.count", 1) do
+  test "should create audit events on task creation" do
+    assert_difference("AuditEvent.count", 2) do
       post tasks_url, params: {
         task: {
           title: "Audit test task",
@@ -94,9 +110,8 @@ class TasksControllerTest < ActionDispatch::IntegrationTest
       }
     end
     task = Task.order(:created_at).last
-    event = task.audit_events.find_by(action: "created")
-    assert_not_nil event
-    assert_equal "created", event.action
+    assert task.audit_events.find_by(action: "created")
+    assert task.audit_events.find_by(action: "assigned"), "assigns to creator by default"
   end
 
   test "should create two audit events when task created with assignee" do

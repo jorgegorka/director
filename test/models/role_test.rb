@@ -190,6 +190,7 @@ class RoleTest < ActiveSupport::TestCase
   test "destroying role destroys its role_hooks" do
     hook_count = @cto.role_hooks.count
     assert hook_count > 0
+    @cto.created_tasks.update_all(creator_id: @ceo.id)
     assert_difference "RoleHook.count", -hook_count do
       @cto.destroy
     end
@@ -298,12 +299,14 @@ class RoleTest < ActiveSupport::TestCase
   # --- Deletion behavior ---
 
   test "destroying parent re-parents children to grandparent" do
+    @cto.created_tasks.update_all(creator_id: @ceo.id)
     @cto.destroy
     @developer.reload
     assert_equal @ceo.id, @developer.parent_id
   end
 
   test "destroying root role makes children root" do
+    @ceo.created_tasks.update_all(creator_id: @cto.id)
     @ceo.destroy
     @cto.reload
     assert_nil @cto.parent_id
@@ -312,6 +315,7 @@ class RoleTest < ActiveSupport::TestCase
   test "destroying role destroys its role_skills" do
     skill_count = @cto.role_skills.count
     assert skill_count > 0
+    @cto.created_tasks.update_all(creator_id: @ceo.id)
     assert_difference "RoleSkill.count", -skill_count do
       @cto.destroy
     end
@@ -749,7 +753,9 @@ class RoleTest < ActiveSupport::TestCase
 
   test "first agent configuration does not duplicate existing skills" do
     # Create a role whose title matches a default_skills key, pre-assign a skill, then configure adapter.
-    roles(:ceo).destroy # free up the "CEO" title
+    ceo = roles(:ceo)
+    ceo.created_tasks.update_all(creator_id: @cto.id)
+    ceo.destroy # free up the "CEO" title
     role = Role.create!(title: "CEO", project: @project, role_category: role_categories(:worker))
     role.role_skills.create!(skill: skills(:acme_strategic_planning))
     initial_count = role.role_skills.count

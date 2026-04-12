@@ -53,6 +53,7 @@ class ApprovalGateTest < ActiveSupport::TestCase
   test "destroying role destroys its gates" do
     gate_count = @role.approval_gates.count
     assert gate_count > 0
+    @role.created_tasks.update_all(creator_id: roles(:ceo).id)
     assert_difference "ApprovalGate.count", -gate_count do
       @role.destroy
     end

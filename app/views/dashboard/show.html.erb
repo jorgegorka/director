@@ -6,6 +6,11 @@
       <h1><%= @dashboard.name %></h1>
       <p class="dashboard__subtitle">Project command center</p>
     </div>
+    <% if Current.project.roles.exists? %>
+      <%= link_to "New Goal", new_goal_path,
+            class: "btn btn--primary btn--sm",
+            data: { turbo_frame: "goal_form_modal" } %>
+    <% end %>
   </div>
 
   <section id="dashboard-attention">
@@ -16,14 +21,22 @@
 
   <section class="goals-section">
     <h2 class="goals-section__title">Goals</h2>
-    <% if @dashboard.goals.any? %>
-      <div class="goals-section__list">
-        <% @dashboard.goals.each do |goal| %>
-          <%= render "dashboard/goal_card", goal: goal %>
+    <div id="goals-list" class="goals-section__list">
+      <% @dashboard.goals.each do |goal| %>
+        <%= render "dashboard/goal_card", goal: goal %>
+      <% end %>
+    </div>
+    <% unless @dashboard.goals.any? %>
+      <p class="dashboard-empty" id="goals-empty">
+        <% if Current.project.roles.exists? %>
+          No goals yet. <%= link_to "Create a goal", new_goal_path,
+            data: { turbo_frame: "goal_form_modal" } %> to get started.
+        <% else %>
+          No goals yet. <%= link_to "Create a role", new_role_path %> first to get started.
         <% end %>
-      </div>
-    <% else %>
-      <p class="dashboard-empty">No goals yet. Create a root task to get started.</p>
+      </p>
     <% end %>
   </section>
+
+  <%= turbo_frame_tag "goal_form_modal" %>
 </section>

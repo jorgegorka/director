@@ -26,10 +26,23 @@ class TaskTest < ActiveSupport::TestCase
     assert_includes task.errors[:title], "can't be blank"
   end
 
-  test "valid without assignee (unassigned task)" do
+  test "invalid without creator when project has no roles" do
+    empty_project = Project.create!(name: "Empty")
+    task = Task.new(title: "Orphan", project: empty_project)
+    assert_not task.valid?
+    assert_includes task.errors[:creator], "must exist"
+  end
+
+  test "destroying role with created tasks is prevented" do
+    assert @ceo.created_tasks.exists?
+    assert_not @ceo.destroy
+    assert_includes @ceo.errors[:base], "Cannot delete record because dependent created tasks exist"
+  end
+
+  test "defaults assignee to creator when not specified" do
     task = Task.new(title: "Unassigned", project: @project, creator: @ceo)
     assert task.valid?
-    assert_nil task.assignee
+    assert_equal @ceo, task.assignee
   end
 
   test "valid without parent_task (top-level task)" do
@@ -307,7 +320,9 @@ class TaskTest < ActiveSupport::TestCase
   test "destroying role nullifies assignee_id" do
     task = tasks(:design_homepage)
     assert_not_nil task.assignee_id
-    roles(:cto).destroy
+    cto = roles(:cto)
+    cto.created_tasks.update_all(creator_id: @ceo.id)
+    cto.destroy
     task.reload
     assert_nil task.assignee_id
   end

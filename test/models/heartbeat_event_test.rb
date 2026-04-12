@@ -103,6 +103,7 @@ class HeartbeatEventTest < ActiveSupport::TestCase
     event_ids = role.heartbeat_events.pluck(:id)
     assert event_ids.any?
 
+    role.created_tasks.update_all(creator_id: roles(:ceo).id)
     role.destroy
     assert_empty HeartbeatEvent.where(id: event_ids)
   end

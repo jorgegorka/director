@@ -164,6 +164,7 @@ class NotificationTest < ActiveSupport::TestCase
   test "destroying role destroys its notifiable notifications" do
     notif_count = @role.notifications.count
     assert notif_count > 0
+    @role.created_tasks.update_all(creator_id: roles(:ceo).id)
     assert_difference "Notification.count", -notif_count do
       @role.destroy
     end

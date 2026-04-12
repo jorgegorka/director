@@ -197,6 +197,7 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
   # --- Destroy ---
 
   test "should destroy role and re-parent children" do
+    @cto.created_tasks.update_all(creator_id: @ceo.id)
     assert_difference("Role.count", -1) do
       delete role_url(@cto)
     end
@@ -206,6 +207,7 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should destroy root role and make children root" do
+    @ceo.created_tasks.update_all(creator_id: @cto.id)
     assert_difference("Role.count", -1) do
       delete role_url(@ceo)
     end

@@ -3,6 +3,7 @@
 # stable for users. Under the hood these are Task records.
 class GoalsController < ApplicationController
   before_action :require_project!
+  before_action :require_roles!, only: [ :new, :create ]
   before_action :set_root_task, only: [ :show, :edit, :update, :destroy ]
 
   def index
@@ -19,10 +20,19 @@ class GoalsController < ApplicationController
 
   def create
     @root_task = Current.project.tasks.new(root_task_params)
-    @root_task.creator ||= default_creator_for(@root_task.assignee)
 
     if @root_task.save
-      redirect_to goal_path(@root_task), notice: "Goal '#{@root_task.title}' has been created."
+      respond_to do |format|
+        format.turbo_stream do
+          render turbo_stream: [
+            turbo_stream.append("goals-list",
+              partial: "dashboard/goal_card",
+              locals: { goal: @root_task }),
+            turbo_stream.remove("goals-empty")
+          ]
+        end
+        format.html { redirect_to goal_path(@root_task), notice: "Goal '#{@root_task.title}' has been created." }
+      end
     else
       render :new, status: :unprocessable_entity
     end
@@ -52,13 +62,12 @@ class GoalsController < ApplicationController
   end
 
   def root_task_params
-    params.require(:root_task).permit(:title, :description, :assignee_id, :priority)
+    params.require(:root_task).permit(:title, :description, :creator_id, :priority)
   end
 
-  # Prefer the assignee's top-level ancestor so delegation-scope checks pass.
-  # Terminated roles stay valid creators — execute_role_job handles them.
-  def default_creator_for(assignee)
-    return assignee.ancestors.last || assignee if assignee
-    Current.project.roles.roots.order(:created_at).first
+  def require_roles!
+    return if Current.project.roles.exists?
+
+    redirect_to roles_path, notice: "You need to create at least one role before adding goals."
   end
 end

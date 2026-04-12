@@ -3,7 +3,11 @@
 <section class="goals-page">
   <div class="goals-page__header">
     <h1>Goals</h1>
-    <%= link_to "New Goal", new_goal_path, class: "btn btn--primary btn--sm" %>
+    <% if Current.project.roles.exists? %>
+      <%= link_to "New Goal", new_goal_path,
+            class: "btn btn--primary btn--sm",
+            data: { turbo_frame: "goal_form_modal" } %>
+    <% end %>
   </div>
 
   <% if @root_tasks.any? %>
@@ -25,8 +29,17 @@
     </div>
   <% else %>
     <div class="goals-page__empty">
-      <p>No goals yet. Create your first goal to get started.</p>
-      <%= link_to "Create goal", new_goal_path, class: "btn btn--primary" %>
+      <% if Current.project.roles.exists? %>
+        <p>No goals yet. Create your first goal to get started.</p>
+        <%= link_to "Create goal", new_goal_path,
+              class: "btn btn--primary",
+              data: { turbo_frame: "goal_form_modal" } %>
+      <% else %>
+        <p>No goals yet. Create a role first to get started.</p>
+        <%= link_to "Create role", new_role_path, class: "btn btn--primary" %>
+      <% end %>
     </div>
   <% end %>
+
+  <%= turbo_frame_tag "goal_form_modal" %>
 </section>

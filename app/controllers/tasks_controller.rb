@@ -1,5 +1,6 @@
 class TasksController < ApplicationController
   before_action :require_project!
+  before_action :require_roles!, only: [ :new, :create ]
   before_action :set_task, only: [ :show, :edit, :update, :destroy ]
 
   def index
@@ -64,5 +65,11 @@ class TasksController < ApplicationController
 
   def task_params
     params.require(:task).permit(:title, :description, :status, :priority, :assignee_id, :creator_id, :due_at, :parent_task_id)
+  end
+
+  def require_roles!
+    return if Current.project.roles.exists?
+
+    redirect_to roles_path, notice: "You need to create at least one role before adding tasks."
   end
 end
