@@ -67,9 +67,4 @@ class TasksController < ApplicationController
     params.require(:task).permit(:title, :description, :status, :priority, :assignee_id, :creator_id, :due_at, :parent_task_id)
   end
 
-  def require_roles!
-    return if Current.project.roles.exists?
-
-    redirect_to roles_path, notice: "You need to create at least one role before adding tasks."
-  end
 end

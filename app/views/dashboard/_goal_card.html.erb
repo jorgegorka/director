@@ -23,7 +23,7 @@
       <% end %>
     </span>
 
-    <% completed_count = goal.subtasks.count(&:completed?) %>
+    <% completed_count = goal.subtasks.select(&:completed?).size %>
     <% total_count = goal.subtasks.size %>
     <% if total_count > 0 %>
       <span class="goal-card__subtasks"><%= completed_count %> of <%= total_count %> subtasks done</span>

@@ -65,9 +65,4 @@ class GoalsController < ApplicationController
     params.require(:root_task).permit(:title, :description, :creator_id, :priority)
   end
 
-  def require_roles!
-    return if Current.project.roles.exists?
-
-    redirect_to roles_path, notice: "You need to create at least one role before adding goals."
-  end
 end

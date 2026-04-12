@@ -37,7 +37,8 @@ class Dashboard::AttentionItems
   end
 
   def any?
-    total_count > 0
+    tasks_pending_review.any? || gate_blocked_roles.any? ||
+      pending_hires.any? || blocked_tasks.any?
   end
 
   def broadcast_to(project_id)

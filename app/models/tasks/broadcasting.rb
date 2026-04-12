@@ -19,7 +19,7 @@ module Tasks
       return unless project_id
 
       goal = root_ancestor
-      goal = goal.reload if goal.id != id
+      goal = Task.includes(:assignee, :subtasks).find(goal.id) if goal.id != id
       Turbo::StreamsChannel.broadcast_replace_to(
         "dashboard_project_#{project_id}",
         target: "goal_card_task_#{goal.id}",

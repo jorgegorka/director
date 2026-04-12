@@ -48,19 +48,10 @@ class Roles::ApprovalsController < ApplicationController
   private
 
   def respond_to_with_approval_stream(notice)
-    attention = Dashboard::AttentionItems.new(Current.project)
-    attention_html = if attention.any?
-      render_to_string(partial: "dashboard/attention_section", formats: [ :html ], locals: { attention: attention })
-    else
-      ""
-    end
-
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: [
-          turbo_stream.remove(dom_id(@role, :approval)),
-          turbo_stream.update("dashboard-attention", html: attention_html)
-        ]
+        Dashboard::AttentionItems.new(Current.project).broadcast_to(Current.project.id)
+        render turbo_stream: turbo_stream.remove(dom_id(@role, :approval))
       end
       format.html { redirect_to @role, notice: notice }
     end
