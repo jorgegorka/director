@@ -1,0 +1,330 @@
+/* ============================================================
+   LINEAR-STYLE TASK FORM
+   Hero title, flowing description, pill metadata row.
+   ============================================================ */
+@layer components {
+  .task-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  /* Let pill popovers escape the modal body's scroll clip. */
+  .modal__body:has(.task-form) {
+    overflow: visible;
+  }
+
+  /* --- Hero title: borderless, large, no label --- */
+  .task-form__title {
+    inline-size: 100%;
+    border: none;
+    background: transparent;
+    color: var(--text-base);
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    letter-spacing: var(--letter-spacing-tight);
+    padding: 0;
+    outline: none;
+    font-family: inherit;
+
+    &::placeholder {
+      color: var(--text-subtle);
+      font-weight: 600;
+      opacity: 0.7;
+    }
+  }
+
+  /* --- Description: borderless, flows below title --- */
+  .task-form__description {
+    inline-size: 100%;
+    border: none;
+    background: transparent;
+    color: var(--text-base);
+    font-size: var(--font-size-base);
+    padding: 0;
+    outline: none;
+    resize: none;
+    min-block-size: 4.5rem;
+    font-family: inherit;
+    line-height: var(--line-height-relaxed, 1.6);
+
+    &::placeholder {
+      color: var(--text-subtle);
+      opacity: 0.7;
+    }
+  }
+
+  /* --- Pill row --- */
+  .task-form__pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    padding-block: var(--space-3);
+    border-block-start: 1px solid var(--border-subtle);
+    border-block-end: 1px solid var(--border-subtle);
+  }
+
+  /* --- Status block (edit only) --- */
+  .task-form__status {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .task-form__status-label {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--text-subtle);
+    margin: 0;
+    flex-shrink: 0;
+  }
+
+  .task-form__status .form__select {
+    max-inline-size: 16rem;
+  }
+
+  /* --- Footer: submit + cancel --- */
+  .task-form__footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-2);
+    padding-block-start: var(--space-4);
+  }
+
+  .task-form .form__errors {
+    padding: var(--space-3) var(--space-4);
+    background-color: var(--color-error-bg);
+    color: var(--color-error-fg);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+
+    & p { margin: 0 0 var(--space-2); }
+    & ul { margin: 0; padding-inline-start: var(--space-5); }
+  }
+
+  /* ============================================================
+     PILL BUTTONS + POPOVER PICKER
+     ============================================================ */
+
+  .pill-picker {
+    position: relative;
+  }
+
+  .pill-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding-block: var(--space-1);
+    padding-inline: var(--space-3);
+    min-block-size: 1.875rem;
+    border: 1px dashed var(--border);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--text-subtle);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition:
+      background-color var(--transition-fast),
+      border-color var(--transition-fast),
+      color var(--transition-fast);
+
+    &:hover {
+      background-color: var(--color-neutral-100);
+      color: var(--text-base);
+      border-color: var(--border-strong, var(--color-neutral-300));
+    }
+
+    &:focus-visible {
+      outline: none;
+      border-color: var(--color-brand-500);
+      box-shadow: 0 0 0 3px var(--glow-brand);
+    }
+  }
+
+  .pill-btn--set {
+    border-style: solid;
+    border-color: var(--border-strong, var(--color-neutral-300));
+    background-color: var(--bg-surface);
+    color: var(--text-base);
+  }
+
+  .pill-btn__icon {
+    display: inline-flex;
+    inline-size: 1rem;
+    block-size: 1rem;
+    flex-shrink: 0;
+
+    & svg {
+      inline-size: 100%;
+      block-size: 100%;
+    }
+  }
+
+  .pill-btn__label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-inline-size: 12rem;
+  }
+
+  /* --- Popover panel --- */
+  .popover-picker {
+    position: absolute;
+    inset-block-start: calc(100% + var(--space-1));
+    inset-inline-start: 0;
+    z-index: 20;
+    inline-size: min(22rem, 90vw);
+    max-block-size: 20rem;
+    display: flex;
+    flex-direction: column;
+    background: var(--glass-bg, var(--bg-surface));
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    padding: var(--space-2);
+    overflow: hidden;
+
+    &[hidden] { display: none; }
+  }
+
+  .popover-picker--compact {
+    inline-size: auto;
+    min-inline-size: 16rem;
+  }
+
+  .popover-picker__search {
+    inline-size: 100%;
+    padding-block: var(--space-2);
+    padding-inline: var(--space-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background-color: var(--bg-body);
+    color: var(--text-base);
+    font-size: var(--font-size-sm);
+    font-family: inherit;
+    margin-block-end: var(--space-2);
+
+    &::placeholder { color: var(--text-muted); }
+
+    &:focus {
+      outline: none;
+      border-color: var(--color-brand-500);
+    }
+  }
+
+  .popover-picker__list {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    overflow-y: auto;
+    max-block-size: 14rem;
+  }
+
+  .popover-picker__option {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding-block: var(--space-2);
+    padding-inline: var(--space-3);
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-base);
+    font-size: var(--font-size-sm);
+    font-family: inherit;
+    cursor: pointer;
+    text-align: start;
+    white-space: nowrap;
+    transition: background-color var(--transition-fast);
+
+    &[hidden] { display: none; }
+
+    &:hover,
+    &:focus {
+      outline: none;
+      background-color: var(--color-neutral-100);
+    }
+  }
+
+  .popover-picker__empty {
+    padding: var(--space-3);
+    text-align: center;
+    color: var(--text-muted);
+    font-size: var(--font-size-sm);
+    font-style: italic;
+  }
+
+  .popover-picker__clear {
+    margin-block-start: var(--space-2);
+    padding-block: var(--space-2);
+    padding-inline: var(--space-3);
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-subtle);
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    text-align: start;
+
+    &:hover {
+      background-color: var(--color-neutral-100);
+      color: var(--text-base);
+    }
+  }
+
+  .popover-picker__datetime {
+    inline-size: 100%;
+    padding-block: var(--space-2);
+    padding-inline: var(--space-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background-color: var(--bg-body);
+    color: var(--text-base);
+    font-size: var(--font-size-sm);
+    font-family: inherit;
+    color-scheme: dark light;
+
+    &:focus {
+      outline: none;
+      border-color: var(--color-brand-500);
+    }
+  }
+
+  .popover-picker__actions {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-2);
+    margin-block-start: var(--space-2);
+  }
+
+  /* --- Mobile: full-screen modal when it hosts a task form --- */
+  @media (max-width: 40rem) {
+    .modal:has(.task-form) {
+      inline-size: 100vw;
+      max-inline-size: 100vw;
+      max-block-size: 100vh;
+      block-size: 100vh;
+      border-radius: 0;
+      margin: 0;
+      inset: 0;
+    }
+
+    .modal:has(.task-form) .modal__container {
+      max-block-size: 100vh;
+      block-size: 100vh;
+    }
+
+    .pill-btn__label {
+      max-inline-size: 8rem;
+    }
+
+    .popover-picker {
+      inline-size: min(20rem, 88vw);
+    }
+  }
+}

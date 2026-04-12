@@ -46,7 +46,6 @@ module SubAgents
            - The original description (what was asked for)
            - The assignee's messages (what they say they did)
            - Any subtasks and their statuses
-           - The goal context if present
         2. Judge the work against the brief. Be specific, not vague. Look for:
            - Does the submitted work actually satisfy the task description?
            - Are there obvious gaps, half-finished pieces, or misunderstandings?

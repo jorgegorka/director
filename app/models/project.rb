@@ -6,12 +6,11 @@ class Project < ApplicationRecord
   has_many :role_categories, dependent: :destroy
   has_many :skills, dependent: :destroy
   has_many :tasks, dependent: :destroy
-  has_many :goals, dependent: :destroy
   has_many :notifications, dependent: :destroy
   has_many :config_versions, dependent: :destroy
   has_many :documents, dependent: :destroy
   has_many :document_tags, dependent: :destroy
-  has_many :goal_evaluations, dependent: :destroy
+  has_many :task_evaluations, dependent: :destroy
   has_many :role_runs
   has_many :audit_events, dependent: :delete_all
 

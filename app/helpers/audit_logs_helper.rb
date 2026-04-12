@@ -25,8 +25,6 @@ module AuditLogsHelper
       link_to_if(event.auditable, event.auditable&.title || "Deleted task", event.auditable)
     when "Role"
       link_to_if(event.auditable, event.auditable&.title || "Deleted role", event.auditable)
-    when "Goal"
-      link_to_if(event.auditable, event.auditable&.title || "Deleted goal", event.auditable)
     when "Project"
       label = event.auditable&.name || "Project"
       if event.action == "destroyed" && event.metadata["destroyed_type"].present?

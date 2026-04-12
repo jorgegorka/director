@@ -3,7 +3,9 @@
 <section class="tasks-page">
   <div class="tasks-page__header">
     <h1>Tasks</h1>
-    <%= link_to "New Task", new_task_path, class: "btn btn--primary btn--sm" %>
+    <%= link_to "New Task", new_task_path,
+          class: "btn btn--primary btn--sm",
+          data: { turbo_frame: "task_form_modal" } %>
   </div>
 
   <% if @tasks.any? %>
@@ -15,7 +17,11 @@
   <% else %>
     <div class="tasks-page__empty">
       <p>No tasks yet. Create your first task to get started.</p>
-      <%= link_to "Create a task", new_task_path, class: "btn btn--primary" %>
+      <%= link_to "Create a task", new_task_path,
+            class: "btn btn--primary",
+            data: { turbo_frame: "task_form_modal" } %>
     </div>
   <% end %>
+
+  <%= turbo_frame_tag "task_form_modal" %>
 </section>

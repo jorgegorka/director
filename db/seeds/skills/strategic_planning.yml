@@ -14,7 +14,7 @@ markdown: |
   - An initiative has drifted and you need to reassert priorities
 
   ## Approach
-  1. Read the mission, the current goal set (`list_my_goals`, `get_goal_details`), and any existing strategy documents via `search_documents`. You are almost never starting from zero
+  1. Read the mission, the current goal set (`list_my_tasks` with the root tasks you are assigned), and any existing strategy documents via `search_documents`. You are almost never starting from zero
   2. Characterize the current situation briefly: what is working, what is not, and what has changed since the last strategy
   3. Define 3–5 strategic objectives. Each must have a measurable success criterion and a time horizon. Fewer is better — a strategy with 12 objectives is a wish list
   4. For each objective, identify the 2–3 initiatives that would most move it, and a single accountable role
@@ -28,4 +28,4 @@ markdown: |
   - Revisit quarterly or when an assumption breaks; strategy is a living document, not a tablet
 
   ## Deliverable
-  A strategy document posted via `add_message` (and where the decisions change goal definitions, applied via `update_goal` / `create_task` to spin up the initiatives) containing: situation summary, 3–5 objectives with metrics and owners, initiative backlog with sequencing, critical path, explicit non-goals, and review trigger.
+  A strategy document posted via `add_message` (and where the decisions change goal definitions, applied via `create_task` to spin up the initiatives) containing: situation summary, 3–5 objectives with metrics and owners, initiative backlog with sequencing, critical path, explicit non-goals, and review trigger.

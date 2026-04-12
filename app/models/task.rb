@@ -13,19 +13,18 @@ class Task < ApplicationRecord
   belongs_to :assignee, class_name: "Role", optional: true
   belongs_to :reviewed_by, class_name: "Role", optional: true
   belongs_to :parent_task, class_name: "Task", optional: true
-  belongs_to :goal, optional: true
 
   has_many :subtasks, class_name: "Task", foreign_key: :parent_task_id, inverse_of: :parent_task, dependent: :destroy
   has_many :messages, dependent: :destroy
   has_many :hook_executions, dependent: :destroy
   has_many :role_runs, dependent: :nullify
-  has_many :goal_evaluations, dependent: :destroy
+  has_many :task_evaluations, dependent: :destroy
 
   has_many :task_documents, dependent: :destroy, inverse_of: :task
   has_many :documents, through: :task_documents
 
   enum :status, { open: 0, in_progress: 1, blocked: 2, completed: 3, cancelled: 4, pending_review: 5 }
-  enum :priority, { low: 0, medium: 1, high: 2, urgent: 3 }
+  enum :priority, { low: 0, medium: 1, high: 2, urgent: 3 }, default: :medium
 
   validates :title, presence: true
   validates :cost_cents, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, allow_nil: true
@@ -35,7 +34,7 @@ class Task < ApplicationRecord
   scope :completed, -> { where(status: :completed) }
   scope :by_priority, -> { order(priority: :desc, created_at: :desc) }
   scope :roots, -> { where(parent_task_id: nil) }
-  scope :pending_human_review, -> { where(status: :pending_review).where(creator_id: Role.roots.select(:id)) }
+  scope :pending_human_review, -> { where(status: :pending_review).where.not(parent_task_id: nil).where(creator_id: Role.roots.select(:id)) }
 
   before_save :set_completed_at
   after_commit :enqueue_hooks_for_transition, on: [ :create, :update ]
@@ -51,6 +50,26 @@ class Task < ApplicationRecord
 
   def terminal?
     completed? || cancelled?
+  end
+
+  def root_ancestor
+    node = self
+    node = node.parent_task while node.parent_task_id
+    node
+  end
+
+  def root?
+    parent_task_id.nil?
+  end
+
+  def descendant_ids
+    ids = []
+    frontier = [ id ]
+    until frontier.empty?
+      frontier = self.class.where(parent_task_id: frontier).pluck(:id)
+      ids.concat(frontier)
+    end
+    ids
   end
 
   # Post a comment from an automated source (role agent, watchdog, etc).

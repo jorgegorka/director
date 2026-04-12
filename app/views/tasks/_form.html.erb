@@ -1,6 +1,13 @@
-<%= form_with(model: task, class: "form") do |f| %>
+<%#
+  Linear-style task form. Rendered inside a lazy-loaded <dialog> modal: the
+  /tasks/new and /tasks/:id/edit views wrap this partial in a turbo_frame_tag
+  + shared/modal. Submits with turbo_frame: "_top" so the create/update
+  redirect escapes the frame cleanly.
+%>
+<%= form_with(model: task, class: "task-form", data: { turbo_frame: "_top" }) do |f| %>
   <% if task.errors.any? %>
     <div class="form__errors" role="alert">
+      <p><strong><%= pluralize(task.errors.count, "error") %> prohibited this task from being saved:</strong></p>
       <ul>
         <% task.errors.full_messages.each do |msg| %>
           <li><%= msg %></li>
@@ -9,62 +16,49 @@
     </div>
   <% end %>
 
-  <div class="form__field">
-    <%= f.label :title, "Title" %>
-    <%= f.text_field :title, required: true, autofocus: true, placeholder: "e.g. Implement user authentication, Review Q3 budget" %>
-  </div>
+  <%= f.text_field :title,
+        class: "task-form__title",
+        required: true,
+        autofocus: true,
+        placeholder: "Task title" %>
 
-  <div class="form__field">
-    <%= f.label :description, "Description" %>
-    <%= f.text_area :description, rows: 4, placeholder: "What needs to be done and any relevant context" %>
-  </div>
+  <%= f.text_area :description,
+        class: "task-form__description",
+        rows: 3,
+        placeholder: "Add a description…" %>
 
-  <fieldset class="form__fieldset">
-    <legend>Assignment & Priority</legend>
-
-    <div class="form__field">
-      <%= f.label :creator_id, "Create as" %>
-      <%= f.select :creator_id, options_for_role_select, { include_blank: "Select a role" }, { class: "form__select" } %>
-      <p class="form__hint">The role that owns this task.</p>
-    </div>
-
-    <div class="form__field">
-      <%= f.label :assignee_id, "Assignee" %>
-      <%= f.select :assignee_id, options_for_role_select, { include_blank: "Unassigned" }, { class: "form__select" } %>
-      <p class="form__hint">The role responsible for completing this task.</p>
-    </div>
-
-    <div class="form__field">
-      <%= f.label :priority, "Priority" %>
-      <%= f.select :priority, options_for_task_priority, {}, { class: "form__select" } %>
-    </div>
-  </fieldset>
-
-  <fieldset class="form__fieldset">
-    <legend>Planning</legend>
-
-    <div class="form__field">
-      <%= f.label :goal_id, "Goal" %>
-      <%= f.select :goal_id, options_for_goal_select, { include_blank: "No goal" }, { class: "form__select" } %>
-      <p class="form__hint">Link this task to a strategic goal.</p>
-    </div>
-
-    <div class="form__field">
-      <%= f.label :due_at, "Due date" %>
-      <%= f.datetime_local_field :due_at %>
-      <p class="form__hint">When this task should be completed.</p>
-    </div>
-
-    <% if task.persisted? %>
-      <div class="form__field">
-        <%= f.label :status, "Status" %>
-        <%= f.select :status, options_for_task_status, {}, { class: "form__select" } %>
-      </div>
+  <%
+    role_options = options_for_role_pill_select
+    pills = [
+      { attribute: :assignee_id,    icon: :assignee,    placeholder: "Unassigned",   options: role_options,                         searchable: true },
+      { attribute: :creator_id,     icon: :creator,     placeholder: "No owner",     options: role_options,                         searchable: true },
+      { attribute: :priority,       icon: :priority,    placeholder: "No priority",  options: options_for_task_priority },
+      { attribute: :parent_task_id, icon: :parent_task, placeholder: "No parent",    options: options_for_parent_task_select(task), searchable: true }
+    ]
+  %>
+  <div class="task-form__pills">
+    <% pills.each do |pill| %>
+      <%= render "tasks/pill",
+            form: f,
+            attribute: pill[:attribute],
+            icon: task_pill_icon(pill[:icon]),
+            placeholder: pill[:placeholder],
+            options: pill[:options],
+            searchable: pill.fetch(:searchable, false) %>
     <% end %>
-  </fieldset>
 
-  <div class="form__actions">
-    <%= f.submit task.persisted? ? "Update Task" : "Create Task", class: "btn btn--primary" %>
-    <%= link_to "Cancel", task.persisted? ? task_path(task) : tasks_path, class: "btn btn--ghost" %>
+    <%= render "tasks/due_date_pill", form: f %>
+  </div>
+
+  <% if task.persisted? %>
+    <div class="task-form__status">
+      <span class="task-form__status-label">Status</span>
+      <%= f.select :status, options_for_task_status, {}, class: "form__select" %>
+    </div>
+  <% end %>
+
+  <div class="task-form__footer">
+    <button type="button" class="btn btn--ghost" data-action="modal#close">Cancel</button>
+    <%= f.submit task.persisted? ? "Update task" : "Create task", class: "btn btn--primary" %>
   </div>
 <% end %>

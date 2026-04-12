@@ -1,4 +1,4 @@
-module Goals
+module Tasks
   class Evaluation
     attr_reader :task
 
@@ -12,14 +12,14 @@ module Goals
 
     def call
       return unless task.completed?
-      return unless task.goal.present?
+      return if task.root?
       return if attempts_exhausted?
 
       result = evaluate
       evaluation = record_evaluation(result)
 
       if evaluation.fail?
-        if evaluation.attempt_number >= GoalEvaluation::MAX_ATTEMPTS
+        if evaluation.attempt_number >= TaskEvaluation::MAX_ATTEMPTS
           block_task(evaluation)
         else
           reopen_task(evaluation)
@@ -35,12 +35,12 @@ module Goals
       @role ||= task.assignee
     end
 
-    def goal
-      @goal ||= task.goal
+    def root_task
+      @root_task ||= task.root_ancestor
     end
 
     def eval_count
-      @eval_count ||= task.goal_evaluations.count
+      @eval_count ||= task.task_evaluations.count
     end
 
     def attempt_number
@@ -48,7 +48,7 @@ module Goals
     end
 
     def attempts_exhausted?
-      eval_count >= GoalEvaluation::MAX_ATTEMPTS
+      eval_count >= TaskEvaluation::MAX_ATTEMPTS
     end
 
     def evaluate
@@ -59,15 +59,15 @@ module Goals
     end
 
     def system_prompt
-      "You are evaluating whether a completed task advances a project goal. " \
+      "You are evaluating whether a completed task advances its root mission. " \
       "Respond ONLY with valid JSON: {\"result\": \"pass\" or \"fail\", \"feedback\": \"2-3 sentence explanation\"}"
     end
 
     def evaluation_prompt
       parts = []
-      parts << "## Goal"
-      parts << goal.title
-      parts << goal.description if goal.description.present?
+      parts << "## Root Task"
+      parts << root_task.title
+      parts << root_task.description if root_task.description.present?
 
       parts << ""
       parts << "## Completed Task"
@@ -82,7 +82,7 @@ module Goals
       end
 
       parts << ""
-      parts << "Evaluate whether this task's output meaningfully advances the stated goal."
+      parts << "Evaluate whether this task's output meaningfully advances the root task."
 
       parts.join("\n")
     end
@@ -90,10 +90,10 @@ module Goals
     def record_evaluation(result)
       cost_cents = Agents::AiClient.estimate_cost_cents(result[:usage])
 
-      evaluation = GoalEvaluation.create!(
+      evaluation = TaskEvaluation.create!(
         project_id: task.project_id,
         task: task,
-        goal: goal,
+        root_task: root_task,
         role: role,
         result: result[:parsed]["result"],
         feedback: result[:parsed]["feedback"],
@@ -134,13 +134,13 @@ module Goals
     def build_feedback_body(evaluation)
       status = evaluation.pass? ? "PASS" : "FAIL"
       parts = []
-      parts << "## Goal Evaluation — #{status} (Attempt #{evaluation.attempt_number}/#{GoalEvaluation::MAX_ATTEMPTS})"
+      parts << "## Task Evaluation — #{status} (Attempt #{evaluation.attempt_number}/#{TaskEvaluation::MAX_ATTEMPTS})"
       parts << ""
-      parts << "**Goal:** #{goal.title}"
+      parts << "**Root task:** #{root_task.title}"
       parts << ""
       parts << evaluation.feedback
 
-      if evaluation.fail? && evaluation.attempt_number >= GoalEvaluation::MAX_ATTEMPTS
+      if evaluation.fail? && evaluation.attempt_number >= TaskEvaluation::MAX_ATTEMPTS
         parts << ""
         parts << "_Evaluation attempts exhausted. Task has been blocked for review._"
       end
@@ -154,13 +154,13 @@ module Goals
 
       Roles::Waking.call(
         role: role,
-        trigger_type: :goal_evaluation_failed,
-        trigger_source: "GoalEvaluation##{evaluation.id}",
+        trigger_type: :task_evaluation_failed,
+        trigger_source: "TaskEvaluation##{evaluation.id}",
         context: {
           task_id: task.id,
           task_title: task.title,
-          goal_id: goal.id,
-          goal_title: goal.title,
+          root_task_id: root_task.id,
+          root_task_title: root_task.title,
           attempt_number: evaluation.attempt_number,
           feedback: evaluation.feedback
         }
@@ -170,11 +170,11 @@ module Goals
     def record_exhaustion_audit(evaluation)
       task.record_audit_event!(
         actor: role,
-        action: "goal_evaluation_exhausted",
+        action: "task_evaluation_exhausted",
         project: task.project,
         metadata: {
-          goal_id: goal.id,
-          goal_title: goal.title,
+          root_task_id: root_task.id,
+          root_task_title: root_task.title,
           attempt_number: evaluation.attempt_number,
           feedback: evaluation.feedback
         }

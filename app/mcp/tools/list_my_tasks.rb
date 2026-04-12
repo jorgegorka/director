@@ -28,8 +28,8 @@ module Tools
           description: task.description,
           status: task.status,
           priority: task.priority,
-          goal_id: task.goal_id,
           parent_task_id: task.parent_task_id,
+          completion_percentage: task.completion_percentage,
           creator_id: task.creator_id
         }
       end

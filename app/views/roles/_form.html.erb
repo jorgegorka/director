@@ -34,8 +34,9 @@
 
   <div class="form__field">
     <%= f.label :parent_id, "Reports to" %>
-    <%= f.select :parent_id,
-          options_for_parent_select(role),
+    <%= f.collection_select :parent_id,
+          Current.project.roles.excluding_subtree(role).order(:title),
+          :id, :title,
           { include_blank: "None (top-level role)" },
           { class: "form__select" } %>
   </div>

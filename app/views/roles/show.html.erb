@@ -223,14 +223,14 @@
         <% end %>
       </div>
 
-      <%# Goals %>
-      <% if @detail.role_goals.any? %>
+      <%# Assigned root tasks %>
+      <% if @detail.assigned_root_tasks.any? %>
         <div class="role-detail__card">
-          <h2 class="role-detail__card-title">Goals (<%= @detail.role_goals.size %>)</h2>
+          <h2 class="role-detail__card-title">Goals (<%= @detail.assigned_root_tasks.size %>)</h2>
           <ul class="role-detail__list">
-            <% @detail.role_goals.each do |goal| %>
+            <% @detail.assigned_root_tasks.each do |root_task| %>
               <li>
-                <%= link_to goal.title, goal_path(goal) %>
+                <%= link_to root_task.title, goal_path(root_task) %>
               </li>
             <% end %>
           </ul>

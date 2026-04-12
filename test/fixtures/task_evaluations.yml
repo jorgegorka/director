@@ -1,0 +1,9 @@
+eval_ready_task_pass:
+  project: acme
+  task: eval_ready_task
+  root_task: design_homepage
+  role: cto
+  result: 0  # pass
+  feedback: "Work meets the mission scope."
+  attempt_number: 1
+  cost_cents: 20

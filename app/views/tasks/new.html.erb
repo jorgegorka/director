@@ -1,7 +1,7 @@
 <% content_for(:title, "New Task") %>
 
-<section class="form-card glass form-card--wide">
-  <h1>New Task</h1>
-  <p class="form-card__subtitle">Create a new task and assign it to a role.</p>
-  <%= render "form", task: @task %>
-</section>
+<%= turbo_frame_tag "task_form_modal" do %>
+  <%= render "shared/modal", title: "New task", size: "lg" do %>
+    <%= render "form", task: @task %>
+  <% end %>
+<% end %>

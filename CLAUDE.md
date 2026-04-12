@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-Director is a Rails 8 orchestration platform for AI agent projects. Users create projects staffed by AI agents, organize them in hierarchies, assign goals/tasks, enforce budgets, and govern operations through approval gates.
+Director is a Rails 8 orchestration platform for AI agent projects. Users create projects staffed by AI agents, organize them in hierarchies, assign tasks (root tasks act as missions), enforce budgets, and govern operations through approval gates.
 
 ## Hard Constraints
 

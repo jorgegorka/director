@@ -138,14 +138,21 @@
   --header-height:     3.5rem;
   --sidebar-width:         15rem;
   --sidebar-bg:            oklch(12% 0.04 265);
+  --sidebar-bg-end:        oklch(8% 0.03 265);
   --sidebar-border:        oklch(20% 0.04 265);
   --sidebar-active-bg:     oklch(20% 0.08 280);
   --sidebar-active-border: var(--color-brand-500);
+
+  /* ---- Topbar (glassy header) ---- */
+  --topbar-bg: oklch(14% 0.03 265 / 0.85);
 }
 
-/* ---- Light mode (alternate) ---- */
+/* ---- Light mode (alternate) ----
+   Applies when the OS prefers light AND the user hasn't picked an explicit
+   theme. The explicit override lives in :root[data-theme="light"] below —
+   keep the two blocks in sync. */
 @media (prefers-color-scheme: light) {
-  :root {
+  :root:not([data-theme]) {
     /* ---- Warm Neutrals: cream canvas (hue 85-90) ---- */
     --color-neutral-0:   oklch(99.5% 0.01 85);   /* surface — warm near-white */
     --color-neutral-50:  oklch(97.5% 0.02 90);    /* body bg — warm cream */
@@ -216,8 +223,95 @@
 
     /* ---- Sidebar ---- */
     --sidebar-bg:            var(--color-neutral-0);
+    --sidebar-bg-end:        var(--color-neutral-0);
     --sidebar-border:        var(--color-neutral-200);
     --sidebar-active-bg:     oklch(94% 0.04 280);
     --sidebar-active-border: var(--color-brand-500);
+
+    /* ---- Topbar ---- */
+    --topbar-bg: oklch(99.5% 0.01 85 / 0.85);
   }
+}
+
+/* ---- Light mode (explicit user override) ----
+   Mirrors the @media block above. Applied when the user manually picks
+   light via the topbar theme toggle, regardless of OS preference. */
+:root[data-theme="light"] {
+  /* ---- Warm Neutrals: cream canvas (hue 85-90) ---- */
+  --color-neutral-0:   oklch(99.5% 0.01 85);
+  --color-neutral-50:  oklch(97.5% 0.02 90);
+  --color-neutral-100: oklch(94% 0.015 85);
+  --color-neutral-200: oklch(88% 0.02 85);
+  --color-neutral-300: oklch(80% 0.02 85);
+  --color-neutral-500: oklch(55% 0.02 265);
+  --color-neutral-700: oklch(35% 0.06 265);
+  --color-neutral-900: oklch(18% 0.12 265);
+
+  /* ---- Brand: deeper for light bg ---- */
+  --color-brand-50:    oklch(96% 0.04 280);
+  --color-brand-400:   oklch(60% 0.24 280);
+  --color-brand-500:   oklch(50% 0.27 280);
+  --color-brand-600:   oklch(42% 0.25 280);
+
+  /* ---- Accent ---- */
+  --color-accent-50:   oklch(96% 0.04 185);
+  --color-accent-400:  oklch(65% 0.15 185);
+  --color-accent-500:  oklch(55% 0.15 185);
+  --color-accent-600:  oklch(45% 0.15 185);
+
+  /* ---- Status ---- */
+  --color-success-bg:  oklch(96% 0.05 145);
+  --color-success-fg:  oklch(38% 0.12 145);
+  --color-error-bg:    oklch(96% 0.05 25);
+  --color-error-fg:    oklch(40% 0.15 25);
+  --color-warning-bg:  oklch(96% 0.06 70);
+  --color-warning-fg:  oklch(45% 0.14 70);
+
+  /* ---- Badge palette ---- */
+  --badge-blue-bg:      oklch(93% 0.06 265);
+  --badge-blue-fg:      oklch(35% 0.18 265);
+  --badge-blue-border:  oklch(85% 0.08 265);
+
+  --badge-teal-bg:      oklch(93% 0.06 185);
+  --badge-teal-fg:      oklch(32% 0.10 185);
+  --badge-teal-border:  oklch(85% 0.08 185);
+
+  --badge-red-bg:       oklch(93% 0.06 25);
+  --badge-red-fg:       oklch(35% 0.14 25);
+  --badge-red-border:   oklch(85% 0.08 25);
+
+  --badge-amber-bg:     oklch(90% 0.08 70);
+  --badge-amber-fg:     oklch(35% 0.12 70);
+  --badge-amber-border: oklch(82% 0.08 70);
+
+  --badge-green-bg:     oklch(93% 0.08 145);
+  --badge-green-fg:     oklch(30% 0.12 145);
+  --badge-green-border: oklch(82% 0.08 145);
+
+  /* ---- Semantic overrides ---- */
+  --border-subtle: oklch(92% 0.015 85);
+
+  /* ---- Effects: softer on light ---- */
+  --glow-brand:  oklch(50% 0.27 280 / 0.15);
+  --glow-accent: oklch(55% 0.15 185 / 0.12);
+  --glow-active: oklch(55% 0.15 185 / 0.15);
+
+  /* ---- Glassmorphism: lighter ---- */
+  --glass-bg:      oklch(99.5% 0.01 85 / 0.7);
+  --glass-border:  oklch(18% 0.12 265 / 0.08);
+
+  /* ---- Shadows: lighter ---- */
+  --shadow-sm: 0 1px 2px oklch(0% 0 0 / 0.05);
+  --shadow-md: 0 4px 6px oklch(0% 0 0 / 0.07), 0 1px 3px oklch(0% 0 0 / 0.06);
+  --shadow-lg: 0 8px 24px oklch(0% 0 0 / 0.1), 0 2px 8px oklch(0% 0 0 / 0.06);
+
+  /* ---- Sidebar ---- */
+  --sidebar-bg:            var(--color-neutral-0);
+  --sidebar-bg-end:        var(--color-neutral-0);
+  --sidebar-border:        var(--color-neutral-200);
+  --sidebar-active-bg:     oklch(94% 0.04 280);
+  --sidebar-active-border: var(--color-brand-500);
+
+  /* ---- Topbar ---- */
+  --topbar-bg: oklch(99.5% 0.01 85 / 0.85);
 }

@@ -48,20 +48,6 @@ class Tools::CreateTaskTest < ActiveSupport::TestCase
     end
   end
 
-  test "creates task with goal" do
-    tool = Tools::CreateTask.new(@ceo)
-    goal = goals(:acme_objective_one)
-
-    result = tool.call({
-      "title" => "Goal task",
-      "goal_id" => goal.id,
-      "assignee_role_id" => @cto.id
-    })
-
-    task = Task.find(result[:id])
-    assert_equal goal, task.goal
-  end
-
   test "creates subtask" do
     tool = Tools::CreateTask.new(@ceo)
     parent = tasks(:design_homepage)

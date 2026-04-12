@@ -15,7 +15,6 @@ module Tools
             description: { type: "string", description: "Task description" },
             priority: { type: "string", enum: %w[low medium high urgent], description: "Task priority" },
             assignee_role_id: { type: "integer", description: "ID of the role to assign this task to" },
-            goal_id: { type: "integer", description: "ID of the goal this task advances" },
             parent_task_id: { type: "integer", description: "ID of the parent task for subtask creation" }
           },
           required: [ "title" ]
@@ -30,7 +29,6 @@ module Tools
         priority: arguments["priority"] || "medium",
         creator: role,
         assignee_id: arguments["assignee_role_id"],
-        goal_id: arguments["goal_id"],
         parent_task_id: arguments["parent_task_id"]
       )
 

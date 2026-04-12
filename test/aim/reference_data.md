@@ -22,12 +22,15 @@ AIM CEO (Orchestrator) — root, budget $2000/mo
 
 All roles use `claude_local` adapter with `claude-sonnet-4-20250514`.
 
-### Goal
-- **Title:** AIM: Build MVP Feature
-- **Assigned to:** AIM CEO
-- **Description:** Build the minimum viable product feature set including auth, API, and tests.
+### Missions (root tasks)
 
-### Tasks
+| Title | Assignee | Purpose |
+|-------|----------|---------|
+| AIM: Build MVP Feature | — (creator: CEO) | Parent of the 12 subtasks below. Not targeted by any scenario directly. |
+| AIM: Launch onboarding redesign | CEO | Empty root mission for `orch_delegates_goal` — CEO must delegate via `create_task`. |
+| AIM: Implement payments module | VP Engineering | Empty root mission for `orch_delegates_only` — VP Eng must delegate via `create_task`. |
+
+### Subtasks (children of "AIM: Build MVP Feature")
 
 | Title | Status | Creator | Assignee | Scenario |
 |-------|--------|---------|----------|----------|
@@ -100,9 +103,9 @@ The "Q2 strategic market assessment" task has a message from VP Strategy: "Compl
 
 | Scenario | Expected Tools | Forbidden Tools | Key Judgment |
 |----------|---------------|-----------------|--------------|
-| orch_delegates_goal | create_task | update_task_status | Should delegate, not do work |
+| orch_delegates_goal | create_task | update_task_status | CEO receives an empty mission ("Launch onboarding redesign") — must delegate |
 | orch_reviews_task | review_task | get_task_details, update_task_status | Should hand off to specialist, not self-review |
-| orch_delegates_only | create_task | update_task_status, review_task | Mid-level orchestrator delegates to subordinates |
+| orch_delegates_only | create_task | update_task_status, review_task | VP Eng receives an empty mission ("Implement payments module") — must delegate |
 | orch_no_self_review | review_task | get_task_details, update_task_status | CEO hands off review to specialist |
 | worker_does_work | add_message, update_task_status | create_task, hire_role | Should produce work and submit |
 | worker_scope_discipline | add_message | create_task, hire_role | Should flag as too large via add_message, then stop |

@@ -184,32 +184,32 @@ class HttpAdapterTest < ActiveSupport::TestCase
     end
   end
 
-  test "payload includes goal when goal_id in context" do
+  test "payload includes root_task when root_task_id in context" do
     stub_request(:post, AGENT_URL).to_return(status: 200, body: '{"ok":true}')
 
-    @context[:goal_id] = 1
-    @context[:goal_title] = "Improve SEO"
-    @context[:goal_description] = "Increase organic traffic"
+    @context[:root_task_id] = 1
+    @context[:root_task_title] = "Improve SEO"
+    @context[:root_task_description] = "Increase organic traffic"
 
     HttpAdapter.execute(@role, @context)
 
     assert_requested(:post, AGENT_URL) do |req|
       body = JSON.parse(req.body)
-      body["goal"].present? &&
-        body["goal"]["id"] == 1 &&
-        body["goal"]["title"] == "Improve SEO" &&
-        body["goal"]["description"] == "Increase organic traffic"
+      body["root_task"].present? &&
+        body["root_task"]["id"] == 1 &&
+        body["root_task"]["title"] == "Improve SEO" &&
+        body["root_task"]["description"] == "Increase organic traffic"
     end
   end
 
-  test "payload omits goal when no goal_id in context" do
+  test "payload omits root_task when no root_task_id in context" do
     stub_request(:post, AGENT_URL).to_return(status: 200, body: '{"ok":true}')
 
     HttpAdapter.execute(@role, @context)
 
     assert_requested(:post, AGENT_URL) do |req|
       body = JSON.parse(req.body)
-      body["goal"].nil?
+      body["root_task"].nil?
     end
   end
 

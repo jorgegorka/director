@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_09_213340) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_10_113001) do
   create_table "approval_gates", force: :cascade do |t|
     t.string "action_type", null: false
     t.datetime "created_at", null: false
@@ -88,38 +88,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_09_213340) do
     t.index ["author_type", "author_id"], name: "index_documents_on_author_type_and_author_id"
     t.index ["last_editor_type", "last_editor_id"], name: "index_documents_on_last_editor_type_and_last_editor_id"
     t.index ["project_id"], name: "index_documents_on_project_id"
-  end
-
-  create_table "goal_evaluations", force: :cascade do |t|
-    t.integer "attempt_number", null: false
-    t.integer "cost_cents"
-    t.datetime "created_at", null: false
-    t.text "feedback", null: false
-    t.integer "goal_id", null: false
-    t.integer "project_id", null: false
-    t.integer "result", null: false
-    t.integer "role_id", null: false
-    t.integer "task_id", null: false
-    t.datetime "updated_at", null: false
-    t.index ["goal_id"], name: "index_goal_evaluations_on_goal_id"
-    t.index ["project_id"], name: "index_goal_evaluations_on_project_id"
-    t.index ["role_id"], name: "index_goal_evaluations_on_role_id"
-    t.index ["task_id", "attempt_number"], name: "index_goal_evaluations_on_task_id_and_attempt_number", unique: true
-    t.index ["task_id"], name: "index_goal_evaluations_on_task_id"
-  end
-
-  create_table "goals", force: :cascade do |t|
-    t.integer "completion_percentage", default: 0, null: false
-    t.datetime "created_at", null: false
-    t.text "description"
-    t.integer "position", default: 0, null: false
-    t.bigint "project_id", null: false
-    t.integer "role_id"
-    t.text "summary"
-    t.string "title", null: false
-    t.datetime "updated_at", null: false
-    t.index ["project_id"], name: "index_goals_on_project_id"
-    t.index ["role_id"], name: "index_goals_on_role_id"
   end
 
   create_table "heartbeat_events", force: :cascade do |t|
@@ -278,7 +246,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_09_213340) do
     t.datetime "created_at", null: false
     t.text "error_message"
     t.integer "exit_code"
-    t.integer "goal_id"
     t.datetime "last_activity_at"
     t.text "log_output"
     t.integer "project_id", null: false
@@ -289,7 +256,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_09_213340) do
     t.string "trigger_type"
     t.datetime "updated_at", null: false
     t.index ["claude_session_id"], name: "index_role_runs_on_claude_session_id"
-    t.index ["goal_id"], name: "index_role_runs_on_goal_id"
     t.index ["project_id", "created_at"], name: "index_role_runs_on_project_id_and_created_at"
     t.index ["project_id"], name: "index_role_runs_on_project_id"
     t.index ["role_id", "created_at"], name: "index_role_runs_on_role_id_and_created_at"
@@ -402,6 +368,24 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_09_213340) do
     t.index ["task_id"], name: "index_task_documents_on_task_id"
   end
 
+  create_table "task_evaluations", force: :cascade do |t|
+    t.integer "attempt_number", null: false
+    t.integer "cost_cents"
+    t.datetime "created_at", null: false
+    t.text "feedback", null: false
+    t.integer "project_id", null: false
+    t.integer "result", null: false
+    t.integer "role_id", null: false
+    t.integer "root_task_id", null: false
+    t.integer "task_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id"], name: "index_task_evaluations_on_project_id"
+    t.index ["role_id"], name: "index_task_evaluations_on_role_id"
+    t.index ["root_task_id"], name: "index_task_evaluations_on_root_task_id"
+    t.index ["task_id", "attempt_number"], name: "index_task_evaluations_on_task_id_and_attempt_number", unique: true
+    t.index ["task_id"], name: "index_task_evaluations_on_task_id"
+  end
+
   create_table "tasks", force: :cascade do |t|
     t.bigint "assignee_id"
     t.datetime "completed_at"
@@ -411,19 +395,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_09_213340) do
     t.bigint "creator_id"
     t.text "description"
     t.datetime "due_at"
-    t.bigint "goal_id"
     t.bigint "parent_task_id"
     t.integer "priority", default: 1, null: false
     t.bigint "project_id", null: false
     t.datetime "reviewed_at"
     t.integer "reviewed_by_id"
     t.integer "status", default: 0, null: false
+    t.text "summary"
     t.string "title", null: false
     t.datetime "updated_at", null: false
     t.index ["assignee_id", "status"], name: "index_tasks_on_assignee_id_and_status"
     t.index ["assignee_id"], name: "index_tasks_on_assignee_id"
     t.index ["creator_id"], name: "index_tasks_on_creator_id"
-    t.index ["goal_id"], name: "index_tasks_on_goal_id"
     t.index ["parent_task_id"], name: "index_tasks_on_parent_task_id"
     t.index ["project_id", "status"], name: "index_tasks_on_project_id_and_status"
     t.index ["project_id"], name: "index_tasks_on_project_id"
@@ -445,12 +428,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_09_213340) do
   add_foreign_key "document_taggings", "documents"
   add_foreign_key "document_tags", "projects"
   add_foreign_key "documents", "projects"
-  add_foreign_key "goal_evaluations", "goals"
-  add_foreign_key "goal_evaluations", "projects"
-  add_foreign_key "goal_evaluations", "roles"
-  add_foreign_key "goal_evaluations", "tasks"
-  add_foreign_key "goals", "projects"
-  add_foreign_key "goals", "roles"
   add_foreign_key "heartbeat_events", "roles"
   add_foreign_key "hook_executions", "projects"
   add_foreign_key "hook_executions", "role_hooks"
@@ -484,7 +461,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_09_213340) do
   add_foreign_key "sub_agent_invocations", "role_runs"
   add_foreign_key "task_documents", "documents"
   add_foreign_key "task_documents", "tasks"
-  add_foreign_key "tasks", "goals"
+  add_foreign_key "task_evaluations", "projects"
+  add_foreign_key "task_evaluations", "roles"
+  add_foreign_key "task_evaluations", "tasks"
+  add_foreign_key "task_evaluations", "tasks", column: "root_task_id"
   add_foreign_key "tasks", "projects"
   add_foreign_key "tasks", "roles", column: "assignee_id"
   add_foreign_key "tasks", "roles", column: "creator_id"

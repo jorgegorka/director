@@ -137,28 +137,27 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
   end
 
   # ---------------------------------------------------------------------------
-  # Goal-scoped session resumption and goal context
+  # Root-task context and session resumption
   # ---------------------------------------------------------------------------
 
-  test "build_context uses task-scoped session resumption" do
-    task_a = tasks(:design_homepage)  # goal: acme_objective_one
-    task_b = tasks(:fix_login_bug)    # goal: acme_objective_one (same goal)
+  test "build_context uses root-scoped session resumption" do
+    root = Task.create!(title: "Mission", project: @project, creator: roles(:ceo), assignee: @role, status: :in_progress)
+    task_a = Task.create!(title: "Sibling A", project: @project, creator: @role, assignee: @role, parent_task: root, status: :completed)
+    task_b = Task.create!(title: "Sibling B", project: @project, creator: @role, assignee: @role, parent_task: root, status: :open)
 
-    # Create a completed run for task_a with a session
     RoleRun.create!(
       role: @role, task: task_a, project: @project,
       status: :completed, trigger_type: "task_assigned",
-      claude_session_id: "sess_goal_a", completed_at: 2.hours.ago
+      claude_session_id: "sess_root_a", completed_at: 2.hours.ago
     )
-    # Create a more recent completed run for an unrelated task (no goal)
-    unrelated_task = Task.create!(title: "Unrelated", project: @project, status: :open)
+    # Unrelated task (different root) with a more recent session
+    unrelated = Task.create!(title: "Unrelated", project: @project, creator: @role, assignee: @role, status: :open)
     RoleRun.create!(
-      role: @role, task: unrelated_task, project: @project,
+      role: @role, task: unrelated, project: @project,
       status: :completed, trigger_type: "task_assigned",
       claude_session_id: "sess_unrelated_latest", completed_at: 1.hour.ago
     )
 
-    # New run for task_b (same goal as task_a)
     run = RoleRun.create!(
       role: @role, task: task_b, project: @project,
       status: :queued, trigger_type: "mention"
@@ -167,37 +166,38 @@ class ExecuteRoleJobTest < ActiveSupport::TestCase
     job = ExecuteRoleJob.new
     context = job.send(:build_context, @role, run)
 
-    # Should pick the session from the same goal (task_a), not the latest global one
-    assert_equal "sess_goal_a", context[:resume_session_id]
+    assert_equal "sess_root_a", context[:resume_session_id]
   end
 
-  test "build_context includes goal context when task has a goal" do
+  test "build_context includes root task context when task has a parent" do
+    root = Task.create!(title: "Mission", description: "Root desc", project: @project, creator: roles(:ceo), assignee: @role, status: :in_progress)
+    child = Task.create!(title: "Child", project: @project, creator: @role, assignee: @role, parent_task: root, status: :open)
+
     run = RoleRun.create!(
-      role: @role, task: @task, project: @project,
+      role: @role, task: child, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
 
     job = ExecuteRoleJob.new
     context = job.send(:build_context, @role, run)
 
-    goal = @task.goal
-    assert_equal goal.id, context[:goal_id]
-    assert_equal goal.title, context[:goal_title]
-    assert_equal goal.description, context[:goal_description]
+    assert_equal root.id, context[:root_task_id]
+    assert_equal root.title, context[:root_task_title]
+    assert_equal root.description, context[:root_task_description]
   end
 
-  test "build_context omits goal context when task has no goal" do
-    task_no_goal = Task.create!(title: "No goal task", project: @project, status: :open)
+  test "build_context omits root task context when task is itself a root" do
+    root = Task.create!(title: "Standalone root", project: @project, creator: roles(:ceo), assignee: @role, status: :open)
     run = RoleRun.create!(
-      role: @role, task: task_no_goal, project: @project,
+      role: @role, task: root, project: @project,
       status: :queued, trigger_type: "task_assigned"
     )
 
     job = ExecuteRoleJob.new
     context = job.send(:build_context, @role, run)
 
-    assert_nil context[:goal_id]
-    assert_nil context[:goal_title]
+    assert_nil context[:root_task_id]
+    assert_nil context[:root_task_title]
   end
 
   test "build_context uses global session for heartbeats with no task" do

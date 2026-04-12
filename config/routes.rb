@@ -125,7 +125,6 @@ Rails.application.routes.draw do
     resources :projects, only: [ :index ]
     resources :roles, only: [ :index ]
     resources :adapters, only: [ :index ]
-    resources :goals, only: [ :index ]
     resources :tasks, only: [ :index ]
     resources :skills, only: [ :index ]
   end

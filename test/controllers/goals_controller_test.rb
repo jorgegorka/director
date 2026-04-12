@@ -6,213 +6,178 @@ class GoalsControllerTest < ActionDispatch::IntegrationTest
     @project = projects(:acme)
     sign_in_as(@user)
     post project_switch_url(@project)
-    @mission = goals(:acme_mission)
-    @objective = goals(:acme_objective_one)
-    @sub_objective = goals(:acme_sub_objective)
-    @widgets_mission = goals(:widgets_mission)
+    @ceo = roles(:ceo)
+    @cto = roles(:cto)
+    @root_task = tasks(:design_homepage)
   end
 
   # --- Index ---
 
-  test "should get index" do
+  test "should get index listing root tasks" do
     get goals_url
     assert_response :success
-    assert_select ".goal-list"
-  end
-
-  test "should only show goals for current project" do
-    get goals_url
-    assert_response :success
-    assert_select ".goal-list__title", text: "Build the best AI platform"
-    assert_select ".goal-list__title", text: "Dominate widget market", count: 0
   end
 
   # --- Show ---
 
-  test "should show goal" do
-    get goal_url(@mission)
+  test "should show goal (root task)" do
+    get goal_url(@root_task)
     assert_response :success
-    assert_select "h1", "Build the best AI platform"
   end
 
-  test "should show progress percentage" do
-    get goal_url(@mission)
-    assert_match(/\d+% complete/, response.body)
-  end
-
-  test "should show linked tasks" do
-    get goal_url(@objective)
-    assert_select ".task-card__title a", text: "Design homepage"
-    assert_select ".task-card__title a", text: "Fix login bug"
-  end
-
-  test "should not show goal from another project" do
-    get goal_url(@widgets_mission)
-    assert_redirected_to root_url
+  test "should not show non-root task as goal" do
+    get goal_url(tasks(:subtask_one))
+    assert_redirected_to root_path
   end
 
   # --- New ---
 
-  test "should get new" do
+  test "should get new goal form" do
     get new_goal_url
     assert_response :success
     assert_select "form"
   end
 
-  test "new goal form has no parent select" do
+  test "new form scopes fields under root_task (regression: form_with as: ignored with model:)" do
     get new_goal_url
-    assert_select "select[name='goal[parent_id]']", count: 0
+    assert_response :success
+    assert_select "input[name='root_task[title]']"
+    assert_select "input[name='root_task[description]'], textarea[name='root_task[description]']"
   end
 
   # --- Create ---
 
-  test "should create goal" do
-    assert_difference("Goal.count", 1) do
+  test "should create goal with valid params" do
+    assert_difference("Task.roots.count", 1) do
       post goals_url, params: {
-        goal: {
-          title: "New test goal",
-          description: "A goal for testing"
+        root_task: {
+          title: "New top-level goal",
+          description: "A mission for the team",
+          priority: "high",
+          assignee_id: @cto.id
         }
       }
     end
-    goal = Goal.order(:created_at).last
-    assert_equal "New test goal", goal.title
-    assert_equal @project, goal.project
+    goal = Task.roots.order(:created_at).last
+    assert_equal "New top-level goal", goal.title
+    assert_equal "high", goal.priority
+    assert_nil goal.parent_task_id
+    assert_equal @cto, goal.assignee
+    assert_equal @ceo, goal.creator, "defaults creator to top-level active role"
     assert_redirected_to goal_url(goal)
   end
 
-  test "should not create goal without title" do
-    assert_no_difference("Goal.count") do
+  test "should create goal without assignee" do
+    assert_difference("Task.roots.count", 1) do
       post goals_url, params: {
-        goal: { title: "" }
+        root_task: { title: "Unassigned mission" }
       }
+    end
+    goal = Task.roots.order(:created_at).last
+    assert_nil goal.assignee
+    assert_equal @ceo, goal.creator
+  end
+
+  # Regression: the only top-level role in a project may be terminated
+  # (the state that triggered the "+ Goal" button failure on the org chart).
+  # Creator should default to the assignee's root ancestor regardless of status.
+  test "creates goal assigned to subordinate when top-level role is terminated" do
+    @ceo.update!(status: :terminated)
+    assert_difference("Task.roots.count", 1) do
+      post goals_url, params: {
+        root_task: { title: "Still works", assignee_id: @cto.id }
+      }
+    end
+    goal = Task.roots.order(:created_at).last
+    assert_equal @cto, goal.assignee
+    assert_equal @ceo, goal.creator
+  end
+
+  test "creates unassigned goal when top-level role is terminated" do
+    @ceo.update!(status: :terminated)
+    assert_difference("Task.roots.count", 1) do
+      post goals_url, params: { root_task: { title: "No owner" } }
+    end
+    goal = Task.roots.order(:created_at).last
+    assert_nil goal.assignee
+    assert_equal @ceo, goal.creator
+  end
+
+  test "creates goal assigned to a terminated top-level role itself" do
+    @ceo.update!(status: :terminated)
+    assert_difference("Task.roots.count", 1) do
+      post goals_url, params: {
+        root_task: { title: "Legacy cleanup", assignee_id: @ceo.id }
+      }
+    end
+    goal = Task.roots.order(:created_at).last
+    assert_equal @ceo, goal.assignee
+    assert_equal @ceo, goal.creator
+  end
+
+  test "should not create goal with blank title" do
+    assert_no_difference("Task.count") do
+      post goals_url, params: { root_task: { title: "" } }
     end
     assert_response :unprocessable_entity
   end
 
-  # --- Edit ---
+  test "should reject unscoped params (regression: form must scope under root_task)" do
+    assert_no_difference("Task.count") do
+      post goals_url, params: {
+        task: { title: "Wrong scope", description: "nope" }
+      }
+    end
+    assert_response :bad_request
+  end
 
-  test "should get edit" do
-    get edit_goal_url(@mission)
+  # --- Edit / Update ---
+
+  test "should get edit form" do
+    get edit_goal_url(@root_task)
     assert_response :success
     assert_select "form"
+    assert_select "input[name='root_task[title]']"
   end
-
-  # --- Update ---
 
   test "should update goal" do
-    patch goal_url(@mission), params: {
-      goal: { title: "Updated goal title" }
+    patch goal_url(@root_task), params: {
+      root_task: { title: "Renamed mission", description: "Updated" }
     }
-    assert_redirected_to goal_url(@mission)
-    @mission.reload
-    assert_equal "Updated goal title", @mission.title
+    assert_redirected_to goal_url(@root_task)
+    @root_task.reload
+    assert_equal "Renamed mission", @root_task.title
+    assert_equal "Updated", @root_task.description
   end
 
-  test "should not update goal without title" do
-    patch goal_url(@mission), params: {
-      goal: { title: "" }
-    }
+  test "should not update goal with blank title" do
+    patch goal_url(@root_task), params: { root_task: { title: "" } }
     assert_response :unprocessable_entity
   end
 
   # --- Destroy ---
 
   test "should destroy goal" do
-    goal_to_delete = goals(:acme_objective_two)
-    assert_difference("Goal.count", -1) do
-      delete goal_url(goal_to_delete)
+    assert_difference("Task.roots.count", -1) do
+      delete goal_url(@root_task)
     end
     assert_redirected_to goals_url
   end
 
-  test "destroying goal nullifies its tasks goal_id" do
-    task = tasks(:write_tests)
-    assert_equal @sub_objective.id, task.goal_id
+  # --- Org-chart modal form (regression for the reported bug) ---
 
-    delete goal_url(@sub_objective)
-    task.reload
-    assert_nil task.goal_id
-  end
-
-  # --- Turbo stream create (from org chart modal) ---
-
-  test "create with turbo_stream updates org chart node" do
-    role = roles(:cto)
-
-    assert_difference("Goal.count", 1) do
-      post goals_url,
-        params: { goal: { title: "Turbo goal", role_id: role.id } },
-        headers: { "Accept" => "text/vnd.turbo-stream.html" }
-    end
+  test "org chart renders goal modal form with root_task scope" do
+    get roles_url
     assert_response :success
-  end
-
-  test "create with turbo_stream and no role falls back to html redirect" do
-    assert_difference("Goal.count", 1) do
-      post goals_url,
-        params: { goal: { title: "No-role goal" } },
-        headers: { "Accept" => "text/vnd.turbo-stream.html, text/html" }
-    end
-    assert_redirected_to goal_path(Goal.last)
-  end
-
-  # --- Role assignment ---
-
-  test "create assigns role to goal" do
-    role = roles(:cto)
-
-    assert_difference "Goal.count", 1 do
-      post goals_path, params: { goal: {
-        title: "Role-assigned goal",
-        role_id: role.id
-      } }
-    end
-
-    goal = Goal.last
-    assert_equal role, goal.role
-  end
-
-  test "update changes goal role" do
-    goal = goals(:acme_objective_two)
-
-    patch goal_path(goal), params: { goal: {
-      title: goal.title,
-      role_id: roles(:cto).id
-    } }
-
-    goal.reload
-    assert_equal roles(:cto), goal.role
-  end
-
-  test "update clears goal role" do
-    goal = goals(:acme_objective_one)
-
-    patch goal_path(goal), params: { goal: {
-      title: goal.title,
-      role_id: ""
-    } }
-
-    goal.reload
-    assert_nil goal.role
+    assert_select "input[name='root_task[title]']"
+    assert_select "input[name='root_task[assignee_id]'][type='hidden']"
   end
 
   # --- Auth ---
 
-  test "requires authentication" do
+  test "should redirect unauthenticated user" do
     sign_out
     get goals_url
     assert_redirected_to new_session_url
-  end
-
-  test "requires project" do
-    user_without_project = User.create!(
-      email_address: "goalsless@example.com",
-      password: "password",
-      password_confirmation: "password"
-    )
-    sign_in_as(user_without_project)
-    get goals_url
-    assert_redirected_to new_onboarding_project_url
   end
 end

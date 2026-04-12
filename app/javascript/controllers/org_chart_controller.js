@@ -2,10 +2,10 @@ import { Controller } from "@hotwired/stimulus"
 
 // Constants for tree layout
 const NODE_WIDTH = 240
-const NODE_HEIGHT = 140
-const HORIZONTAL_GAP = 40
-const VERTICAL_GAP = 80
-const PADDING = 40
+const NODE_HEIGHT = 170
+const HORIZONTAL_GAP = 56
+const VERTICAL_GAP = 96
+const PADDING = 48
 
 // Zoom limits
 const MIN_ZOOM = 0.3
@@ -173,29 +173,36 @@ export default class extends Controller {
 
   buildNodeFallback(node) {
     const wrapper = document.createElement("div")
-    wrapper.className = "org-chart-node-card"
+    wrapper.className = `org-chart-node-card org-chart-node-card--${node.status || "idle"}`
 
-    const header = document.createElement("div")
-    header.className = "org-chart-node-card__header"
+    const meta = document.createElement("div")
+    meta.className = "org-chart-node-card__meta"
 
-    const dot = document.createElement("span")
-    dot.className = `org-chart-node-card__dot org-chart-node-card__dot--${node.status || "idle"}`
-    header.appendChild(dot)
+    const heading = document.createElement("div")
+    heading.className = "org-chart-node-card__heading"
 
     const link = document.createElement("a")
     link.href = node.url
     link.className = "org-chart-node-card__title"
     link.dataset.turboFrame = "_top"
     link.textContent = node.title
-    header.appendChild(link)
+    heading.appendChild(link)
 
-    wrapper.appendChild(header)
+    const dot = document.createElement("span")
+    dot.className = "org-chart-node-card__dot"
+    heading.appendChild(dot)
 
+    meta.appendChild(heading)
+
+    const tags = document.createElement("div")
+    tags.className = "org-chart-node-card__tags"
     const statusSpan = document.createElement("span")
     statusSpan.className = "org-chart-node-card__status"
-    statusSpan.textContent = node.status ? node.status.charAt(0).toUpperCase() + node.status.slice(1) : "Idle"
-    wrapper.appendChild(statusSpan)
+    statusSpan.textContent = (node.status || "idle").toUpperCase()
+    tags.appendChild(statusSpan)
+    meta.appendChild(tags)
 
+    wrapper.appendChild(meta)
     return wrapper
   }
 
@@ -377,13 +384,11 @@ export default class extends Controller {
   openGoalModal(e) {
     e.preventDefault()
     const roleId = e.currentTarget.dataset.roleId
-    const modalWrapper = this.goalModalTargets.find(el => el.dataset.roleId === roleId)
-    if (!modalWrapper) return
+    const wrapper = this.goalModalTargets.find(el => el.dataset.roleId === roleId)
+    const dialog = wrapper?.querySelector("dialog")
+    if (!dialog) return
 
-    // Dispatch open on the modal controller
-    const modalController = this.application.getControllerForElementAndIdentifier(modalWrapper, "modal")
-    if (modalController) {
-      modalController.open()
-    }
+    const modalController = this.application.getControllerForElementAndIdentifier(dialog, "modal")
+    modalController?.open()
   }
 }

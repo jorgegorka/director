@@ -111,18 +111,14 @@ class OpencodeAdapter < BaseAdapter
       prompt = "You have been assigned Task ##{context[:task_id]}"
       prompt += ": #{context[:task_title]}" if context[:task_title].present?
       prompt += "\n\n#{context[:task_description]}" if context[:task_description].present?
-      prompt.strip
-    elsif context[:goal_id].present?
-      prompt = "You have been assigned Goal: #{context[:goal_title]}"
-      prompt += "\n\n#{context[:goal_description]}" if context[:goal_description].present?
 
-      if context[:goal_active_tasks].present?
-        task_list = context[:goal_active_tasks].map { |t| "- Task ##{t[:id]}: #{t[:title]} (#{t[:status]})" }.join("\n")
-        prompt += "\n\nActive Tasks:\n\n#{task_list}"
+      if context[:active_subtasks].present?
+        subtask_list = context[:active_subtasks].map { |t| "- Task ##{t[:id]}: #{t[:title]} (#{t[:status]})" }.join("\n")
+        prompt += "\n\nActive Subtasks:\n\n#{subtask_list}"
       end
       prompt.strip
     else
-      "Check your assigned goals and tasks, then execute the highest-priority work."
+      "Check your assigned tasks with list_my_tasks, then execute the highest-priority work."
     end
   end
 

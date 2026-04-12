@@ -7,7 +7,7 @@ module Tools
     def definition
       {
         name: name,
-        description: "Get full details of a task including messages, subtasks, and goal context.",
+        description: "Get full details of a task including messages and subtasks.",
         inputSchema: {
           type: "object",
           properties: {
@@ -36,18 +36,19 @@ module Tools
         { id: st.id, title: st.title, status: st.status, assignee_id: st.assignee_id }
       end
 
-      result = {
+      {
         id: task.id,
         title: task.title,
         description: task.description,
+        summary: task.summary,
         status: task.status,
         priority: task.priority,
         creator_id: task.creator_id,
         creator_title: task.creator&.title,
         assignee_id: task.assignee_id,
         assignee_title: task.assignee&.title,
-        goal_id: task.goal_id,
         parent_task_id: task.parent_task_id,
+        completion_percentage: task.completion_percentage,
         reviewed_by_id: task.reviewed_by_id,
         reviewed_at: task.reviewed_at&.iso8601,
         cost_cents: task.cost_cents,
@@ -55,17 +56,6 @@ module Tools
         messages: messages,
         subtasks: subtasks
       }
-
-      if task.goal.present?
-        result[:goal] = {
-          id: task.goal.id,
-          title: task.goal.title,
-          description: task.goal.description,
-          completion_percentage: task.goal.completion_percentage
-        }
-      end
-
-      result
     end
   end
 end

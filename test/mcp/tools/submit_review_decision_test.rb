@@ -58,36 +58,33 @@ class Tools::SubmitReviewDecisionTest < ActiveSupport::TestCase
     end
   end
 
-  test "approving the final pending task returns goal_completed hint" do
-    # Flip every other task on fix_login_bug's goal to completed so this
-    # approval will leave the goal at 100%.
-    goal = @task.goal
-    goal.tasks.where.not(id: @task.id).update_all(status: Task.statuses[:completed])
+  test "approving the final pending subtask returns root_task_completed hint" do
+    # Build a root task with @task as its only subtask; approving it brings
+    # the root to 100%.
+    root = Task.create!(title: "Root mission", project: @task.project, creator: roles(:ceo), assignee: @role, status: :in_progress)
+    @task.update_columns(parent_task_id: root.id)
 
     result = @tool.call({ "task_id" => @task.id, "decision" => "approve" })
 
     assert_equal "approved", result[:decision]
-    assert_equal({ id: goal.id, title: goal.title }, result[:goal_completed])
+    assert_equal({ id: root.id, title: root.title }, result[:root_task_completed])
   end
 
-  test "approving a non-final task does not include goal_completed hint" do
-    # Sibling task on the same goal is still in_progress, so approving
-    # fix_login_bug should NOT bring the goal to 100%.
-    other = tasks(:design_homepage)
-    assert_equal @task.goal_id, other.goal_id
-    refute other.completed?
+  test "approving a non-final subtask does not include root_task_completed hint" do
+    root = Task.create!(title: "Root mission", project: @task.project, creator: roles(:ceo), assignee: @role, status: :in_progress)
+    Task.create!(title: "Sibling still running", project: @task.project, creator: @role, assignee: @role, parent_task: root, status: :in_progress)
+    @task.update_columns(parent_task_id: root.id)
 
     result = @tool.call({ "task_id" => @task.id, "decision" => "approve" })
 
     assert_equal "approved", result[:decision]
-    assert_nil result[:goal_completed]
+    assert_nil result[:root_task_completed]
   end
 
-  test "approving a task without a goal does not include goal_completed hint" do
-    @task.update_columns(goal_id: nil)
-
+  test "approving a root task (no parent) does not include root_task_completed hint" do
+    # @task has no parent, so there is no root ancestor to complete.
     result = @tool.call({ "task_id" => @task.id, "decision" => "approve" })
 
-    assert_nil result[:goal_completed]
+    assert_nil result[:root_task_completed]
   end
 end

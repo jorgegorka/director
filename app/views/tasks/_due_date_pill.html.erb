@@ -1,0 +1,43 @@
+<%#
+  Free-input variant of the pill picker. Hosts a native datetime-local input
+  inside the popover; popover_picker_controller syncs changes to the hidden
+  :due_at input and formats the pill label.
+%>
+<%
+  current = form.object.due_at
+  raw_value = current&.strftime("%Y-%m-%dT%H:%M")
+  display = current&.strftime("%b %-d, %Y") || "No due date"
+%>
+<div class="pill-picker"
+     data-controller="popover-picker"
+     data-popover-picker-placeholder-value="No due date"
+     data-popover-picker-format-value="date">
+  <button type="button"
+          class="pill-btn <%= "pill-btn--set" if current.present? %>"
+          data-popover-picker-target="trigger"
+          data-action="click->popover-picker#toggle">
+    <span class="pill-btn__icon" aria-hidden="true"><%= task_pill_icon(:due) %></span>
+    <span class="pill-btn__label" data-popover-picker-target="label"><%= display %></span>
+  </button>
+
+  <%= form.hidden_field :due_at, value: raw_value, data: { popover_picker_target: "input" } %>
+
+  <div class="popover-picker popover-picker--compact" hidden
+       data-popover-picker-target="panel">
+    <input type="datetime-local"
+           class="popover-picker__datetime"
+           value="<%= raw_value %>"
+           data-popover-picker-target="freeInput"
+           data-action="change->popover-picker#applyFreeInput input->popover-picker#applyFreeInput">
+    <div class="popover-picker__actions">
+      <button type="button" class="popover-picker__clear"
+              data-action="click->popover-picker#clear">
+        Clear
+      </button>
+      <button type="button" class="popover-picker__clear"
+              data-action="click->popover-picker#close">
+        Done
+      </button>
+    </div>
+  </div>
+</div>

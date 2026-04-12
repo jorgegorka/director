@@ -1,16 +1,4 @@
 module RolesHelper
-  def options_for_role_select(exclude: nil, scope: :active)
-    base = Current.project.roles
-    base = base.send(scope) unless scope == :all
-    roles = base.roots.order(:title)
-    excluded_ids = exclude ? Set.new([ exclude.id ] + exclude.descendant_ids) : Set.new
-    build_role_options(roles, excluded_ids, 0, scope)
-  end
-
-  def options_for_parent_select(role)
-    options_for_role_select(exclude: role, scope: :all)
-  end
-
   def role_status_badge(role)
     css_class = "status-badge status-badge--#{role.status}"
     tag.span(role.status.humanize, class: css_class)
@@ -46,20 +34,5 @@ module RolesHelper
     else
       tag.span("No gates", class: "gate-indicator gate-indicator--none")
     end
-  end
-
-  private
-
-  def build_role_options(roles, excluded_ids, depth, scope)
-    options = []
-    roles.each do |r|
-      next if excluded_ids.include?(r.id)
-      prefix = "\u00A0\u00A0" * depth
-      options << [ "#{prefix}#{r.title}", r.id ]
-      children = r.children.order(:title)
-      children = children.send(scope) unless scope == :all
-      options.concat(build_role_options(children, excluded_ids, depth + 1, scope))
-    end
-    options
   end
 end

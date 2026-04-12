@@ -14,7 +14,7 @@ markdown: |
   - You are asked to review a plan produced by a reportee
 
   ## Approach
-  1. Scope the assessment: which goal, plan, or time horizon is being assessed? Read the goal via `get_goal_details` if needed
+  1. Scope the assessment: which goal, plan, or time horizon is being assessed? Read the goal via `get_task_details` if needed
   2. Brainstorm risks across every relevant category: technical, operational, financial, compliance, dependency, reputational. Cast a wide net — you can prune later
   3. For each risk, estimate likelihood (low / medium / high) and impact (low / medium / high) with a one-line rationale
   4. Compute a risk score (likelihood × impact). Sort the register by score
@@ -28,4 +28,4 @@ markdown: |
   - The most dangerous risks are usually the ones nobody wants to write down. Write them down
 
   ## Deliverable
-  A risk register posted via `add_message` (and reflected on the goal via `update_goal` if it changes scope or acceptance criteria) containing: risk description, category, likelihood, impact, score, mitigation, owner, and review trigger — plus a short executive note on the top 3 risks.
+  A risk register posted via `add_message` containing: risk description, category, likelihood, impact, score, mitigation, owner, and review trigger — plus a short executive note on the top 3 risks.

@@ -3,8 +3,7 @@ module Tasks
     extend ActiveSupport::Concern
 
     included do
-      after_commit :enqueue_goal_evaluation, on: [ :create, :update ]
-      after_commit :recalculate_goal_completion, on: [ :create, :update, :destroy ]
+      after_commit :enqueue_task_alignment_evaluation, on: [ :create, :update ]
       after_commit :recalculate_parent_task_completion, on: [ :create, :update, :destroy ]
     end
 
@@ -32,22 +31,13 @@ module Tasks
       end
     end
 
-    def enqueue_goal_evaluation
+    def enqueue_task_alignment_evaluation
       return unless saved_change_to_status?
       return unless completed?
-      return unless goal_id.present?
+      return if parent_task_id.nil?
       return if creator&.agent_configured?
 
-      EvaluateGoalAlignmentJob.perform_later(id)
-    end
-
-    def recalculate_goal_completion
-      return unless saved_change_to_status? || saved_change_to_goal_id? || previously_new_record? || destroyed?
-
-      affected_goal_id = goal_id || goal_id_before_last_save
-      return unless affected_goal_id
-
-      RecalculateGoalCompletionJob.perform_later(affected_goal_id)
+      EvaluateTaskAlignmentJob.perform_later(id)
     end
 
     def recalculate_parent_task_completion

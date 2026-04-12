@@ -57,10 +57,10 @@ class HttpAdapter < BaseAdapter
         description: context[:task_description],
         documents: context[:task_documents]
       }.compact : nil,
-      goal: context[:goal_id] ? {
-        id: context[:goal_id],
-        title: context[:goal_title],
-        description: context[:goal_description]
+      root_task: context[:root_task_id] ? {
+        id: context[:root_task_id],
+        title: context[:root_task_title],
+        description: context[:root_task_description]
       } : nil,
       skills: context[:skills].presence,
       resume_session_id: context[:resume_session_id],

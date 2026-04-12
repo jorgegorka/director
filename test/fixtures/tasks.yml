@@ -6,7 +6,6 @@ design_homepage:
   assignee: cto
   status: 1  # in_progress
   priority: 2  # high
-  goal: acme_objective_one
   cost_cents: 1500
 
 fix_login_bug:
@@ -17,7 +16,6 @@ fix_login_bug:
   assignee: developer
   status: 0  # open
   priority: 3  # urgent
-  goal: acme_objective_one
   cost_cents: 800
 
 write_tests:
@@ -27,7 +25,6 @@ write_tests:
   creator: ceo
   status: 0  # open
   priority: 1  # medium
-  goal: acme_sub_objective
   # No assignee -- unassigned task
 
 completed_task:
@@ -39,7 +36,6 @@ completed_task:
   status: 3  # completed
   priority: 1  # medium
   completed_at: <%= 2.days.ago.to_fs(:db) %>
-  goal: acme_sub_objective
   cost_cents: 2200
 
 subtask_one:
@@ -56,9 +52,9 @@ eval_ready_task:
   project: acme
   creator: ceo
   assignee: cto
+  parent_task: design_homepage
   status: 3  # completed
   priority: 1  # medium
-  goal: acme_objective_one
   cost_cents: 1000
   completed_at: <%= 1.hour.ago.to_fs(:db) %>
 
@@ -68,6 +64,7 @@ pending_review_task:
   project: acme
   creator: ceo  # top-level role (no parent) — requires human review
   assignee: cto
+  parent_task: design_homepage
   status: 5  # pending_review
   priority: 2  # high
 

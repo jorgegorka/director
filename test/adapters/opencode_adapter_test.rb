@@ -126,11 +126,11 @@ class OpencodeAdapterTest < ActiveSupport::TestCase
     assert_includes prompt, "Users cannot log in"
   end
 
-  test "build_user_prompt includes goal details when goal present" do
+  test "build_user_prompt includes task details when task has context" do
     context = {
-      goal_id: 1,
-      goal_title: "Improve Performance",
-      goal_description: "Make the app faster"
+      task_id: 1,
+      task_title: "Improve Performance",
+      task_description: "Make the app faster"
     }
     prompt = OpencodeAdapter.send(:build_user_prompt, context)
 
@@ -138,11 +138,11 @@ class OpencodeAdapterTest < ActiveSupport::TestCase
     assert_includes prompt, "Make the app faster"
   end
 
-  test "build_user_prompt includes active tasks when goal has tasks" do
+  test "build_user_prompt includes active subtasks when root task has subtasks" do
     context = {
-      goal_id: 1,
-      goal_title: "Improve Performance",
-      goal_active_tasks: [
+      task_id: 1,
+      task_title: "Improve Performance",
+      active_subtasks: [
         { id: 10, title: "Optimize queries", status: "in_progress" },
         { id: 11, title: "Add caching", status: "pending" }
       ]

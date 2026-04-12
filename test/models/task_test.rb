@@ -363,39 +363,39 @@ class TaskTest < ActiveSupport::TestCase
     end
   end
 
-  # --- Goal evaluation trigger ---
+  # --- Task alignment evaluation trigger ---
 
-  test "enqueues goal evaluation job when task completes with goal and non-agent creator" do
-    goal = goals(:acme_objective_one)
-    task = Task.create!(title: "Eval trigger test", project: @project, creator: @ceo, assignee: @cto, goal: goal, status: :open)
+  test "enqueues task alignment evaluation job when subtask completes with non-agent creator" do
+    root = Task.create!(title: "Mission", project: @project, creator: @ceo, assignee: @cto, status: :open)
+    task = Task.create!(title: "Eval trigger test", project: @project, creator: @ceo, assignee: @cto, parent_task: root, status: :open)
 
-    assert_enqueued_with(job: EvaluateGoalAlignmentJob) do
+    assert_enqueued_with(job: EvaluateTaskAlignmentJob) do
       task.update!(status: :completed)
     end
   end
 
-  test "does not enqueue goal evaluation when creator is an agent-configured role" do
-    goal = goals(:acme_objective_one)
-    task = Task.create!(title: "Agent eval test", project: @project, creator: @cto, assignee: @developer, goal: goal, status: :open)
+  test "does not enqueue task alignment evaluation when creator is an agent-configured role" do
+    root = Task.create!(title: "Mission", project: @project, creator: @ceo, assignee: @cto, status: :open)
+    task = Task.create!(title: "Agent eval test", project: @project, creator: @cto, assignee: @developer, parent_task: root, status: :open)
 
-    assert_no_enqueued_jobs(only: EvaluateGoalAlignmentJob) do
+    assert_no_enqueued_jobs(only: EvaluateTaskAlignmentJob) do
       task.update!(status: :completed)
     end
   end
 
-  test "does not enqueue goal evaluation when task has no goal" do
-    task = Task.create!(title: "No goal trigger test", project: @project, creator: @ceo, assignee: @cto, status: :open)
+  test "does not enqueue task alignment evaluation when task has no parent (root task)" do
+    task = Task.create!(title: "Root task", project: @project, creator: @ceo, assignee: @cto, status: :open)
 
-    assert_no_enqueued_jobs(only: EvaluateGoalAlignmentJob) do
+    assert_no_enqueued_jobs(only: EvaluateTaskAlignmentJob) do
       task.update!(status: :completed)
     end
   end
 
-  test "does not enqueue goal evaluation when task is not completed" do
-    goal = goals(:acme_objective_one)
-    task = Task.create!(title: "Not completed test", project: @project, creator: @ceo, assignee: @cto, goal: goal, status: :open)
+  test "does not enqueue task alignment evaluation when task is not completed" do
+    root = Task.create!(title: "Mission", project: @project, creator: @ceo, assignee: @cto, status: :open)
+    task = Task.create!(title: "Not completed test", project: @project, creator: @ceo, assignee: @cto, parent_task: root, status: :open)
 
-    assert_no_enqueued_jobs(only: EvaluateGoalAlignmentJob) do
+    assert_no_enqueued_jobs(only: EvaluateTaskAlignmentJob) do
       task.update!(status: :in_progress)
     end
   end

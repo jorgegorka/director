@@ -3,7 +3,7 @@ class RolesController < ApplicationController
   before_action :set_role, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    @roles = Current.project.roles.includes(:parent, :children, :skills, :role_category, :goals).order(:title)
+    @roles = Current.project.roles.includes(:parent, :children, :skills, :role_category).order(:title)
     @view = params[:view] || "chart"
 
     if @view == "chart"

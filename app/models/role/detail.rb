@@ -22,20 +22,20 @@ class Role::Detail
     @role_skills_by_skill_id ||= role.role_skills.index_by(&:skill_id)
   end
 
-  def role_goals
-    @role_goals ||= role.goals.ordered
+  def assigned_root_tasks
+    @assigned_root_tasks ||= role.assigned_tasks.roots.by_priority
   end
 
   def eval_total
-    @eval_total ||= role.goal_evaluations.count
+    @eval_total ||= role.task_evaluations.count
   end
 
   def eval_pass_count
-    @eval_pass_count ||= role.goal_evaluations.passed.count
+    @eval_pass_count ||= role.task_evaluations.passed.count
   end
 
   def recent_evaluations
-    @recent_evaluations ||= role.goal_evaluations.order(created_at: :desc).limit(5).includes(:task, :goal)
+    @recent_evaluations ||= role.task_evaluations.order(created_at: :desc).limit(5).includes(:task, :root_task)
   end
 
   def any_evaluations?
