@@ -87,7 +87,7 @@ class Task < ApplicationRecord
   private
 
   def default_assignee_to_creator
-    self.creator ||= project&.roles&.roots&.order(:created_at)&.first
+    self.creator ||= project.roles.roots.order(:created_at).first
     self.assignee ||= creator
   end
 

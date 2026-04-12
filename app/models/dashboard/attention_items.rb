@@ -42,20 +42,19 @@ class Dashboard::AttentionItems
   end
 
   def broadcast_to(project_id)
-    content = if any?
-      ApplicationController.render(
+    if any?
+      Turbo::StreamsChannel.broadcast_update_to(
+        "dashboard_project_#{project_id}",
+        target: "dashboard-attention",
         partial: "dashboard/attention_section",
-        formats: [ :html ],
         locals: { attention: self }
       )
     else
-      ""
+      Turbo::StreamsChannel.broadcast_update_to(
+        "dashboard_project_#{project_id}",
+        target: "dashboard-attention",
+        html: ""
+      )
     end
-
-    Turbo::StreamsChannel.broadcast_update_to(
-      "dashboard_project_#{project_id}",
-      target: "dashboard-attention",
-      html: content
-    )
   end
 end
