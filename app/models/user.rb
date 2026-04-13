@@ -9,6 +9,8 @@ class User < ApplicationRecord
 
   validates :email_address, presence: true, uniqueness: true,
     format: { with: URI::MailTo::EMAIL_REGEXP }
+  validates :timezone, presence: true
+  validate :timezone_must_be_known
 
   def unread_notification_count(project: nil)
     scope = notifications
@@ -23,5 +25,12 @@ class User < ApplicationRecord
 
   def self.find_by_password_reset_token!(token)
     find_signed!(token, purpose: "password_reset")
+  end
+
+  private
+
+  def timezone_must_be_known
+    return if timezone.blank?
+    errors.add(:timezone, "is not a recognized IANA timezone") if ActiveSupport::TimeZone[timezone].nil?
   end
 end

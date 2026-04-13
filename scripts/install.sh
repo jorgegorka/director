@@ -4,9 +4,10 @@
 #
 #   curl -fsSL https://raw.githubusercontent.com/jorgegorka/director/master/scripts/install.sh | sh
 #
-# Installs Docker if missing (Linux only; macOS users are directed to Docker
-# Desktop), pulls the latest Director image from GHCR, and runs it on
-# http://localhost:3000 with a persistent volume for SQLite data.
+# Installs Docker if missing (on Linux via get.docker.com; on macOS via
+# Homebrew using Colima + the docker CLI, falling back to Docker Desktop only
+# if Homebrew is absent), pulls the latest Director image from GHCR, and runs
+# it on http://localhost:3000 with a persistent volume for SQLite data.
 
 set -eu
 
@@ -48,9 +49,23 @@ ensure_docker() {
 
   case "$OS" in
     darwin)
-      say "Docker is required. Install Docker Desktop from:"
+      if command -v brew >/dev/null 2>&1; then
+        say "Docker is not installed. Installing Colima + Docker CLI via Homebrew..."
+        brew install colima docker
+
+        say "Starting Colima (Docker daemon) ..."
+        colima start
+
+        if ! docker info >/dev/null 2>&1; then
+          err "Colima started but the Docker daemon is not reachable. Run 'colima status' to investigate."
+        fi
+        return 0
+      fi
+
+      say "Docker is required and Homebrew is not installed."
+      say "Either install Homebrew (https://brew.sh) and re-run this script,"
+      say "or install Docker Desktop manually from:"
       say "  https://www.docker.com/products/docker-desktop"
-      say "Then re-run this script."
       exit 1
       ;;
     linux)

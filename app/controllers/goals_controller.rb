@@ -22,6 +22,7 @@ class GoalsController < ApplicationController
     @root_task = Current.project.tasks.new(root_task_params)
 
     if @root_task.save
+      apply_recurrence_choice(@root_task)
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
@@ -43,6 +44,7 @@ class GoalsController < ApplicationController
 
   def update
     if @root_task.update(root_task_params)
+      apply_recurrence_choice(@root_task)
       redirect_to goal_path(@root_task), notice: "Goal '#{@root_task.title}' has been updated."
     else
       render :edit, status: :unprocessable_entity
@@ -63,5 +65,21 @@ class GoalsController < ApplicationController
 
   def root_task_params
     params.require(:root_task).permit(:title, :description, :creator_id, :priority)
+  end
+
+  def apply_recurrence_choice(goal)
+    if recurrence_requested?
+      goal.make_recurrent(**recurrence_params, timezone: Current.user.timezone)
+    elsif goal.recurring?
+      goal.stop_recurring
+    end
+  end
+
+  def recurrence_requested?
+    ActiveModel::Type::Boolean.new.cast(params[:recurrent])
+  end
+
+  def recurrence_params
+    params.require(:recurrence).permit(:interval, :unit, :anchor_date, :anchor_hour).to_h.symbolize_keys
   end
 end

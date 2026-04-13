@@ -180,6 +180,30 @@ class GoalsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to goals_url
   end
 
+  # --- Recurrence on create/update ---
+
+  test "create with recurrent flag stores recurrence settings" do
+    post goals_url, params: {
+      root_task: { title: "Weekly digest", creator_id: @cto.id },
+      recurrent: "1",
+      recurrence: { interval: "1", unit: "week", anchor_date: "2026-04-20", anchor_hour: "9" }
+    }
+    goal = Task.roots.order(:created_at).last
+    assert goal.recurring?
+    assert_equal "week", goal.recurrence_unit
+    assert_equal 1, goal.recurrence_interval
+    assert_equal @user.timezone, goal.recurrence_timezone
+  end
+
+  test "update without recurrent flag stops an existing recurrence" do
+    @root_task.make_recurrent(interval: 1, unit: "week", anchor_date: "2026-04-20", anchor_hour: 9, timezone: "UTC")
+    patch goal_url(@root_task), params: {
+      root_task: { title: @root_task.title }
+    }
+    @root_task.reload
+    assert_not @root_task.recurring?
+  end
+
   # --- Org-chart modal form (regression for the reported bug) ---
 
   test "org chart renders goal modal form with root_task scope" do

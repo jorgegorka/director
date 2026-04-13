@@ -9,6 +9,7 @@ class Role < ApplicationRecord
   include Roles::Budgeting
   include Roles::Broadcasting
   include Roles::PromptBuilder
+  include Roles::Heartbeats
 
   belongs_to :role_category
 
@@ -38,7 +39,6 @@ class Role < ApplicationRecord
   before_validation :inherit_parent_working_directory, on: :create
   before_validation :inherit_parent_adapter, on: :create
   before_destroy :reparent_children
-  after_commit :sync_heartbeat_schedule, if: :heartbeat_config_changed?
   after_create_commit :audit_created
   before_destroy :audit_destroyed
 
@@ -61,10 +61,6 @@ class Role < ApplicationRecord
 
   def offline?
     !online?
-  end
-
-  def heartbeat_scheduled?
-    heartbeat_enabled? && heartbeat_interval.present?
   end
 
   def latest_session_id
@@ -115,14 +111,6 @@ class Role < ApplicationRecord
     return unless parent
     self.adapter_type ||= parent.adapter_type
     self.adapter_config = parent.adapter_config if adapter_config.blank? && parent.adapter_config.present?
-  end
-
-  def heartbeat_config_changed?
-    saved_change_to_heartbeat_interval? || saved_change_to_heartbeat_enabled?
-  end
-
-  def sync_heartbeat_schedule
-    Heartbeats::ScheduleManager.sync(self)
   end
 
   def reparent_children

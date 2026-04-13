@@ -18,4 +18,21 @@ class UserTest < ActiveSupport::TestCase
     count = user.unread_notification_count(project: project)
     assert count >= 0
   end
+
+  test "default timezone is UTC" do
+    assert_equal "UTC", users(:one).timezone
+  end
+
+  test "accepts a known timezone" do
+    user = users(:one)
+    user.timezone = "Europe/Madrid"
+    assert user.valid?
+  end
+
+  test "rejects an unknown timezone" do
+    user = users(:one)
+    user.timezone = "Mars/Olympus"
+    assert_not user.valid?
+    assert_includes user.errors[:timezone], "is not a recognized IANA timezone"
+  end
 end

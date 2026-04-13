@@ -8,6 +8,7 @@ class Task < ApplicationRecord
   include Tasks::CompletionTracking
   include Tasks::Reviewing
   include Tasks::Assignment
+  include Tasks::Recurrence
 
   belongs_to :creator, class_name: "Role"
   belongs_to :assignee, class_name: "Role"

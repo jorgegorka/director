@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_13_002443) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_14_120001) do
   create_table "approval_gates", force: :cascade do |t|
     t.string "action_type", null: false
     t.datetime "created_at", null: false
@@ -290,6 +290,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_13_002443) do
     t.integer "heartbeat_interval"
     t.text "job_spec"
     t.datetime "last_heartbeat_at"
+    t.datetime "next_heartbeat_at"
     t.bigint "parent_id"
     t.text "pause_reason"
     t.datetime "paused_at"
@@ -300,6 +301,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_13_002443) do
     t.datetime "updated_at", null: false
     t.string "working_directory"
     t.index ["api_token"], name: "index_roles_on_api_token", unique: true
+    t.index ["next_heartbeat_at"], name: "index_roles_on_next_heartbeat_at"
     t.index ["parent_id"], name: "index_roles_on_parent_id"
     t.index ["project_id", "title"], name: "index_roles_on_project_id_and_title", unique: true
     t.index ["project_id"], name: "index_roles_on_project_id"
@@ -397,9 +399,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_13_002443) do
     t.bigint "creator_id", null: false
     t.text "description"
     t.datetime "due_at"
+    t.datetime "next_recurrence_at"
     t.bigint "parent_task_id"
     t.integer "priority", default: 1, null: false
     t.bigint "project_id", null: false
+    t.datetime "recurrence_anchor_at"
+    t.integer "recurrence_interval"
+    t.datetime "recurrence_last_fired_at"
+    t.string "recurrence_timezone"
+    t.integer "recurrence_unit"
     t.datetime "reviewed_at"
     t.integer "reviewed_by_id"
     t.integer "status", default: 0, null: false
@@ -409,6 +417,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_13_002443) do
     t.index ["assignee_id", "status"], name: "index_tasks_on_assignee_id_and_status"
     t.index ["assignee_id"], name: "index_tasks_on_assignee_id"
     t.index ["creator_id"], name: "index_tasks_on_creator_id"
+    t.index ["next_recurrence_at"], name: "index_tasks_on_next_recurrence_at"
     t.index ["parent_task_id"], name: "index_tasks_on_parent_task_id"
     t.index ["project_id", "status"], name: "index_tasks_on_project_id_and_status"
     t.index ["project_id"], name: "index_tasks_on_project_id"
@@ -419,6 +428,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_13_002443) do
     t.datetime "created_at", null: false
     t.string "email_address", null: false
     t.string "password_digest", null: false
+    t.string "timezone", default: "UTC", null: false
     t.datetime "updated_at", null: false
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
   end

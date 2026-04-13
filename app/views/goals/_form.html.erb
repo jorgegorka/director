@@ -34,6 +34,43 @@
     <p class="form__hint">The role responsible for this goal. Completed subtasks will be evaluated against it.</p>
   </div>
 
+  <fieldset class="form__fieldset" data-controller="recurrence-toggle">
+    <%
+      describer = Tasks::RecurrenceDescriber.new(root_task) if root_task.recurring?
+      anchor_local = root_task.recurrence_anchor_at&.in_time_zone(root_task.recurrence_timezone || Current.user.timezone)
+    %>
+
+    <div class="form__field form__field--inline">
+      <%= check_box_tag :recurrent, "1", root_task.recurring?,
+            data: { recurrence_toggle_target: "enable", action: "recurrence-toggle#toggle" } %>
+      <%= label_tag :recurrent, "Make recurrent" %>
+    </div>
+
+    <div data-recurrence-toggle-target="fields" <%= "hidden" unless root_task.recurring? %>>
+      <div class="form__field">
+        <%= label_tag "recurrence_anchor_date", "First due" %>
+        <div class="form__row">
+          <%= date_field_tag "recurrence[anchor_date]", anchor_local&.to_date,
+                id: "recurrence_anchor_date", class: "form__input" %>
+          <%= select_tag "recurrence[anchor_hour]",
+                options_for_select((0..23).map { |h| [ format("%02d:00", h), h ] }, anchor_local&.hour || 9),
+                class: "form__select" %>
+        </div>
+      </div>
+
+      <div class="form__field">
+        <%= label_tag "recurrence_interval", "Repeats every" %>
+        <div class="form__row">
+          <%= number_field_tag "recurrence[interval]", root_task.recurrence_interval || 1,
+                id: "recurrence_interval", min: 1, max: 365, class: "form__input form__input--small" %>
+          <%= select_tag "recurrence[unit]",
+                options_for_select([ %w[day day], %w[week week], %w[month month] ], root_task.recurrence_unit || "week"),
+                class: "form__select" %>
+        </div>
+      </div>
+    </div>
+  </fieldset>
+
   <div class="form__actions">
     <%= f.submit root_task.persisted? ? "Update Goal" : "Create Goal", class: "btn btn--primary" %>
     <button type="button" class="btn btn--ghost" data-action="modal#close">Cancel</button>

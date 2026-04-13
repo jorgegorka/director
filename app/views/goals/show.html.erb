@@ -39,6 +39,14 @@
         <span>Assigned to: <%= link_to @root_task.assignee.title, role_path(@root_task.assignee) %></span>
       </div>
     <% end %>
+    <% if @root_task.recurring? %>
+      <div class="goal-detail__recurrence">
+        <span><%= Tasks::RecurrenceDescriber.new(@root_task).to_sentence %></span>
+        <%= button_to "Stop recurrence", goal_recurrence_path(@root_task), method: :delete,
+              class: "btn btn--ghost btn--xs",
+              data: { turbo_confirm: "Stop recurrence for '#{@root_task.title}'?" } %>
+      </div>
+    <% end %>
   </div>
 
   <div class="goal-detail__body">

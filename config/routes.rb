@@ -88,7 +88,9 @@ Rails.application.routes.draw do
   end
 
   # Goals (scoped to active project via Current.project)
-  resources :goals
+  resources :goals do
+    resource :recurrence, module: :goals, only: [ :destroy ]
+  end
 
   # Notifications (scoped to active project via Current.project)
   resources :notifications, only: [ :index ] do
