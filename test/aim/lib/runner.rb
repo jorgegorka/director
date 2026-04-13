@@ -11,7 +11,7 @@ module AIM
 
     ToolCallCapture = Struct.new(:tool, :params, keyword_init: true)
 
-    DEFAULT_MAX_TURNS = 10
+    DEFAULT_MAX_TURNS = 75
 
     def initialize(scenarios)
       @scenarios = scenarios

@@ -5,7 +5,7 @@ module SubAgents
   # only a narrow tool set (selected by tool_scope). Its one job is to take
   # a single agentic decision on the orchestrator's behalf.
   class Base
-    DEFAULT_MAX_TURNS = 8
+    DEFAULT_MAX_TURNS = 30
 
     attr_reader :role, :arguments, :parent_role_run
 
