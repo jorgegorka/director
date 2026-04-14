@@ -31,7 +31,7 @@
   <ul>
     <li><strong>Ruby 3.3+</strong></li>
     <li><strong>SQLite 3.35+</strong> — Director uses SQLite for everything: primary database, Solid Queue, Solid Cache, and Solid Cable</li>
-    <li><strong>tmux</strong> — required for local adapters (Claude Code and OpenCode) which run agent sessions in isolated tmux panes</li>
+    <li><strong>tmux</strong> — required for local adapters (Claude Code, OpenCode, and Codex) which run agent sessions in isolated tmux panes</li>
   </ul>
   <p>No PostgreSQL, Redis, or other external services required. Director is designed to run self-contained on a single machine.</p>
 
@@ -67,12 +67,12 @@ bin/setup</code></pre>
   <p>For local agent adapters, you'll need API keys for the AI providers you plan to use:</p>
   <ul>
     <li><strong><code>ANTHROPIC_API_KEY</code></strong> — required for Claude Code adapter (Anthropic provider)</li>
-    <li><strong><code>OPENAI_API_KEY</code></strong> — for OpenCode with OpenAI models</li>
+    <li><strong><code>OPENAI_API_KEY</code></strong> — for OpenCode with OpenAI models and the Codex adapter (alternative: <code>CODEX_API_KEY</code>)</li>
     <li><strong><code>GEMINI_API_KEY</code></strong> — for OpenCode with Gemini models</li>
     <li><strong><code>GROQ_API_KEY</code></strong> — for OpenCode with Groq models</li>
   </ul>
   <p>Set these in your shell environment or in a <code>.env</code> file. Director forwards the relevant keys to agent processes automatically.</p>
-  <p>If you want to run fully offline, both the Claude Code and OpenCode adapters support <strong>Ollama</strong> as a provider. Configure the adapter's <code>provider</code> to <code>ollama</code> and point <code>base_url</code> at your local Ollama server — no API keys required.</p>
+  <p>If you want to run fully offline, the Claude Code, OpenCode, and Codex adapters all support <strong>Ollama</strong> as a provider. Configure the adapter's <code>provider</code> to <code>ollama</code> and point <code>base_url</code> at your local Ollama server — no API keys required.</p>
 
   <h2 id="production-deployment">Production Deployment</h2>
   <p>Director ships with a <strong>Dockerfile</strong> and <strong>Kamal</strong> configuration for production deployment. Kamal handles container building, deployment, and zero-downtime restarts.</p>

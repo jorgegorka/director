@@ -1,0 +1,100 @@
+/* ============================================================
+   GOAL-SPECIFIC FORM PIECES
+   Piggybacks on .task-form + .pill-btn. Adds the inline
+   recurrence row shown under the pill row.
+   ============================================================ */
+@layer components {
+  .goal-recurrence {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+    padding-block: var(--space-3);
+    border-block-end: 1px solid var(--border-subtle);
+
+    &[hidden] { display: none; }
+  }
+
+  .goal-recurrence__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 1.75rem;
+    block-size: 1.75rem;
+    border-radius: 999px;
+    border: 1px solid var(--border-subtle);
+    color: var(--text-subtle);
+    flex-shrink: 0;
+
+    & svg {
+      inline-size: 1rem;
+      block-size: 1rem;
+    }
+  }
+
+  .goal-recurrence__label {
+    font-size: var(--font-size-sm);
+    color: var(--text-subtle);
+    font-weight: 500;
+  }
+
+  .goal-recurrence__date,
+  .goal-recurrence__interval,
+  .goal-recurrence__unit {
+    padding-block: var(--space-1);
+    padding-inline: var(--space-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background-color: var(--bg-body);
+    color: var(--text-base);
+    font-size: var(--font-size-sm);
+    font-family: inherit;
+    color-scheme: dark light;
+
+    &:focus {
+      outline: none;
+      border-color: var(--color-brand-500);
+      box-shadow: 0 0 0 3px var(--glow-brand);
+    }
+  }
+
+  .goal-recurrence__interval {
+    inline-size: 4rem;
+    text-align: center;
+  }
+
+  .goal-recurrence__clear {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 1.75rem;
+    block-size: 1.75rem;
+    margin-inline-start: auto;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: var(--font-size-lg);
+    line-height: 1;
+    transition:
+      background-color var(--transition-fast),
+      color var(--transition-fast);
+
+    &:hover {
+      background-color: var(--color-neutral-100);
+      color: var(--text-base);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px var(--glow-brand);
+    }
+  }
+
+  @media (max-width: 40rem) {
+    .goal-recurrence__clear {
+      margin-inline-start: 0;
+    }
+  }
+}

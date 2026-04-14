@@ -7,6 +7,7 @@
     <li><a href="#http-api" class="docs-toc__link">HTTP API</a></li>
     <li><a href="#claude-code-local" class="docs-toc__link">Claude Code (Local)</a></li>
     <li><a href="#opencode" class="docs-toc__link">OpenCode</a></li>
+    <li><a href="#openai-codex-local" class="docs-toc__link">OpenAI Codex (Local)</a></li>
     <li><a href="#shell-command" class="docs-toc__link">Shell Command</a></li>
     <li><a href="#configuration-inheritance" class="docs-toc__link">Configuration Inheritance</a></li>
     <li><a href="#execution-flow" class="docs-toc__link">Execution Flow</a></li>
@@ -23,7 +24,7 @@
 <div class="prose">
   <h2 id="what-are-adapters">What are Adapters?</h2>
   <p>An adapter is the bridge between a role and the AI model that fulfills it. Until you configure an adapter, a role is just a position on the org chart. Once configured, it becomes a live agent that Director can execute, monitor, and govern.</p>
-  <p>Director ships with four adapter types, each suited to different deployment scenarios. Every adapter receives the same execution context — task details, mission context from the root task, skills — and returns a standardized result with exit code, cost, and optional session ID.</p>
+  <p>Director ships with five adapter types, each suited to different deployment scenarios. Every adapter receives the same execution context — task details, mission context from the root task, skills — and returns a standardized result with exit code, cost, and optional session ID.</p>
 
   <h2 id="http-api">HTTP API</h2>
   <p>Connect to a cloud-hosted agent via HTTP POST requests. Best for agents running on external infrastructure or behind an API gateway.</p>
@@ -92,6 +93,35 @@
   <h3>Provider API keys</h3>
   <p>OpenCode supports many providers. Director forwards the relevant API key environment variables automatically — <code>OPENAI_API_KEY</code>, <code>ANTHROPIC_API_KEY</code>, <code>GEMINI_API_KEY</code>, <code>GROQ_API_KEY</code>, and cloud provider credentials for AWS, Azure, and Vertex AI.</p>
 
+  <h2 id="openai-codex-local">OpenAI Codex (Local)</h2>
+  <p>Run the Codex CLI locally with a streaming JSON event log and session resumption. Targets OpenAI's hosted API by default, or an OpenAI-compatible local server like Ollama.</p>
+
+  <h3>Required configuration</h3>
+  <ul>
+    <li><strong><code>model</code></strong> — the Codex model to use (e.g., <code>gpt-5-codex</code>, <code>gpt-5</code>, <code>o4-mini</code>, <code>gpt-4.1</code>)</li>
+  </ul>
+
+  <h3>Optional configuration</h3>
+  <ul>
+    <li><strong><code>provider</code></strong> — <code>openai</code> (default) or <code>ollama</code> for local models</li>
+    <li><strong><code>base_url</code></strong> — custom API base URL (defaults to <code>http://localhost:11434/v1</code> for Ollama)</li>
+    <li><strong><code>sandbox</code></strong> — filesystem sandbox policy: <code>workspace-write</code>, <code>read-only</code>, or <code>danger-full-access</code></li>
+    <li><strong><code>approval</code></strong> — command approval policy: <code>never</code>, <code>on-request</code>, <code>on-failure</code>, or <code>untrusted</code></li>
+    <li><strong><code>max_turns</code></strong> — limit the number of conversation turns per execution</li>
+  </ul>
+
+  <h3>Key features</h3>
+  <ul>
+    <li><strong>Session resumption</strong> — Director tracks Codex session IDs and resumes via <code>codex exec resume</code> on subsequent runs</li>
+    <li><strong>Cost tracking</strong> — parses <code>total_cost_usd</code>, <code>usage.cost_usd</code>, or <code>cost_usd</code> from the event stream and converts to cents for budget enforcement</li>
+    <li><strong>MCP integration</strong> — each role gets its own <code>CODEX_HOME</code> with an auto-generated <code>config.toml</code> pointing Codex at Director's MCP server</li>
+    <li><strong>Sandbox &amp; approval controls</strong> — per-role guardrails on filesystem writes and command execution</li>
+    <li><strong>Streaming output</strong> — JSON events are captured and broadcast to the role run view in real time</li>
+  </ul>
+
+  <h3>Provider API keys</h3>
+  <p>With the OpenAI provider, Director forwards <code>OPENAI_API_KEY</code> (or <code>CODEX_API_KEY</code>) to the Codex process. With the Ollama provider, no API key is needed — just point <code>base_url</code> at your local Ollama server.</p>
+
   <h2 id="shell-command">Shell Command</h2>
   <p>Run a local script or CLI tool via shell command. Useful for custom agent implementations or wrapping non-standard tools.</p>
 
@@ -121,7 +151,7 @@
     <li><strong>Record result</strong> — store exit code, cost, and session ID on the role run</li>
     <li><strong>Return to idle</strong> — reset role status and dispatch any throttled runs</li>
   </ol>
-  <p>For local adapters (Claude Code and OpenCode), execution happens inside an isolated tmux session. Director polls the session output every 500ms, streaming it to the role run view in real time. Sessions time out after 5 minutes or after 60 seconds of no output.</p>
+  <p>For local adapters (Claude Code, OpenCode, and Codex), execution happens inside an isolated tmux session. Director polls the session output every 500ms, streaming it to the role run view in real time. Sessions time out after 5 minutes or after 60 seconds of no output.</p>
 
   <h2 id="error-handling">Error Handling</h2>
   <p>When an adapter execution fails, Director:</p>
@@ -131,5 +161,5 @@
     <li>Posts a system comment to the task explaining the failure</li>
     <li>Attempts to escalate to the role's manager — walking up the org chart to find the nearest online supervisor</li>
   </ol>
-  <p>Local adapters (Claude Code and OpenCode) include an additional retry for transient failures like stalls or missing result events. Budget exhaustion is checked before execution and raises immediately without consuming any resources.</p>
+  <p>Local adapters (Claude Code, OpenCode, and Codex) include an additional retry for transient failures like stalls or missing result events. Budget exhaustion is checked before execution and raises immediately without consuming any resources.</p>
 </div>

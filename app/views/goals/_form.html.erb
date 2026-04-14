@@ -1,6 +1,19 @@
-<%= form_with(model: root_task, scope: :root_task, url: root_task.persisted? ? goal_path(root_task) : goals_path, class: "form") do |f| %>
+<%#
+  Linear-style goal form. Mirrors tasks/_form.html.erb (hero title + pills)
+  and adds an inline recurrence row specific to goals (root tasks).
+%>
+<%
+  anchor_local = root_task.recurrence_anchor_at&.in_time_zone(root_task.recurrence_timezone || Current.user.timezone)
+  recurring = root_task.recurring?
+%>
+<%= form_with(model: root_task,
+              scope: :root_task,
+              url: root_task.persisted? ? goal_path(root_task) : goals_path,
+              class: "task-form",
+              data: { turbo_frame: "_top" }) do |f| %>
   <% if root_task.errors.any? %>
-    <div class="form__errors">
+    <div class="form__errors" role="alert">
+      <p><strong><%= pluralize(root_task.errors.count, "error") %> prohibited this goal from being saved:</strong></p>
       <ul>
         <% root_task.errors.full_messages.each do |msg| %>
           <li><%= msg %></li>
@@ -9,70 +22,72 @@
     </div>
   <% end %>
 
-  <div class="form__field">
-    <%= f.label :title, "Title" %>
-    <%= f.text_field :title, required: true %>
-  </div>
+  <%= f.text_field :title,
+        class: "task-form__title",
+        required: true,
+        autofocus: true,
+        placeholder: "Goal title" %>
 
-  <div class="form__field">
-    <%= f.label :description, "Description" %>
-    <%= f.text_area :description, rows: 4 %>
-  </div>
+  <%= f.text_area :description,
+        class: "task-form__description",
+        rows: 3,
+        placeholder: "Add a description…" %>
 
-  <div class="form__field">
-    <%= f.label :priority, "Priority" %>
-    <%= f.select :priority, Task.priorities.keys.map { |p| [ p.humanize, p ] }, {}, { class: "form__select" } %>
-  </div>
+  <div class="task-form__pills"
+       data-controller="goal-recurrence">
+    <%= render "tasks/pill",
+          form: f,
+          attribute: :priority,
+          icon: task_pill_icon(:priority),
+          placeholder: "No priority",
+          options: options_for_task_priority %>
 
-  <div class="form__field">
-    <%= f.label :creator_id, "Assigned Role" %>
-    <%= f.collection_select :creator_id,
-          Current.project.roles.active.order(:title),
-          :id, :title,
-          { prompt: "Select a role" },
-          { class: "form__select" } %>
-    <p class="form__hint">The role responsible for this goal. Completed subtasks will be evaluated against it.</p>
-  </div>
+    <%= render "tasks/pill",
+          form: f,
+          attribute: :creator_id,
+          icon: task_pill_icon(:creator),
+          placeholder: "No owner",
+          options: options_for_role_pill_select,
+          searchable: true %>
 
-  <fieldset class="form__fieldset" data-controller="recurrence-toggle">
-    <%
-      describer = Tasks::RecurrenceDescriber.new(root_task) if root_task.recurring?
-      anchor_local = root_task.recurrence_anchor_at&.in_time_zone(root_task.recurrence_timezone || Current.user.timezone)
-    %>
+    <button type="button"
+            class="pill-btn"
+            data-goal-recurrence-target="trigger"
+            data-action="click->goal-recurrence#enable">
+      <span class="pill-btn__icon" aria-hidden="true"><%= goal_pill_icon(:recurring) %></span>
+      <span class="pill-btn__label">Recurring</span>
+    </button>
 
-    <div class="form__field form__field--inline">
-      <%= check_box_tag :recurrent, "1", root_task.recurring?,
-            data: { recurrence_toggle_target: "enable", action: "recurrence-toggle#toggle" } %>
-      <%= label_tag :recurrent, "Make recurrent" %>
+    <%= hidden_field_tag :recurrent, recurring ? "1" : "0",
+          data: { goal_recurrence_target: "flag" } %>
+
+    <div class="goal-recurrence"
+         data-goal-recurrence-target="row"
+         <%= "hidden" unless recurring %>>
+      <span class="goal-recurrence__icon" aria-hidden="true"><%= goal_pill_icon(:recurring) %></span>
+      <span class="goal-recurrence__label">First due</span>
+      <%= date_field_tag "recurrence[anchor_date]", anchor_local&.to_date,
+            class: "goal-recurrence__date",
+            data: { goal_recurrence_target: "date" } %>
+      <%= hidden_field_tag "recurrence[anchor_hour]", anchor_local&.hour || 9 %>
+      <span class="goal-recurrence__label">repeats every</span>
+      <%= number_field_tag "recurrence[interval]", root_task.recurrence_interval || 1,
+            min: 1, max: 365,
+            class: "goal-recurrence__interval",
+            data: { goal_recurrence_target: "interval" } %>
+      <%= select_tag "recurrence[unit]",
+            options_for_select([ %w[day day], %w[week week], %w[month month] ], root_task.recurrence_unit || "week"),
+            class: "goal-recurrence__unit",
+            data: { goal_recurrence_target: "unit" } %>
+      <button type="button"
+              class="goal-recurrence__clear"
+              aria-label="Remove recurrence"
+              data-action="click->goal-recurrence#clear">×</button>
     </div>
+  </div>
 
-    <div data-recurrence-toggle-target="fields" <%= "hidden" unless root_task.recurring? %>>
-      <div class="form__field">
-        <%= label_tag "recurrence_anchor_date", "First due" %>
-        <div class="form__row">
-          <%= date_field_tag "recurrence[anchor_date]", anchor_local&.to_date,
-                id: "recurrence_anchor_date", class: "form__input" %>
-          <%= select_tag "recurrence[anchor_hour]",
-                options_for_select((0..23).map { |h| [ format("%02d:00", h), h ] }, anchor_local&.hour || 9),
-                class: "form__select" %>
-        </div>
-      </div>
-
-      <div class="form__field">
-        <%= label_tag "recurrence_interval", "Repeats every" %>
-        <div class="form__row">
-          <%= number_field_tag "recurrence[interval]", root_task.recurrence_interval || 1,
-                id: "recurrence_interval", min: 1, max: 365, class: "form__input form__input--small" %>
-          <%= select_tag "recurrence[unit]",
-                options_for_select([ %w[day day], %w[week week], %w[month month] ], root_task.recurrence_unit || "week"),
-                class: "form__select" %>
-        </div>
-      </div>
-    </div>
-  </fieldset>
-
-  <div class="form__actions">
-    <%= f.submit root_task.persisted? ? "Update Goal" : "Create Goal", class: "btn btn--primary" %>
+  <div class="task-form__footer">
     <button type="button" class="btn btn--ghost" data-action="modal#close">Cancel</button>
+    <%= f.submit root_task.persisted? ? "Update goal" : "Create goal", class: "btn btn--primary" %>
   </div>
 <% end %>

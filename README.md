@@ -2,7 +2,7 @@
 
 Open-source orchestration platform for AI agents. Define roles, assign work, enforce budgets, and keep humans in the loop — at any scale.
 
-Managing multiple AI agents gets messy fast. They run in different tabs, lose context between sessions, burn through money with no oversight, and nobody knows what any of them are actually doing. Director fixes this by giving you a structured orchestration layer — define roles in an org chart, assign AI agents to them through pluggable adapters (HTTP, CLI, Claude, OpenCode), and let them work autonomously within budgets, approval gates, and human oversight. It works for a solo developer automating a side project, a team running a single department, or a full organization with dozens of specialized agents.
+Managing multiple AI agents gets messy fast. They run in different tabs, lose context between sessions, burn through money with no oversight, and nobody knows what any of them are actually doing. Director fixes this by giving you a structured orchestration layer — define roles in an org chart, assign AI agents to them through pluggable adapters (HTTP, CLI, Claude, OpenCode, Codex), and let them work autonomously within budgets, approval gates, and human oversight. It works for a solo developer automating a side project, a team running a single department, or a full organization with dozens of specialized agents.
 
 <img width="969" height="661" alt="Direct a team of AI Agents" src="https://github.com/user-attachments/assets/ccdceb18-22cb-4fd8-b589-48e49b69dbe4" />
 
@@ -42,12 +42,13 @@ A role starts as an empty position in the org chart. It becomes AI-powered when 
 
 ### Hiring and adapters
 
-Hiring a role means connecting it to an AI service through one of four adapters:
+Hiring a role means connecting it to an AI service through one of five adapters:
 
 - **HTTP** — sends tasks to any AI service via web requests. Director posts a JSON payload to a URL you configure and handles the response, including automatic retries with increasing wait times if something fails.
 - **Process** — runs a command-line program on the server. Useful for local scripts or CLI-based AI tools.
 - **Claude Local** — launches a Claude session in a dedicated terminal window, streams the output in real time, and enforces budget limits before each run starts. You can configure a **working directory** so the role operates in the right project context, and pick **Anthropic or Ollama** as the provider to run local or hosted models.
 - **OpenCode** — runs the OpenCode CLI locally in a dedicated tmux session, streams its JSON output into the run log, and enforces budget checks before execution. Supports a configurable working directory, model, and `max_turns`, and can target **Anthropic or Ollama** as the provider for fully local operation.
+- **Codex** — runs the OpenAI Codex CLI locally in a dedicated tmux session, streams its JSON event log into the run view, and enforces budget checks before execution. Targets **OpenAI or Ollama** as the provider, resumes sessions across runs, and exposes per-role **sandbox** and **approval** policies to control filesystem writes and command execution.
 
 Once hired, roles have a lifecycle you control directly. You can **pause** a role (with a reason), **resume** it, **terminate** it permanently, or **manually wake it up** to start working on demand. If a role tries to do something that requires approval, it enters a **pending approval** state until a human approves or rejects the action.
 
