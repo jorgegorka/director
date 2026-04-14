@@ -19,11 +19,15 @@ class RolesController < ApplicationController
   def new
     @role = Current.project.roles.new(new_role_defaults)
     @role_categories = Current.project.role_categories.order(:name)
+    @library_roles = RoleLibrary::Registry.all
+    @library_key = params[:library_key].presence
+    apply_library_prefill(@role, @library_key) if @library_key
     @reparent_child_id = reparent_child_id
   end
 
   def create
     @role = Current.project.roles.new(role_params)
+    library_key = params[:library_key].presence
 
     if reparent_child_id.present?
       child = Current.project.roles.find(reparent_child_id)
@@ -32,9 +36,12 @@ class RolesController < ApplicationController
       @role.save!
     end
 
+    assign_library_skills(@role, library_key) if library_key
     redirect_to @role, notice: "#{@role.title} has been created."
   rescue ActiveRecord::RecordInvalid
     @role_categories = Current.project.role_categories.order(:name)
+    @library_roles = RoleLibrary::Registry.all
+    @library_key = params[:library_key].presence
     @reparent_child_id = reparent_child_id
     render :new, status: :unprocessable_entity
   end
@@ -100,5 +107,29 @@ class RolesController < ApplicationController
       :budget_dollars, :auto_hire_enabled,
       adapter_config: {}
     )
+  end
+
+  def apply_library_prefill(role, library_key)
+    library_role = RoleLibrary::Registry.find(library_key)
+    role.title         = library_role.title
+    role.description   = library_role.description
+    role.job_spec      = library_role.job_spec
+    role.role_category = Current.project.role_categories.find_by(name: library_role.category)
+  rescue RoleLibrary::Registry::RoleNotFound
+    # Silently ignore unknown library keys — leave the form as-is.
+  end
+
+  def assign_library_skills(role, library_key)
+    library_role = RoleLibrary::Registry.find(library_key)
+    return if library_role.skill_keys.empty?
+
+    skills_by_key = Current.project.skills.where(key: library_role.skill_keys).index_by(&:key)
+    records = library_role.skill_keys.filter_map do |key|
+      skill = skills_by_key[key]
+      { role_id: role.id, skill_id: skill.id } if skill
+    end
+    RoleSkill.insert_all(records) if records.any?
+  rescue RoleLibrary::Registry::RoleNotFound
+    # Unknown library key — nothing to attach.
   end
 end

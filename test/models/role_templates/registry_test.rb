@@ -84,11 +84,23 @@ class RoleTemplates::RegistryTest < ActiveSupport::TestCase
 
   test "role exposes expected attributes" do
     role = RoleTemplates::Registry.find("marketing").roles.first
+    assert_kind_of String, role.role_key
     assert_kind_of String, role.title
     assert_kind_of String, role.description
     assert_kind_of String, role.job_spec
     assert_kind_of Array, role.skill_keys
     assert_kind_of String, role.category
+  end
+
+  test "template role content is resolved from library" do
+    template_role = RoleTemplates::Registry.find("engineering").roles.find { |r| r.role_key == "cto" }
+    library_role  = RoleLibrary::Registry.find("cto")
+
+    assert_equal library_role.title,       template_role.title
+    assert_equal library_role.description, template_role.description
+    assert_equal library_role.job_spec,    template_role.job_spec
+    assert_equal library_role.category,    template_role.category
+    assert_equal library_role.skill_keys,  template_role.skill_keys
   end
 
   test "all template roles have a valid category" do

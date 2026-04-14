@@ -4,7 +4,7 @@ module RoleTemplates
     class InvalidTemplate < StandardError; end
 
     Template = Data.define(:key, :name, :description, :roles)
-    TemplateRole = Data.define(:title, :description, :job_spec, :parent, :skill_keys, :category)
+    TemplateRole = Data.define(:role_key, :title, :description, :job_spec, :parent, :skill_keys, :category)
 
     class << self
       def all
@@ -41,14 +41,22 @@ module RoleTemplates
 
       def load_template(file)
         data = YAML.load_file(file)
-        roles = data.fetch("roles").map do |role_data|
+        entries = data.fetch("roles")
+        titles_by_role_key = resolve_titles(file, entries)
+
+        roles = entries.map do |entry|
+          role_key = entry.fetch("role_key")
+          parent_key = entry["parent_key"]
+          library_role = fetch_library_role(file, role_key)
+
           TemplateRole.new(
-            title: role_data.fetch("title"),
-            description: role_data.fetch("description"),
-            job_spec: role_data.fetch("job_spec"),
-            parent: role_data["parent"],
-            skill_keys: role_data.fetch("skill_keys"),
-            category: role_data["category"]
+            role_key: role_key,
+            title: library_role.title,
+            description: library_role.description,
+            job_spec: library_role.job_spec,
+            parent: parent_key.present? ? titles_by_role_key.fetch(parent_key) : nil,
+            skill_keys: library_role.skill_keys,
+            category: library_role.category
           )
         end
 
@@ -62,17 +70,41 @@ module RoleTemplates
         raise InvalidTemplate, "Invalid template #{File.basename(file)}: missing #{e.message}"
       end
 
+      def resolve_titles(file, entries)
+        entries.each_with_object({}) do |entry, acc|
+          role_key = entry.fetch("role_key")
+          library_role = fetch_library_role(file, role_key)
+          acc[role_key] = library_role.title
+        end
+      end
+
+      def fetch_library_role(file, role_key)
+        RoleLibrary::Registry.find(role_key)
+      rescue RoleLibrary::Registry::RoleNotFound
+        raise InvalidTemplate,
+          "Template #{File.basename(file)} references unknown library role '#{role_key}'. " \
+          "Add db/seeds/roles/#{role_key}.yml or fix the reference."
+      end
+
       def validate_parent_ordering!(template)
-        seen_titles = Set.new
+        seen_role_keys = Set.new
         template.roles.each do |role|
-          if role.parent.present? && !seen_titles.include?(role.parent)
+          entry_parent_key = parent_role_key(template, role)
+          if entry_parent_key.present? && !seen_role_keys.include?(entry_parent_key)
             raise InvalidTemplate,
               "Template '#{template.key}' has invalid parent ordering: " \
-              "'#{role.title}' references parent '#{role.parent}' which has not been defined yet. " \
+              "'#{role.role_key}' references parent '#{entry_parent_key}' which has not been defined yet. " \
               "Parents must appear before children in the roles array."
           end
-          seen_titles << role.title
+          seen_role_keys << role.role_key
         end
+      end
+
+      def parent_role_key(template, template_role)
+        return nil if template_role.parent.nil?
+
+        match = template.roles.find { |r| r.title == template_role.parent }
+        match&.role_key
       end
     end
   end

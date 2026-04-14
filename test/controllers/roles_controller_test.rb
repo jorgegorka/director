@@ -81,6 +81,58 @@ class RolesControllerTest < ActionDispatch::IntegrationTest
     assert_select "select[name='role[parent_id]']"
   end
 
+  test "new form exposes library picker with every library role" do
+    get new_role_url
+    assert_response :success
+    assert_select "form.form--library-picker select[name='library_key']" do
+      assert_select "option", minimum: RoleLibrary::Registry.all.size
+    end
+  end
+
+  test "new with library_key pre-fills title description category and job_spec" do
+    get new_role_url, params: { library_key: "tech_planner" }
+    assert_response :success
+    library_role = RoleLibrary::Registry.find("tech_planner")
+    assert_select "input[name='role[title]'][value=?]", library_role.title
+    assert_select "textarea[name='role[description]']", text: /#{Regexp.escape(library_role.description.strip)}/m
+    assert_select "textarea[name='role[job_spec]']", text: /#{Regexp.escape("You are the Tech Planner")}/
+    planner_category = @project.role_categories.find_by!(name: library_role.category)
+    assert_select "select[name='role[role_category_id]']" do
+      assert_select "option[selected][value=?]", planner_category.id.to_s
+    end
+    assert_select "input[type=hidden][name=library_key][value='tech_planner']"
+  end
+
+  test "new with unknown library_key silently renders blank form" do
+    get new_role_url, params: { library_key: "nonexistent_library_role" }
+    assert_response :success
+    assert_select "input[name='role[title]']" do |inputs|
+      assert_empty inputs.first["value"].to_s
+    end
+  end
+
+  test "create with library_key attaches matching project skills" do
+    post roles_url, params: {
+      role: { title: "Tech Planner", role_category_id: role_categories(:planner).id },
+      library_key: "tech_planner"
+    }
+    role = Role.order(:created_at).last
+    assert_equal "Tech Planner", role.title
+    library_skill_keys = RoleLibrary::Registry.find("tech_planner").skill_keys
+    expected_keys = @project.skills.where(key: library_skill_keys).pluck(:key)
+    attached_keys = role.skills.pluck(:key).sort
+    assert_equal expected_keys.sort, attached_keys
+    assert attached_keys.any?, "expected at least one attached skill"
+  end
+
+  test "create without library_key attaches no library skills" do
+    assert_difference("RoleSkill.count", 0) do
+      post roles_url, params: {
+        role: { title: "Plain Role", role_category_id: role_categories(:worker).id }
+      }
+    end
+  end
+
   test "should create role" do
     assert_difference("Role.count", 1) do
       post roles_url, params: {

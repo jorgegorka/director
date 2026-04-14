@@ -1,5 +1,30 @@
+<% if role.new_record? && @library_roles.present? %>
+  <%= form_with url: new_role_path, method: :get, class: "form form--library-picker", data: { controller: "auto-submit" } do %>
+    <% if role.parent_id.present? %>
+      <%= hidden_field_tag "role[parent_id]", role.parent_id %>
+    <% end %>
+    <% if local_assigns[:reparent_child_id].present? %>
+      <%= hidden_field_tag :reparent_child_id, reparent_child_id %>
+    <% end %>
+
+    <div class="form__field">
+      <%= label_tag :library_key, "Start from library role" %>
+      <%= select_tag :library_key,
+            options_for_select(
+              [ [ "— blank (start from scratch) —", "" ] ] +
+                @library_roles.map { |r| [ r.title, r.key ] },
+              @library_key
+            ),
+            class: "form__select",
+            data: { action: "change->auto-submit#submit" } %>
+      <p class="form__hint">Pick a pre-defined role to pre-fill title, category, description, and job specification below.</p>
+    </div>
+  <% end %>
+<% end %>
+
 <%= form_with(model: role, class: "form", data: { controller: "adapter-config" }) do |f| %>
   <%= hidden_field_tag :reparent_child_id, reparent_child_id if local_assigns[:reparent_child_id].present? %>
+  <%= hidden_field_tag :library_key, @library_key if @library_key.present? %>
 
   <% if role.errors.any? %>
     <div class="form__errors" role="alert">
