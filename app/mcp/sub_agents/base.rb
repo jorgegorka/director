@@ -58,5 +58,25 @@ module SubAgents
     def build_input_summary
       arguments.to_json
     end
+
+    # Queue this sub-agent class to run in a background job and return the
+    # newly-created queued SubAgentInvocation. Both the orchestrator-facing
+    # MCP wrapper and any in-process chain (e.g. ReviewTask → SummarizeTask)
+    # go through here so the queue/dispatch contract lives in one place.
+    def self.enqueue(role:, arguments:, parent_role_run:, input_summary: nil)
+      invocation = SubAgentInvocation.enqueue!(
+        role_run: parent_role_run,
+        sub_agent_name: sub_agent_name,
+        input_summary: input_summary
+      )
+      SubAgentJob.perform_later(
+        invocation.id,
+        name,
+        role.id,
+        arguments,
+        parent_role_run.id
+      )
+      invocation
+    end
   end
 end

@@ -88,6 +88,10 @@ namespace :aim do
       tools = r.tool_calls.map(&:tool).join(", ")
       puts "  [#{icon}] #{r.scenario_id} — tools: #{tools.presence || 'none'} (#{r.duration_seconds&.round(1)}s)"
       Array(r.assertion_failures).each { |f| puts "         - #{f}" }
+      if r.tool_errors.to_i > 0
+        first = r.first_tool_error
+        puts "         tool errors: #{r.tool_errors}#{first ? " (first: #{first[:tool]} — #{first[:error]&.to_s&.truncate(120)})" : ""}"
+      end
       puts "         ERROR: #{r.error}" if r.error
     end
 
@@ -106,10 +110,14 @@ namespace :aim do
         role_title: r.role_title,
         category: r.category,
         message: r.message,
-        tool_calls: r.tool_calls.map { |tc| { tool: tc.tool, params: tc.params } },
+        tool_calls: r.tool_calls.map { |tc|
+          { tool: tc.tool, params: tc.params, is_error: tc.is_error, error_text: tc.error_text }.compact
+        },
         response: r.response,
         cost_cents: r.cost_cents,
         duration_seconds: r.duration_seconds,
+        tool_errors: r.tool_errors,
+        first_tool_error: r.first_tool_error,
         error: r.error
       }
     end

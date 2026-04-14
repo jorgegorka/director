@@ -23,7 +23,13 @@ class DirectorServer
       Tools::AddMessage,
       Tools::GetTaskDetails,
       Tools::SearchDocuments,
-      Tools::GetDocument
+      Tools::GetDocument,
+
+      # Poll tools for the sub-agent background jobs the orchestrator kicks
+      # off above. Sub-agent wrappers return a queued handle; these let the
+      # orchestrator check the outcome on later turns without blocking.
+      Tools::GetSubAgentInvocation,
+      Tools::ListSubAgentInvocations
     ],
     sub_agent_create_task: [
       Tools::GetTaskDetails,

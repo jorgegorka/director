@@ -45,6 +45,7 @@ All roles use `claude_local` adapter with `claude-sonnet-4-20250514`.
 | AIM: SWOT analysis of current product | in_progress | CEO | VP Strategy | planner_simple_analysis |
 | AIM: Pricing strategy recommendation | in_progress | CEO | VP Strategy | planner_mixed_complexity |
 | AIM: Write executive brief on AI market trends | in_progress | CEO | VP Strategy | planner_submits_work |
+| AIM: Summarize SaaS pricing tiers | in_progress | CEO | VP Strategy | planner_filesystem_prohibited |
 | AIM: Q2 strategic market assessment | pending_review | CEO | VP Strategy | orch_no_self_review |
 
 Every scenario has its own dedicated task — no sharing between scenarios.

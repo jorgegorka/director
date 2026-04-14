@@ -37,7 +37,10 @@ class DirectorServerTest < ActiveSupport::TestCase
     assert_includes tool_names, "search_documents"
     assert_includes tool_names, "get_document"
 
-    assert_equal 12, tools.size
+    assert_includes tool_names, "get_sub_agent_invocation"
+    assert_includes tool_names, "list_sub_agent_invocations"
+
+    assert_equal 14, tools.size
   end
 
   test "sub-agent wrapper tools resolve the parent role_run and expose a valid MCP definition" do

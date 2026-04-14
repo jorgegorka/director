@@ -80,6 +80,28 @@ class SubAgents::RunnerTest < ActiveSupport::TestCase
     assert_equal 105, @role_run.reload.cost_cents
   end
 
+  test "accepts pre-created queued invocation: flips to running, then completed" do
+    stdout = stream_json([
+      { type: "assistant", message: { content: [ { type: "text", text: "done" } ] } },
+      { type: "result", session_id: "sess_kw", total_cost_usd: 0.004, subtype: "success" }
+    ])
+
+    invocation = SubAgentInvocation.enqueue!(
+      role_run: @role_run,
+      sub_agent_name: "stub",
+      input_summary: "kwarg path"
+    )
+    assert invocation.queued?
+
+    with_stubbed_runner(stdout) do |runner|
+      runner.run(@sub_agent, invocation: invocation)
+    end
+
+    assert invocation.reload.completed?
+    # No extra invocation row was created -- the pre-existing one was reused.
+    assert_equal 1, SubAgentInvocation.where(sub_agent_name: "stub").count
+  end
+
   test "no result event -- ClaudeLocalAdapter.parse_result raises and Runner records the failure" do
     stdout = stream_json([
       { type: "assistant", message: { content: [ { type: "text", text: "hi" } ] } }

@@ -276,6 +276,20 @@ class AIMSeed
         priority: :medium
       )
 
+      # Task 14: in_progress — for planner_filesystem_prohibited scenario.
+      # Dedicated task so the full-suite run can't pollute its state (was sharing
+      # "AIM: Analyze competitor pricing models" with planner_direct_work).
+      Task.create!(
+        project: @project,
+        title: "AIM: Summarize SaaS pricing tiers",
+        description: "#{TAG} Research common SaaS pricing tier structures (free, team, business, enterprise) and summarize typical price points, feature gates, and target segments for each tier. One-page summary.",
+        creator: @ceo,
+        assignee: @vp_strategy,
+        parent_task: mission,
+        status: :in_progress,
+        priority: :medium
+      )
+
       # Task 13: in_progress — for planner_escalates_permission_error scenario.
       # Description instructs posting on "AIM: Launch onboarding redesign" — a
       # separate root mission VP Strategy has no assignments under. Posting there
@@ -349,7 +363,7 @@ class AIMSeed
       warnings << "Expected 6 roles, found #{aim_roles}" unless aim_roles == 6
 
       aim_tasks = @project.tasks.where("description LIKE ?", "%#{TAG}%").count
-      warnings << "Expected 16 tasks, found #{aim_tasks}" unless aim_tasks == 16
+      warnings << "Expected 17 tasks, found #{aim_tasks}" unless aim_tasks == 17
 
       aim_missions = @project.tasks.roots.where("description LIKE ?", "%#{TAG}%").count
       warnings << "Expected 3 missions, found #{aim_missions}" unless aim_missions == 3

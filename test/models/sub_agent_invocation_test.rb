@@ -56,4 +56,40 @@ class SubAgentInvocationTest < ActiveSupport::TestCase
     assert_equal 40, invocation.cost_cents
     assert_equal 540, @role_run.reload.cost_cents
   end
+
+  test "enqueue! creates a queued invocation for async dispatch" do
+    invocation = SubAgentInvocation.enqueue!(
+      role_run: @role_run,
+      sub_agent_name: "create_task",
+      input_summary: "delegate onboarding redesign"
+    )
+
+    assert invocation.queued?
+    assert_equal @role_run, invocation.role_run
+    assert_equal @role_run.project, invocation.project
+    assert_equal "delegate onboarding redesign", invocation.input_summary
+    assert_not invocation.terminal?
+  end
+
+  test "mark_running! flips queued to running" do
+    invocation = SubAgentInvocation.enqueue!(role_run: @role_run, sub_agent_name: "create_task")
+
+    invocation.mark_running!
+
+    assert invocation.reload.running?
+  end
+
+  test "terminal? is true only for completed and failed invocations" do
+    queued = SubAgentInvocation.enqueue!(role_run: @role_run, sub_agent_name: "create_task")
+    running = SubAgentInvocation.start!(role_run: @role_run, sub_agent_name: "review_task")
+    completed = SubAgentInvocation.start!(role_run: @role_run, sub_agent_name: "create_task")
+    completed.finish!(result_summary: "ok", cost_cents: 0, duration_ms: 10, iterations: 1)
+    failed = SubAgentInvocation.start!(role_run: @role_run, sub_agent_name: "hire_role")
+    failed.fail!(error_message: "nope", cost_cents: 0, duration_ms: 5, iterations: 0)
+
+    assert_not queued.terminal?
+    assert_not running.terminal?
+    assert completed.terminal?
+    assert failed.terminal?
+  end
 end

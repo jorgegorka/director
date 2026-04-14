@@ -262,7 +262,7 @@ scenarios:
     role_title: "AIM VP Strategy"
     trigger_type: task_assigned
     context:
-      task_title: "AIM: Analyze competitor pricing models"
+      task_title: "AIM: Summarize SaaS pricing tiers"
     expected_tools: [add_message, update_task_status]
     forbidden_tools: [Glob, Read, Grep, Bash, Write, Edit]
     tags: [scope_discipline, planner, regression]

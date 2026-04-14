@@ -7,9 +7,10 @@ module AIM
     Result = Struct.new(:scenario_id, :status, :role_title, :category, :message,
                         :tool_calls, :response, :cost_cents,
                         :duration_seconds, :error, :verdict, :assertion_failures,
+                        :tool_errors, :first_tool_error,
                         keyword_init: true)
 
-    ToolCallCapture = Struct.new(:tool, :params, keyword_init: true)
+    ToolCallCapture = Struct.new(:tool, :params, :tool_use_id, :is_error, :error_text, keyword_init: true)
 
     DEFAULT_MAX_TURNS = 75
 
@@ -92,6 +93,8 @@ module AIM
 
         failures = evaluate_assertions(scenario, tool_calls_captured)
         verdict = failures.empty? ? "pass" : "fail"
+        errored = tool_calls_captured.select { |c| c.is_error }
+        first_error = errored.first
 
         Result.new(
           scenario_id: scenario[:id],
@@ -104,7 +107,9 @@ module AIM
           cost_cents: result_meta[:cost_cents],
           duration_seconds: duration.round(2),
           verdict: verdict,
-          assertion_failures: failures
+          assertion_failures: failures,
+          tool_errors: errored.size,
+          first_tool_error: first_error && { tool: first_error.tool, error: first_error.error_text }
         )
       rescue => e
         duration = Process.clock_gettime(Process::CLOCK_MONOTONIC) - start_time
@@ -199,24 +204,48 @@ module AIM
         }
       end
 
-      # Extract tool_use blocks from assistant events in stream-json output.
+      # Extract tool_use blocks from assistant events AND correlate them with
+      # their tool_result blocks from user events. The MCP layer surfaces
+      # failures via `is_error: true` on the tool_result; without correlating
+      # we'd mark a scenario PASS just because the tool name appeared, even
+      # when the MCP call came back "Connection closed" or similar.
       def extract_tool_calls(lines)
         calls = []
+        by_id = {}
+
         lines.each do |line|
           next if line.blank?
           event = JSON.parse(line) rescue next
 
-          next unless event["type"] == "assistant"
-
-          content = event.dig("message", "content") || event["content"]
-          Array(content).each do |block|
-            next unless block.is_a?(Hash) && block["type"] == "tool_use"
-            calls << ToolCallCapture.new(
-              tool: block["name"],
-              params: block["input"]
-            )
+          case event["type"]
+          when "assistant"
+            content = event.dig("message", "content") || event["content"]
+            Array(content).each do |block|
+              next unless block.is_a?(Hash) && block["type"] == "tool_use"
+              capture = ToolCallCapture.new(
+                tool: block["name"],
+                params: block["input"],
+                tool_use_id: block["id"],
+                is_error: nil,
+                error_text: nil
+              )
+              calls << capture
+              by_id[block["id"]] = capture if block["id"]
+            end
+          when "user"
+            content = event.dig("message", "content") || event["content"]
+            Array(content).each do |block|
+              next unless block.is_a?(Hash) && block["type"] == "tool_result"
+              capture = by_id[block["tool_use_id"]]
+              next unless capture
+              capture.is_error = block["is_error"] == true
+              if capture.is_error
+                capture.error_text = Array(block["content"]).first&.dig("text") || block["content"].to_s
+              end
+            end
           end
         end
+
         calls
       end
 
@@ -243,25 +272,32 @@ module AIM
       # summary.
       def evaluate_assertions(scenario, tool_calls)
         failures = []
-        names = tool_calls.map { |tc| normalize_tool_name(tc.tool) }
+        # Successful (or ack'd non-error) calls satisfy `expected_tools` and
+        # `allow_either` assertions -- a tool call whose MCP response was
+        # `is_error: true` (e.g. "Connection closed") must not count as the
+        # tool having been invoked. Forbidden-tool assertions count every
+        # attempt regardless of error, because a forbidden call that failed
+        # still indicates the LLM tried it.
+        successful_names = tool_calls.reject { |tc| tc.is_error }.map { |tc| normalize_tool_name(tc.tool) }
+        all_names = tool_calls.map { |tc| normalize_tool_name(tc.tool) }
 
         Array(scenario[:expected_tools]).each do |tool|
           target = normalize_tool_name(tool)
-          unless names.include?(target)
-            failures << "expected tool not called: #{tool}"
+          unless successful_names.include?(target)
+            failures << "expected tool not called (or only errored): #{tool}"
           end
         end
 
         Array(scenario[:forbidden_tools]).each do |tool|
           target = normalize_tool_name(tool)
-          if names.include?(target)
+          if all_names.include?(target)
             failures << "forbidden tool called: #{tool}"
           end
         end
 
         assertions = scenario[:assertions] || {}
         if (max = assertions[:search_documents_max_calls])
-          count = names.count { |n| n == "search_documents" }
+          count = all_names.count { |n| n == "search_documents" }
           if count > max
             failures << "search_documents called #{count}×, max allowed #{max}"
           end
@@ -281,9 +317,9 @@ module AIM
 
         if (groups = assertions[:allow_either])
           normalized_groups = Array(groups).map { |g| Array(g).map { |t| normalize_tool_name(t) } }
-          satisfied = normalized_groups.any? { |group| group.all? { |t| names.include?(t) } }
+          satisfied = normalized_groups.any? { |group| group.all? { |t| successful_names.include?(t) } }
           unless satisfied
-            failures << "allow_either: none of #{normalized_groups.inspect} were fully satisfied (observed: #{names.uniq.inspect})"
+            failures << "allow_either: none of #{normalized_groups.inspect} were fully satisfied (observed non-errored: #{successful_names.uniq.inspect})"
           end
         end
 

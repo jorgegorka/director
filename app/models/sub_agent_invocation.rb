@@ -3,7 +3,7 @@ class SubAgentInvocation < ApplicationRecord
 
   belongs_to :role_run
 
-  enum :status, { running: 0, completed: 1, failed: 2 }
+  enum :status, { running: 0, completed: 1, failed: 2, queued: 3 }
 
   validates :sub_agent_name, presence: true
   validates :cost_cents, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
@@ -21,6 +21,44 @@ class SubAgentInvocation < ApplicationRecord
       status: :running,
       input_summary: input_summary
     )
+  end
+
+  # Creates a queued invocation for async dispatch. The background job
+  # transitions it to :running via #mark_running! and then to :completed /
+  # :failed through #finish! / #fail!.
+  def self.enqueue!(role_run:, sub_agent_name:, input_summary: nil)
+    create!(
+      role_run: role_run,
+      project: role_run.project,
+      sub_agent_name: sub_agent_name,
+      status: :queued,
+      input_summary: input_summary
+    )
+  end
+
+  def mark_running!
+    update!(status: :running)
+  end
+
+  def terminal?
+    completed? || failed?
+  end
+
+  # Stable serialization used by orchestrator-facing MCP poll tools
+  # (get_sub_agent_invocation, list_sub_agent_invocations).
+  def as_tool_payload
+    {
+      id: id,
+      sub_agent: sub_agent_name,
+      status: status,
+      input_summary: input_summary,
+      result_summary: result_summary,
+      error_message: error_message,
+      cost_cents: cost_cents,
+      duration_ms: duration_ms,
+      created_at: created_at&.iso8601,
+      updated_at: updated_at&.iso8601
+    }
   end
 
   # Marks the invocation successful and atomically rolls its cost up into the

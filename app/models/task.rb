@@ -65,6 +65,33 @@ class Task < ApplicationRecord
     parent_task_id.nil?
   end
 
+  # Returns the root task that should receive an auto-summary because approval
+  # of this subtask just completed every sibling, or nil if no summary is due.
+  def auto_summarizable_root
+    return nil if root?
+    root = root_ancestor
+    total = root.subtasks.count
+    return nil if total.zero?
+    return nil unless root.subtasks.completed.count == total
+    return nil if root.summary.present?
+    root
+  end
+
+  # Enqueues a SummarizeTask sub-agent for the just-completed root, if one
+  # is due. Called after a successful ReviewTask so the orchestrator never
+  # has to remember to summarize.
+  def chain_auto_summary_later!(parent_role_run:)
+    root = auto_summarizable_root
+    return unless root
+    SubAgents::SummarizeTask.enqueue(
+      role: parent_role_run.role,
+      arguments: { "task_id" => root.id },
+      parent_role_run: parent_role_run,
+      input_summary: "task_id=#{root.id}"
+    )
+    root
+  end
+
   def descendant_ids
     ids = []
     frontier = [ id ]

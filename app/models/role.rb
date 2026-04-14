@@ -67,6 +67,14 @@ class Role < ApplicationRecord
     pick_session(role_runs)
   end
 
+  # Prefer a currently-running run (the active session driving this work);
+  # otherwise the most recent run. Used by MCP tools that need to attribute
+  # follow-up activity to "this role's current session".
+  def active_or_latest_run
+    role_runs.where(status: :running).order(created_at: :desc).first ||
+      role_runs.order(created_at: :desc).first
+  end
+
   def latest_session_id_for(task)
     return latest_session_id if task.nil?
 

@@ -18,11 +18,12 @@ module SubAgents
   class Runner
     class ExecutionError < StandardError; end
 
-    def run(sub_agent)
-      invocation = nil
+    def run(sub_agent, invocation: nil)
       started_at = nil
 
-      if sub_agent.parent_role_run
+      if invocation
+        invocation.mark_running! if invocation.queued?
+      elsif sub_agent.parent_role_run
         invocation = SubAgentInvocation.start!(
           role_run: sub_agent.parent_role_run,
           sub_agent_name: sub_agent.class.sub_agent_name,
