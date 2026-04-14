@@ -35,9 +35,20 @@ module RolesHelper
     [ "GLM 5", "glm-5" ]
   ]).freeze
 
+  CODEX_MODELS = [
+    [ "GPT-5 Codex", "gpt-5-codex" ],
+    [ "GPT-5", "gpt-5" ],
+    [ "o4-mini", "o4-mini" ],
+    [ "GPT-4.1", "gpt-4.1" ]
+  ].freeze
+
+  DEFAULT_CODEX_MODEL = "gpt-5-codex".freeze
+
   def claude_model_options = CLAUDE_MODELS
   def opencode_model_options = OPENCODE_MODELS
+  def codex_model_options = CODEX_MODELS
   def default_claude_model = DEFAULT_CLAUDE_MODEL
+  def default_codex_model = DEFAULT_CODEX_MODEL
 
   def gate_description(action_type)
     descriptions = {

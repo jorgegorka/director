@@ -133,6 +133,47 @@
         </div>
       </fieldset>
 
+      <!-- Codex adapter config fields -->
+      <fieldset class="form__fieldset" data-adapter-config-target="configGroup" data-adapter-type="codex">
+        <legend>OpenAI Codex Configuration</legend>
+        <div class="form__field">
+          <%= label_tag "adapter_config_codex_provider", "Provider" %>
+          <%= select_tag "adapter_config[provider]",
+                options_for_select([
+                  [ "OpenAI (hosted API)", "openai" ],
+                  [ "Ollama (local, OpenAI-compatible)", "ollama" ]
+                ], "openai"),
+                id: "adapter_config_codex_provider",
+                class: "form__select",
+                data: { provider_select: "", action: "change->adapter-config#toggleProvider" } %>
+        </div>
+
+        <div data-provider-value="openai">
+          <div class="form__field">
+            <%= label_tag "adapter_config_codex_model", "Model" %>
+            <%= select_tag "adapter_config[model]",
+                  options_for_select(codex_model_options, default_codex_model),
+                  id: "adapter_config_codex_model",
+                  class: "form__select" %>
+          </div>
+        </div>
+
+        <div data-provider-value="ollama">
+          <div class="form__field">
+            <%= label_tag "adapter_config_codex_base_url", "Ollama base URL" %>
+            <%= text_field_tag "adapter_config[base_url]",
+                  "http://localhost:11434/v1",
+                  id: "adapter_config_codex_base_url" %>
+          </div>
+          <div class="form__field">
+            <%= label_tag "adapter_config_codex_model_ollama", "Model" %>
+            <%= text_field_tag "adapter_config[model]", nil,
+                  placeholder: "e.g. gpt-oss-20b",
+                  id: "adapter_config_codex_model_ollama" %>
+          </div>
+        </div>
+      </fieldset>
+
       <div class="form__actions">
         <%= link_to "Back", new_onboarding_template_path, class: "btn btn--ghost" %>
         <%= f.submit "Continue", class: "btn btn--primary" %>

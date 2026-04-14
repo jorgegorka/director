@@ -3,7 +3,7 @@ module Roles
     extend ActiveSupport::Concern
 
     included do
-      enum :adapter_type, { http: 0, process: 1, claude_local: 2, opencode: 3 }
+      enum :adapter_type, { http: 0, process: 1, claude_local: 2, opencode: 3, codex: 4 }
 
       scope :agent_configured, -> { where.not(adapter_type: nil) }
 

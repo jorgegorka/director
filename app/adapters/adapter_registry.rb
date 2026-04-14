@@ -3,7 +3,8 @@ class AdapterRegistry
     "http" => HttpAdapter,
     "process" => ProcessAdapter,
     "claude_local" => ClaudeLocalAdapter,
-    "opencode" => OpencodeAdapter
+    "opencode" => OpencodeAdapter,
+    "codex" => CodexAdapter
   }.freeze
 
   def self.for(adapter_type)

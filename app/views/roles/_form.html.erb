@@ -212,6 +212,87 @@
     </div>
   </fieldset>
 
+  <!-- Codex adapter config fields -->
+  <% codex_provider = role.adapter_config&.dig("provider").presence || "openai" %>
+  <fieldset class="form__fieldset" data-adapter-config-target="configGroup" data-adapter-type="codex">
+    <legend>OpenAI Codex Configuration</legend>
+
+    <div class="form__field">
+      <%= label_tag "role_adapter_config_codex_provider", "Provider" %>
+      <%= select_tag "role[adapter_config][provider]",
+            options_for_select([
+              [ "OpenAI (hosted API)", "openai" ],
+              [ "Ollama (local, OpenAI-compatible)", "ollama" ]
+            ], codex_provider),
+            id: "role_adapter_config_codex_provider",
+            class: "form__select",
+            data: { provider_select: "", action: "change->adapter-config#toggleProvider" } %>
+    </div>
+
+    <div data-provider-value="openai">
+      <div class="form__field">
+        <%= label_tag "role_adapter_config_codex_model", "Model" %>
+        <%= select_tag "role[adapter_config][model]",
+              options_for_select(codex_model_options, role.adapter_config&.dig("model") || default_codex_model),
+              id: "role_adapter_config_codex_model",
+              class: "form__select" %>
+      </div>
+    </div>
+
+    <div data-provider-value="ollama">
+      <div class="form__field">
+        <%= label_tag "role_adapter_config_codex_base_url", "Ollama base URL" %>
+        <%= text_field_tag "role[adapter_config][base_url]",
+              role.adapter_config&.dig("base_url") || "http://localhost:11434/v1",
+              id: "role_adapter_config_codex_base_url" %>
+        <p class="form__hint">OpenAI-compatible endpoint exposed by your local Ollama server (note the <code>/v1</code> suffix).</p>
+      </div>
+      <div class="form__field">
+        <%= label_tag "role_adapter_config_codex_model_ollama", "Model" %>
+        <%= text_field_tag "role[adapter_config][model]",
+              role.adapter_config&.dig("model"),
+              placeholder: "e.g. gpt-oss-20b",
+              id: "role_adapter_config_codex_model_ollama" %>
+      </div>
+    </div>
+
+    <div class="form__field">
+      <%= label_tag "role_adapter_config_codex_sandbox", "Sandbox (optional)" %>
+      <%= select_tag "role[adapter_config][sandbox]",
+            options_for_select([
+              [ "Default (workspace-write)", "" ],
+              [ "Read-only", "read-only" ],
+              [ "Workspace write", "workspace-write" ],
+              [ "Danger: full access", "danger-full-access" ]
+            ], role.adapter_config&.dig("sandbox")),
+            id: "role_adapter_config_codex_sandbox",
+            class: "form__select" %>
+    </div>
+
+    <div class="form__field">
+      <%= label_tag "role_adapter_config_codex_approval", "Approval mode (optional)" %>
+      <%= select_tag "role[adapter_config][approval]",
+            options_for_select([
+              [ "Default (never)", "" ],
+              [ "Never", "never" ],
+              [ "On request", "on-request" ],
+              [ "On failure", "on-failure" ],
+              [ "Untrusted", "untrusted" ]
+            ], role.adapter_config&.dig("approval")),
+            id: "role_adapter_config_codex_approval",
+            class: "form__select" %>
+    </div>
+
+    <div class="form__field">
+      <%= label_tag "role_adapter_config_codex_max_turns", "Max Turns (optional)" %>
+      <%= number_field_tag "role[adapter_config][max_turns]",
+            role.adapter_config&.dig("max_turns"),
+            placeholder: "25",
+            min: 1,
+            id: "role_adapter_config_codex_max_turns" %>
+    </div>
+  </fieldset>
+
   <!-- Heartbeat Schedule Configuration -->
   <fieldset class="form__fieldset">
     <legend>Heartbeat Schedule</legend>
