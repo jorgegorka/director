@@ -240,7 +240,8 @@ module AIM
               next unless capture
               capture.is_error = block["is_error"] == true
               if capture.is_error
-                capture.error_text = Array(block["content"]).first&.dig("text") || block["content"].to_s
+                first = Array(block["content"]).first
+                capture.error_text = (first.is_a?(Hash) ? first["text"] : first) || block["content"].to_s
               end
             end
           end
